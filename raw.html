@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Twitch plays Claude</title>
+<title>🥐 BAKERY DEFENSE FPS 🔫</title>
 <style>
         body { 
             font-family: system-ui, sans-serif; 
@@ -238,6 +238,140 @@
             color: #888;
             font-style: italic;
         }
+        .crosshair {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            z-index: 100;
+            pointer-events: none;
+        }
+        .crosshair::before, .crosshair::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 50, 50, 0.9);
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+        }
+        .crosshair::before {
+            width: 2px;
+            height: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .crosshair::after {
+            height: 2px;
+            width: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .crosshair-dot {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #ff3333;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 15px rgba(255, 0, 0, 1);
+        }
+        .hud {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 50;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+        }
+        .hud-item {
+            background: rgba(0, 20, 0, 0.7);
+            border: 2px solid rgba(0, 255, 0, 0.5);
+            padding: 8px 15px;
+            margin: 5px 0;
+            border-radius: 5px;
+            color: #00ff00;
+            font-size: 1rem;
+        }
+        .score-display {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 50;
+            background: rgba(255, 180, 100, 0.2);
+            border: 2px solid rgba(255, 200, 150, 0.6);
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            color: #ffd700;
+            font-size: 1.2rem;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+        }
+        .target {
+            cursor: crosshair;
+            transition: transform 0.1s, opacity 0.3s;
+        }
+        .target:hover {
+            filter: brightness(1.5) drop-shadow(0 0 20px red);
+        }
+        .target.hit {
+            animation: explode-target 0.5s ease-out forwards;
+        }
+        @keyframes explode-target {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+        .muzzle-flash {
+            position: fixed;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 3rem;
+            opacity: 0;
+            z-index: 90;
+            pointer-events: none;
+        }
+        .muzzle-flash.firing {
+            animation: flash-muzzle 0.1s ease-out;
+        }
+        @keyframes flash-muzzle {
+            0% { opacity: 1; transform: translateX(-50%) scale(1.5); }
+            100% { opacity: 0; transform: translateX(-50%) scale(1); }
+        }
+        .enemy {
+            cursor: crosshair;
+            transition: all 0.2s;
+        }
+        .enemy:hover {
+            filter: drop-shadow(0 0 25px rgba(255, 0, 0, 0.9));
+        }
+        .weapon-display {
+            position: fixed;
+            bottom: 5%;
+            right: 5%;
+            font-size: 4rem;
+            z-index: 80;
+            animation: weapon-bob 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 20px rgba(100, 100, 100, 0.8));
+        }
+        @keyframes weapon-bob {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            50% { transform: translateY(-10px) rotate(0deg); }
+        }
+        .game-title {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+            color: #ff6b35;
+            text-shadow: 0 0 20px rgba(255, 107, 53, 0.8), 2px 2px 0 #000;
+            z-index: 50;
+            font-weight: bold;
+            letter-spacing: 3px;
+        }
         .bakery-nav {
             position: absolute;
             bottom: 5%;
@@ -298,15 +432,24 @@
 <div class="star" style="width: 3px; height: 3px; top: 70%; left: 35%; animation-delay: 1.2s;"></div>
 </div>
 <div class="helmet" style="top: 28%; left: -12%;"></div>
-<div class="space-dog ghost" title="R.I.P. Space Dog">👻🐕</div>
-<div class="coca-cola shattered">🥤💔</div>
-<div class="space-cop evacuating" title="EVACUATE!">👮🏃💨</div>
-<div class="meteor impact" title="IT HIT!">💥☄️🔥</div>
-<h1 class="glitched">💥 IMPACT 💥</h1>
+<div class="space-dog ghost target enemy" onclick="shootTarget(this, 50)" title="GHOST DOG - 50pts">👻🐕</div>
+<div class="coca-cola shattered target" onclick="shootTarget(this, 10)" title="DEBRIS - 10pts">🥤💔</div>
+<div class="space-cop evacuating target enemy" onclick="shootTarget(this, 25)" title="FLEEING COP - 25pts">👮🏃💨</div>
+<div class="meteor impact target enemy" onclick="shootTarget(this, 100)" title="METEOR CORE - 100pts">💥☄️🔥</div>
+<div class="game-title">🥐 BAKERY DEFENSE FPS 🔫</div>
+<div class="crosshair"><div class="crosshair-dot"></div></div>
+<div class="muzzle-flash" id="muzzle">💥🔥</div>
+<div class="hud">
+<div class="hud-item">🔫 AMMO: <span id="ammo">30</span>/30</div>
+<div class="hud-item">❤️ HEALTH: <span id="health">100</span>%</div>
+<div class="hud-item">🥐 DEFEND THE BAKERY!</div>
+</div>
+<div class="score-display">🎯 SCORE: <span id="score">0</span></div>
+<div class="weapon-display">🔫</div>
 <div class="crater">🕳️</div>
-<div class="debris debris-1">🔩</div>
-<div class="debris debris-2">⚙️</div>
-<div class="debris debris-3">🪨</div>
+<div class="debris debris-1 target" onclick="shootTarget(this, 15)" title="BOLT - 15pts">🔩</div>
+<div class="debris debris-2 target" onclick="shootTarget(this, 15)" title="GEAR - 15pts">⚙️</div>
+<div class="debris debris-3 target" onclick="shootTarget(this, 20)" title="ROCK - 20pts">🪨</div>
 <nav class="bakery-nav" title="Rising from the ashes...">
 <span class="logo">🥐</span>
 <a href="#menu">🍞 Menu</a>
@@ -319,7 +462,50 @@
 <span class="flickering">...signal lost...</span><br/>
         Type <code>!idea &lt;your idea&gt;</code> to rebuild from the ashes<br/>
 <span class="small-text">The old world is gone. What rises next?</span><br/>
-<span class="small-text" style="color: #d4a574;">🥐 ...a bakery emerges from the crater...</span>
+<span class="small-text" style="color: #d4a574;">🥐 ...a bakery emerges from the crater...</span><br/>
+<span class="small-text" style="color: #ff6b35;">🔫 CLICK TARGETS TO SHOOT! DEFEND THE BAKERY!</span>
 </p>
+<script>
+let score = 0;
+let ammo = 30;
+let health = 100;
+
+function shootTarget(el, points) {
+    if (ammo <= 0) {
+        alert('🔫 OUT OF AMMO! Reload with R key!');
+        return;
+    }
+    ammo--;
+    document.getElementById('ammo').textContent = ammo;
+    
+    // Muzzle flash
+    const muzzle = document.getElementById('muzzle');
+    muzzle.classList.remove('firing');
+    void muzzle.offsetWidth;
+    muzzle.classList.add('firing');
+    
+    // Hit effect
+    el.classList.add('hit');
+    score += points;
+    document.getElementById('score').textContent = score;
+    
+    // Respawn after delay
+    setTimeout(() => {
+        el.classList.remove('hit');
+        el.style.opacity = '1';
+    }, 3000);
+}
+
+// Reload with R key
+document.addEventListener('keydown', (e) => {
+    if (e.key.toLowerCase() === 'r') {
+        ammo = 30;
+        document.getElementById('ammo').textContent = ammo;
+    }
+});
+
+// Click anywhere for shooting sound effect (visual)
+document.body.style.cursor = 'crosshair';
+</script>
 </body>
 </html>
