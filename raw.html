@@ -73,6 +73,28 @@
             border-radius: 4px;
             color: #bf94ff;
         }
+        .audio-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 100;
+            color: #bf94ff;
+            font-size: 0.8rem;
+            cursor: pointer;
+            background: rgba(145, 71, 255, 0.2);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(145, 71, 255, 0.4);
+            transition: all 0.3s;
+        }
+        .audio-indicator:hover {
+            background: rgba(145, 71, 255, 0.4);
+        }
+        .audio-indicator.playing {
+            color: #00ff88;
+            border-color: rgba(0, 255, 136, 0.4);
+            text-shadow: 0 0 10px #00ff88;
+        }
         .scream {
             position: absolute;
             top: 50%;
@@ -95,10 +117,123 @@
 <div class="track-indicator" id="track-indicator" style="margin-top:8px;font-size:0.7rem;color:#888;">TRACK: MAIN</div>
 </div>
 <div class="scream" id="scream">😱</div>
+<div class="audio-indicator" id="audio-toggle">🔇 Click to Start Music</div>
 <p class="instruction">
         Type <code>!idea your idea</code> in chat to modify this world
     </p>
 <script>
+        // Dynamic Audio System - Adapts to rollercoaster height
+        let audioContext = null;
+        let audioStarted = false;
+        let masterGain = null;
+        let oscillators = [];
+        let lfoGain = null;
+        let currentHeight = 0;
+        
+        function initAudio() {
+            if (audioStarted) return;
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            masterGain = audioContext.createGain();
+            masterGain.gain.value = 0.3;
+            masterGain.connect(audioContext.destination);
+            
+            // Create layered oscillators for rich sound
+            const oscConfigs = [
+                { type: 'sine', baseFreq: 80, heightMult: 0.5 },      // Deep bass
+                { type: 'triangle', baseFreq: 160, heightMult: 1 },   // Mid tone
+                { type: 'sine', baseFreq: 320, heightMult: 2 },       // High harmonic
+                { type: 'sawtooth', baseFreq: 40, heightMult: 0.3 }   // Sub rumble
+            ];
+            
+            oscConfigs.forEach((config, i) => {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                const filter = audioContext.createBiquadFilter();
+                
+                osc.type = config.type;
+                osc.frequency.value = config.baseFreq;
+                
+                filter.type = 'lowpass';
+                filter.frequency.value = 800;
+                filter.Q.value = 2;
+                
+                gain.gain.value = 0.15 / (i + 1); // Decreasing volume for harmonics
+                
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(masterGain);
+                osc.start();
+                
+                oscillators.push({ osc, gain, filter, config });
+            });
+            
+            // LFO for tremolo effect during drops
+            const lfo = audioContext.createOscillator();
+            lfoGain = audioContext.createGain();
+            lfo.frequency.value = 4;
+            lfoGain.gain.value = 0;
+            lfo.connect(lfoGain);
+            lfoGain.connect(masterGain.gain);
+            lfo.start();
+            
+            audioStarted = true;
+            document.getElementById('audio-toggle').textContent = '🔊 Music Playing';
+            document.getElementById('audio-toggle').classList.add('playing');
+        }
+        
+        function updateAudioFromHeight(height, velocity) {
+            if (!audioStarted || !audioContext) return;
+            
+            // Normalize height (-15 to +15 range typically)
+            const normalizedHeight = (height + 15) / 30; // 0 to 1
+            const clampedHeight = Math.max(0, Math.min(1, normalizedHeight));
+            
+            oscillators.forEach(({ osc, gain, filter, config }) => {
+                // Frequency shifts with height
+                const targetFreq = config.baseFreq + (clampedHeight * 100 * config.heightMult);
+                osc.frequency.exponentialRampToValueAtTime(
+                    Math.max(20, targetFreq),
+                    audioContext.currentTime + 0.1
+                );
+                
+                // Filter opens up at higher altitudes
+                filter.frequency.exponentialRampToValueAtTime(
+                    400 + clampedHeight * 2000,
+                    audioContext.currentTime + 0.1
+                );
+            });
+            
+            // Tremolo intensity on drops
+            if (velocity < -0.1) {
+                lfoGain.gain.linearRampToValueAtTime(0.15, audioContext.currentTime + 0.05);
+            } else {
+                lfoGain.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.2);
+            }
+            
+            // Master volume based on action
+            const intensity = Math.abs(velocity) * 3 + 0.3;
+            masterGain.gain.linearRampToValueAtTime(
+                Math.min(0.5, intensity),
+                audioContext.currentTime + 0.1
+            );
+        }
+        
+        document.getElementById('audio-toggle').addEventListener('click', () => {
+            if (!audioStarted) {
+                initAudio();
+            } else if (audioContext) {
+                if (audioContext.state === 'running') {
+                    audioContext.suspend();
+                    document.getElementById('audio-toggle').textContent = '🔇 Music Paused';
+                    document.getElementById('audio-toggle').classList.remove('playing');
+                } else {
+                    audioContext.resume();
+                    document.getElementById('audio-toggle').textContent = '🔊 Music Playing';
+                    document.getElementById('audio-toggle').classList.add('playing');
+                }
+            }
+        });
+        
         // Scene setup
         const scene = new THREE.Scene();
         scene.fog = new THREE.Fog(0x0a0a0f, 10, 100);
@@ -490,8 +625,11 @@
             mothershipGroup.rotation.y += 0.002;
             beam.material.opacity = 0.1 + Math.sin(Date.now() * 0.003) * 0.1;
 
-            // Scream on big drops
+            // Update audio based on height
             const yDiff = position.y - lastY;
+            updateAudioFromHeight(position.y, yDiff);
+            
+            // Scream on big drops
             if (yDiff < -0.15) {
                 screamEl.style.opacity = '1';
                 screamEl.textContent = ['😱', '🎢', '📉', '💀', '👽', '🛸', '∞', '🔀'][Math.floor(Math.random() * 8)];
