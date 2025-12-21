@@ -265,6 +265,50 @@
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
+        .firework {
+            position: fixed;
+            pointer-events: none;
+            z-index: 200;
+        }
+        .firework-particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            animation: fireworkBurst 1.5s ease-out forwards;
+        }
+        @keyframes fireworkBurst {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+        }
+        .firework-trail {
+            position: fixed;
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(to top, transparent, var(--color));
+            border-radius: 2px;
+            animation: fireworkRise 0.6s ease-out forwards;
+            z-index: 199;
+            pointer-events: none;
+        }
+        @keyframes fireworkRise {
+            0% { transform: translateY(0) scaleY(1); opacity: 1; }
+            100% { transform: translateY(-150px) scaleY(0.3); opacity: 0; }
+        }
+        .firework-glow {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--color) 0%, transparent 70%);
+            animation: fireworkGlow 0.8s ease-out forwards;
+            transform: translate(-50%, -50%);
+        }
+        @keyframes fireworkGlow {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0.8; }
+            50% { transform: translate(-50%, -50%) scale(1.5); opacity: 0.5; }
+            100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+        }
         .stadium-tv {
             position: fixed;
             left: 15px;
@@ -1164,6 +1208,71 @@
             renderStoredTasks();
         };
         
+        // Fireworks system
+        const fireworkColors = ['#ff0055', '#00ff88', '#ffdd57', '#00d4ff', '#ff6b35', '#bf94ff', '#ff4757'];
+        
+        function launchFirework(x, y) {
+            // Trail rising up
+            const trail = document.createElement('div');
+            trail.className = 'firework-trail';
+            const color = fireworkColors[Math.floor(Math.random() * fireworkColors.length)];
+            trail.style.setProperty('--color', color);
+            trail.style.left = x + 'px';
+            trail.style.top = y + 'px';
+            document.body.appendChild(trail);
+            
+            setTimeout(() => {
+                trail.remove();
+                // Burst at top
+                createFireworkBurst(x, y - 150, color);
+            }, 600);
+        }
+        
+        function createFireworkBurst(x, y, color) {
+            const container = document.createElement('div');
+            container.className = 'firework';
+            container.style.left = x + 'px';
+            container.style.top = y + 'px';
+            
+            // Glow effect
+            const glow = document.createElement('div');
+            glow.className = 'firework-glow';
+            glow.style.setProperty('--color', color);
+            container.appendChild(glow);
+            
+            // Particles
+            const particleCount = 20 + Math.floor(Math.random() * 15);
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'firework-particle';
+                particle.style.background = color;
+                particle.style.boxShadow = `0 0 6px ${color}, 0 0 12px ${color}`;
+                
+                const angle = (i / particleCount) * Math.PI * 2;
+                const velocity = 50 + Math.random() * 80;
+                const tx = Math.cos(angle) * velocity;
+                const ty = Math.sin(angle) * velocity + 30; // gravity
+                
+                particle.style.setProperty('--tx', tx + 'px');
+                particle.style.setProperty('--ty', ty + 'px');
+                container.appendChild(particle);
+            }
+            
+            document.body.appendChild(container);
+            setTimeout(() => container.remove(), 1500);
+        }
+        
+        function celebrateGoal() {
+            // Launch multiple fireworks
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const x = 100 + Math.random() * (window.innerWidth - 200);
+                    const y = window.innerHeight * 0.7 + Math.random() * 100;
+                    launchFirework(x, y);
+                }, i * 200);
+            }
+        }
+        
         // Track goals and saves for auto-intel reveal
         let prevGoals = 0;
         let prevSaves = 0;
@@ -1175,6 +1284,7 @@
             if (currentGoals > prevGoals) {
                 origGoalHandler();
                 revealIntel(); // Auto-reveal on goal!
+                celebrateGoal(); // Launch fireworks!
             }
             if (currentSaves > prevSaves) {
                 revealIntel(); // Auto-reveal on save!
