@@ -212,6 +212,64 @@
             cursor: pointer;
             font-size: 0.6rem;
         }
+        .mini-calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            margin-bottom: 6px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 3px;
+            padding: 3px;
+        }
+        .cal-header {
+            font-size: 0.5rem;
+            text-align: center;
+            color: #666;
+            font-weight: bold;
+        }
+        .cal-day {
+            font-size: 0.5rem;
+            text-align: center;
+            padding: 2px;
+            border-radius: 2px;
+            cursor: pointer;
+            color: #333;
+        }
+        .cal-day:hover { background: #ddd; }
+        .cal-day.today { background: #00aa55; color: white; font-weight: bold; }
+        .cal-day.has-task { background: #ffdd57; }
+        .cal-day.has-task.today { background: #00cc66; }
+        .recur-select {
+            font-size: 0.6rem;
+            padding: 2px;
+            border-radius: 2px;
+            border: 1px solid #ccc;
+            background: #fff;
+            margin-left: 4px;
+        }
+        .db-status {
+            font-size: 0.5rem;
+            color: #888;
+            text-align: center;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        .db-status .db-icon {
+            color: #00aa55;
+            animation: dbPulse 2s infinite;
+        }
+        @keyframes dbPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .todo-recur {
+            font-size: 0.5rem;
+            color: #9147ff;
+            margin-left: 3px;
+        }
     </style>
 </head>
 <body>
@@ -226,16 +284,24 @@
 <canvas height="280" id="penalty-arena" width="400"></canvas>
 <div class="result-flash" id="result"></div>
 <div class="clipboard">
-<div class="clipboard-title">📋 Match Day Tasks</div>
+<div class="clipboard-title">📋 Match Calendar</div>
 <div class="clipboard-paper">
+<div class="mini-calendar" id="miniCal"></div>
 <div class="todo-input-wrap">
-<input class="todo-input" id="todoInput" maxlength="30" placeholder="New task..." type="text"/>
+<input class="todo-input" id="todoInput" maxlength="25" placeholder="New task..." type="text"/>
+<select class="recur-select" id="recurSelect">
+<option value="none">Once</option>
+<option value="daily">Daily</option>
+<option value="weekly">Weekly</option>
+<option value="match">Each Match</option>
+</select>
 <button class="todo-add" onclick="addTodo()">+</button>
 </div>
 <ul class="todo-list" id="todoList">
 <li class="todo-item"><input class="todo-check" onchange="toggleTodo(this)" type="checkbox"/><span>Score 5 goals</span><button class="todo-delete" onclick="deleteTodo(this)">×</button></li>
 <li class="todo-item"><input class="todo-check" onchange="toggleTodo(this)" type="checkbox"/><span>Beat the keeper</span><button class="todo-delete" onclick="deleteTodo(this)">×</button></li>
 </ul>
+<div class="db-status"><span class="db-icon">💾</span> LocalDB synced • <span id="taskCount">0</span> tasks</div>
 </div>
 </div>
 <p class="instruction">
@@ -584,6 +650,119 @@
         document.getElementById('todoInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') addTodo();
         });
+        
+        // LocalDB (localStorage) Task Management
+        const taskDB = {
+            tasks: JSON.parse(localStorage.getItem('matchTasks') || '[]'),
+            save() {
+                localStorage.setItem('matchTasks', JSON.stringify(this.tasks));
+                document.getElementById('taskCount').textContent = this.tasks.length;
+            },
+            add(text, recur) {
+                this.tasks.push({ id: Date.now(), text, recur, done: false, created: new Date().toISOString() });
+                this.save();
+            },
+            toggle(id) {
+                const task = this.tasks.find(t => t.id === id);
+                if (task) { task.done = !task.done; this.save(); }
+            },
+            remove(id) {
+                this.tasks = this.tasks.filter(t => t.id !== id);
+                this.save();
+            },
+            processRecurring() {
+                const now = new Date();
+                this.tasks.forEach(t => {
+                    if (t.done && t.recur !== 'none') {
+                        const created = new Date(t.created);
+                        const daysPassed = (now - created) / (1000*60*60*24);
+                        if ((t.recur === 'daily' && daysPassed >= 1) ||
+                            (t.recur === 'weekly' && daysPassed >= 7)) {
+                            t.done = false;
+                            t.created = now.toISOString();
+                        }
+                    }
+                });
+                this.save();
+            }
+        };
+        
+        // Mini Calendar
+        function renderCalendar() {
+            const cal = document.getElementById('miniCal');
+            const days = ['S','M','T','W','T','F','S'];
+            const today = new Date();
+            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+            const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+            
+            let html = days.map(d => `<div class="cal-header">${d}</div>`).join('');
+            
+            for (let i = 0; i < firstDay.getDay(); i++) html += '<div class="cal-day"></div>';
+            
+            for (let d = 1; d <= lastDay.getDate(); d++) {
+                const isToday = d === today.getDate();
+                const hasTask = taskDB.tasks.some(t => !t.done);
+                const classes = ['cal-day'];
+                if (isToday) classes.push('today');
+                if (hasTask && d >= today.getDate()) classes.push('has-task');
+                html += `<div class="${classes.join(' ')}">${d}</div>`;
+            }
+            cal.innerHTML = html;
+        }
+        
+        // Render stored tasks
+        function renderStoredTasks() {
+            const list = document.getElementById('todoList');
+            list.innerHTML = '';
+            taskDB.processRecurring();
+            taskDB.tasks.forEach(t => {
+                const li = document.createElement('li');
+                li.className = 'todo-item' + (t.done ? ' done' : '');
+                const recurIcon = t.recur !== 'none' ? `<span class="todo-recur">🔄${t.recur[0].toUpperCase()}</span>` : '';
+                li.innerHTML = `<input type="checkbox" class="todo-check" ${t.done ? 'checked' : ''} onchange="toggleStoredTodo(${t.id})"><span>${t.text}</span>${recurIcon}<button class="todo-delete" onclick="deleteStoredTodo(${t.id})">×</button>`;
+                list.appendChild(li);
+            });
+            document.getElementById('taskCount').textContent = taskDB.tasks.length;
+        }
+        
+        // Override todo functions for DB
+        window.addTodo = function() {
+            const input = document.getElementById('todoInput');
+            const recur = document.getElementById('recurSelect').value;
+            const text = input.value.trim();
+            if (!text) return;
+            taskDB.add(text, recur);
+            input.value = '';
+            renderStoredTasks();
+            renderCalendar();
+        };
+        
+        window.toggleStoredTodo = function(id) {
+            taskDB.toggle(id);
+            renderStoredTasks();
+        };
+        
+        window.deleteStoredTodo = function(id) {
+            taskDB.remove(id);
+            renderStoredTasks();
+            renderCalendar();
+        };
+        
+        // Init
+        renderCalendar();
+        renderStoredTasks();
+        
+        // Sync on goal (recurring 'match' tasks)
+        const origGoalHandler = () => {
+            taskDB.tasks.forEach(t => {
+                if (t.recur === 'match' && t.done) {
+                    t.done = false;
+                }
+            });
+            taskDB.save();
+            renderStoredTasks();
+        };
+        setInterval(() => { if (goals > parseInt(document.getElementById('goals').textContent || 0)) origGoalHandler(); }, 500);
     </script>
 </body>
 </html>
