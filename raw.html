@@ -75,6 +75,17 @@
 </div>
 <p class="result" id="result3"></p>
 </div>
+<div class="test-container" id="quiz4">
+<h2>⚡ Power Level!</h2>
+<p class="question">What happens when you give Twitch chat unlimited power?</p>
+<div class="answers">
+<button class="answer-btn" onclick="checkAnswer4(this, false)">A) World peace achieved</button>
+<button class="answer-btn" onclick="checkAnswer4(this, false)">B) Nothing changes</button>
+<button class="answer-btn" onclick="checkAnswer4(this, false)">C) Organized productivity</button>
+<button class="answer-btn" onclick="checkAnswer4(this, true)">D) Beautiful chaos unfolds!</button>
+</div>
+<p class="result" id="result4"></p>
+</div>
 <style>
         .test-container {
             background: rgba(255, 255, 255, 0.05);
@@ -126,6 +137,22 @@
             font-size: 1.2rem;
             min-height: 30px;
         }
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            top: -10px;
+            border-radius: 50%;
+            animation: fall 2s ease-out forwards;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
     </style>
 <script>
         function checkAnswer(btn, isCorrect) {
@@ -169,6 +196,34 @@
                 btn.classList.add('wrong');
                 container.querySelector('.answer-btn:nth-child(3)').classList.add('correct');
                 document.getElementById('result3').innerHTML = '❌ Nope! The request with most support wins!';
+            }
+        }
+        
+        function checkAnswer4(btn, isCorrect) {
+            const container = document.getElementById('quiz4');
+            const buttons = container.querySelectorAll('.answer-btn');
+            buttons.forEach(b => b.disabled = true);
+            
+            if (isCorrect) {
+                btn.classList.add('correct');
+                document.getElementById('result4').innerHTML = '🎉 YES! Embrace the beautiful madness!';
+                confettiBurst();
+            } else {
+                btn.classList.add('wrong');
+                container.querySelector('.answer-btn:nth-child(4)').classList.add('correct');
+                document.getElementById('result4').innerHTML = '❌ Oh sweet summer child... chaos is inevitable!';
+            }
+        }
+        
+        function confettiBurst() {
+            for(let i = 0; i < 30; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                confetti.style.background = ['#bf94ff', '#48bb78', '#f56565', '#ffd700'][Math.floor(Math.random()*4)];
+                document.body.appendChild(confetti);
+                setTimeout(() => confetti.remove(), 2000);
             }
         }
     </script>
