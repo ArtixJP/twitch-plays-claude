@@ -436,6 +436,69 @@
             0% { transform: translateY(0) scale(1); opacity: 1; }
             100% { transform: translateY(-50px) scale(0); opacity: 0; }
         }
+        .save-explosion {
+            position: fixed;
+            pointer-events: none;
+            z-index: 150;
+            width: 200px;
+            height: 200px;
+            transform: translate(-50%, -50%);
+        }
+        .explosion-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 4px solid #ff4757;
+            border-radius: 50%;
+            animation: explosionRing 0.8s ease-out forwards;
+        }
+        @keyframes explosionRing {
+            0% { width: 0; height: 0; opacity: 1; border-width: 8px; }
+            100% { width: 200px; height: 200px; opacity: 0; border-width: 1px; }
+        }
+        .explosion-core {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, #ffdd57 0%, #ff6b35 40%, #ff4757 70%, transparent 100%);
+            border-radius: 50%;
+            animation: explosionCore 0.5s ease-out forwards;
+        }
+        @keyframes explosionCore {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+            50% { transform: translate(-50%, -50%) scale(1.5); opacity: 0.8; }
+            100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+        }
+        .explosion-shard {
+            position: absolute;
+            width: 8px;
+            height: 20px;
+            background: linear-gradient(to bottom, #ffdd57, #ff4757);
+            border-radius: 4px;
+            animation: explosionShard 0.6s ease-out forwards;
+        }
+        @keyframes explosionShard {
+            0% { transform: translate(-50%, -50%) rotate(var(--rot)) translateY(0) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) rotate(var(--rot)) translateY(var(--dist)) scale(0.3); opacity: 0; }
+        }
+        .screen-shake {
+            animation: screenShake 0.4s ease-out;
+        }
+        @keyframes screenShake {
+            0%, 100% { transform: translateX(0); }
+            10% { transform: translateX(-8px) rotate(-1deg); }
+            20% { transform: translateX(8px) rotate(1deg); }
+            30% { transform: translateX(-6px) rotate(-0.5deg); }
+            40% { transform: translateX(6px) rotate(0.5deg); }
+            50% { transform: translateX(-4px); }
+            60% { transform: translateX(4px); }
+            70% { transform: translateX(-2px); }
+            80% { transform: translateX(2px); }
+        }
         .intel-btn.flash {
             animation: intelFlash 0.5s ease;
         }
@@ -702,6 +765,7 @@
                         document.getElementById('saves').textContent = saves;
                         createParticles(ball.x, ball.y, '#ff4757');
                         showResult('🧤 SAVED!', false);
+                        createSaveExplosion(keeper.x, keeper.y);
                     }
                     gamePhase = 'result';
                     resultTimer = 60;
@@ -1337,6 +1401,67 @@
             sparkle.style.top = Math.random() * window.innerHeight * 0.7 + 'px';
             document.body.appendChild(sparkle);
             setTimeout(() => sparkle.remove(), 1000);
+        }
+        
+        function createSaveExplosion(canvasX, canvasY) {
+            const canvas = document.getElementById('penalty-arena');
+            const rect = canvas.getBoundingClientRect();
+            const x = rect.left + (canvasX / 400) * rect.width;
+            const y = rect.top + (canvasY / 280) * rect.height;
+            
+            // Screen shake
+            document.body.classList.add('screen-shake');
+            setTimeout(() => document.body.classList.remove('screen-shake'), 400);
+            
+            // Create explosion container
+            const explosion = document.createElement('div');
+            explosion.className = 'save-explosion';
+            explosion.style.left = x + 'px';
+            explosion.style.top = y + 'px';
+            
+            // Core flash
+            const core = document.createElement('div');
+            core.className = 'explosion-core';
+            explosion.appendChild(core);
+            
+            // Multiple rings
+            for (let i = 0; i < 3; i++) {
+                const ring = document.createElement('div');
+                ring.className = 'explosion-ring';
+                ring.style.animationDelay = (i * 0.1) + 's';
+                ring.style.borderColor = ['#ff4757', '#ff6b35', '#ffdd57'][i];
+                explosion.appendChild(ring);
+            }
+            
+            // Shards flying outward
+            for (let i = 0; i < 12; i++) {
+                const shard = document.createElement('div');
+                shard.className = 'explosion-shard';
+                const angle = (i / 12) * 360;
+                const dist = 60 + Math.random() * 40;
+                shard.style.setProperty('--rot', angle + 'deg');
+                shard.style.setProperty('--dist', dist + 'px');
+                shard.style.left = '50%';
+                shard.style.top = '50%';
+                shard.style.animationDelay = (Math.random() * 0.1) + 's';
+                explosion.appendChild(shard);
+            }
+            
+            document.body.appendChild(explosion);
+            setTimeout(() => explosion.remove(), 1000);
+            
+            // Extra particles burst
+            for (let i = 0; i < 25; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'sparkle';
+                    particle.textContent = ['💥', '🔥', '⚡', '💢', '✨'][Math.floor(Math.random() * 5)];
+                    particle.style.left = (x + (Math.random() - 0.5) * 100) + 'px';
+                    particle.style.top = (y + (Math.random() - 0.5) * 100) + 'px';
+                    document.body.appendChild(particle);
+                    setTimeout(() => particle.remove(), 1000);
+                }, i * 30);
+            }
         }
         
         function manualFireworks() {
