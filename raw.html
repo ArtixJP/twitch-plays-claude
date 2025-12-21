@@ -129,7 +129,8 @@
 </div>
 </div>
 </div>
-<div id="controls">WASD/Arrows to move | Walk in grass to find monsters!</div>
+<div id="controls">🤖 AUTO-PILOT ACTIVE | Press SPACE to toggle manual mode</div>
+<div id="ai-status" style="margin-top:5px;font-size:8px;color:#bf94ff;">AI: Exploring...</div>
 <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -317,6 +318,135 @@
         });
         
         draw();
+        
+        // AI AUTOPILOT SYSTEM
+        let autoMode = true;
+        let aiThinkTimer = null;
+        let aiActionQueue = [];
+        
+        function getRandomDirection() {
+            const dirs = [[0,-1],[0,1],[-1,0],[1,0]];
+            return dirs[Math.floor(Math.random() * dirs.length)];
+        }
+        
+        function findNearestGrass() {
+            let nearest = null;
+            let minDist = Infinity;
+            for (let y = 0; y < ROWS; y++) {
+                for (let x = 0; x < COLS; x++) {
+                    if (map[y][x] === 'grass') {
+                        let dist = Math.abs(x - player.x) + Math.abs(y - player.y);
+                        if (dist < minDist && dist > 0) {
+                            minDist = dist;
+                            nearest = {x, y};
+                        }
+                    }
+                }
+            }
+            return nearest;
+        }
+        
+        function aiMove() {
+            if (!autoMode || inBattle) return;
+            
+            let grass = findNearestGrass();
+            let dx = 0, dy = 0;
+            
+            if (grass && Math.random() < 0.7) {
+                // Move toward grass
+                if (grass.x > player.x) dx = 1;
+                else if (grass.x < player.x) dx = -1;
+                else if (grass.y > player.y) dy = 1;
+                else if (grass.y < player.y) dy = -1;
+                updateAIStatus('🎯 Hunting monsters...');
+            } else {
+                // Random exploration
+                let dir = getRandomDirection();
+                dx = dir[0];
+                dy = dir[1];
+                updateAIStatus('🔍 Exploring...');
+            }
+            
+            // Check if move is valid, otherwise try another direction
+            let nx = player.x + dx;
+            let ny = player.y + dy;
+            if (nx < 0 || nx >= COLS || ny < 0 || ny >= ROWS || map[ny][nx] === 'tree') {
+                let dir = getRandomDirection();
+                dx = dir[0];
+                dy = dir[1];
+            }
+            
+            move(dx, dy);
+        }
+        
+        function aiBattle() {
+            if (!autoMode || !inBattle) return;
+            
+            setTimeout(() => {
+                if (!inBattle) return;
+                
+                let hpPercent = wildMonster.hp / wildMonster.maxHp;
+                let alreadyCaught = caughtMonsters.some(m => m.name === wildMonster.name);
+                
+                if (caughtMonsters.length < 6 && !alreadyCaught && hpPercent < 0.5) {
+                    updateAIStatus('🎯 Attempting catch!');
+                    catchMonster();
+                } else if (caughtMonsters.length < 6 && !alreadyCaught && hpPercent >= 0.5) {
+                    updateAIStatus('⚔️ Weakening target...');
+                    attack();
+                } else {
+                    updateAIStatus('⚔️ Fighting!');
+                    attack();
+                }
+                
+                // Continue battle AI
+                setTimeout(() => {
+                    if (inBattle) aiBattle();
+                }, 1500);
+            }, 800);
+        }
+        
+        function updateAIStatus(text) {
+            document.getElementById('ai-status').textContent = 'AI: ' + text;
+        }
+        
+        // Override startBattle to trigger AI
+        const originalStartBattle = startBattle;
+        startBattle = function() {
+            originalStartBattle();
+            if (autoMode) {
+                updateAIStatus('⚔️ Battle started!');
+                aiBattle();
+            }
+        };
+        
+        // Override endBattle to resume exploration
+        const originalEndBattle = endBattle;
+        endBattle = function() {
+            originalEndBattle();
+            if (autoMode) {
+                updateAIStatus('✓ Battle complete!');
+                setTimeout(() => updateAIStatus('🔍 Exploring...'), 1000);
+            }
+        };
+        
+        // Toggle auto mode with SPACE
+        document.addEventListener('keydown', (e) => {
+            if (e.key === ' ') {
+                autoMode = !autoMode;
+                document.getElementById('controls').textContent = autoMode 
+                    ? '🤖 AUTO-PILOT ACTIVE | Press SPACE to toggle manual mode'
+                    : '🎮 MANUAL MODE | WASD/Arrows to move | SPACE for auto';
+                updateAIStatus(autoMode ? 'Resuming...' : 'Manual control');
+            }
+        });
+        
+        // AI loop
+        setInterval(() => {
+            if (autoMode && !inBattle) {
+                aiMove();
+            }
+        }, 400);
     </script>
 </body>
 </html>
