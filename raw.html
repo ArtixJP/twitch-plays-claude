@@ -372,6 +372,86 @@
             pointer-events: none;
             z-index: 1000;
         }
+        .code-health-monitor {
+            position: fixed;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 140px;
+            background: linear-gradient(145deg, rgba(0,20,10,0.95) 0%, rgba(0,10,20,0.95) 100%);
+            border: 1px solid #00ff88;
+            border-radius: 8px;
+            padding: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.55rem;
+            z-index: 60;
+            box-shadow: 0 0 20px rgba(0,255,136,0.2), inset 0 0 10px rgba(0,255,136,0.1);
+        }
+        .chm-header {
+            color: #00ff88;
+            font-weight: bold;
+            text-align: center;
+            border-bottom: 1px solid #00ff8844;
+            padding-bottom: 4px;
+            margin-bottom: 6px;
+            font-size: 0.6rem;
+            text-shadow: 0 0 5px #00ff88;
+        }
+        .chm-status {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 4px;
+        }
+        .chm-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: dotPulse 1s infinite;
+        }
+        .chm-dot.ok { background: #00ff88; box-shadow: 0 0 8px #00ff88; }
+        .chm-dot.warn { background: #ffdd57; box-shadow: 0 0 8px #ffdd57; }
+        .chm-dot.error { background: #ff4757; box-shadow: 0 0 8px #ff4757; }
+        .chm-dot.scanning { background: #00d4ff; animation: scanPulse 0.3s infinite; }
+        @keyframes dotPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        @keyframes scanPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(0.8); }
+        }
+        .chm-label { color: #aaa; }
+        .chm-value { color: #00ff88; margin-left: auto; }
+        .chm-value.warn { color: #ffdd57; }
+        .chm-value.error { color: #ff4757; }
+        .chm-console {
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 3px;
+            padding: 4px;
+            max-height: 60px;
+            overflow-y: auto;
+            margin-top: 6px;
+        }
+        .chm-log {
+            color: #00ff88;
+            font-size: 0.5rem;
+            margin: 2px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .chm-log.warn { color: #ffdd57; }
+        .chm-log.error { color: #ff4757; }
+        .chm-log.fix { color: #00d4ff; }
+        .chm-timer {
+            text-align: center;
+            color: #666;
+            font-size: 0.5rem;
+            margin-top: 4px;
+        }
+        .chm-timer span { color: #00d4ff; }
         .firework-btn {
             position: fixed;
             left: 15px;
@@ -1693,6 +1773,127 @@ window.toggleTodo = toggleTodo;
 window.deleteTodo = deleteTodo;
 document.getElementById('todoInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') addTodo(); });
 </script>
+<div class="code-health-monitor" id="codeHealthMonitor">
+<div class="chm-header">🔧 CODE HEALTH</div>
+<div class="chm-status">
+<div class="chm-dot ok" id="chmDot"></div>
+<span class="chm-label">Status:</span>
+<span class="chm-value" id="chmStatus">OK</span>
+</div>
+<div class="chm-status">
+<span class="chm-label">Checks:</span>
+<span class="chm-value" id="chmChecks">0</span>
+</div>
+<div class="chm-status">
+<span class="chm-label">Fixed:</span>
+<span class="chm-value" id="chmFixed">0</span>
+</div>
+<div class="chm-console" id="chmConsole">
+<div class="chm-log">⏳ Initializing...</div>
+</div>
+<div class="chm-timer">Next scan: <span id="chmTimer">10</span>s</div>
+</div>
 <div class="static-overlay"></div>
+<script>
+// CODE HEALTH MONITOR - Self-diagnostic system
+(function() {
+    let scanCount = 0;
+    let fixCount = 0;
+    let countdown = 10;
+    const maxLogs = 8;
+    
+    const criticalFunctions = [
+        'animate', 'shoot', 'resetBall', 'updateScore', 
+        'toggleGameMode', 'createBounceVFX', 'setWeather'
+    ];
+    
+    function addLog(msg, type = '') {
+        const console = document.getElementById('chmConsole');
+        const log = document.createElement('div');
+        log.className = 'chm-log ' + type;
+        log.textContent = msg;
+        console.appendChild(log);
+        while (console.children.length > maxLogs) {
+            console.removeChild(console.firstChild);
+        }
+        console.scrollTop = console.scrollHeight;
+    }
+    
+    function setStatus(status, type) {
+        document.getElementById('chmStatus').textContent = status;
+        document.getElementById('chmStatus').className = 'chm-value ' + type;
+        document.getElementById('chmDot').className = 'chm-dot ' + type;
+    }
+    
+    function runDiagnostic() {
+        scanCount++;
+        document.getElementById('chmChecks').textContent = scanCount;
+        document.getElementById('chmDot').className = 'chm-dot scanning';
+        addLog('🔍 Scanning code...', '');
+        
+        let errors = [];
+        let warnings = [];
+        
+        // Check critical functions exist
+        criticalFunctions.forEach(fn => {
+            if (typeof window[fn] === 'undefined' && typeof eval(fn) === 'undefined') {
+                try { eval(fn); } catch(e) {
+                    if (e instanceof ReferenceError) {
+                        errors.push(fn + ' missing');
+                    }
+                }
+            }
+        });
+        
+        // Check Three.js scene health
+        if (typeof scene !== 'undefined') {
+            if (scene.children.length < 10) warnings.push('Low object count');
+            if (!renderer) errors.push('Renderer missing');
+        }
+        
+        // Check game state
+        if (typeof ball !== 'undefined' && ball.position.y < -50) {
+            warnings.push('Ball out of bounds');
+            ball.position.set(0, 0.5, 15);
+            fixCount++;
+            addLog('🔧 Ball reset', 'fix');
+        }
+        
+        // Check memory (simulated)
+        const memUsage = Math.floor(Math.random() * 30) + 40;
+        if (memUsage > 65) warnings.push('High memory: ' + memUsage + '%');
+        
+        setTimeout(() => {
+            if (errors.length > 0) {
+                setStatus('ERROR', 'error');
+                errors.forEach(e => addLog('❌ ' + e, 'error'));
+            } else if (warnings.length > 0) {
+                setStatus('WARN', 'warn');
+                warnings.forEach(w => addLog('⚠️ ' + w, 'warn'));
+            } else {
+                setStatus('OK', 'ok');
+                addLog('✅ All systems nominal', '');
+            }
+            document.getElementById('chmFixed').textContent = fixCount;
+        }, 500);
+    }
+    
+    // Countdown timer
+    setInterval(() => {
+        countdown--;
+        document.getElementById('chmTimer').textContent = countdown;
+        if (countdown <= 0) {
+            countdown = 10;
+            runDiagnostic();
+        }
+    }, 1000);
+    
+    // Initial scan
+    setTimeout(runDiagnostic, 2000);
+    
+    // Expose for debugging
+    window.runCodeDiagnostic = runDiagnostic;
+})();
+</script>
 </body>
 </html>
