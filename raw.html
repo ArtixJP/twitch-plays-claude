@@ -1434,6 +1434,23 @@
             
             t += 0.001;
             
+            // Get position with smooth track transitions - MUST BE FIRST!
+            let position, tangent;
+            if (isTransitioning && nextTrack) {
+                const currentPos = activeTrack.getPoint(Math.min(t, 0.99));
+                const nextPos = nextTrack.getPoint(0.05 + transitionProgress * 0.1);
+                const currentTan = activeTrack.getTangent(Math.min(t, 0.99));
+                const nextTan = nextTrack.getTangent(0.05 + transitionProgress * 0.1);
+                
+                // Smooth blend between tracks
+                const blend = transitionProgress * transitionProgress * (3 - 2 * transitionProgress); // smoothstep
+                position = new THREE.Vector3().lerpVectors(currentPos, nextPos, blend);
+                tangent = new THREE.Vector3().lerpVectors(currentTan, nextTan, blend).normalize();
+            } else {
+                position = activeTrack.getPoint(t);
+                tangent = activeTrack.getTangent(t);
+            }
+            
             // CHAOTIC TRACK SWITCHING - random switches at any time for chaos!
             const switchChance = 0.002 + Math.abs(lastY - position.y) * 0.01; // More likely during drops!
             if (!isTransitioning && Math.random() < switchChance) {
@@ -1466,23 +1483,6 @@
                 t = 0;
             }
 
-            // Get position with smooth track transitions
-            let position, tangent;
-            if (isTransitioning && nextTrack) {
-                const currentPos = activeTrack.getPoint(Math.min(t, 0.99));
-                const nextPos = nextTrack.getPoint(0.05 + transitionProgress * 0.1);
-                const currentTan = activeTrack.getTangent(Math.min(t, 0.99));
-                const nextTan = nextTrack.getTangent(0.05 + transitionProgress * 0.1);
-                
-                // Smooth blend between tracks
-                const blend = transitionProgress * transitionProgress * (3 - 2 * transitionProgress); // smoothstep
-                position = new THREE.Vector3().lerpVectors(currentPos, nextPos, blend);
-                tangent = new THREE.Vector3().lerpVectors(currentTan, nextTan, blend).normalize();
-            } else {
-                position = activeTrack.getPoint(t);
-                tangent = activeTrack.getTangent(t);
-            }
-            
             cartGroup.position.copy(position);
             cartGroup.position.z += 0.5;
             cartGroup.position.y += 0.5;
