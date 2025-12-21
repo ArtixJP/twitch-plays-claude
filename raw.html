@@ -392,6 +392,45 @@
             z-index: 100;
             pointer-events: none;
         }
+        
+        /* PHOTOSENSITIVITY WARNING */
+        .strobe-warning {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            background: rgba(255, 0, 0, 0.95);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.8), inset 0 0 20px rgba(0,0,0,0.3);
+            border: 3px solid #ff4444;
+            opacity: 0;
+            pointer-events: none;
+            animation: warningFlash 0.8s ease-out;
+        }
+        .strobe-warning.active {
+            opacity: 1;
+        }
+        .strobe-warning .warning-icon {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .strobe-warning .warning-text {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        @keyframes warningFlash {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
+        }
     </style>
 </head>
 <body>
@@ -425,6 +464,11 @@
 <div class="torus-indicator" id="torus-indicator" style="margin-top:4px;font-size:0.6rem;color:#bf94ff;">🍩 TOROIDAL TOPOLOGY ACTIVE</div>
 </div>
 <div class="scream" id="scream">😱</div>
+<div class="strobe-warning" id="strobe-warning">
+<span class="warning-icon">⚠️⚡</span>
+    PHOTOSENSITIVITY WARNING
+    <div class="warning-text">This content contains strobing effects</div>
+</div>
 <div class="audio-indicator" id="audio-toggle">🎵 Physics-Reactive Audio</div>
 <p class="instruction">
         Type <code>!idea your idea</code> in chat to modify this world
@@ -723,6 +767,24 @@
                 initAudio();
             }, 500);
         });
+        
+        // PHOTOSENSITIVITY WARNING SYSTEM - HR Compliance
+        const strobeWarning = document.getElementById('strobe-warning');
+        function showStrobeWarning() {
+            if (strobeWarning) {
+                strobeWarning.classList.add('active');
+                strobeWarning.style.animation = 'none';
+                strobeWarning.offsetHeight; // Trigger reflow
+                strobeWarning.style.animation = 'warningFlash 0.8s ease-out';
+                setTimeout(() => {
+                    strobeWarning.classList.remove('active');
+                }, 800);
+            }
+        }
+        // Show warning every 7 seconds
+        setInterval(showStrobeWarning, 7000);
+        // Show initial warning after 2 seconds
+        setTimeout(showStrobeWarning, 2000);
         
         // Also start on first user interaction as fallback
         document.addEventListener('click', () => {
