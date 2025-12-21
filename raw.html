@@ -98,6 +98,17 @@
 </div>
 <p class="result" id="result5"></p>
 </div>
+<div class="test-container final-quiz" id="quiz6">
+<h2>🏆 FINAL QUESTION!</h2>
+<p class="question">What's the ultimate goal of this experiment?</p>
+<div class="answers">
+<button class="answer-btn" onclick="checkAnswer6(this, false)">A) To crash Claude's servers</button>
+<button class="answer-btn" onclick="checkAnswer6(this, false)">B) To create the perfect website</button>
+<button class="answer-btn" onclick="checkAnswer6(this, true)">C) To have fun together! 🎮</button>
+<button class="answer-btn" onclick="checkAnswer6(this, false)">D) To prove AI will take over</button>
+</div>
+<p class="result" id="result6"></p>
+</div>
 </div>
 <style>
         .test-container {
@@ -147,6 +158,13 @@
         .answer-btn.correct {
             background: rgba(72, 187, 120, 0.5);
             border-color: #48bb78;
+        }
+        .final-quiz {
+            border-color: rgba(255, 215, 0, 0.5);
+            background: rgba(255, 215, 0, 0.08);
+        }
+        .final-quiz h2 {
+            color: #ffd700;
         }
         .answer-btn.wrong {
             background: rgba(245, 101, 101, 0.5);
@@ -258,6 +276,23 @@
         function rainbowPulse() {
             document.body.style.animation = 'rainbow-pulse 1s ease';
             setTimeout(() => document.body.style.animation = '', 1000);
+        }
+        
+        function checkAnswer6(btn, isCorrect) {
+            const container = document.getElementById('quiz6');
+            const buttons = container.querySelectorAll('.answer-btn');
+            buttons.forEach(b => b.disabled = true);
+            
+            if (isCorrect) {
+                btn.classList.add('correct');
+                document.getElementById('result6').innerHTML = '🏆 PERFECT! You understand the chaos! Welcome aboard!';
+                confettiBurst();
+                rainbowPulse();
+            } else {
+                btn.classList.add('wrong');
+                container.querySelector('.answer-btn:nth-child(3)').classList.add('correct');
+                document.getElementById('result6').innerHTML = '❌ Close! But really, it\'s all about having fun together!';
+            }
         }
         
         function confettiBurst() {
