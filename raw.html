@@ -275,7 +275,7 @@
 <body>
 <div id="bg-container"></div>
 <h1>⚽ AI Penalty Shootout</h1>
-<div class="ai-status">🤖 AI STRIKER vs AI KEEPER <span class="pulse">●</span></div>
+<div class="ai-status">🎮 YOU vs AI KEEPER <span class="pulse">●</span> PLAYER CONTROLLED!</div>
 <div class="score-display">
 <span class="goals">Goals: <span id="goals">0</span></span>
 <span class="saves">Saves: <span id="saves">0</span></span>
@@ -368,10 +368,7 @@
         }
         
         function aiAim() {
-            aimAngle += aimSpeed;
-            if (Math.random() < 0.02) aimSpeed = (Math.random() - 0.5) * 0.06;
-            
-            // Player can dodge left/right
+            // Player controls the aim now - no auto-oscillation!
             ball.x = 200 + ballDodgeX;
             
             // Keeper fires weapon!
@@ -409,20 +406,14 @@
                 return p.y < 300;
             });
             
-            // AI decides to shoot randomly
-            if (Math.random() < 0.008) {
-                gamePhase = 'power';
-            }
+            // Player must press SPACE to shoot!
         }
         
         function aiPower() {
-            shootPower += powerDir * 2;
+            shootPower += powerDir * 3;
             if (shootPower >= 100 || shootPower <= 0) powerDir *= -1;
             
-            // AI decides power randomly
-            if (Math.random() < 0.03 && shootPower > 30) {
-                shoot();
-            }
+            // Player must release SPACE to shoot with current power!
         }
         
         function shoot() {
@@ -658,12 +649,18 @@
             });
             ctx.shadowBlur = 0;
             
-            // Dodge controls hint
+            // Player controls hint
             if (gamePhase === 'aiming') {
-                ctx.fillStyle = 'rgba(255,255,255,0.6)';
-                ctx.font = '10px sans-serif';
+                ctx.fillStyle = 'rgba(255,255,255,0.9)';
+                ctx.font = 'bold 11px sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('← A/D or Arrow Keys to Dodge →', 200, 270);
+                ctx.fillText('⬅️ A/D to AIM • SPACE to CHARGE ➡️', 200, 270);
+            }
+            if (gamePhase === 'power') {
+                ctx.fillStyle = '#ffdd57';
+                ctx.font = 'bold 12px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('⚡ RELEASE SPACE TO SHOOT! ⚡', 200, 270);
             }
             
             // Particles
@@ -684,32 +681,52 @@
         
         setInterval(gameLoop, 1000/30);
         
-        // Player dodge controls
+        // PLAYER CONTROLS - You control the game now!
+        let aimDirection = 0; // -1 left, 0 none, 1 right
+        let spaceHeld = false;
+        
         document.addEventListener('keydown', (e) => {
-            if (gamePhase === 'aiming' || gamePhase === 'power') {
+            if (gamePhase === 'aiming') {
+                // Aim left/right
                 if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
-                    ballDodgeX = Math.max(ballDodgeX - 15, -80);
+                    aimDirection = -1;
                 }
                 if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
-                    ballDodgeX = Math.min(ballDodgeX + 15, 80);
+                    aimDirection = 1;
+                }
+                // Start power charge
+                if (e.key === ' ' && !spaceHeld) {
+                    spaceHeld = true;
+                    gamePhase = 'power';
+                    shootPower = 0;
+                    powerDir = 1;
                 }
             }
         });
         
-        // Auto-dodge for Twitch (simulated player)
-        setInterval(() => {
-            if (gamePhase === 'aiming') {
-                // Check for incoming projectiles and dodge
-                keeperProjectiles.forEach(p => {
-                    if (p.y > 150 && p.y < 220) {
-                        if (Math.abs(p.x - ball.x) < 40) {
-                            ballDodgeX += (p.x > ball.x ? -25 : 25);
-                            ballDodgeX = Math.max(-80, Math.min(80, ballDodgeX));
-                        }
-                    }
-                });
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A' ||
+                e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+                aimDirection = 0;
             }
-        }, 200);
+            // Release space to shoot!
+            if (e.key === ' ' && spaceHeld) {
+                spaceHeld = false;
+                if (gamePhase === 'power') {
+                    shoot();
+                }
+            }
+        });
+        
+        // Update aim based on player input
+        setInterval(() => {
+            if (gamePhase === 'aiming' && aimDirection !== 0) {
+                aimAngle += aimDirection * 0.05;
+                aimAngle = Math.max(-1.2, Math.min(1.2, aimAngle));
+            }
+        }, 33);
+        
+        // No more auto-dodge - YOU are in control now!
         
         // Background footballs
         function createBgFootball() {
