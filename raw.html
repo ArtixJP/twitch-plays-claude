@@ -145,6 +145,11 @@
         let powerDir = 1;
         let resultTimer = 0;
         let particles = [];
+        let defenders = [
+            { x: 150, y: 150, vx: 0.5, radius: 15 },
+            { x: 250, y: 130, vx: -0.4, radius: 15 },
+            { x: 200, y: 170, vx: 0.3, radius: 12 }
+        ];
         
         // Goal dimensions
         const goal = { x: 100, y: 20, width: 200, height: 60 };
@@ -243,6 +248,21 @@
                     resultTimer = 60;
                 }
                 
+                // Check defender collision
+                defenders.forEach(d => {
+                    const dx = ball.x - d.x;
+                    const dy = ball.y - d.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    if (dist < ball.radius + d.radius) {
+                        saves++;
+                        document.getElementById('saves').textContent = saves;
+                        createParticles(ball.x, ball.y, '#ff6b35');
+                        showResult('🛡️ BLOCKED!', false);
+                        gamePhase = 'result';
+                        resultTimer = 60;
+                    }
+                });
+                
                 // Ball out of bounds
                 if (ball.y < 0 || ball.x < 0 || ball.x > 400) {
                     saves++;
@@ -255,6 +275,12 @@
                 resultTimer--;
                 if (resultTimer <= 0) resetBall();
             }
+            
+            // Update defenders (slow patrol)
+            defenders.forEach(d => {
+                d.x += d.vx;
+                if (d.x < 80 || d.x > 320) d.vx *= -1;
+            });
             
             // Update particles
             particles = particles.filter(p => {
@@ -317,6 +343,27 @@
             ctx.fillStyle = '#ffdd57';
             ctx.fillRect(keeper.x - keeper.width/2 - 8, keeper.y - 5, 10, 15);
             ctx.fillRect(keeper.x + keeper.width/2 - 2, keeper.y - 5, 10, 15);
+            
+            // Draw defenders (slow-moving enemies)
+            defenders.forEach(d => {
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#ff6b35';
+                ctx.fillStyle = '#ff6b35';
+                ctx.beginPath();
+                ctx.arc(d.x, d.y, d.radius, 0, Math.PI * 2);
+                ctx.fill();
+                // Defender body
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = '#2d3436';
+                ctx.beginPath();
+                ctx.arc(d.x, d.y - 5, 8, 0, Math.PI * 2);
+                ctx.fill();
+                // Jersey number
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 10px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('⛔', d.x, d.y + 4);
+            });
             
             // Aim indicator
             if (gamePhase === 'aiming' || gamePhase === 'power') {
