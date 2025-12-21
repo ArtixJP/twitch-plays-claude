@@ -250,15 +250,30 @@ setInterval(() => {
     document.getElementById('change').style.color = up ? '#00ff88' : '#ff6666';
 }, 3000);
 
+// Orbital camera settings
+const orbitCenter = new THREE.Vector3(0, 0, 28); // Center of the beach village
+const orbitRadius = 25; // Distance from center
+const orbitSpeed = 0.08; // Rotation speed (radians per second)
+const orbitHeight = 6; // Camera height
+const orbitHeightVariation = 1.5; // Gentle vertical bob
+
 // Animation
 function animate() {
     requestAnimationFrame(animate);
     const t = Date.now() * 0.001;
     ocean.material.uniforms.uTime.value = t;
-    // Gentle sway while keeping village in view
-    camera.position.x = -15 + Math.sin(t * 0.1) * 0.5;
-    camera.position.y = 4 + Math.sin(t * 0.15) * 0.2;
-    camera.lookAt(5, 0, 30);
+    
+    // Orbital camera rotation around the island
+    const angle = t * orbitSpeed;
+    const heightOffset = Math.sin(t * 0.3) * orbitHeightVariation;
+    
+    camera.position.x = orbitCenter.x + Math.cos(angle) * orbitRadius;
+    camera.position.z = orbitCenter.z + Math.sin(angle) * orbitRadius;
+    camera.position.y = orbitHeight + heightOffset;
+    
+    // Always look at the center of the build area
+    camera.lookAt(orbitCenter.x, 1, orbitCenter.z);
+    
     birds.forEach(b => { b.position.x += b.userData.speed; b.position.y += Math.sin(t * 2 + b.userData.offset) * 0.02; if (b.position.x > 50) b.position.x = -50; });
     sky.rotation.y += 0.0001;
     renderer.render(scene, camera);
