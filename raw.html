@@ -217,6 +217,83 @@
             z-index: 100;
             animation: wave-float 5s ease-in-out infinite;
         }
+        .alien-tourist {
+            position: absolute;
+            z-index: 140;
+            text-align: center;
+            pointer-events: none;
+        }
+        .alien-tourist .alien-body {
+            font-size: 2.5rem;
+            display: block;
+            filter: drop-shadow(0 0 10px rgba(0, 255, 136, 0.6));
+        }
+        .alien-tourist .accessory {
+            font-size: 1.2rem;
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .alien-tourist .speech {
+            background: rgba(0, 255, 136, 0.2);
+            backdrop-filter: blur(8px);
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 0.6rem;
+            color: #00ff88;
+            border: 1px solid rgba(0, 255, 136, 0.4);
+            margin-top: 5px;
+            white-space: nowrap;
+        }
+        .alien-1 {
+            bottom: 120px;
+            left: 30px;
+            animation: alien-dance 2s ease-in-out infinite;
+        }
+        .alien-2 {
+            top: 100px;
+            right: 150px;
+            animation: alien-float 3s ease-in-out infinite;
+        }
+        .alien-3 {
+            bottom: 180px;
+            left: 150px;
+            animation: alien-wave 2.5s ease-in-out infinite;
+        }
+        .alien-4 {
+            top: 60px;
+            left: 350px;
+            animation: alien-spin 4s linear infinite;
+        }
+        .alien-5 {
+            bottom: 100px;
+            right: 200px;
+            animation: alien-bounce 1.5s ease-in-out infinite;
+        }
+        @keyframes alien-dance {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            25% { transform: translateY(-8px) rotate(5deg); }
+            50% { transform: translateY(0) rotate(-5deg); }
+            75% { transform: translateY(-5px) rotate(3deg); }
+        }
+        @keyframes alien-float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-15px) scale(1.05); }
+        }
+        @keyframes alien-wave {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(10deg); }
+            75% { transform: rotate(-10deg); }
+        }
+        @keyframes alien-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes alien-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
         @keyframes gentle-sway {
             0%, 100% { transform: rotate(-2deg); }
             50% { transform: rotate(2deg); }
@@ -633,7 +710,32 @@
 <div class="speech">สบายดีค่ะ~ 💕<br/>Relax na~</div>
 </div>
 <div class="beer-float">🍺</div>
-<div class="beach-elements">🐚 🦀 🌺 🥥 🏄</div>
+<div class="beach-elements">🐚 🦀 🌺 🥥 🏄 👽</div>
+<div class="alien-tourist alien-1">
+<span class="accessory">🎩</span>
+<span class="alien-body">👽</span>
+<div class="speech">Greetings, Earthlings! 🌴</div>
+</div>
+<div class="alien-tourist alien-2">
+<span class="accessory">🕶️</span>
+<span class="alien-body">👾</span>
+<div class="speech">Beach vibes = universal 🛸</div>
+</div>
+<div class="alien-tourist alien-3">
+<span class="accessory">🌺</span>
+<span class="alien-body">👽</span>
+<div class="speech">BTC to the moon! 🚀</div>
+</div>
+<div class="alien-tourist alien-4">
+<span class="accessory">🍹</span>
+<span class="alien-body">🛸</span>
+<div class="speech">*happy UFO noises*</div>
+</div>
+<div class="alien-tourist alien-5">
+<span class="accessory">👙</span>
+<span class="alien-body">👾</span>
+<div class="speech">Vacation from Mars! ☀️</div>
+</div>
 <script>
         // 🎵 PHYSICS-REACTIVE AUDIO ENGINE - 100% Real-time Generated!
         // Every sound emerges from the coaster's motion through space
