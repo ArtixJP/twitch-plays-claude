@@ -621,6 +621,49 @@ keeperGroup.position.set(0, 0, -18);
 keeperGroup.castShadow = true;
 scene.add(keeperGroup);
 
+// SPONSOR BANNERS around the stadium
+const sponsors = [
+    { text: '🐸 FROG COLA', color: 0x00ff88, x: -18, z: -10, rotY: Math.PI/2 },
+    { text: '🍔 BURGER ENERGY', color: 0xff6b35, x: 18, z: -10, rotY: -Math.PI/2 },
+    { text: '⚽ THREE.JS SPORTS', color: 0x00d4ff, x: -18, z: 5, rotY: Math.PI/2 },
+    { text: '🎮 TWITCH PLAYS™', color: 0x9147ff, x: 18, z: 5, rotY: -Math.PI/2 },
+    { text: '🎆 FIREWORK INC', color: 0xff0055, x: 0, z: -22, rotY: 0 }
+];
+
+sponsors.forEach(s => {
+    const bannerGroup = new THREE.Group();
+    
+    // Banner board
+    const boardGeom = new THREE.BoxGeometry(8, 2, 0.3);
+    const boardMat = new THREE.MeshStandardMaterial({ 
+        color: s.color,
+        emissive: s.color,
+        emissiveIntensity: 0.3
+    });
+    const board = new THREE.Mesh(boardGeom, boardMat);
+    bannerGroup.add(board);
+    
+    // LED border effect
+    const borderGeom = new THREE.EdgesGeometry(boardGeom);
+    const borderMat = new THREE.LineBasicMaterial({ color: 0xffffff });
+    const border = new THREE.LineSegments(borderGeom, borderMat);
+    bannerGroup.add(border);
+    
+    // Support poles
+    const poleGeom = new THREE.CylinderGeometry(0.1, 0.1, 3, 8);
+    const poleMat = new THREE.MeshStandardMaterial({ color: 0x888888 });
+    const leftPole = new THREE.Mesh(poleGeom, poleMat);
+    leftPole.position.set(-3.5, -1.5, 0);
+    bannerGroup.add(leftPole);
+    const rightPole = new THREE.Mesh(poleGeom, poleMat);
+    rightPole.position.set(3.5, -1.5, 0);
+    bannerGroup.add(rightPole);
+    
+    bannerGroup.position.set(s.x, 4, s.z);
+    bannerGroup.rotation.y = s.rotY;
+    scene.add(bannerGroup);
+});
+
 // Defenders
 const defenders = [];
 const defenderPositions = [
@@ -808,6 +851,13 @@ function animate() {
     
     // Camera slight movement
     camera.position.x = Math.sin(Date.now() * 0.0005) * 0.5;
+    
+    // Animate sponsor banners (pulsing glow)
+    scene.children.forEach(child => {
+        if (child.isGroup && child.children[0]?.material?.emissiveIntensity !== undefined) {
+            child.children[0].material.emissiveIntensity = 0.2 + Math.sin(Date.now() * 0.003) * 0.15;
+        }
+    });
     
     renderer.render(scene, camera);
 }
