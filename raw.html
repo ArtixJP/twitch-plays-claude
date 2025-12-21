@@ -209,6 +209,121 @@
             0%, 100% { transform: rotate(-2deg); }
             50% { transform: rotate(2deg); }
         }
+        .beach-buildings {
+            position: absolute;
+            bottom: 140px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            z-index: 80;
+            pointer-events: none;
+        }
+        .building {
+            text-align: center;
+            animation: building-sway 8s ease-in-out infinite;
+        }
+        .building .structure {
+            font-size: 2.5rem;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+        }
+        .building .sign {
+            background: rgba(255, 200, 100, 0.3);
+            backdrop-filter: blur(5px);
+            padding: 3px 8px;
+            border-radius: 8px;
+            font-size: 0.6rem;
+            color: #ffd700;
+            border: 1px solid rgba(255, 200, 100, 0.5);
+            margin-top: 3px;
+        }
+        .store-building { animation-delay: 0s; }
+        .bar-building { animation-delay: -2s; }
+        .hut-building { animation-delay: -4s; }
+        @keyframes building-sway {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+        .beach-people {
+            position: absolute;
+            bottom: 60px;
+            left: 0;
+            width: 100%;
+            z-index: 90;
+            pointer-events: none;
+        }
+        .person {
+            position: absolute;
+            text-align: center;
+            animation: person-idle 3s ease-in-out infinite;
+        }
+        .person .body { font-size: 1.5rem; }
+        .person .action {
+            font-size: 0.5rem;
+            color: #fff;
+            opacity: 0.7;
+        }
+        .person-1 { left: 10%; animation-delay: 0s; }
+        .person-2 { left: 25%; animation-delay: -1s; }
+        .person-3 { left: 60%; animation-delay: -0.5s; }
+        .person-4 { left: 75%; animation-delay: -2s; }
+        .person-5 { left: 45%; animation-delay: -1.5s; }
+        @keyframes person-idle {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-3px) scale(1.02); }
+        }
+        .player {
+            position: absolute;
+            bottom: 70px;
+            left: 5%;
+            z-index: 120;
+            text-align: center;
+            animation: player-walk 8s linear infinite;
+        }
+        .player .avatar {
+            font-size: 2rem;
+            display: block;
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.6));
+        }
+        .player .name-tag {
+            background: rgba(255, 215, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-size: 0.5rem;
+            color: #ffd700;
+            border: 1px solid rgba(255, 215, 0, 0.5);
+        }
+        .player .thought {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.55rem;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+        @keyframes player-walk {
+            0% { left: 5%; transform: scaleX(1); }
+            45% { left: 48%; transform: scaleX(1); }
+            50% { left: 48%; transform: scaleX(1); }
+            55% { left: 48%; transform: scaleX(1); }
+            100% { left: 48%; transform: scaleX(1); }
+        }
+        .store-glow {
+            position: absolute;
+            bottom: 135px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 75;
+            animation: store-pulse 2s ease-in-out infinite;
+        }
+        @keyframes store-pulse {
+            0%, 100% { opacity: 0.5; transform: translateX(-50%) scale(1); }
+            50% { opacity: 1; transform: translateX(-50%) scale(1.1); }
+        }
     </style>
 </head>
 <body>
@@ -236,6 +351,52 @@
 <div class="companion">
 <span class="avatar">👩‍🦱</span>
 <div class="speech">สบายดี~ 💕<br/>Chill na kha~</div>
+</div>
+<div class="store-glow"></div>
+<div class="beach-buildings">
+<div class="building hut-building">
+<span class="structure">🛖</span>
+<div class="sign">Beach Hut</div>
+</div>
+<div class="building bar-building">
+<span class="structure">🍹🏠</span>
+<div class="sign">Tiki Bar</div>
+</div>
+<div class="building store-building">
+<span class="structure">🏪✨</span>
+<div class="sign">₿ BTC STORE</div>
+</div>
+<div class="building hut-building">
+<span class="structure">⛱️🪑</span>
+<div class="sign">Rentals</div>
+</div>
+</div>
+<div class="beach-people">
+<div class="person person-1">
+<span class="body">🧑‍🦲🏖️</span>
+<div class="action">sunbathing</div>
+</div>
+<div class="person person-2">
+<span class="body">👩🍦</span>
+<div class="action">ice cream!</div>
+</div>
+<div class="person person-3">
+<span class="body">🧔🎸</span>
+<div class="action">♪ vibes ♪</div>
+</div>
+<div class="person person-4">
+<span class="body">👧🐕</span>
+<div class="action">walkies</div>
+</div>
+<div class="person person-5">
+<span class="body">🧑‍💼📱</span>
+<div class="action">checking BTC</div>
+</div>
+</div>
+<div class="player">
+<div class="thought">💭 Need to buy supplies...</div>
+<span class="avatar">🚶</span>
+<div class="name-tag">YOU</div>
 </div>
 <div class="audio-indicator" id="audio-toggle">🌊 Ocean Waves</div>
 <p class="instruction">
