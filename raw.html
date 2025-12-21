@@ -1106,11 +1106,11 @@ trexTail.rotation.x = Math.PI / 2.2;
 trexGroup.add(trexTail);
 
 // T-Rex legs
-const legMat = new THREE.MeshStandardMaterial({ color: 0x4a2d1b });
-const trexLegL = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.4, 4, 6), legMat);
+const trexLegMat = new THREE.MeshStandardMaterial({ color: 0x4a2d1b });
+const trexLegL = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.4, 4, 6), trexLegMat);
 trexLegL.position.set(-1, 2, 0);
 trexGroup.add(trexLegL);
-const trexLegR = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.4, 4, 6), legMat);
+const trexLegR = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.4, 4, 6), trexLegMat);
 trexLegR.position.set(1, 2, 0);
 trexGroup.add(trexLegR);
 
