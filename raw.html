@@ -205,6 +205,31 @@
             border: 1px solid rgba(255, 182, 193, 0.4);
             margin-top: 5px;
         }
+        .quote-popup {
+            position: fixed;
+            z-index: 200;
+            padding: 12px 20px;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            text-align: center;
+            max-width: 300px;
+            backdrop-filter: blur(10px);
+            animation: quote-appear 7s ease-in-out forwards;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            pointer-events: none;
+        }
+        @keyframes quote-appear {
+            0% { opacity: 0; transform: scale(0.5) rotate(-10deg); }
+            15% { opacity: 1; transform: scale(1.1) rotate(2deg); }
+            25% { transform: scale(1) rotate(0deg); }
+            75% { opacity: 1; transform: translateY(-10px); }
+            100% { opacity: 0; transform: translateY(-30px) scale(0.8); }
+        }
+        .alien-tourist.alien-3 { bottom: 120px; left: 50%; animation-delay: -1s; }
+        .alien-tourist.alien-4 { bottom: 85px; left: 15%; animation-delay: -3s; }
+        .alien-tourist.alien-5 { bottom: 110px; right: 15%; animation-delay: -4s; }
         @keyframes companion-sway {
             0%, 100% { transform: rotate(-2deg); }
             50% { transform: rotate(2deg); }
@@ -348,6 +373,19 @@
 <span class="alien-body">👾🏖️</span>
 <div class="speech">Vacation goals achieved ✨</div>
 </div>
+<div class="alien-tourist alien-3">
+<span class="alien-body">🛸👽</span>
+<div class="speech">Bitcoin beach is out of this world! 🚀</div>
+</div>
+<div class="alien-tourist alien-4">
+<span class="alien-body">👽🌴</span>
+<div class="speech">Told ya Earth was worth visiting 🌍</div>
+</div>
+<div class="alien-tourist alien-5">
+<span class="alien-body">👾🍺</span>
+<div class="speech">Cheers from Andromeda! 🍻</div>
+</div>
+<div id="quote-container"></div>
 <div class="companion">
 <span class="avatar">👩‍🦱</span>
 <div class="speech">สบายดี~ 💕<br/>Chill na kha~</div>
@@ -739,6 +777,76 @@
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
+        
+        // Inspirational Quotes System
+        const quotes = [
+            "🌅 Every sunset brings the promise of a new dawn",
+            "🚀 HODL your dreams, they're worth it",
+            "🌊 Ride the waves, don't fight them",
+            "✨ You are exactly where you need to be",
+            "🌴 Paradise is a state of mind",
+            "💎 Pressure creates diamonds",
+            "🔥 Your only limit is your mind",
+            "🌈 After every storm comes a rainbow",
+            "⭐ Shoot for the moon, land among stars",
+            "🦋 Change is beautiful, embrace it",
+            "🌺 Bloom where you are planted",
+            "🏄 Life's a wave, catch it!",
+            "💫 Magic happens outside comfort zones",
+            "🌙 Dream big, start small, act now",
+            "🎯 Focus on progress, not perfection",
+            "🌻 Be the energy you want to attract",
+            "🦀 Sometimes moving sideways is moving forward",
+            "🥥 Tough on the outside, sweet within",
+            "🍹 Life is short, make it sweet",
+            "🐚 Listen to your inner voice",
+            "☀️ Be someone's sunshine today",
+            "🌊 Go with the flow, grow with the flow",
+            "💰 Invest in yourself, it pays the best interest",
+            "🏝️ Your vibe attracts your tribe",
+            "🎸 Life's too short for bad vibes",
+            "🌅 New day, new opportunities",
+            "⚡ Energy flows where attention goes",
+            "🐢 Slow progress is still progress",
+            "🌟 You're a star, act like one",
+            "🎨 Paint your own masterpiece"
+        ];
+        
+        const quoteColors = [
+            { bg: 'rgba(255, 107, 107, 0.85)', border: '#ff6b6b', text: '#fff' },
+            { bg: 'rgba(78, 205, 196, 0.85)', border: '#4ecdc4', text: '#fff' },
+            { bg: 'rgba(255, 230, 109, 0.85)', border: '#ffe66d', text: '#333' },
+            { bg: 'rgba(149, 117, 205, 0.85)', border: '#9575cd', text: '#fff' },
+            { bg: 'rgba(255, 167, 38, 0.85)', border: '#ffa726', text: '#fff' },
+            { bg: 'rgba(102, 187, 106, 0.85)', border: '#66bb6a', text: '#fff' },
+            { bg: 'rgba(236, 64, 122, 0.85)', border: '#ec407a', text: '#fff' },
+            { bg: 'rgba(66, 165, 245, 0.85)', border: '#42a5f5', text: '#fff' },
+            { bg: 'rgba(255, 138, 101, 0.85)', border: '#ff8a65', text: '#fff' },
+            { bg: 'rgba(174, 213, 129, 0.85)', border: '#aed581', text: '#333' }
+        ];
+        
+        function showQuote() {
+            const container = document.getElementById('quote-container');
+            const quote = quotes[Math.floor(Math.random() * quotes.length)];
+            const color = quoteColors[Math.floor(Math.random() * quoteColors.length)];
+            
+            const popup = document.createElement('div');
+            popup.className = 'quote-popup';
+            popup.textContent = quote;
+            popup.style.background = color.bg;
+            popup.style.border = `3px solid ${color.border}`;
+            popup.style.color = color.text;
+            popup.style.left = (10 + Math.random() * 60) + '%';
+            popup.style.top = (15 + Math.random() * 50) + '%';
+            
+            container.appendChild(popup);
+            
+            setTimeout(() => popup.remove(), 7000);
+        }
+        
+        // Show first quote immediately, then every 7 seconds
+        showQuote();
+        setInterval(showQuote, 7000);
     </script>
 </body>
 </html>
