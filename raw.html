@@ -176,6 +176,18 @@
     .cannon.boom { animation: cannon 1s forwards; }
     @keyframes cannon { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); } 30% { opacity: 1; transform: translate(-50%, -50%) scale(1.5); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(2); } }
     .status-bar { font-size: 0.65rem; color: #888; text-align: center; margin-top: 5px; }
+    .game-summary { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(20,10,5,0.95); border: 3px solid #ffd700; border-radius: 15px; padding: 20px; max-width: 350px; z-index: 100; display: none; box-shadow: 0 0 50px rgba(255,215,0,0.4); }
+    .game-summary.active { display: block; animation: summaryAppear 0.5s ease-out; }
+    @keyframes summaryAppear { from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+    .game-summary h2 { color: #ffd700; text-align: center; margin-bottom: 10px; font-size: 1.1rem; }
+    .game-summary .victor { text-align: center; font-size: 1rem; color: #ff6b35; margin: 10px 0; }
+    .game-summary .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.7rem; margin: 10px 0; }
+    .game-summary .stat { background: rgba(0,0,0,0.3); padding: 5px; border-radius: 5px; text-align: center; }
+    .game-summary .stat-label { color: #888; font-size: 0.6rem; }
+    .game-summary .stat-value { color: #ffd700; font-size: 0.9rem; }
+    .game-summary .leaderboard { max-height: 100px; overflow-y: auto; font-size: 0.65rem; margin: 10px 0; }
+    .game-summary .leaderboard-entry { display: flex; justify-content: space-between; padding: 3px 5px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .game-summary .close-btn { width: 100%; margin-top: 10px; }
     .demo-active { animation: demoPulse 1s infinite; }
     @keyframes demoPulse { 0%, 100% { box-shadow: 0 0 10px rgba(0,255,100,0.5); } 50% { box-shadow: 0 0 25px rgba(0,255,100,0.8); } }
     .demo-indicator { position: fixed; top: 10px; right: 10px; background: rgba(0,255,100,0.2); border: 2px solid #00ff64; padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; color: #00ff64; text-transform: uppercase; letter-spacing: 2px; display: none; animation: demoBlink 1.5s infinite; }
@@ -207,6 +219,19 @@
 </div>
 </div>
 <div class="cannon" id="cannon">💀</div>
+<div class="game-summary" id="gameSummary">
+<h2>🏆 GAME COMPLETE 🏆</h2>
+<div class="victor" id="victorName"></div>
+<div class="stats-grid">
+<div class="stat"><div class="stat-label">Days Survived</div><div class="stat-value" id="totalDays">0</div></div>
+<div class="stat"><div class="stat-label">Total Deaths</div><div class="stat-value" id="totalDeaths">0</div></div>
+<div class="stat"><div class="stat-label">Events</div><div class="stat-value" id="totalEvents">0</div></div>
+<div class="stat"><div class="stat-label">Bloodiest Day</div><div class="stat-value" id="bloodiestDay">1</div></div>
+</div>
+<h3 style="color:#ffd700;font-size:0.75rem;margin-bottom:5px;">🗡️ Kill Leaderboard</h3>
+<div class="leaderboard" id="killLeaderboard"></div>
+<button class="close-btn" onclick="closeSummary()">🔄 New Games</button>
+</div>
 <div class="demo-indicator" id="demoIndicator">📺 DEMO MODE LIVE</div>
 <script>
 const districts = [
@@ -230,6 +255,7 @@ let tributes = [];
 let day = 1;
 let timeOfDay = 'Bloodbath';
 let arenaGrid = [];
+let gameStats = { events: 0, deathsByDay: {}, startTime: null };
 
 const terrainTypes = ['forest','forest','forest','water','mountain','cornucopia','forest','forest'];
 const events = [
@@ -247,6 +273,8 @@ const events = [
 
 function initGame() {
     tributes = [];
+    gameStats = { events: 0, deathsByDay: {}, startTime: Date.now() };
+    document.getElementById('gameSummary').classList.remove('active');
     for (let i = 0; i < 24; i++) {
         const district = districts[Math.floor(i / 2)];
         tributes.push({
@@ -331,6 +359,7 @@ function simulateEvent() {
         endGame();
         return;
     }
+    gameStats.events++;
     
     const event = events[Math.floor(Math.random() * events.length)];
     const a = alive[Math.floor(Math.random() * alive.length)];
@@ -345,10 +374,12 @@ function simulateEvent() {
         text = text.replace('{winner}', `<strong>${winner.name}</strong>`).replace('{loser}', `<strong>${loser.name}</strong>`);
         loser.alive = false;
         winner.kills++;
+        gameStats.deathsByDay[day] = (gameStats.deathsByDay[day] || 0) + 1;
         showCannon();
         logEvent(text, 'death');
     } else if (event.fatal && event.type === 'fire') {
         a.alive = false;
+        gameStats.deathsByDay[day] = (gameStats.deathsByDay[day] || 0) + 1;
         showCannon();
         logEvent(text, 'death');
     } else {
@@ -398,16 +429,53 @@ function logEvent(text, type = '') {
 
 function endGame() {
     const winner = tributes.find(t => t.alive);
-    if (winner) {
-        logEvent(`🏆 ${winner.name} from ${winner.district} is the VICTOR! (${winner.kills} kills)`, 'sponsor');
-        alert(`${winner.name} from ${winner.district} wins the Hunger Games!`);
-    } else {
-        logEvent('No survivors. The Capitol is displeased.', 'death');
+    const summary = document.getElementById('gameSummary');
+    const totalDeaths = 24 - tributes.filter(t => t.alive).length;
+    
+    // Find bloodiest day
+    let bloodiestDay = 1, maxDeaths = 0;
+    for (let d in gameStats.deathsByDay) {
+        if (gameStats.deathsByDay[d] > maxDeaths) {
+            maxDeaths = gameStats.deathsByDay[d];
+            bloodiestDay = d;
+        }
     }
+    
+    // Update summary stats
+    document.getElementById('totalDays').textContent = day;
+    document.getElementById('totalDeaths').textContent = totalDeaths;
+    document.getElementById('totalEvents').textContent = gameStats.events;
+    document.getElementById('bloodiestDay').textContent = `Day ${bloodiestDay} (${maxDeaths})`;
+    
+    // Build kill leaderboard
+    const killers = tributes.filter(t => t.kills > 0).sort((a,b) => b.kills - a.kills).slice(0, 5);
+    document.getElementById('killLeaderboard').innerHTML = killers.map((t, i) => 
+        `<div class="leaderboard-entry"><span>${['🥇','🥈','🥉','4.','5.'][i]} ${t.name}</span><span>${t.kills} kills</span></div>`
+    ).join('') || '<div style="color:#666;text-align:center;">No kills recorded</div>';
+    
+    if (winner) {
+        document.getElementById('victorName').innerHTML = `👑 ${winner.name}<br><span style="font-size:0.7rem;color:#888;">${winner.district} • ${winner.kills} kills</span>`;
+        logEvent(`🏆 ${winner.name} from ${winner.district} is the VICTOR! (${winner.kills} kills)`, 'sponsor');
+        console.log(`[GAME LOG] Victor: ${winner.name} | District: ${winner.district} | Kills: ${winner.kills} | Days: ${day} | Events: ${gameStats.events}`);
+    } else {
+        document.getElementById('victorName').textContent = '☠️ No Survivors';
+        logEvent('No survivors. The Capitol is displeased.', 'death');
+        console.log(`[GAME LOG] No Victor | Days: ${day} | Events: ${gameStats.events}`);
+    }
+    
+    summary.classList.add('active');
+}
+
+function closeSummary() {
+    document.getElementById('gameSummary').classList.remove('active');
+    newGame();
 }
 
 function newGame() {
-    if (confirm('Start new Hunger Games?')) let demoMode = false;
+    initGame();
+}
+
+let demoMode = false;
 let demoInterval = null;
 
 function toggleDemo() {
