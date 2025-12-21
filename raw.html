@@ -10,32 +10,44 @@
 <style>
         body { 
             font-family: system-ui, sans-serif; 
-            display: flex; 
-            flex-direction: column;
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
+            display: block;
             margin: 0;
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a0a 50%, #0a0a1a 100%);
+            padding: 0;
+            background: #000;
             color: white;
             overflow: hidden;
+            width: 100vw;
+            height: 100vh;
         }
         h1 { 
-            font-size: 1.5rem; 
+            font-size: 1.2rem; 
             text-align: center; 
-            margin-bottom: 0.3rem;
+            margin: 0;
             text-shadow: 0 0 20px rgba(145, 71, 255, 0.6);
-            position: relative;
-            z-index: 10;
+            position: fixed;
+            top: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            background: rgba(0,0,0,0.6);
+            padding: 4px 15px;
+            border-radius: 20px;
+            border: 1px solid #00ff88;
         }
         .instruction {
             text-align: center;
-            font-size: 0.85rem;
+            font-size: 0.7rem;
             color: #a0aec0;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 0 15px;
-            line-height: 1.4;
+            max-width: 400px;
+            padding: 4px 12px;
+            line-height: 1.3;
+            position: fixed;
+            bottom: 45px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
         }
         .instruction code {
             background: rgba(145, 71, 255, 0.2);
@@ -44,32 +56,38 @@
             color: #bf94ff;
         }
         #game-container {
-            width: 750px;
-            height: 420px;
-            border: 4px solid #00ff88;
-            border-radius: 12px;
-            box-shadow: 0 0 50px rgba(0, 255, 136, 0.3), inset 0 0 30px rgba(0, 255, 136, 0.1);
-            margin: 8px 0;
-            position: relative;
-            z-index: 5;
+            width: 100vw;
+            height: 100vh;
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+            margin: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
             overflow: hidden;
         }
         #game-container canvas {
-            border-radius: 8px;
+            border-radius: 0;
+            width: 100% !important;
+            height: 100% !important;
         }
         .ai-status {
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             color: #00ff88;
-            background: rgba(0, 255, 136, 0.1);
+            background: rgba(0, 0, 0, 0.7);
             padding: 4px 12px;
             border-radius: 20px;
             border: 1px solid rgba(0, 255, 136, 0.3);
-            margin-bottom: 8px;
             display: flex;
             align-items: center;
             gap: 8px;
-            position: relative;
-            z-index: 10;
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
         }
         .mode-toggle {
             background: linear-gradient(145deg, #9147ff 0%, #6b2fb3 100%);
@@ -142,15 +160,21 @@
             50% { opacity: 0.3; }
         }
         .score-display {
-            font-size: 1.1rem;
-            position: relative;
-            z-index: 10;
+            font-size: 0.9rem;
+            position: fixed;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
             color: #ffdd57;
             text-shadow: 0 0 10px #ffdd57;
-            margin-bottom: 8px;
             font-family: 'Courier New', monospace;
             display: flex;
-            gap: 15px;
+            gap: 12px;
+            background: rgba(0,0,0,0.6);
+            padding: 5px 15px;
+            border-radius: 15px;
+            border: 1px solid #ffdd5755;
         }
         .goals { color: #00ff88; text-shadow: 0 0 10px #00ff88; }
         .saves { color: #ff4757; text-shadow: 0 0 10px #ff4757; }
@@ -170,17 +194,17 @@
         .result-flash.goal { color: #00ff88; text-shadow: 0 0 30px #00ff88; }
         .result-flash.save { color: #ff4757; text-shadow: 0 0 30px #ff4757; }
         .power-bar-container {
-            position: absolute;
-            right: 15px;
+            position: fixed;
+            right: 20px;
             top: 50%;
             transform: translateY(-50%);
-            width: 25px;
-            height: 200px;
-            background: rgba(0,0,0,0.6);
+            width: 20px;
+            height: 180px;
+            background: rgba(0,0,0,0.7);
             border: 2px solid #444;
             border-radius: 5px;
             overflow: hidden;
-            z-index: 20;
+            z-index: 100;
         }
         .power-bar-fill {
             position: absolute;
@@ -190,16 +214,16 @@
             transition: height 0.05s;
         }
         .aim-indicator {
-            position: absolute;
-            bottom: 15px;
+            position: fixed;
+            bottom: 85px;
             left: 50%;
             transform: translateX(-50%);
-            width: 200px;
-            height: 8px;
-            background: rgba(0,0,0,0.6);
+            width: 180px;
+            height: 6px;
+            background: rgba(0,0,0,0.7);
             border: 1px solid #444;
             border-radius: 4px;
-            z-index: 20;
+            z-index: 100;
         }
         .aim-marker {
             position: absolute;
@@ -211,16 +235,16 @@
             box-shadow: 0 0 10px #ffdd57;
         }
         .controls-hint {
-            position: absolute;
-            bottom: 30px;
+            position: fixed;
+            bottom: 100px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: rgba(255,255,255,0.8);
-            background: rgba(0,0,0,0.5);
-            padding: 4px 10px;
+            background: rgba(0,0,0,0.6);
+            padding: 3px 10px;
             border-radius: 10px;
-            z-index: 20;
+            z-index: 100;
             white-space: nowrap;
         }
         .frog {
@@ -519,16 +543,16 @@
             100% { transform: translateY(100vh) rotate(360deg); opacity: 0.3; }
         }
         .three-d-badge {
-            position: absolute;
-            top: 10px;
+            position: fixed;
+            top: 75px;
             left: 10px;
             background: linear-gradient(145deg, #ff00ff, #00ffff);
             color: white;
             font-weight: bold;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             padding: 4px 10px;
             border-radius: 15px;
-            z-index: 30;
+            z-index: 100;
             animation: badgePulse 1.5s infinite;
         }
         @keyframes badgePulse {
@@ -578,8 +602,8 @@
 <script>
 // THREE.JS 3D PENALTY ARENA
 const container = document.getElementById('game-container');
-const width = 750;
-const height = 420;
+const width = window.innerWidth;
+const height = window.innerHeight;
 
 // Scene setup
 const scene = new THREE.Scene();
