@@ -73,10 +73,35 @@ body { font-family: 'Courier New', monospace; overflow: hidden; background: #1a0
 .stickman-container {
     position: absolute; bottom: 70px; right: 120px; z-index: 135;
     text-align: center;
+    animation: steve-patrol 20s ease-in-out infinite;
+}
+@keyframes steve-patrol {
+    0% { right: 120px; bottom: 70px; transform: scaleX(1); }
+    10% { right: 200px; bottom: 80px; transform: scaleX(-1); }
+    20% { right: 350px; bottom: 90px; transform: scaleX(-1); }
+    30% { right: 500px; bottom: 100px; transform: scaleX(-1); }
+    35% { right: 550px; bottom: 95px; transform: scaleX(-1); }
+    40% { right: 500px; bottom: 100px; transform: scaleX(1); }
+    50% { right: 350px; bottom: 85px; transform: scaleX(1); }
+    60% { right: 200px; bottom: 75px; transform: scaleX(1); }
+    70% { right: 120px; bottom: 70px; transform: scaleX(1); }
+    75% { right: 80px; bottom: 65px; transform: scaleX(1); }
+    80% { right: 50px; bottom: 60px; transform: scaleX(1); }
+    85% { right: 80px; bottom: 65px; transform: scaleX(-1); }
+    90% { right: 100px; bottom: 68px; transform: scaleX(-1); }
+    100% { right: 120px; bottom: 70px; transform: scaleX(1); }
 }
 .stickman {
     font-size: 1.8rem; filter: drop-shadow(0 0 8px rgba(255, 200, 100, 0.5));
-    animation: stickman-idle 2s ease-in-out infinite;
+    animation: steve-walk 0.4s ease-in-out infinite;
+}
+.stickman-footprints {
+    position: absolute; bottom: -15px; left: 50%; transform: translateX(-50%);
+    font-size: 0.4rem; opacity: 0.4; white-space: nowrap;
+    animation: footprints-fade 1s ease-out infinite;
+}
+@keyframes footprints-fade {
+    0% { opacity: 0.4; } 100% { opacity: 0; }
 }
 .stickman-speech {
     position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
@@ -98,6 +123,13 @@ body { font-family: 'Courier New', monospace; overflow: hidden; background: #1a0
     25% { transform: translateY(-3px) rotate(2deg); }
     50% { transform: translateY(0) rotate(0deg); }
     75% { transform: translateY(-2px) rotate(-2deg); }
+}
+@keyframes steve-walk {
+    0%, 100% { transform: translateY(0) rotate(-3deg); }
+    50% { transform: translateY(-5px) rotate(3deg); }
+}
+.stickman-container:hover .stickman {
+    animation: steve-walk 0.3s ease-in-out infinite;
 }
 @keyframes speech-bounce {
     0%, 100% { transform: translateX(-50%) translateY(0); }
@@ -129,9 +161,10 @@ body { font-family: 'Courier New', monospace; overflow: hidden; background: #1a0
 <div class="hut-label">Steve's Hut</div>
 </div>
 <div class="stickman-container" id="stickman">
-<div class="stickman-speech" id="stickman-speech">Ahh, beach life! 🏖️</div>
-<div class="stickman" id="stickman-body">🧍</div>
+<div class="stickman-speech" id="stickman-speech">Patrolling the beach! 🚶</div>
+<div class="stickman" id="stickman-body">🚶</div>
 <div class="stickman-name">Stickman Steve</div>
+<div class="stickman-footprints">👣 👣 👣</div>
 </div>
 <div class="audio-indicator" id="audio-toggle">🌊 Ocean Waves</div>
 <p class="instruction">Type <code>!idea your idea</code> in chat to modify this world</p>
@@ -284,18 +317,18 @@ window.onresize = () => { camera.aspect = innerWidth / innerHeight; camera.updat
 
 // Stickman Steve - Autonomous Beach Resident
 const steveActions = [
-    { pose: '🧍', speech: 'Ahh, beach life! 🏖️' },
-    { pose: '🏃', speech: 'Morning jog time!' },
-    { pose: '🧘', speech: 'Namaste... 🧘‍♂️' },
-    { pose: '💃', speech: 'Sunset dance! 🌅' },
-    { pose: '🏄', speech: 'Surf\'s up dude!' },
-    { pose: '🧍', speech: 'Watching the waves...' },
-    { pose: '🤸', speech: 'Beach gymnastics!' },
-    { pose: '🧍', speech: 'BTC looking good! 📈' },
-    { pose: '🚶', speech: 'Strolling to my hut...' },
-    { pose: '🧍', speech: 'Chat can tell me what to do!' },
-    { pose: '🙆', speech: 'Stretching it out~' },
-    { pose: '🧍', speech: 'Life is good here 😎' }
+    { pose: '🚶', speech: 'Patrolling the beach! 🏖️' },
+    { pose: '🏃', speech: 'Gotta stay fit!' },
+    { pose: '🚶', speech: 'Checking on the alien...' },
+    { pose: '💃', speech: 'Dance break! 🌅' },
+    { pose: '🏃', speech: 'Running to my hut!' },
+    { pose: '🚶', speech: 'Love this sunset view...' },
+    { pose: '🤸', speech: 'Cartwheel time!' },
+    { pose: '🚶', speech: 'BTC still pumping! 📈' },
+    { pose: '🏃', speech: 'Quick lap around!' },
+    { pose: '🚶', speech: 'Hey alien buddy! 👽' },
+    { pose: '🙆', speech: 'Stretching mid-walk~' },
+    { pose: '🚶', speech: 'Best patrol ever 😎' }
 ];
 let currentSteveAction = 0;
 let steveTask = null;
