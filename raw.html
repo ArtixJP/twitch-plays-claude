@@ -86,6 +86,17 @@
 </div>
 <p class="result" id="result4"></p>
 </div>
+<div class="test-container" id="quiz5">
+<h2>🎨 Content Creation!</h2>
+<p class="question">What CAN'T appear on this chaos page?</p>
+<div class="answers">
+<button class="answer-btn" onclick="checkAnswer5(this, false)">A) Dancing cats and space whales</button>
+<button class="answer-btn" onclick="checkAnswer5(this, false)">B) Mini-games and interactive art</button>
+<button class="answer-btn" onclick="checkAnswer5(this, true)">C) Hate speech and NSFW content</button>
+<button class="answer-btn" onclick="checkAnswer5(this, false)">D) Glitchy animations and chaos</button>
+</div>
+<p class="result" id="result5"></p>
+</div>
 <style>
         .test-container {
             background: rgba(255, 255, 255, 0.05);
@@ -146,6 +157,10 @@
             animation: fall 2s ease-out forwards;
             pointer-events: none;
             z-index: 1000;
+        }
+        @keyframes rainbow-pulse {
+            0%, 100% { filter: hue-rotate(0deg); }
+            50% { filter: hue-rotate(180deg); }
         }
         @keyframes fall {
             to {
@@ -213,6 +228,27 @@
                 container.querySelector('.answer-btn:nth-child(4)').classList.add('correct');
                 document.getElementById('result4').innerHTML = '❌ Oh sweet summer child... chaos is inevitable!';
             }
+        }
+        
+        function checkAnswer5(btn, isCorrect) {
+            const container = document.getElementById('quiz5');
+            const buttons = container.querySelectorAll('.answer-btn');
+            buttons.forEach(b => b.disabled = true);
+            
+            if (isCorrect) {
+                btn.classList.add('correct');
+                document.getElementById('result5').innerHTML = '🎉 Correct! Chaos has rules - we keep it safe & fun!';
+                rainbowPulse();
+            } else {
+                btn.classList.add('wrong');
+                container.querySelector('.answer-btn:nth-child(3)').classList.add('correct');
+                document.getElementById('result5').innerHTML = '❌ Nope! Everything fun is allowed, but we stay wholesome!';
+            }
+        }
+        
+        function rainbowPulse() {
+            document.body.style.animation = 'rainbow-pulse 1s ease';
+            setTimeout(() => document.body.style.animation = '', 1000);
         }
         
         function confettiBurst() {
