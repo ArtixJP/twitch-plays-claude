@@ -1094,14 +1094,14 @@ godzillaGroup.add(browR);
 // Godzilla eyes (glowing red)
 const godzillaEyeL = new THREE.Mesh(
     new THREE.SphereGeometry(0.35, 16, 16),
-    new THREE.MeshBasicMaterial({ color: 0xff0000, emissive: 0xff0000 })
+    new THREE.MeshStandardMaterial({ color: 0xff0000, emissive: 0xff0000, emissiveIntensity: 1 })
 );
 godzillaEyeL.position.set(-1, 19.5, 3.2);
 godzillaGroup.add(godzillaEyeL);
 
 const godzillaEyeR = new THREE.Mesh(
     new THREE.SphereGeometry(0.35, 16, 16),
-    new THREE.MeshBasicMaterial({ color: 0xff0000, emissive: 0xff0000 })
+    new THREE.MeshStandardMaterial({ color: 0xff0000, emissive: 0xff0000, emissiveIntensity: 1 })
 );
 godzillaEyeR.position.set(1, 19.5, 3.2);
 godzillaGroup.add(godzillaEyeR);
@@ -1252,14 +1252,14 @@ trexGroup.add(trexJaw);
 // T-Rex eyes
 const trexEyeL = new THREE.Mesh(
     new THREE.SphereGeometry(0.25, 8, 8),
-    new THREE.MeshBasicMaterial({ color: 0xffff00 })
+    new THREE.MeshStandardMaterial({ color: 0xffff00, emissive: 0xffff00, emissiveIntensity: 0.8 })
 );
 trexEyeL.position.set(-0.6, 8.3, 3.3);
 trexGroup.add(trexEyeL);
 
 const trexEyeR = new THREE.Mesh(
     new THREE.SphereGeometry(0.25, 8, 8),
-    new THREE.MeshBasicMaterial({ color: 0xffff00 })
+    new THREE.MeshStandardMaterial({ color: 0xffff00, emissive: 0xffff00, emissiveIntensity: 0.8 })
 );
 trexEyeR.position.set(0.6, 8.3, 3.3);
 trexGroup.add(trexEyeR);
