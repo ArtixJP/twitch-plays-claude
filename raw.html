@@ -20,7 +20,7 @@
             overflow: hidden;
         }
         h1 { 
-            font-size: 2.5rem; 
+            font-size: 1.8rem; 
             text-align: center; 
             margin-bottom: 0.5rem;
             text-shadow: 0 0 20px rgba(145, 71, 255, 0.6);
@@ -43,10 +43,10 @@
             color: #bf94ff;
         }
         #penalty-arena {
-            border: 3px solid #00ff88;
-            border-radius: 12px;
-            box-shadow: 0 0 30px rgba(0, 255, 136, 0.4), inset 0 0 20px rgba(0, 255, 136, 0.1);
-            margin: 15px 0;
+            border: 4px solid #00ff88;
+            border-radius: 16px;
+            box-shadow: 0 0 50px rgba(0, 255, 136, 0.5), inset 0 0 30px rgba(0, 255, 136, 0.15);
+            margin: 10px 0;
             position: relative;
             z-index: 5;
         }
@@ -860,7 +860,7 @@
 <span>Shots: <span id="shots">0</span></span>
 <span style="color:#ff00ff;text-shadow:0 0 10px #ff00ff">❤️ <span id="health">3</span></span>
 </div>
-<canvas height="280" id="penalty-arena" width="400"></canvas>
+<canvas height="490" id="penalty-arena" width="700"></canvas>
 <div class="result-flash" id="result"></div>
 <div class="stadium-tv">
 <iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&amp;mute=1&amp;loop=1&amp;playlist=dQw4w9WgXcQ&amp;controls=0&amp;modestbranding=1&amp;rel=0" title="Stadium Entertainment"></iframe>
@@ -901,13 +901,16 @@
         const canvas = document.getElementById('penalty-arena');
         const ctx = canvas.getContext('2d');
         
+        // SCALE FACTOR for bigger game!
+        const SCALE = 1.75;
+        
         // Game state
         let goals = 0;
         let saves = 0;
         let shots = 0;
         let gamePhase = 'aiming'; // aiming, shooting, result
-        let ball = { x: 200, y: 230, vx: 0, vy: 0, radius: 12 };
-        let keeper = { x: 200, y: 50, width: 60, height: 20, targetX: 200 };
+        let ball = { x: 350, y: 400, vx: 0, vy: 0, radius: 20 };
+        let keeper = { x: 350, y: 88, width: 105, height: 35, targetX: 350 };
         let isManualMode = false; // Default to autoplay!
         let aimAngle = 0;
         let ballDodgeX = 0; // Player dodge offset
@@ -923,13 +926,13 @@
         let resultTimer = 0;
         let particles = [];
         let defenders = [
-            { x: 150, y: 150, vx: 0.5, radius: 15, alive: true, spawnX: 150, spawnY: 150 },
-            { x: 250, y: 130, vx: -0.4, radius: 15, alive: true, spawnX: 250, spawnY: 130 },
-            { x: 200, y: 170, vx: 0.3, radius: 12, alive: true, spawnX: 200, spawnY: 170 }
+            { x: 262, y: 262, vx: 0.8, radius: 26, alive: true, spawnX: 262, spawnY: 262 },
+            { x: 438, y: 228, vx: -0.7, radius: 26, alive: true, spawnX: 438, spawnY: 228 },
+            { x: 350, y: 298, vx: 0.5, radius: 21, alive: true, spawnX: 350, spawnY: 298 }
         ];
         
-        // Goal dimensions
-        const goal = { x: 100, y: 20, width: 200, height: 60 };
+        // Goal dimensions (scaled up)
+        const goal = { x: 175, y: 35, width: 350, height: 105 };
         
         function createParticles(x, y, color) {
             for (let i = 0; i < 15; i++) {
@@ -951,27 +954,27 @@
         }
         
         function resetBall() {
-            ball = { x: 200, y: 230, vx: 0, vy: 0, radius: 12 };
+            ball = { x: 350, y: 400, vx: 0, vy: 0, radius: 20 };
             ballDodgeX = 0;
             keeperProjectiles = [];
             gamePhase = 'aiming';
             shootPower = 0;
-            keeper.targetX = 100 + Math.random() * 200;
+            keeper.targetX = 175 + Math.random() * 350;
         }
         
         function aiAim() {
             if (isManualMode) {
                 // Manual mode: player controls
-                ball.x = 200 + ballDodgeX;
+                ball.x = 350 + ballDodgeX;
             } else {
                 // Autoplay mode: AI oscillates aim automatically
                 aimAngle += aimSpeed;
                 if (Math.abs(aimAngle) > 1.2) aimSpeed *= -1;
-                ball.x = 200 + ballDodgeX;
+                ball.x = 350 + ballDodgeX;
                 
                 // Auto-dodge keeper projectiles
                 keeperProjectiles.forEach(p => {
-                    if (p.y > 150 && p.y < 250) {
+                    if (p.y > 262 && p.y < 438) {
                         if (Math.abs(p.x - ball.x) < 40) {
                             ballDodgeX += (ball.x > p.x) ? 8 : -8;
                             ballDodgeX = Math.max(-80, Math.min(80, ballDodgeX));
@@ -1033,7 +1036,7 @@
         }
         
         function shoot() {
-            const targetX = 200 + Math.sin(aimAngle) * 90;
+            const targetX = 350 + Math.sin(aimAngle) * 158;
             const power = shootPower / 100 * 15 + 5;
             ball.vx = (targetX - ball.x) * 0.08;
             ball.vy = -power;
@@ -1042,7 +1045,7 @@
             document.getElementById('shots').textContent = shots;
             
             // Keeper AI reacts
-            keeper.targetX = 100 + Math.random() * 200; // Guess!
+            keeper.targetX = 175 + Math.random() * 350; // Guess!
         }
         
         function update() {
@@ -1066,7 +1069,7 @@
             if (gamePhase === 'aiming' || gamePhase === 'power') {
                 // Patrol mode: keeper wanders back and forth
                 if (Math.random() < 0.02) {
-                    keeper.targetX = 100 + Math.random() * 200;
+                    keeper.targetX = 175 + Math.random() * 350;
                 }
                 keeper.x += (keeper.targetX - keeper.x) * 0.04;
             } else if (gamePhase === 'shooting') {
@@ -1114,7 +1117,7 @@
                 });
                 
                 // Ball out of bounds
-                if (ball.y < 0 || ball.x < 0 || ball.x > 400) {
+                if (ball.y < 0 || ball.x < 0 || ball.x > 700) {
                     saves++;
                     document.getElementById('saves').textContent = saves;
                     showResult('❌ MISS!', false);
@@ -1132,7 +1135,7 @@
             defenders.forEach(d => {
                 if (d.alive) {
                     d.x += d.vx;
-                    if (d.x < 80 || d.x > 320) d.vx *= -1;
+                    if (d.x < 140 || d.x > 560) d.vx *= -1;
                 }
             });
             
@@ -1186,20 +1189,20 @@
         function draw() {
             // Pitch background
             ctx.fillStyle = '#1a472a';
-            ctx.fillRect(0, 0, 400, 280);
+            ctx.fillRect(0, 0, 700, 490);
             
             // Pitch lines
             ctx.strokeStyle = 'rgba(255,255,255,0.5)';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(50, 10, 300, 260);
+            ctx.lineWidth = 3;
+            ctx.strokeRect(88, 18, 525, 455);
             
             // Goal area
-            ctx.strokeRect(120, 10, 160, 80);
+            ctx.strokeRect(210, 18, 280, 140);
             
             // Penalty spot
             ctx.fillStyle = 'white';
             ctx.beginPath();
-            ctx.arc(200, 230, 4, 0, Math.PI * 2);
+            ctx.arc(350, 400, 7, 0, Math.PI * 2);
             ctx.fill();
             
             // Goal posts with glow
@@ -1296,7 +1299,7 @@
             
             // Aim indicator
             if (gamePhase === 'aiming' || gamePhase === 'power') {
-                const targetX = 200 + Math.sin(aimAngle) * 90;
+                const targetX = 350 + Math.sin(aimAngle) * 158;
                 ctx.strokeStyle = 'rgba(255, 221, 87, 0.6)';
                 ctx.lineWidth = 2;
                 ctx.setLineDash([5, 5]);
@@ -1316,12 +1319,12 @@
             // Power bar
             if (gamePhase === 'power') {
                 ctx.fillStyle = 'rgba(0,0,0,0.5)';
-                ctx.fillRect(350, 50, 20, 150);
+                ctx.fillRect(630, 88, 35, 260);
                 const powerColor = shootPower < 50 ? '#00ff88' : shootPower < 80 ? '#ffdd57' : '#ff4757';
                 ctx.fillStyle = powerColor;
-                ctx.fillRect(350, 200 - shootPower * 1.5, 20, shootPower * 1.5);
+                ctx.fillRect(630, 348 - shootPower * 2.6, 35, shootPower * 2.6);
                 ctx.strokeStyle = 'white';
-                ctx.strokeRect(350, 50, 20, 150);
+                ctx.strokeRect(630, 88, 35, 260);
             }
             
             // Ball with glow
@@ -1365,26 +1368,26 @@
             // Player controls hint
             if (gamePhase === 'aiming') {
                 ctx.fillStyle = 'rgba(255,255,255,0.9)';
-                ctx.font = 'bold 11px sans-serif';
+                ctx.font = 'bold 16px sans-serif';
                 ctx.textAlign = 'center';
                 if (isManualMode) {
-                    ctx.fillText('⬅️ A/D to AIM • SPACE to CHARGE • F to FIRE ➡️', 200, 270);
+                    ctx.fillText('⬅️ A/D to AIM • SPACE to CHARGE • F to FIRE ➡️', 350, 470);
                 } else {
                     ctx.fillStyle = 'rgba(191, 148, 255, 0.9)';
-                    ctx.fillText('🤖 AI PLAYING... Click button to take control!', 200, 270);
+                    ctx.fillText('🤖 AI PLAYING... Click button to take control!', 350, 470);
                 }
                 
                 // Draw player weapon indicator
                 const weaponReady = playerWeaponCooldown <= 0;
                 ctx.fillStyle = weaponReady ? '#00ffff' : '#666';
-                ctx.font = 'bold 10px sans-serif';
-                ctx.fillText(weaponReady ? '🔫 READY' : '🔫 ' + Math.ceil(playerWeaponCooldown/30) + 's', 50, 260);
+                ctx.font = 'bold 14px sans-serif';
+                ctx.fillText(weaponReady ? '🔫 READY' : '🔫 ' + Math.ceil(playerWeaponCooldown/30) + 's', 88, 455);
             }
             if (gamePhase === 'power') {
                 ctx.fillStyle = '#ffdd57';
-                ctx.font = 'bold 12px sans-serif';
+                ctx.font = 'bold 18px sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('⚡ RELEASE SPACE TO SHOOT! ⚡', 200, 270);
+                ctx.fillText('⚡ RELEASE SPACE TO SHOOT! ⚡', 350, 470);
             }
             
             // Particles
@@ -1769,8 +1772,8 @@
         function createSaveExplosion(canvasX, canvasY) {
             const canvas = document.getElementById('penalty-arena');
             const rect = canvas.getBoundingClientRect();
-            const x = rect.left + (canvasX / 400) * rect.width;
-            const y = rect.top + (canvasY / 280) * rect.height;
+            const x = rect.left + (canvasX / 700) * rect.width;
+            const y = rect.top + (canvasY / 490) * rect.height;
             
             // Screen shake
             document.body.classList.add('screen-shake');
