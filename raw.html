@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Twitch plays Claude - ▓▓▓ CITY BLOCK PENALTY ARENA ▓▓▓</title>
+<title>Twitch plays Claude - ▓▓▓ MEGA CITY ARENA 10X ▓▓▓</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
         body { 
@@ -566,7 +566,7 @@
 <div class="frog" id="frog" onclick="frogSpeak()" title="Click the frog!">🐸</div>
 <div class="frog-speech" id="frogSpeech">Ribbit!</div>
 <div class="weather-indicator sunny" id="weatherIndicator" onclick="cycleWeather()">☀️ SUNNY</div>
-<h1 class="glitch-title">▓▓▓ CITY BLOCK ARENA ▓▓▓</h1>
+<h1 class="glitch-title">▓▓▓ MEGA CITY ARENA 10X ▓▓▓</h1>
 <div class="mode-indicator autoplay" id="modeIndicator">🤖 AUTOPLAY MODE</div>
 <div class="ai-status">🎮 3D ENGINE ONLINE <span class="pulse" style="color:#00ff88;">●</span> Three.js Powered<button class="mode-toggle" id="modeToggle" onclick="toggleGameMode()">🎮 TAKE CONTROL</button></div>
 <div class="score-display">
@@ -608,16 +608,16 @@ const height = window.innerHeight;
 // Scene setup
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x1a472a);
-scene.fog = new THREE.Fog(0x0a0a15, 40, 120);
+scene.fog = new THREE.Fog(0x0a0a15, 100, 500);
 
 const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000);
-camera.position.set(0, 8, 25);
+camera.position.set(0, 15, 45);
 camera.lookAt(0, 2, 0);
 
 // FPV Camera settings
 let fpvMode = true;
-const defaultCamPos = { x: 0, y: 8, z: 25 };
-const fpvOffset = { x: 0, y: 2, z: 5 }; // Behind and above ball
+const defaultCamPos = { x: 0, y: 15, z: 45 };
+const fpvOffset = { x: 0, y: 4, z: 12 }; // Behind and above ball - wider view for city
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(width, height);
@@ -641,8 +641,8 @@ const stadiumLight2 = new THREE.PointLight(0xff00ff, 0.3, 50);
 stadiumLight2.position.set(15, 15, 0);
 scene.add(stadiumLight2);
 
-// Pitch (ground)
-const pitchGeometry = new THREE.PlaneGeometry(40, 50);
+// Pitch (ground) - EXPANDED 10X!
+const pitchGeometry = new THREE.PlaneGeometry(400, 500);
 const pitchMaterial = new THREE.MeshStandardMaterial({ color: 0x2d5a27 });
 const pitch = new THREE.Mesh(pitchGeometry, pitchMaterial);
 pitch.rotation.x = -Math.PI / 2;
@@ -733,17 +733,42 @@ scene.add(keeperGroup);
 
 // CITY BUILDINGS around the stadium
 const buildings = [];
+// MEGA CITY - Buildings spread across 10x larger area!
 const buildingData = [
-    { x: -25, z: -15, w: 6, h: 18, d: 6, color: 0x334455 },
-    { x: -25, z: 5, w: 5, h: 22, d: 5, color: 0x445566 },
-    { x: 25, z: -15, w: 7, h: 20, d: 6, color: 0x3a4a5a },
-    { x: 25, z: 5, w: 5, h: 25, d: 5, color: 0x4a5a6a },
-    { x: -20, z: -25, w: 8, h: 15, d: 4, color: 0x2a3a4a },
-    { x: 20, z: -25, w: 6, h: 17, d: 5, color: 0x3a4a5a },
-    { x: 0, z: -28, w: 10, h: 12, d: 4, color: 0x4a5a6a },
-    { x: -15, z: 20, w: 5, h: 14, d: 5, color: 0x556677 },
-    { x: 15, z: 20, w: 6, h: 16, d: 4, color: 0x445566 },
-    { x: 0, z: 25, w: 8, h: 10, d: 5, color: 0x334455 },
+    // Inner ring
+    { x: -45, z: -35, w: 12, h: 35, d: 12, color: 0x334455 },
+    { x: -45, z: 25, w: 10, h: 45, d: 10, color: 0x445566 },
+    { x: 45, z: -35, w: 14, h: 40, d: 12, color: 0x3a4a5a },
+    { x: 45, z: 25, w: 10, h: 50, d: 10, color: 0x4a5a6a },
+    { x: -40, z: -55, w: 16, h: 30, d: 8, color: 0x2a3a4a },
+    { x: 40, z: -55, w: 12, h: 34, d: 10, color: 0x3a4a5a },
+    { x: 0, z: -60, w: 20, h: 25, d: 8, color: 0x4a5a6a },
+    { x: -35, z: 50, w: 10, h: 28, d: 10, color: 0x556677 },
+    { x: 35, z: 50, w: 12, h: 32, d: 8, color: 0x445566 },
+    { x: 0, z: 55, w: 16, h: 22, d: 10, color: 0x334455 },
+    // Outer ring - far buildings
+    { x: -90, z: -70, w: 18, h: 55, d: 15, color: 0x2a3a4a },
+    { x: -90, z: 0, w: 15, h: 60, d: 12, color: 0x3a4a5a },
+    { x: -90, z: 70, w: 14, h: 50, d: 14, color: 0x445566 },
+    { x: 90, z: -70, w: 16, h: 58, d: 14, color: 0x334455 },
+    { x: 90, z: 0, w: 18, h: 65, d: 15, color: 0x4a5a6a },
+    { x: 90, z: 70, w: 15, h: 52, d: 12, color: 0x556677 },
+    { x: -60, z: -100, w: 20, h: 45, d: 18, color: 0x3a4a5a },
+    { x: 0, z: -110, w: 25, h: 40, d: 20, color: 0x2a3a4a },
+    { x: 60, z: -100, w: 18, h: 48, d: 16, color: 0x445566 },
+    { x: -60, z: 100, w: 16, h: 42, d: 14, color: 0x4a5a6a },
+    { x: 0, z: 110, w: 22, h: 38, d: 18, color: 0x334455 },
+    { x: 60, z: 100, w: 20, h: 44, d: 16, color: 0x556677 },
+    // Mega towers at corners
+    { x: -120, z: -120, w: 25, h: 80, d: 25, color: 0x223344 },
+    { x: 120, z: -120, w: 25, h: 85, d: 25, color: 0x334455 },
+    { x: -120, z: 120, w: 25, h: 75, d: 25, color: 0x445566 },
+    { x: 120, z: 120, w: 25, h: 90, d: 25, color: 0x223344 },
+    // Mid-range scattered buildings
+    { x: -70, z: -40, w: 10, h: 35, d: 10, color: 0x3a4a5a },
+    { x: 70, z: -40, w: 12, h: 38, d: 11, color: 0x445566 },
+    { x: -70, z: 40, w: 11, h: 32, d: 10, color: 0x556677 },
+    { x: 70, z: 40, w: 13, h: 36, d: 12, color: 0x4a5a6a },
 ];
 
 buildingData.forEach(b => {
@@ -792,8 +817,8 @@ buildingData.forEach(b => {
     buildings.push(buildingGroup);
 });
 
-// City ground extension
-const cityGroundGeom = new THREE.PlaneGeometry(80, 80);
+// City ground extension - MASSIVE CITY!
+const cityGroundGeom = new THREE.PlaneGeometry(800, 800);
 const cityGroundMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
 const cityGround = new THREE.Mesh(cityGroundGeom, cityGroundMat);
 cityGround.rotation.x = -Math.PI / 2;
@@ -801,8 +826,8 @@ cityGround.position.y = -0.01;
 cityGround.receiveShadow = true;
 scene.add(cityGround);
 
-// Street lights
-for (let i = 0; i < 8; i++) {
+// Street lights - MORE for the mega city!
+for (let i = 0; i < 24; i++) {
     const lightPost = new THREE.Group();
     const postGeom = new THREE.CylinderGeometry(0.1, 0.1, 6, 8);
     const postMat = new THREE.MeshStandardMaterial({ color: 0x444444 });
@@ -820,8 +845,9 @@ for (let i = 0; i < 8; i++) {
     streetLight.position.y = 6;
     lightPost.add(streetLight);
     
-    const angle = (i / 8) * Math.PI * 2;
-    lightPost.position.set(Math.cos(angle) * 18, 0, Math.sin(angle) * 18);
+    const angle = (i / 24) * Math.PI * 2;
+    const radius = 25 + (i % 3) * 25; // Multiple rings of lights
+    lightPost.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
     scene.add(lightPost);
 }
 
@@ -1342,16 +1368,50 @@ function animate() {
         }
     }
     
-    // Shooting phase
+    // Shooting phase - CITY-WIDE PHYSICS!
     if (gamePhase === 'shooting') {
         ball.position.x += ballVelocity.x;
         ball.position.y += ballVelocity.y;
         ball.position.z += ballVelocity.z;
         ballVelocity.y -= 0.015; // gravity
         
+        // FRICTION - ball slows down over time
+        const friction = 0.998;
+        const airDrag = 0.9995;
+        ballVelocity.x *= airDrag;
+        ballVelocity.z *= airDrag;
+        
+        // Ground friction when rolling
+        if (ball.position.y <= 0.6) {
+            ball.position.y = 0.5;
+            ballVelocity.y = Math.abs(ballVelocity.y) * 0.5; // bounce
+            if (Math.abs(ballVelocity.y) < 0.1) ballVelocity.y = 0;
+            ballVelocity.x *= friction;
+            ballVelocity.z *= friction;
+        }
+        
         // Ball rotation with INSANE SPEED
         ball.rotation.x -= ballVelocity.z * 0.5;
         ball.rotation.z += ballVelocity.x * 0.3;
+        
+        // Check if ball has stopped (velocity near zero)
+        const totalVelocity = Math.sqrt(ballVelocity.x*ballVelocity.x + ballVelocity.y*ballVelocity.y + ballVelocity.z*ballVelocity.z);
+        if (totalVelocity < 0.02 && ball.position.y < 1) {
+            // Ball stopped in the city!
+            if (gamePhase === 'shooting') {
+                const distFromGoal = Math.sqrt(ball.position.x*ball.position.x + Math.pow(ball.position.z + 20, 2));
+                if (distFromGoal > 15) {
+                    showResult('🏙️ LOST IN CITY!', false);
+                    saves++;
+                } else {
+                    showResult('⚽ STOPPED SHORT!', false);
+                    saves++;
+                }
+                updateScore();
+                gamePhase = 'result';
+                resultTimer = 90;
+            }
+        }
         
         // Building collision detection
         buildings.forEach(bldg => {
@@ -1408,8 +1468,8 @@ function animate() {
         // Keeper moves
         keeperGroup.position.x += (keeperTargetX - keeperGroup.position.x) * 0.1;
         
-        // Check goal
-        if (ball.position.z <= -19) {
+        // Check goal - only triggers when ball ENTERS the goal zone
+        if (ball.position.z <= -19 && ball.position.z >= -22) {
             const inGoalX = Math.abs(ball.position.x) < 4.5;
             const inGoalY = ball.position.y < 5 && ball.position.y > 0;
             const hitKeeper = Math.abs(ball.position.x - keeperGroup.position.x) < 1.5 && ball.position.y < 3;
@@ -1418,13 +1478,19 @@ function animate() {
                 goals++;
                 showResult('⚽ GOAL!', true);
                 celebrateGoal();
-            } else {
+                updateScore();
+                gamePhase = 'result';
+                resultTimer = 60;
+            } else if (hitKeeper) {
+                // Keeper saves - ball bounces back!
+                ballVelocity.z *= -0.7;
+                ballVelocity.x += (Math.random() - 0.5) * 0.5;
+                ballVelocity.y = 0.3;
                 saves++;
-                showResult('🧤 SAVED!', false);
+                showResult('🧤 SAVED! Ball in play!', false);
+                updateScore();
             }
-            updateScore();
-            gamePhase = 'result';
-            resultTimer = 60;
+            // If missed goal posts, ball continues into the city!
         }
         
         // Check defender collision
@@ -1443,11 +1509,12 @@ function animate() {
             }
         });
         
-        // Out of bounds
-        if (ball.position.z < -25 || Math.abs(ball.position.x) > 10 || ball.position.y < -1) {
+        // EXPANDED BOUNDS - Ball can travel far into the city!
+        // Only reset if REALLY far out or fell through world
+        if (Math.abs(ball.position.x) > 200 || Math.abs(ball.position.z) > 200 || ball.position.y < -10) {
             if (gamePhase === 'shooting') {
                 saves++;
-                showResult('❌ MISS!', false);
+                showResult('🌍 BALL LEFT THE CITY!', false);
                 updateScore();
                 gamePhase = 'result';
                 resultTimer = 60;
