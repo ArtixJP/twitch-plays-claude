@@ -802,27 +802,41 @@
             priceData.push(price);
         }
 
-        // Create track geometry
-        const trackPoints = [];
-        const minPrice = Math.min(...priceData);
-        const maxPrice = Math.max(...priceData);
+        // UNIFIED CHAOTIC TOROIDAL TRACK - One endless cosmic donut!
+        const torusCenter = new THREE.Vector3(0, 5, 0);
+        const majorRadius = 40; // Distance from center of torus to center of tube
+        const minorRadius = 15; // Radius of the tube itself
         
-        priceData.forEach((p, i) => {
-            const x = (i - 100) * 0.5;
-            const y = ((p - minPrice) / (maxPrice - minPrice)) * 20 - 10;
-            const z = 0;
-            trackPoints.push(new THREE.Vector3(x, y, z));
-        });
-
-        const curve = new THREE.CatmullRomCurve3(trackPoints);
+        // Helper to get chaotic torus point with price-driven chaos
+        function getChaoticTorusPoint(u, v, chaos = 1) {
+            const priceIdx = Math.floor((u / (Math.PI * 2)) * priceData.length) % priceData.length;
+            const priceNorm = (priceData[priceIdx] - 20000) / 80000;
+            const chaosWave = Math.sin(u * 8 + v * 3) * chaos * 3 * priceNorm;
+            const spiralWave = Math.cos(u * 12 - v * 5) * chaos * 2;
+            const R = majorRadius + chaosWave + Math.sin(v * 7) * 2;
+            const r = minorRadius + spiralWave + Math.cos(u * 9) * 1.5;
+            const x = (R + r * Math.cos(v)) * Math.cos(u);
+            const y = r * Math.sin(v) + Math.sin(u * 6) * 3 * priceNorm;
+            const z = (R + r * Math.cos(v)) * Math.sin(u);
+            return new THREE.Vector3(x + torusCenter.x, y + torusCenter.y, z + torusCenter.z);
+        }
         
-        // Track rails
-        const tubeGeometry = new THREE.TubeGeometry(curve, 500, 0.15, 8, false);
+        // Generate the MAIN chaotic toroidal track
+        const mainTorusPoints = [];
+        for (let i = 0; i <= 500; i++) {
+            const u = (i / 500) * Math.PI * 2 * 3; // 3 full loops around
+            const v = (i / 500) * Math.PI * 2 * 7; // 7 times around tube
+            mainTorusPoints.push(getChaoticTorusPoint(u, v, 1.5));
+        }
+        const curve = new THREE.CatmullRomCurve3(mainTorusPoints, true); // CLOSED LOOP!
+        
+        // Track rails with Bitcoin orange glow
+        const tubeGeometry = new THREE.TubeGeometry(curve, 1000, 0.2, 12, true);
         const trackMaterial = new THREE.MeshPhongMaterial({ 
             color: 0xf7931a,
             emissive: 0xf7931a,
-            emissiveIntensity: 0.5,
-            shininess: 150
+            emissiveIntensity: 0.6,
+            shininess: 200
         });
         
         // PSYCHEDELIC PARTICLE SYSTEM - Floating orbs of light!
@@ -852,64 +866,60 @@
         const track = new THREE.Mesh(tubeGeometry, trackMaterial);
         scene.add(track);
 
-        // Second rail
-        const rail2Points = trackPoints.map(p => new THREE.Vector3(p.x, p.y, p.z + 1));
-        const curve2 = new THREE.CatmullRomCurve3(rail2Points);
-        const tube2 = new THREE.TubeGeometry(curve2, 500, 0.15, 8, false);
-        const track2 = new THREE.Mesh(tube2, trackMaterial);
+        // SECONDARY CHAOTIC SPIRAL - interweaving!
+        const spiral2Points = [];
+        for (let i = 0; i <= 500; i++) {
+            const u = (i / 500) * Math.PI * 2 * 3 + Math.PI; // Offset by PI
+            const v = (i / 500) * Math.PI * 2 * 5; // Different winding
+            spiral2Points.push(getChaoticTorusPoint(u, v, 1.2));
+        }
+        const curve2 = new THREE.CatmullRomCurve3(spiral2Points, true);
+        const tube2 = new THREE.TubeGeometry(curve2, 800, 0.15, 10, true);
+        const track2 = new THREE.Mesh(tube2, new THREE.MeshPhongMaterial({
+            color: 0x00ffff,
+            emissive: 0x00aaaa,
+            emissiveIntensity: 0.4,
+            shininess: 150
+        }));
         scene.add(track2);
 
-        // Cross beams
-        for (let i = 0; i < 200; i += 5) {
-            const beamGeo = new THREE.BoxGeometry(0.1, 0.1, 1.3);
-            const beam = new THREE.Mesh(beamGeo, new THREE.MeshPhongMaterial({ color: 0x444444 }));
-            const point = curve.getPoint(i / 200);
-            beam.position.set(point.x, point.y - 0.2, point.z + 0.5);
+        // THIRD CHAOTIC HELIX - magenta madness!
+        const spiral3Points = [];
+        for (let i = 0; i <= 500; i++) {
+            const u = (i / 500) * Math.PI * 2 * 4 + Math.PI/2;
+            const v = (i / 500) * Math.PI * 2 * 9;
+            spiral3Points.push(getChaoticTorusPoint(u, v, 0.8));
+        }
+        const curve3 = new THREE.CatmullRomCurve3(spiral3Points, true);
+        const tube3 = new THREE.TubeGeometry(curve3, 800, 0.12, 8, true);
+        const track3 = new THREE.Mesh(tube3, new THREE.MeshPhongMaterial({
+            color: 0xff00ff,
+            emissive: 0xaa00aa,
+            emissiveIntensity: 0.4,
+            shininess: 150
+        }));
+        scene.add(track3);
+
+        // Cross beams along the chaotic torus
+        for (let i = 0; i < 100; i++) {
+            const beamGeo = new THREE.BoxGeometry(0.1, 0.1, 2);
+            const beam = new THREE.Mesh(beamGeo, new THREE.MeshPhongMaterial({ color: 0x444444, emissive: 0x222222 }));
+            const point = curve.getPoint(i / 100);
+            const tangent = curve.getTangent(i / 100);
+            beam.position.copy(point);
+            beam.lookAt(point.clone().add(tangent));
+            beam.rotateX(Math.PI / 2);
             scene.add(beam);
         }
 
-        // VERTICAL LOOP STRUCTURES!
-        const loopPositions = [-30, 15, 50]; // X positions for loops
+        // EMBEDDED LOOP SECTIONS - built INTO the torus!
         const loopStructures = [];
-        loopPositions.forEach((loopX, loopIdx) => {
-            const loopGroup = new THREE.Group();
-            const loopRadius = 6;
-            const loopSegments = 32;
-            const loopPoints = [];
-            
-            // Create loop track points
-            for (let i = 0; i <= loopSegments; i++) {
-                const angle = (i / loopSegments) * Math.PI * 2;
-                const lx = loopX;
-                const ly = Math.sin(angle) * loopRadius + loopRadius + 2;
-                const lz = Math.cos(angle) * loopRadius;
-                loopPoints.push(new THREE.Vector3(lx, ly, lz));
-            }
-            
-            const loopCurve = new THREE.CatmullRomCurve3(loopPoints);
-            const loopTube = new THREE.TubeGeometry(loopCurve, 64, 0.2, 8, false);
-            const loopColors = [0xff4444, 0x44ff44, 0x4444ff];
-            const loopMesh = new THREE.Mesh(loopTube, new THREE.MeshPhongMaterial({
-                color: loopColors[loopIdx],
-                emissive: loopColors[loopIdx],
-                emissiveIntensity: 0.4,
-                shininess: 100
-            }));
-            loopGroup.add(loopMesh);
-            
-            // Support structure
-            const supportGeo = new THREE.CylinderGeometry(0.3, 0.4, loopRadius * 2 + 4, 8);
-            const supportMat = new THREE.MeshPhongMaterial({ color: 0x666666 });
-            const support1 = new THREE.Mesh(supportGeo, supportMat);
-            support1.position.set(loopX - 0.5, loopRadius + 2, -loopRadius - 1);
-            loopGroup.add(support1);
-            const support2 = new THREE.Mesh(supportGeo, supportMat);
-            support2.position.set(loopX + 0.5, loopRadius + 2, loopRadius + 1);
-            loopGroup.add(support2);
-            
-            scene.add(loopGroup);
-            loopStructures.push({ group: loopGroup, curve: loopCurve, x: loopX });
-        });
+        for (let loopIdx = 0; loopIdx < 3; loopIdx++) {
+            const loopT = (loopIdx + 1) / 4; // Positions along main track
+            const loopCenter = curve.getPoint(loopT);
+            const loopTangent = curve.getTangent(loopT);
+            loopStructures.push({ x: loopCenter.x, center: loopCenter });
+        }
 
         // ROADSIDE TREES - Pine trees along the track!
         const trees = [];
@@ -1400,41 +1410,21 @@
         torusWireMesh.rotation.x = Math.PI / 2;
         scene.add(torusWireMesh)
         
-        // Original crossroad curves for compatibility
-        const crossroadPoints1 = trackPoints.map((p, i) => {
-            const wave = Math.sin(i * 0.08) * 8;
-            return new THREE.Vector3(p.x, p.y + Math.sin(i * 0.05) * 3, p.z + wave + 5);
-        });
-        const crossCurve1 = new THREE.CatmullRomCurve3(crossroadPoints1);
-        allWebCurves.push(crossCurve1);
-        const crossTube1 = new THREE.TubeGeometry(crossCurve1, 500, 0.12, 8, false);
-        const crossTrack1 = new THREE.Mesh(crossTube1, new THREE.MeshPhongMaterial({ 
-            color: 0x00ffff, emissive: 0x00aaaa, emissiveIntensity: 0.3 
-        }));
-        scene.add(crossTrack1);
+        // All tracks now part of unified torus - crossroads are the spiral intersections!
+        const crossCurve1 = curve2; // Cyan spiral IS crossroad 1
+        const crossCurve2 = curve3; // Magenta spiral IS crossroad 2
+        allWebCurves.push(curve, curve2, curve3);
 
-        const crossroadPoints2 = trackPoints.map((p, i) => {
-            const wave = Math.cos(i * 0.06) * 6;
-            return new THREE.Vector3(p.x, p.y - Math.cos(i * 0.04) * 4, p.z + wave - 5);
-        });
-        const crossCurve2 = new THREE.CatmullRomCurve3(crossroadPoints2);
-        allWebCurves.push(crossCurve2);
-        const crossTube2 = new THREE.TubeGeometry(crossCurve2, 500, 0.12, 8, false);
-        const crossTrack2 = new THREE.Mesh(crossTube2, new THREE.MeshPhongMaterial({ 
-            color: 0xff00ff, emissive: 0xaa00aa, emissiveIntensity: 0.3 
-        }));
-        scene.add(crossTrack2);
-
-        // Animation - Endless Track System
+        // Animation - UNIFIED CHAOTIC TOROIDAL TRACK SYSTEM
         let t = 0;
         let lastY = 0;
         let currentTrackIndex = 0;
-        const tracks = [curve, crossCurve1, crossCurve2];
+        const tracks = [curve, curve2, curve3]; // All toroidal spirals!
         let activeTrack = curve;
         let transitionProgress = 0;
         let isTransitioning = false;
         let nextTrack = null;
-        const transitionDuration = 0.05; // How long the blend takes
+        const transitionDuration = 0.08; // Smooth transitions between spirals
         const priceEl = document.getElementById('price');
         const changeEl = document.getElementById('change');
         const screamEl = document.getElementById('scream');
@@ -1444,11 +1434,18 @@
             
             t += 0.001;
             
-            // Endless track logic - switch tracks at crossroads
-            if (t > 0.95 && !isTransitioning) {
+            // CHAOTIC TRACK SWITCHING - random switches at any time for chaos!
+            const switchChance = 0.002 + Math.abs(lastY - position.y) * 0.01; // More likely during drops!
+            if (!isTransitioning && Math.random() < switchChance) {
                 isTransitioning = true;
                 transitionProgress = 0;
-                // Pick a random next track (different from current)
+                const availableTracks = tracks.filter(tr => tr !== activeTrack);
+                nextTrack = availableTracks[Math.floor(Math.random() * availableTracks.length)];
+            }
+            // Also switch at loop points
+            if (t > 0.98 && !isTransitioning) {
+                isTransitioning = true;
+                transitionProgress = 0;
                 const availableTracks = tracks.filter(tr => tr !== activeTrack);
                 nextTrack = availableTracks[Math.floor(Math.random() * availableTracks.length)];
             }
@@ -1494,17 +1491,11 @@
             const lookAt = position.clone().add(tangent);
             cartGroup.lookAt(lookAt);
             
-            // Check if near a loop and add barrel roll effect
-            loopStructures.forEach(loop => {
-                const distToLoop = Math.abs(position.x - loop.x);
-                if (distToLoop < 8) {
-                    // Calculate loop progress based on distance
-                    const loopProgress = 1 - (distToLoop / 8);
-                    const loopAngle = loopProgress * Math.PI * 2 * Math.sign(position.x - loop.x + 0.01);
-                    cartGroup.rotation.x += Math.sin(loopAngle) * loopProgress * 0.5;
-                    cartGroup.rotation.z += Math.cos(loopAngle * 2) * loopProgress * 0.3;
-                }
-            });
+            // TOROIDAL BARREL ROLLS - constant spinning chaos!
+            const torusAngle = t * Math.PI * 2 * 3; // Matches track winding
+            const rollIntensity = 0.3 + Math.abs(position.y - lastY) * 5;
+            cartGroup.rotation.z += Math.sin(torusAngle * 2) * rollIntensity * 0.1;
+            cartGroup.rotation.x += Math.cos(torusAngle * 3) * rollIntensity * 0.05;
 
             // Smooth camera follow with interpolation
             const targetCamX = position.x - tangent.x * 8;
@@ -1536,15 +1527,15 @@
             changeEl.style.color = isUp ? '#00ff88' : '#ff4444';
             priceEl.className = 'price ' + (isUp ? 'up' : 'down');
             
-            // Update track indicator
-            const trackNames = ['MAIN LOOP', 'CYAN SPIRAL', 'MAGENTA TWIST'];
+            // Update track indicator - TOROIDAL CHAOS MODE
+            const trackNames = ['🍩 TORUS PRIME', '🌀 CYAN HELIX', '💜 MAGENTA VORTEX'];
             const trackIndicator = document.getElementById('track-indicator');
             if (isTransitioning) {
-                trackIndicator.textContent = '⚡ SWITCHING TRACKS...';
+                trackIndicator.textContent = '⚡ DIMENSIONAL SHIFT...';
                 trackIndicator.style.color = '#ffff00';
             } else {
-                trackIndicator.textContent = 'TRACK: ' + trackNames[currentTrackIndex];
-                trackIndicator.style.color = [0x00ff88, 0x00ffff, 0xff00ff][currentTrackIndex] ? '#' + [0x00ff88, 0x00ffff, 0xff00ff][currentTrackIndex].toString(16).padStart(6, '0') : '#888';
+                trackIndicator.textContent = 'SPIRAL: ' + trackNames[currentTrackIndex];
+                trackIndicator.style.color = ['#f7931a', '#00ffff', '#ff00ff'][currentTrackIndex];
             }
 
             // Animate UFOs
