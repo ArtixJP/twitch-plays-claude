@@ -469,6 +469,7 @@
 <span class="goals">Goals: <span id="goals">0</span></span>
 <span class="saves">Saves: <span id="saves">0</span></span>
 <span>Shots: <span id="shots">0</span></span>
+<span style="color:#ff6b35;">🦖 Monsters: 2</span>
 </div>
 <div id="game-container">
 <div class="three-d-badge" onclick="toggleFPV()" style="cursor:pointer" title="Click to toggle FPV">🎥 FPV ON</div>
@@ -804,8 +805,160 @@ sponsors.forEach(s => {
     scene.add(bannerGroup);
 });
 
+// GIANT MONSTERS - Godzilla and T-Rex!
+const monsters = [];
+
+// GODZILLA - The King of Monsters (proportionally HUGE)
+const godzillaGroup = new THREE.Group();
+const godzillaBody = new THREE.Mesh(
+    new THREE.CylinderGeometry(3, 4, 18, 8),
+    new THREE.MeshStandardMaterial({ color: 0x2d4a3d, roughness: 0.8 })
+);
+godzillaBody.position.y = 9;
+godzillaGroup.add(godzillaBody);
+
+const godzillaHead = new THREE.Mesh(
+    new THREE.BoxGeometry(3, 2.5, 4),
+    new THREE.MeshStandardMaterial({ color: 0x3d5a4d })
+);
+godzillaHead.position.set(0, 19, 1.5);
+godzillaGroup.add(godzillaHead);
+
+// Godzilla eyes (glowing red)
+const godzillaEyeL = new THREE.Mesh(
+    new THREE.SphereGeometry(0.4, 8, 8),
+    new THREE.MeshBasicMaterial({ color: 0xff0000, emissive: 0xff0000 })
+);
+godzillaEyeL.position.set(-0.8, 19.5, 3.5);
+godzillaGroup.add(godzillaEyeL);
+
+const godzillaEyeR = new THREE.Mesh(
+    new THREE.SphereGeometry(0.4, 8, 8),
+    new THREE.MeshBasicMaterial({ color: 0xff0000, emissive: 0xff0000 })
+);
+godzillaEyeR.position.set(0.8, 19.5, 3.5);
+godzillaGroup.add(godzillaEyeR);
+
+// Godzilla spines
+for (let i = 0; i < 5; i++) {
+    const spine = new THREE.Mesh(
+        new THREE.ConeGeometry(0.8, 3, 4),
+        new THREE.MeshStandardMaterial({ color: 0x00ffff, emissive: 0x00aaaa, emissiveIntensity: 0.5 })
+    );
+    spine.position.set(0, 12 + i * 2, -2);
+    spine.rotation.x = -0.3;
+    godzillaGroup.add(spine);
+}
+
+// Godzilla tail
+const godzillaTail = new THREE.Mesh(
+    new THREE.ConeGeometry(2, 12, 8),
+    new THREE.MeshStandardMaterial({ color: 0x2d4a3d })
+);
+godzillaTail.position.set(0, 4, -8);
+godzillaTail.rotation.x = Math.PI / 2.5;
+godzillaGroup.add(godzillaTail);
+
+godzillaGroup.position.set(-30, 0, -10);
+godzillaGroup.userData = { type: 'godzilla', targetX: -30, targetZ: -10, eatCooldown: 0, roarCooldown: 0 };
+scene.add(godzillaGroup);
+monsters.push(godzillaGroup);
+
+// T-REX - Smaller but fierce!
+const trexGroup = new THREE.Group();
+const trexBody = new THREE.Mesh(
+    new THREE.CylinderGeometry(1.5, 2, 8, 8),
+    new THREE.MeshStandardMaterial({ color: 0x5a3d2b, roughness: 0.7 })
+);
+trexBody.position.y = 4;
+trexBody.rotation.x = 0.3;
+trexGroup.add(trexBody);
+
+const trexHead = new THREE.Mesh(
+    new THREE.BoxGeometry(2, 1.8, 3),
+    new THREE.MeshStandardMaterial({ color: 0x6a4d3b })
+);
+trexHead.position.set(0, 8, 2);
+trexGroup.add(trexHead);
+
+// T-Rex jaw
+const trexJaw = new THREE.Mesh(
+    new THREE.BoxGeometry(1.8, 0.6, 2.5),
+    new THREE.MeshStandardMaterial({ color: 0x5a3d2b })
+);
+trexJaw.position.set(0, 7, 2.2);
+trexGroup.add(trexJaw);
+
+// T-Rex eyes
+const trexEyeL = new THREE.Mesh(
+    new THREE.SphereGeometry(0.25, 8, 8),
+    new THREE.MeshBasicMaterial({ color: 0xffff00 })
+);
+trexEyeL.position.set(-0.6, 8.3, 3.3);
+trexGroup.add(trexEyeL);
+
+const trexEyeR = new THREE.Mesh(
+    new THREE.SphereGeometry(0.25, 8, 8),
+    new THREE.MeshBasicMaterial({ color: 0xffff00 })
+);
+trexEyeR.position.set(0.6, 8.3, 3.3);
+trexGroup.add(trexEyeR);
+
+// T-Rex tiny arms
+const trexArmL = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.15, 0.1, 1, 6),
+    new THREE.MeshStandardMaterial({ color: 0x5a3d2b })
+);
+trexArmL.position.set(-1.2, 5, 1);
+trexArmL.rotation.z = 0.5;
+trexGroup.add(trexArmL);
+
+const trexArmR = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.15, 0.1, 1, 6),
+    new THREE.MeshStandardMaterial({ color: 0x5a3d2b })
+);
+trexArmR.position.set(1.2, 5, 1);
+trexArmR.rotation.z = -0.5;
+trexGroup.add(trexArmR);
+
+// T-Rex tail
+const trexTail = new THREE.Mesh(
+    new THREE.ConeGeometry(1, 6, 8),
+    new THREE.MeshStandardMaterial({ color: 0x5a3d2b })
+);
+trexTail.position.set(0, 3, -4);
+trexTail.rotation.x = Math.PI / 2.2;
+trexGroup.add(trexTail);
+
+// T-Rex legs
+const legMat = new THREE.MeshStandardMaterial({ color: 0x4a2d1b });
+const trexLegL = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.4, 4, 6), legMat);
+trexLegL.position.set(-1, 2, 0);
+trexGroup.add(trexLegL);
+const trexLegR = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.4, 4, 6), legMat);
+trexLegR.position.set(1, 2, 0);
+trexGroup.add(trexLegR);
+
+trexGroup.position.set(30, 0, 10);
+trexGroup.userData = { type: 'trex', targetX: 30, targetZ: 10, eatCooldown: 0 };
+scene.add(trexGroup);
+monsters.push(trexGroup);
+
+// Monster eating VFX
+function monsterEat(monster, targetPos) {
+    createBounceVFX(targetPos.x, targetPos.y + 1, targetPos.z, 0xff0000);
+    createBounceVFX(targetPos.x, targetPos.y + 2, targetPos.z, 0xff4444);
+    showMonsterAction(monster.userData.type === 'godzilla' ? '🦖 GODZILLA DEVOURS!' : '🦕 T-REX CHOMPS!');
+}
+
+function showMonsterAction(text) {
+    const el = document.getElementById('result');
+    el.textContent = text;
+    el.className = 'result-flash show save';
+    setTimeout(() => el.className = 'result-flash', 1500);
+}
+
 // Defenders
-const defenders = [];
 const defenderPositions = [
     { x: -3, z: -5 },
     { x: 3, z: -8 },
@@ -1040,6 +1193,77 @@ function animate() {
         if (d.userData.alive) {
             d.position.x += d.userData.vx;
             if (Math.abs(d.position.x - d.userData.baseX) > 3) d.userData.vx *= -1;
+        }
+    });
+    
+    // MONSTER AI - Roaming and EATING!
+    monsters.forEach(monster => {
+        // Random roaming
+        if (Math.random() < 0.01) {
+            monster.userData.targetX = (Math.random() - 0.5) * 50;
+            monster.userData.targetZ = (Math.random() - 0.5) * 40;
+        }
+        
+        // Move toward target
+        const speed = monster.userData.type === 'godzilla' ? 0.03 : 0.05;
+        monster.position.x += (monster.userData.targetX - monster.position.x) * speed;
+        monster.position.z += (monster.userData.targetZ - monster.position.z) * speed;
+        
+        // Face movement direction
+        const dx = monster.userData.targetX - monster.position.x;
+        const dz = monster.userData.targetZ - monster.position.z;
+        monster.rotation.y = Math.atan2(dx, dz);
+        
+        // Walking animation
+        monster.position.y = Math.sin(Date.now() * 0.005) * 0.3;
+        
+        // Decrease eat cooldown
+        if (monster.userData.eatCooldown > 0) monster.userData.eatCooldown--;
+        
+        // Check for eating defenders!
+        if (monster.userData.eatCooldown <= 0) {
+            const eatRange = monster.userData.type === 'godzilla' ? 8 : 5;
+            defenders.forEach(d => {
+                if (d.userData.alive) {
+                    const dist = Math.sqrt(
+                        Math.pow(d.position.x - monster.position.x, 2) +
+                        Math.pow(d.position.z - monster.position.z, 2)
+                    );
+                    if (dist < eatRange && Math.random() < 0.02) {
+                        // EAT THE DEFENDER!
+                        d.userData.alive = false;
+                        d.visible = false;
+                        monster.userData.eatCooldown = 300;
+                        monsterEat(monster, d.position);
+                        
+                        // Respawn defender after delay
+                        setTimeout(() => {
+                            d.userData.alive = true;
+                            d.visible = true;
+                            d.position.x = d.userData.baseX;
+                        }, 5000);
+                    }
+                }
+            });
+        }
+        
+        // Godzilla special: occasional ROAR with screen shake
+        if (monster.userData.type === 'godzilla') {
+            if (monster.userData.roarCooldown > 0) monster.userData.roarCooldown--;
+            if (monster.userData.roarCooldown <= 0 && Math.random() < 0.002) {
+                monster.userData.roarCooldown = 500;
+                showMonsterAction('🦖 ROOOOAAARRR!!!');
+                // Screen shake
+                camera.position.x += (Math.random() - 0.5) * 2;
+                camera.position.y += (Math.random() - 0.5) * 1;
+                // Godzilla atomic breath glow
+                monster.children.forEach(c => {
+                    if (c.material && c.material.emissive) {
+                        c.material.emissiveIntensity = 2;
+                        setTimeout(() => c.material.emissiveIntensity = 0.5, 500);
+                    }
+                });
+            }
         }
     });
     
