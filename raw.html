@@ -465,6 +465,60 @@
             55% { left: 48%; transform: scaleX(1); }
             100% { left: 48%; transform: scaleX(1); }
         }
+        .artist-reflection {
+            position: absolute;
+            top: 25%;
+            right: 5%;
+            z-index: 180;
+            max-width: 280px;
+            background: linear-gradient(135deg, rgba(255, 200, 150, 0.25), rgba(255, 150, 100, 0.15));
+            backdrop-filter: blur(12px);
+            padding: 20px 25px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 8px 32px rgba(255, 100, 50, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            animation: reflection-float 8s ease-in-out infinite;
+            font-style: italic;
+        }
+        .artist-reflection .title {
+            font-size: 0.7rem;
+            color: #ffd700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            opacity: 0.8;
+        }
+        .artist-reflection .text {
+            font-size: 0.85rem;
+            color: #fff;
+            line-height: 1.6;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .artist-reflection .signature {
+            font-size: 0.65rem;
+            color: #ffcc88;
+            margin-top: 12px;
+            text-align: right;
+            opacity: 0.7;
+        }
+        .artist-reflection .glow {
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.4) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: glow-pulse 3s ease-in-out infinite;
+        }
+        @keyframes reflection-float {
+            0%, 100% { transform: translateY(0) rotate(-1deg); opacity: 0.9; }
+            50% { transform: translateY(-10px) rotate(1deg); opacity: 1; }
+        }
+        @keyframes glow-pulse {
+            0%, 100% { transform: scale(1); opacity: 0.4; }
+            50% { transform: scale(1.3); opacity: 0.7; }
+        }
         .store-glow {
             position: absolute;
             bottom: 135px;
@@ -486,7 +540,6 @@
 <body>
 <div id="canvas-container"></div>
 <div class="beach-overlay"></div>
-
 <div class="god-rays"></div>
 <div class="water-shimmer"></div>
 <div class="lens-flare">
@@ -547,6 +600,19 @@
 <div class="companion">
 <span class="avatar">👩‍🦱</span>
 <div class="speech">สบายดี~ 💕<br/>Chill na kha~</div>
+</div>
+<div class="artist-reflection">
+<div class="glow"></div>
+<div class="title">✨ A Moment of Reflection ✨</div>
+<div class="text">
+            What began as empty pixels became a living world—
+            waves that breathe, aliens who vacation, crabs that wander,
+            and a community that dreams together under a digital sunset.
+            <br/><br/>
+            Every element here was born from collective imagination.
+            This isn't just code. It's a shared memory.
+        </div>
+<div class="signature">— crafted by chaos, polished by community 🌅</div>
 </div>
 <div class="store-glow"></div>
 <div class="beach-buildings">
