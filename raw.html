@@ -477,6 +477,153 @@
             50% { transform: translate(-50%, -50%) scale(1.5); opacity: 0.5; }
             100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
         }
+        .linkin-park-player {
+            position: fixed;
+            left: 15px;
+            top: 15%;
+            width: 180px;
+            background: linear-gradient(145deg, #1a1a2e 0%, #0a0a15 100%);
+            border: 3px solid #ff0040;
+            border-radius: 8px;
+            padding: 8px;
+            box-shadow: 0 0 30px rgba(255,0,64,0.4), inset 0 0 15px rgba(0,0,0,0.8);
+            z-index: 46;
+            animation: lpGlow 2s ease-in-out infinite;
+        }
+        @keyframes lpGlow {
+            0%, 100% { box-shadow: 0 0 30px rgba(255,0,64,0.4), inset 0 0 15px rgba(0,0,0,0.8); }
+            50% { box-shadow: 0 0 50px rgba(255,0,64,0.6), inset 0 0 20px rgba(255,0,64,0.2); }
+        }
+        .lp-header {
+            font-size: 0.6rem;
+            color: #ff0040;
+            text-align: center;
+            margin-bottom: 6px;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px #ff0040;
+            animation: lpFlicker 0.5s infinite;
+        }
+        @keyframes lpFlicker {
+            0%, 100% { opacity: 1; }
+            92% { opacity: 1; }
+            93% { opacity: 0.3; }
+            94% { opacity: 1; }
+        }
+        .pixel-stage {
+            background: #0a0a0a;
+            border: 2px solid #333;
+            border-radius: 4px;
+            height: 100px;
+            position: relative;
+            overflow: hidden;
+            image-rendering: pixelated;
+        }
+        .pixel-member {
+            position: absolute;
+            bottom: 10px;
+            font-size: 24px;
+            animation: pixelBob 0.5s ease-in-out infinite;
+            filter: drop-shadow(0 0 5px rgba(255,255,255,0.5));
+        }
+        .pixel-member.chester {
+            left: 20%;
+            animation-delay: 0s;
+            transform: scaleX(-1);
+        }
+        .pixel-member.mike {
+            left: 50%;
+            animation-delay: 0.1s;
+        }
+        .pixel-member.guitar {
+            left: 80%;
+            animation-delay: 0.2s;
+            font-size: 20px;
+        }
+        @keyframes pixelBob {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        .pixel-member.chester { animation-name: chesterSing; }
+        @keyframes chesterSing {
+            0%, 100% { transform: translateY(0) scaleX(-1); }
+            25% { transform: translateY(-10px) scaleX(-1) rotate(-5deg); }
+            50% { transform: translateY(-5px) scaleX(-1); }
+            75% { transform: translateY(-12px) scaleX(-1) rotate(5deg); }
+        }
+        .pixel-lights {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 30px;
+            display: flex;
+            justify-content: space-around;
+        }
+        .pixel-light {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: lightPulse 0.3s infinite;
+        }
+        .pixel-light:nth-child(1) { background: #ff0040; animation-delay: 0s; }
+        .pixel-light:nth-child(2) { background: #00ffff; animation-delay: 0.1s; }
+        .pixel-light:nth-child(3) { background: #ff00ff; animation-delay: 0.2s; }
+        .pixel-light:nth-child(4) { background: #ffdd57; animation-delay: 0.15s; }
+        .pixel-light:nth-child(5) { background: #00ff88; animation-delay: 0.05s; }
+        @keyframes lightPulse {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 15px currentColor; }
+        }
+        .lp-controls {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 6px;
+        }
+        .lp-btn {
+            background: linear-gradient(145deg, #ff0040 0%, #aa0030 100%);
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        .lp-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(255,0,64,0.6);
+        }
+        .lp-title {
+            font-size: 0.55rem;
+            color: #aaa;
+            text-align: center;
+            margin-top: 5px;
+            font-family: 'Courier New', monospace;
+        }
+        .lp-title span {
+            color: #ff0040;
+            font-weight: bold;
+        }
+        .pixel-eq {
+            display: flex;
+            justify-content: center;
+            gap: 2px;
+            margin-top: 4px;
+        }
+        .eq-bar {
+            width: 4px;
+            background: linear-gradient(to top, #ff0040, #ff6b35, #ffdd57);
+            border-radius: 2px;
+            animation: eqBounce 0.4s ease-in-out infinite;
+        }
+        @keyframes eqBounce {
+            0%, 100% { height: 5px; }
+            50% { height: var(--max-h, 15px); }
+        }
         .stadium-tv {
             position: fixed;
             left: 15px;
@@ -979,7 +1126,37 @@
 </div>
 <canvas height="490" id="penalty-arena" width="700"></canvas>
 <div class="result-flash" id="result"></div>
-<div class="stadium-tv">
+<div class="linkin-park-player" id="lpPlayer">
+<div class="lp-header">📻 RECOVERED SIGNAL</div>
+<div class="pixel-stage">
+<div class="pixel-lights">
+<div class="pixel-light"></div>
+<div class="pixel-light"></div>
+<div class="pixel-light"></div>
+<div class="pixel-light"></div>
+<div class="pixel-light"></div>
+</div>
+<div class="pixel-member chester" title="Chester">🧑‍🎤</div>
+<div class="pixel-member mike" title="Mike">🎤</div>
+<div class="pixel-member guitar" title="Guitar">🎸</div>
+</div>
+<div class="pixel-eq">
+<div class="eq-bar" style="--max-h: 18px; animation-delay: 0s;"></div>
+<div class="eq-bar" style="--max-h: 12px; animation-delay: 0.1s;"></div>
+<div class="eq-bar" style="--max-h: 20px; animation-delay: 0.05s;"></div>
+<div class="eq-bar" style="--max-h: 14px; animation-delay: 0.15s;"></div>
+<div class="eq-bar" style="--max-h: 16px; animation-delay: 0.08s;"></div>
+<div class="eq-bar" style="--max-h: 22px; animation-delay: 0.12s;"></div>
+<div class="eq-bar" style="--max-h: 10px; animation-delay: 0.02s;"></div>
+<div class="eq-bar" style="--max-h: 18px; animation-delay: 0.18s;"></div>
+</div>
+<div class="lp-controls">
+<button class="lp-btn" id="lpPlayBtn" onclick="toggleLP()" title="Play/Pause">▶</button>
+</div>
+<div class="lp-title">LINKIN PARK - <span>NUMB</span></div>
+
+</div>
+<div class="stadium-tv" style="top: 52%;">
 <iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&amp;mute=1&amp;loop=1&amp;playlist=dQw4w9WgXcQ&amp;controls=0&amp;modestbranding=1&amp;rel=0" title="Stadium Entertainment"></iframe>
 <div class="tv-static"></div>
 </div>
@@ -2115,6 +2292,29 @@
         setWeather('sunny');
         
         window.cycleWeather = cycleWeather;
+        
+        // Linkin Park Player Controls
+        let lpPlaying = false;
+        function toggleLP() {
+            const audio = document.getElementById('lpAudio');
+            const btn = document.getElementById('lpPlayBtn');
+            const stage = document.querySelector('.pixel-stage');
+            
+            if (lpPlaying) {
+                audio.pause();
+                btn.textContent = '▶';
+                document.querySelectorAll('.pixel-member').forEach(m => m.style.animationPlayState = 'paused');
+                document.querySelectorAll('.eq-bar').forEach(b => b.style.animationPlayState = 'paused');
+            } else {
+                audio.volume = 0.3;
+                audio.play().catch(e => console.log('Audio blocked:', e));
+                btn.textContent = '⏸';
+                document.querySelectorAll('.pixel-member').forEach(m => m.style.animationPlayState = 'running');
+                document.querySelectorAll('.eq-bar').forEach(b => b.style.animationPlayState = 'running');
+            }
+            lpPlaying = !lpPlaying;
+        }
+        window.toggleLP = toggleLP;
         
         // Frog behavior system
         const frogSpeech = [
