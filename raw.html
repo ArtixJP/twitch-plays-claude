@@ -627,9 +627,12 @@
 <span class="saves">Saves: <span id="saves">0</span></span>
 <span>Shots: <span id="shots">0</span></span>
 <span style="color:#ff6b35;">🦖 Monsters: 2</span>
+<span style="color:#00ffff;">🎯 PINBALL: <span id="pinballScore">0</span></span>
+<span style="color:#ff00ff;">x<span id="comboMultiplier">1</span></span>
 </div>
 <div id="game-container">
-<div class="three-d-badge" onclick="toggleFPV()" style="cursor:pointer" title="Click to toggle FPV">🎥 FPV ON</div>
+<div class="three-d-badge" onclick="toggleFPV()" style="cursor:pointer" title="Click to toggle FPV">🎯 PINBALL MODE</div>
+<div style="position:fixed;top:100px;left:10px;background:linear-gradient(145deg,rgba(255,0,102,0.9),rgba(0,255,136,0.9));color:white;font-weight:bold;font-size:0.6rem;padding:6px 12px;border-radius:15px;z-index:100;animation:badgePulse 1s infinite;">🎰 BOUNCE = POINTS!</div>
 <div class="power-bar-container" id="powerBar"><div class="power-bar-fill" id="powerFill" style="height: 0%"></div></div>
 <div class="aim-indicator"><div class="aim-marker" id="aimMarker" style="left: 50%"></div></div>
 <div class="controls-hint" id="controlsHint">🤖 AI PLAYING... Click button to control!</div>
@@ -789,42 +792,65 @@ scene.add(keeperGroup);
 // CITY BUILDINGS around the stadium
 const buildings = [];
 // MEGA CITY - Buildings spread across 10x larger area!
-const buildingData = [
-    // Inner ring
-    { x: -45, z: -35, w: 12, h: 35, d: 12, color: 0x334455 },
-    { x: -45, z: 25, w: 10, h: 45, d: 10, color: 0x445566 },
-    { x: 45, z: -35, w: 14, h: 40, d: 12, color: 0x3a4a5a },
-    { x: 45, z: 25, w: 10, h: 50, d: 10, color: 0x4a5a6a },
-    { x: -40, z: -55, w: 16, h: 30, d: 8, color: 0x2a3a4a },
-    { x: 40, z: -55, w: 12, h: 34, d: 10, color: 0x3a4a5a },
-    { x: 0, z: -60, w: 20, h: 25, d: 8, color: 0x4a5a6a },
-    { x: -35, z: 50, w: 10, h: 28, d: 10, color: 0x556677 },
-    { x: 35, z: 50, w: 12, h: 32, d: 8, color: 0x445566 },
-    { x: 0, z: 55, w: 16, h: 22, d: 10, color: 0x334455 },
-    // Outer ring - far buildings
-    { x: -90, z: -70, w: 18, h: 55, d: 15, color: 0x2a3a4a },
-    { x: -90, z: 0, w: 15, h: 60, d: 12, color: 0x3a4a5a },
-    { x: -90, z: 70, w: 14, h: 50, d: 14, color: 0x445566 },
-    { x: 90, z: -70, w: 16, h: 58, d: 14, color: 0x334455 },
-    { x: 90, z: 0, w: 18, h: 65, d: 15, color: 0x4a5a6a },
-    { x: 90, z: 70, w: 15, h: 52, d: 12, color: 0x556677 },
-    { x: -60, z: -100, w: 20, h: 45, d: 18, color: 0x3a4a5a },
-    { x: 0, z: -110, w: 25, h: 40, d: 20, color: 0x2a3a4a },
-    { x: 60, z: -100, w: 18, h: 48, d: 16, color: 0x445566 },
-    { x: -60, z: 100, w: 16, h: 42, d: 14, color: 0x4a5a6a },
-    { x: 0, z: 110, w: 22, h: 38, d: 18, color: 0x334455 },
-    { x: 60, z: 100, w: 20, h: 44, d: 16, color: 0x556677 },
-    // Mega towers at corners
-    { x: -120, z: -120, w: 25, h: 80, d: 25, color: 0x223344 },
-    { x: 120, z: -120, w: 25, h: 85, d: 25, color: 0x334455 },
-    { x: -120, z: 120, w: 25, h: 75, d: 25, color: 0x445566 },
-    { x: 120, z: 120, w: 25, h: 90, d: 25, color: 0x223344 },
-    // Mid-range scattered buildings
-    { x: -70, z: -40, w: 10, h: 35, d: 10, color: 0x3a4a5a },
-    { x: 70, z: -40, w: 12, h: 38, d: 11, color: 0x445566 },
-    { x: -70, z: 40, w: 11, h: 32, d: 10, color: 0x556677 },
-    { x: 70, z: 40, w: 13, h: 36, d: 12, color: 0x4a5a6a },
+// PINBALL ARCADE - Randomly positioned bumper buildings!
+const pinballColors = [0xff0066, 0x00ff88, 0xffdd00, 0x00ddff, 0xff6600, 0xaa00ff, 0x00ffaa];
+const buildingData = [];
+
+// Generate RANDOM chaotic pinball bumpers!
+function randomRange(min, max) { return min + Math.random() * (max - min); }
+
+// Inner chaos zone - tight pinball action!
+for (let i = 0; i < 15; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const radius = 20 + Math.random() * 30;
+    buildingData.push({
+        x: Math.cos(angle) * radius + (Math.random() - 0.5) * 20,
+        z: Math.sin(angle) * radius - 30 + (Math.random() - 0.5) * 20,
+        w: 4 + Math.random() * 8,
+        h: 15 + Math.random() * 30,
+        d: 4 + Math.random() * 8,
+        color: pinballColors[Math.floor(Math.random() * pinballColors.length)],
+        isBumper: true,
+        points: Math.floor(Math.random() * 5 + 1) * 100
+    });
+}
+
+// Mid-range bumper field
+for (let i = 0; i < 20; i++) {
+    buildingData.push({
+        x: (Math.random() - 0.5) * 150,
+        z: (Math.random() - 0.5) * 120 - 20,
+        w: 6 + Math.random() * 12,
+        h: 20 + Math.random() * 40,
+        d: 6 + Math.random() * 12,
+        color: pinballColors[Math.floor(Math.random() * pinballColors.length)],
+        isBumper: true,
+        points: Math.floor(Math.random() * 3 + 1) * 50
+    });
+}
+
+// Outer mega bumpers
+for (let i = 0; i < 12; i++) {
+    const angle = (i / 12) * Math.PI * 2;
+    buildingData.push({
+        x: Math.cos(angle) * 100 + (Math.random() - 0.5) * 30,
+        z: Math.sin(angle) * 80 + (Math.random() - 0.5) * 30,
+        w: 15 + Math.random() * 15,
+        h: 40 + Math.random() * 50,
+        d: 15 + Math.random() * 15,
+        color: 0x223344,
+        isBumper: false,
+        points: 25
+    });
+}
+
+// SPECIAL BONUS TOWERS - high value targets!
+const bonusTowers = [
+    { x: 0, z: -80, w: 8, h: 60, d: 8, color: 0xffdd00, isBumper: true, points: 1000 },
+    { x: -50, z: 30, w: 6, h: 45, d: 6, color: 0xff00ff, isBumper: true, points: 500 },
+    { x: 50, z: 30, w: 6, h: 45, d: 6, color: 0x00ffff, isBumper: true, points: 500 },
 ];
+buildingData.push(...bonusTowers);
 
 buildingData.forEach(b => {
     const buildingGroup = new THREE.Group();
@@ -867,7 +893,18 @@ buildingData.forEach(b => {
     buildingGroup.add(antenna);
     
     buildingGroup.position.set(b.x, 0, b.z);
-    buildingGroup.userData = { bounds: { x: b.x, z: b.z, w: b.w, d: b.d, h: b.h } };
+    buildingGroup.userData = { bounds: { x: b.x, z: b.z, w: b.w, d: b.d, h: b.h, isBumper: b.isBumper, points: b.points || 50 } };
+    
+    // Glowing bumper effect for pinball bumpers!
+    if (b.isBumper) {
+        const glowRing = new THREE.Mesh(
+            new THREE.TorusGeometry(Math.max(b.w, b.d) * 0.6, 0.3, 8, 16),
+            new THREE.MeshBasicMaterial({ color: b.color, transparent: true, opacity: 0.7 })
+        );
+        glowRing.rotation.x = Math.PI / 2;
+        glowRing.position.y = b.h + 0.5;
+        buildingGroup.add(glowRing);
+    }
     scene.add(buildingGroup);
     buildings.push(buildingGroup);
 });
@@ -908,6 +945,63 @@ for (let i = 0; i < 24; i++) {
 
 // Defenders array
 const defenders = [];
+
+// PINBALL SCORING SYSTEM
+let pinballScore = 0;
+let comboMultiplier = 1;
+let comboTimer = 0;
+let lastBounceTime = 0;
+
+function addPinballPoints(points, x, y, z) {
+    const now = Date.now();
+    // Combo system - quick bounces increase multiplier!
+    if (now - lastBounceTime < 1500) {
+        comboMultiplier = Math.min(comboMultiplier + 1, 10);
+        comboTimer = 120; // frames to maintain combo
+    }
+    lastBounceTime = now;
+    
+    const earnedPoints = points * comboMultiplier;
+    pinballScore += earnedPoints;
+    
+    // Update UI
+    document.getElementById('pinballScore').textContent = pinballScore.toLocaleString();
+    document.getElementById('comboMultiplier').textContent = comboMultiplier;
+    
+    // Show floating points!
+    showFloatingPoints(earnedPoints, x, y, z);
+    
+    // Combo flash effect
+    if (comboMultiplier >= 3) {
+        const multiplierEl = document.getElementById('comboMultiplier');
+        multiplierEl.style.textShadow = '0 0 20px #ff00ff, 0 0 40px #00ffff';
+        setTimeout(() => multiplierEl.style.textShadow = '', 200);
+    }
+}
+
+function showFloatingPoints(points, x, y, z) {
+    // Create 3D floating text effect
+    const colors = [0xffdd00, 0x00ff88, 0xff00ff, 0x00ffff];
+    for (let i = 0; i < 5; i++) {
+        const particle = new THREE.Mesh(
+            new THREE.SphereGeometry(0.3, 8, 8),
+            new THREE.MeshBasicMaterial({ 
+                color: colors[Math.floor(Math.random() * colors.length)],
+                transparent: true,
+                opacity: 1
+            })
+        );
+        particle.position.set(x + (Math.random()-0.5)*2, y + 2, z + (Math.random()-0.5)*2);
+        particle.userData = {
+            vx: (Math.random() - 0.5) * 0.3,
+            vy: 0.3 + Math.random() * 0.2,
+            vz: (Math.random() - 0.5) * 0.3,
+            life: 1.5
+        };
+        scene.add(particle);
+        bounceParticles.push(particle);
+    }
+}
 
 // Bounce VFX particles system
 let bounceParticles = [];
@@ -1499,6 +1593,21 @@ function animate() {
                 // VFX explosion
                 createBounceVFX(ball.position.x, ball.position.y, ball.position.z, bounceColor);
                 
+                // PINBALL POINTS!
+                const hitBuilding = buildings.find(bld => {
+                    const bb = bld.userData.bounds;
+                    return Math.abs(ball.position.x - bb.x) < bb.w && Math.abs(ball.position.z - bb.z) < bb.d;
+                });
+                const pointValue = hitBuilding?.userData?.bounds?.points || 100;
+                addPinballPoints(pointValue, ball.position.x, ball.position.y, ball.position.z);
+                
+                // BUMPER BOOST for special bumpers!
+                if (hitBuilding?.userData?.bounds?.isBumper) {
+                    ballVelocity.x *= 1.3;
+                    ballVelocity.z *= 1.3;
+                    ballVelocity.y = Math.max(ballVelocity.y, 0.4);
+                }
+                
                 // Screen shake effect
                 camera.position.x += (Math.random() - 0.5) * 0.5;
                 camera.position.y += (Math.random() - 0.5) * 0.3;
@@ -1581,6 +1690,15 @@ function animate() {
     if (gamePhase === 'result') {
         resultTimer--;
         if (resultTimer <= 0) resetBall();
+    }
+    
+    // Combo timer decay
+    if (comboTimer > 0) {
+        comboTimer--;
+        if (comboTimer <= 0 && comboMultiplier > 1) {
+            comboMultiplier = 1;
+            document.getElementById('comboMultiplier').textContent = '1';
+        }
     }
     
     // Keeper patrol
