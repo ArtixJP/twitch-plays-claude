@@ -607,10 +607,123 @@
             color: #9147ff;
             margin-left: 3px;
         }
+        .weather-indicator {
+            position: fixed;
+            top: 40px;
+            right: 15px;
+            background: rgba(0,0,0,0.6);
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            z-index: 50;
+            border: 1px solid;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .weather-indicator:hover {
+            transform: scale(1.05);
+        }
+        .weather-indicator.sunny {
+            color: #ffdd57;
+            border-color: #ffdd57;
+            box-shadow: 0 0 15px rgba(255,221,87,0.3);
+        }
+        .weather-indicator.rainy {
+            color: #00d4ff;
+            border-color: #00d4ff;
+            box-shadow: 0 0 15px rgba(0,212,255,0.3);
+        }
+        .weather-indicator.snowy {
+            color: #ffffff;
+            border-color: #aaddff;
+            box-shadow: 0 0 15px rgba(170,221,255,0.3);
+        }
+        .weather-indicator.thunder {
+            color: #bf94ff;
+            border-color: #9147ff;
+            box-shadow: 0 0 15px rgba(145,71,255,0.3);
+            animation: thunderPulse 0.5s infinite;
+        }
+        @keyframes thunderPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        .rain-drop {
+            position: fixed;
+            width: 2px;
+            height: 15px;
+            background: linear-gradient(to bottom, transparent, #00d4ff);
+            pointer-events: none;
+            z-index: 3;
+            animation: rainFall linear forwards;
+        }
+        @keyframes rainFall {
+            0% { transform: translateY(-20px); opacity: 0.8; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+        .snowflake {
+            position: fixed;
+            color: white;
+            pointer-events: none;
+            z-index: 3;
+            animation: snowFall linear forwards;
+            text-shadow: 0 0 5px #aaddff;
+        }
+        @keyframes snowFall {
+            0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0.3; }
+        }
+        .sun-rays {
+            position: fixed;
+            top: -50px;
+            right: -50px;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(255,221,87,0.4) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 2;
+            animation: sunPulse 3s ease-in-out infinite;
+        }
+        @keyframes sunPulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+        }
+        .lightning {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.9);
+            pointer-events: none;
+            z-index: 100;
+            animation: lightningFlash 0.15s ease-out;
+        }
+        @keyframes lightningFlash {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 0; }
+        }
+        .thunder-bolt {
+            position: fixed;
+            font-size: 3rem;
+            pointer-events: none;
+            z-index: 101;
+            animation: boltStrike 0.5s ease-out forwards;
+        }
+        @keyframes boltStrike {
+            0% { transform: translateY(-50px) scale(1.5); opacity: 1; }
+            100% { transform: translateY(0) scale(1); opacity: 0; }
+        }
     </style>
 </head>
 <body>
 <div id="bg-container"></div>
+<div id="weatherEffects"></div>
+<div class="weather-indicator sunny" id="weatherIndicator" onclick="cycleWeather()" title="Click to change weather">☀️ SUNNY</div>
 <h1>⚽ AI Penalty Shootout</h1>
 <div class="mode-indicator autoplay" id="modeIndicator">🤖 AUTOPLAY MODE</div>
 <div class="ai-status">🎮 YOU vs AI KEEPER <span class="pulse">●</span> KEEPER ROAMS FREE!<button class="mode-toggle" id="modeToggle" onclick="toggleGameMode()">🎮 TAKE CONTROL</button></div>
@@ -1611,6 +1724,111 @@
         // Expose to window for onclick handlers
         window.manualFireworks = manualFireworks;
         window.revealIntel = revealIntel;
+        
+        // Weather System
+        const weatherTypes = ['sunny', 'rainy', 'snowy', 'thunder'];
+        const weatherIcons = { sunny: '☀️', rainy: '🌧️', snowy: '❄️', thunder: '⛈️' };
+        const weatherNames = { sunny: 'SUNNY', rainy: 'RAINY', snowy: 'SNOWY', thunder: 'THUNDER' };
+        let currentWeather = 'sunny';
+        let weatherInterval = null;
+        let sunElement = null;
+        
+        function setWeather(weather) {
+            currentWeather = weather;
+            const indicator = document.getElementById('weatherIndicator');
+            indicator.className = 'weather-indicator ' + weather;
+            indicator.innerHTML = weatherIcons[weather] + ' ' + weatherNames[weather];
+            
+            // Clear previous effects
+            if (weatherInterval) clearInterval(weatherInterval);
+            const effects = document.getElementById('weatherEffects');
+            effects.innerHTML = '';
+            if (sunElement) { sunElement.remove(); sunElement = null; }
+            
+            // Apply new effects
+            if (weather === 'sunny') {
+                sunElement = document.createElement('div');
+                sunElement.className = 'sun-rays';
+                document.body.appendChild(sunElement);
+            } else if (weather === 'rainy') {
+                weatherInterval = setInterval(createRainDrop, 50);
+            } else if (weather === 'snowy') {
+                weatherInterval = setInterval(createSnowflake, 100);
+            } else if (weather === 'thunder') {
+                weatherInterval = setInterval(createRainDrop, 80);
+                scheduleThunder();
+            }
+        }
+        
+        function createRainDrop() {
+            const drop = document.createElement('div');
+            drop.className = 'rain-drop';
+            drop.style.left = Math.random() * window.innerWidth + 'px';
+            drop.style.animationDuration = (0.5 + Math.random() * 0.3) + 's';
+            document.getElementById('weatherEffects').appendChild(drop);
+            setTimeout(() => drop.remove(), 1000);
+        }
+        
+        function createSnowflake() {
+            const flake = document.createElement('div');
+            flake.className = 'snowflake';
+            flake.textContent = ['❄', '❅', '❆', '✻'][Math.floor(Math.random() * 4)];
+            flake.style.left = Math.random() * window.innerWidth + 'px';
+            flake.style.fontSize = (8 + Math.random() * 12) + 'px';
+            flake.style.animationDuration = (3 + Math.random() * 4) + 's';
+            document.getElementById('weatherEffects').appendChild(flake);
+            setTimeout(() => flake.remove(), 7000);
+        }
+        
+        function scheduleThunder() {
+            if (currentWeather !== 'thunder') return;
+            const delay = 2000 + Math.random() * 5000;
+            setTimeout(() => {
+                if (currentWeather !== 'thunder') return;
+                triggerLightning();
+                scheduleThunder();
+            }, delay);
+        }
+        
+        function triggerLightning() {
+            // Flash
+            const flash = document.createElement('div');
+            flash.className = 'lightning';
+            document.body.appendChild(flash);
+            setTimeout(() => flash.remove(), 150);
+            
+            // Bolt emoji
+            const bolt = document.createElement('div');
+            bolt.className = 'thunder-bolt';
+            bolt.textContent = '⚡';
+            bolt.style.left = (100 + Math.random() * (window.innerWidth - 200)) + 'px';
+            bolt.style.top = (50 + Math.random() * 150) + 'px';
+            document.body.appendChild(bolt);
+            setTimeout(() => bolt.remove(), 500);
+            
+            // Screen shake
+            document.body.classList.add('screen-shake');
+            setTimeout(() => document.body.classList.remove('screen-shake'), 400);
+        }
+        
+        function cycleWeather() {
+            const idx = weatherTypes.indexOf(currentWeather);
+            const nextIdx = (idx + 1) % weatherTypes.length;
+            setWeather(weatherTypes[nextIdx]);
+        }
+        
+        // Auto-change weather occasionally
+        setInterval(() => {
+            if (Math.random() < 0.1) { // 10% chance every 30s
+                const randomWeather = weatherTypes[Math.floor(Math.random() * weatherTypes.length)];
+                setWeather(randomWeather);
+            }
+        }, 30000);
+        
+        // Initialize weather
+        setWeather('sunny');
+        
+        window.cycleWeather = cycleWeather;
         
         // Track goals and saves for auto-intel reveal
         let prevGoals = 0;
