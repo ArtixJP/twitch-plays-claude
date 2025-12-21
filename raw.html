@@ -275,7 +275,7 @@
 <body>
 <div id="bg-container"></div>
 <h1>⚽ AI Penalty Shootout</h1>
-<div class="ai-status">🎮 YOU vs AI KEEPER <span class="pulse">●</span> PLAYER CONTROLLED!</div>
+<div class="ai-status">🎮 YOU vs AI KEEPER <span class="pulse">●</span> KEEPER ROAMS FREE!</div>
 <div class="score-display">
 <span class="goals">Goals: <span id="goals">0</span></span>
 <span class="saves">Saves: <span id="saves">0</span></span>
@@ -438,9 +438,20 @@
                 ball.x += ball.vx;
                 ball.y += ball.vy;
                 ball.vy += 0.2; // Slight curve
-                
-                // Keeper moves
+            }
+            
+            // Keeper moves ALL THE TIME - free roaming AI!
+            if (gamePhase === 'aiming' || gamePhase === 'power') {
+                // Patrol mode: keeper wanders back and forth
+                if (Math.random() < 0.02) {
+                    keeper.targetX = 100 + Math.random() * 200;
+                }
+                keeper.x += (keeper.targetX - keeper.x) * 0.04;
+            } else if (gamePhase === 'shooting') {
+                // Reaction mode: faster movement to intercept
                 keeper.x += (keeper.targetX - keeper.x) * 0.15;
+                
+                }
                 
                 // Check if ball reached goal line
                 if (ball.y <= goal.y + goal.height) {
