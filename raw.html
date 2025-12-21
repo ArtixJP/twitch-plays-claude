@@ -44,6 +44,33 @@
             filter: drop-shadow(0 0 20px rgba(255, 200, 100, 0.5));
             z-index: 5;
         }
+        .space-cop {
+            position: absolute;
+            bottom: 10%;
+            font-size: 3rem;
+            animation: patrol 12s linear infinite;
+            filter: drop-shadow(0 0 15px rgba(100, 150, 255, 0.4));
+            z-index: 6;
+        }
+        .space-cop::after {
+            content: '🚨';
+            position: absolute;
+            top: -20px;
+            left: 10px;
+            font-size: 1rem;
+            animation: flash 0.5s ease-in-out infinite alternate;
+        }
+        @keyframes patrol {
+            0% { left: -10%; transform: scaleX(1); }
+            45% { left: 90%; transform: scaleX(1); }
+            50% { left: 90%; transform: scaleX(-1); }
+            95% { left: -10%; transform: scaleX(-1); }
+            100% { left: -10%; transform: scaleX(1); }
+        }
+        @keyframes flash {
+            0% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
         .coca-cola {
             position: absolute;
             font-size: 2.5rem;
@@ -98,7 +125,6 @@
     </style>
 </head>
 <body>
-
 <div class="stars">
 <div class="star" style="width: 3px; height: 3px; top: 10%; left: 20%; animation-delay: 0s;"></div>
 <div class="star" style="width: 2px; height: 2px; top: 25%; left: 80%; animation-delay: 0.5s;"></div>
@@ -108,11 +134,10 @@
 <div class="star" style="width: 2px; height: 2px; top: 15%; left: 65%; animation-delay: 0.8s;"></div>
 <div class="star" style="width: 3px; height: 3px; top: 70%; left: 35%; animation-delay: 1.2s;"></div>
 </div>
-
 <div class="helmet" style="top: 28%; left: -12%;"></div>
 <div class="space-dog">🐕</div>
-
 <div class="coca-cola">🥤</div>
+<div class="space-cop" title="Space Patrol">👮</div>
 <h1>Hello World!</h1>
 <p class="instruction">
         Type <code>!idea &lt;your idea&gt;</code> in the Twitch chat to add to this page.<br/>
