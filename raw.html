@@ -435,7 +435,26 @@
             left: 5%;
             z-index: 120;
             text-align: center;
-            transition: left 0.1s linear, bottom 0.1s linear;
+            transition: left 0.15s ease-out, bottom 0.15s ease-out;
+            filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.8));
+        }
+        .camera-mode-indicator {
+            position: fixed;
+            top: 60px;
+            right: 10px;
+            z-index: 200;
+            background: rgba(0, 150, 255, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 200, 255, 0.5);
+            color: #00ccff;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .camera-mode-indicator::before {
+            content: '🎬 ';
         }
         .player .avatar {
             font-size: 2rem;
@@ -829,6 +848,7 @@
 <div class="name-tag">YOU</div>
 </div>
 <div class="audio-indicator" id="audio-toggle">🌊 Ocean Waves</div>
+<div class="camera-mode-indicator" id="camera-mode">Camera: Orbit</div>
 <div class="auto-launch-countdown" id="auto-countdown">
 <div class="label">🚀 Auto-Launch In</div>
 <div class="timer" id="countdown-timer">15</div>
@@ -2118,31 +2138,46 @@
         // Player path waypoints (percentage positions)
         const playerPath = [
             { left: 5, bottom: 70 },
-            { left: 15, bottom: 75 },
-            { left: 25, bottom: 80 },
-            { left: 35, bottom: 85 },
-            { left: 45, bottom: 80 },
-            { left: 55, bottom: 75 },
-            { left: 65, bottom: 70 },
-            { left: 75, bottom: 65 },
+            { left: 12, bottom: 80 },
+            { left: 22, bottom: 90 },
+            { left: 35, bottom: 95 },
+            { left: 50, bottom: 90 },
+            { left: 65, bottom: 80 },
+            { left: 78, bottom: 70 },
             { left: 85, bottom: 60 },
-            { left: 80, bottom: 55 },
-            { left: 70, bottom: 50 },
-            { left: 60, bottom: 55 },
-            { left: 50, bottom: 60 },
-            { left: 40, bottom: 65 },
-            { left: 30, bottom: 70 },
-            { left: 20, bottom: 75 },
+            { left: 80, bottom: 50 },
+            { left: 65, bottom: 45 },
+            { left: 50, bottom: 50 },
+            { left: 35, bottom: 55 },
+            { left: 20, bottom: 60 },
             { left: 10, bottom: 70 }
         ];
         
         let currentWaypoint = 0;
         let playerX = playerPath[0].left;
         let playerY = playerPath[0].bottom;
-        const playerSpeed = 0.15;
+        const playerSpeed = 0.25;
         
         // 3D player representation for camera tracking
         let player3DPos = { x: -8, z: 28 };
+        
+        // Extended player path for more exploration
+        const extendedPath = [
+            { left: 5, bottom: 70, zone: 'beach-left' },
+            { left: 12, bottom: 85, zone: 'near-hut' },
+            { left: 25, bottom: 90, zone: 'tiki-bar' },
+            { left: 40, bottom: 95, zone: 'btc-store' },
+            { left: 55, bottom: 90, zone: 'rentals' },
+            { left: 70, bottom: 80, zone: 'beach-right' },
+            { left: 80, bottom: 70, zone: 'far-beach' },
+            { left: 85, bottom: 60, zone: 'water-edge' },
+            { left: 75, bottom: 55, zone: 'surfing-spot' },
+            { left: 60, bottom: 50, zone: 'deep-water' },
+            { left: 45, bottom: 55, zone: 'sailboat-view' },
+            { left: 30, bottom: 60, zone: 'palm-trees' },
+            { left: 15, bottom: 65, zone: 'aliens-hangout' },
+            { left: 8, bottom: 75, zone: 'crab-corner' }
+        ];
         
         function updatePlayer() {
             if (rocketLaunched) return; // Stop when rocket launches
@@ -2180,30 +2215,120 @@
             playerEl.style.bottom = playerY + 'px';
             
             // Update 3D position for camera (map 2D to 3D space)
-            player3DPos.x = (playerX - 50) * 0.4; // -20 to 20
-            player3DPos.z = 35 - (playerY - 50) * 0.15; // Map bottom position to z
+            player3DPos.x = (playerX - 50) * 0.5; // -25 to 25 (wider range)
+            player3DPos.z = 40 - (playerY - 50) * 0.2; // Better depth mapping
         }
         
-        // Camera follow system
+        // ENHANCED CINEMATIC CAMERA FOLLOW SYSTEM
         let cameraFollowEnabled = true;
-        let cameraTargetX = 0;
-        let cameraTargetZ = 0;
-        const cameraLerpSpeed = 0.02;
+        let cameraAngle = 0;
+        let cameraDistance = 8;
+        let cameraHeight = 4;
+        let targetCameraAngle = 0;
+        let targetCameraDistance = 8;
+        let targetCameraHeight = 4;
+        const cameraLerpSpeed = 0.03;
+        let cameraMode = 'orbit'; // orbit, chase, cinematic
+        let cameraModeTimer = 0;
+        
+        // Create a visible 3D player marker in the scene
+        const player3DMarker = new THREE.Group();
+        const playerBodyGeo = new THREE.CapsuleGeometry(0.3, 0.8, 8, 16);
+        const playerBodyMat = new THREE.MeshPhongMaterial({ color: 0xffcc00, emissive: 0x553300 });
+        const playerBody3D = new THREE.Mesh(playerBodyGeo, playerBodyMat);
+        playerBody3D.position.y = 0.7;
+        player3DMarker.add(playerBody3D);
+        
+        // Player head
+        const playerHeadGeo = new THREE.SphereGeometry(0.25, 16, 16);
+        const playerHeadMat = new THREE.MeshPhongMaterial({ color: 0xffddaa });
+        const playerHead3D = new THREE.Mesh(playerHeadGeo, playerHeadMat);
+        playerHead3D.position.y = 1.4;
+        player3DMarker.add(playerHead3D);
+        
+        // Player glow
+        const playerGlow = new THREE.PointLight(0xffd700, 0.5, 5);
+        playerGlow.position.y = 1;
+        player3DMarker.add(playerGlow);
+        
+        player3DMarker.position.set(-8, 0, 28);
+        scene.add(player3DMarker);
         
         function updateCameraFollow() {
             if (rocketLaunched || !cameraFollowEnabled) return;
             
-            // Smooth camera follow
-            cameraTargetX = player3DPos.x * 0.3;
-            cameraTargetZ = player3DPos.z - 25;
+            const time = Date.now() * 0.001;
             
-            // Lerp camera position
-            camera.position.x += (cameraTargetX - camera.position.x) * cameraLerpSpeed;
-            camera.position.z += (cameraTargetZ - camera.position.z) * cameraLerpSpeed * 0.5;
+            // Update 3D player marker position
+            player3DMarker.position.x = player3DPos.x;
+            player3DMarker.position.z = player3DPos.z;
+            player3DMarker.position.y = 0.1 + Math.sin(time * 8) * 0.1; // Bounce effect
             
-            // Slight camera rotation to look at player area
-            const lookAtX = player3DPos.x * 0.5;
-            camera.rotation.y = -lookAtX * 0.01;
+            // Player faces movement direction
+            const dx = playerPath[currentWaypoint].left - playerX;
+            player3DMarker.rotation.y = dx > 0 ? -Math.PI / 2 : Math.PI / 2;
+            
+            // Camera mode switching every 10 seconds
+            cameraModeTimer += 0.016;
+            if (cameraModeTimer > 10) {
+                cameraModeTimer = 0;
+                const modes = ['orbit', 'chase', 'cinematic', 'side'];
+                cameraMode = modes[Math.floor(Math.random() * modes.length)];
+                // Update UI indicator
+                const modeNames = { orbit: 'Orbit', chase: 'Chase', cinematic: 'Cinematic', side: 'Side Scroll' };
+                document.getElementById('camera-mode').textContent = 'Camera: ' + modeNames[cameraMode];
+            }
+            
+            // Calculate camera position based on mode
+            switch(cameraMode) {
+                case 'orbit':
+                    // Orbit around player
+                    targetCameraAngle += 0.005;
+                    targetCameraDistance = 10;
+                    targetCameraHeight = 5;
+                    break;
+                case 'chase':
+                    // Chase cam behind player
+                    targetCameraAngle = Math.atan2(player3DPos.x, player3DPos.z - 30) + Math.PI;
+                    targetCameraDistance = 6;
+                    targetCameraHeight = 3;
+                    break;
+                case 'cinematic':
+                    // Sweeping cinematic angles
+                    targetCameraAngle = Math.sin(time * 0.2) * Math.PI * 0.5;
+                    targetCameraDistance = 12 + Math.sin(time * 0.3) * 4;
+                    targetCameraHeight = 6 + Math.sin(time * 0.25) * 3;
+                    break;
+                case 'side':
+                    // Side scrolling view
+                    targetCameraAngle = Math.PI / 2;
+                    targetCameraDistance = 15;
+                    targetCameraHeight = 4;
+                    break;
+            }
+            
+            // Smooth lerp to target values
+            cameraAngle += (targetCameraAngle - cameraAngle) * cameraLerpSpeed;
+            cameraDistance += (targetCameraDistance - cameraDistance) * cameraLerpSpeed;
+            cameraHeight += (targetCameraHeight - cameraHeight) * cameraLerpSpeed;
+            
+            // Calculate camera position
+            const camX = player3DPos.x + Math.sin(cameraAngle) * cameraDistance;
+            const camZ = player3DPos.z + Math.cos(cameraAngle) * cameraDistance;
+            const camY = cameraHeight;
+            
+            // Apply camera position with smoothing
+            camera.position.x += (camX - camera.position.x) * cameraLerpSpeed * 2;
+            camera.position.y += (camY - camera.position.y) * cameraLerpSpeed * 2;
+            camera.position.z += (camZ - camera.position.z) * cameraLerpSpeed * 2;
+            
+            // Look at player
+            const lookTarget = new THREE.Vector3(
+                player3DPos.x,
+                1.5,
+                player3DPos.z
+            );
+            camera.lookAt(lookTarget);
         }
         
         // Player update loop
