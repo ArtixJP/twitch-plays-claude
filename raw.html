@@ -115,6 +115,7 @@
 <div class="price up" id="price">$67,432.18</div>
 <div class="change" id="change">▲ +2.34%</div>
 <div class="track-indicator" id="track-indicator" style="margin-top:8px;font-size:0.7rem;color:#888;">TRACK: MAIN</div>
+<div class="torus-indicator" id="torus-indicator" style="margin-top:4px;font-size:0.6rem;color:#bf94ff;">🍩 TOROIDAL TOPOLOGY ACTIVE</div>
 </div>
 <div class="scream" id="scream">😱</div>
 <div class="audio-indicator" id="audio-toggle">🔊 Music Auto-Playing</div>
@@ -804,95 +805,122 @@
             rivalCarts.push(rivalGroup);
         }
 
-        // SPHERICAL SPIDER WEB TRACK NETWORK
+        // TOROIDAL SPIDER WEB TRACK NETWORK - COSMIC DONUT!
         // webCenter already defined above for spider
-        const webRadius = 40;
-        const numRadialTracks = 12; // Spokes of the web
-        const numRingTracks = 6; // Concentric rings
+        const torusR = 35; // Major radius (center of tube to center of torus)
+        const torusr = 12; // Minor radius (radius of the tube)
+        const numToroidalTracks = 12; // Tracks going around the donut hole
+        const numPoloidalTracks = 8; // Tracks going around the tube
         const allWebCurves = [];
         const webTrackColors = [0xf7931a, 0x00ffff, 0xff00ff, 0x00ff88, 0xff4444, 0xffff00, 0xff8800, 0x88ff00, 0xff0088, 0x0088ff, 0xaa00ff, 0x00ffaa];
         
-        // Create radial spokes (like spider web threads from center)
-        for (let i = 0; i < numRadialTracks; i++) {
-            const angle = (i / numRadialTracks) * Math.PI * 2;
-            const spokePoints = [];
-            for (let j = 0; j < 50; j++) {
-                const t = j / 49;
-                const r = t * webRadius;
-                const waveY = Math.sin(t * Math.PI * 4 + i) * 8 * t;
-                const waveZ = Math.cos(t * Math.PI * 3 + i * 0.5) * 5 * t;
-                const x = webCenter.x + Math.cos(angle) * r;
-                const y = webCenter.y + waveY + Math.sin(t * Math.PI) * 10;
-                const z = webCenter.z + Math.sin(angle) * r + waveZ;
-                spokePoints.push(new THREE.Vector3(x, y, z));
+        // Helper function to get point on torus surface
+        function getTorusPoint(u, v, majorR, minorR) {
+            // u = angle around the hole (0 to 2π)
+            // v = angle around the tube (0 to 2π)
+            const x = (majorR + minorR * Math.cos(v)) * Math.cos(u);
+            const y = minorR * Math.sin(v);
+            const z = (majorR + minorR * Math.cos(v)) * Math.sin(u);
+            return new THREE.Vector3(x + webCenter.x, y + webCenter.y, z + webCenter.z);
+        }
+        
+        // Create TOROIDAL tracks (going around the donut hole) - WRAPPING!
+        for (let i = 0; i < numToroidalTracks; i++) {
+            const v = (i / numToroidalTracks) * Math.PI * 2; // Fixed position on tube circumference
+            const toroidalPoints = [];
+            for (let j = 0; j <= 100; j++) {
+                const u = (j / 100) * Math.PI * 2;
+                const wave = Math.sin(u * 6 + i) * 1.5; // Wavy variation
+                const point = getTorusPoint(u, v + wave * 0.1, torusR, torusr + wave);
+                toroidalPoints.push(point);
             }
-            const spokeCurve = new THREE.CatmullRomCurve3(spokePoints);
-            allWebCurves.push(spokeCurve);
-            const spokeTube = new THREE.TubeGeometry(spokeCurve, 200, 0.12, 8, false);
-            const spokeMesh = new THREE.Mesh(spokeTube, new THREE.MeshPhongMaterial({
+            const toroidalCurve = new THREE.CatmullRomCurve3(toroidalPoints, true); // TRUE = closed loop!
+            allWebCurves.push(toroidalCurve);
+            const toroidalTube = new THREE.TubeGeometry(toroidalCurve, 300, 0.15, 8, false);
+            const toroidalMesh = new THREE.Mesh(toroidalTube, new THREE.MeshPhongMaterial({
                 color: webTrackColors[i % webTrackColors.length],
                 emissive: webTrackColors[i % webTrackColors.length],
                 emissiveIntensity: 0.4,
                 shininess: 100
             }));
-            scene.add(spokeMesh);
+            scene.add(toroidalMesh);
         }
         
-        // Create concentric ring connections (spiral rings)
-        for (let ring = 1; ring <= numRingTracks; ring++) {
-            const ringRadius = (ring / numRingTracks) * webRadius;
-            const ringPoints = [];
-            const spiralTwist = ring * 0.5;
-            for (let a = 0; a <= 64; a++) {
-                const angle = (a / 64) * Math.PI * 2;
-                const waveR = Math.sin(angle * 6 + ring) * 2;
-                const r = ringRadius + waveR;
-                const x = webCenter.x + Math.cos(angle) * r;
-                const y = webCenter.y + Math.sin(angle * 4 + spiralTwist) * (3 + ring) + Math.sin(ring * 0.5) * 5;
-                const z = webCenter.z + Math.sin(angle) * r;
-                ringPoints.push(new THREE.Vector3(x, y, z));
+        // Create POLOIDAL tracks (going around the tube) - Also wrapping!
+        for (let i = 0; i < numPoloidalTracks; i++) {
+            const u = (i / numPoloidalTracks) * Math.PI * 2; // Fixed position around hole
+            const poloidalPoints = [];
+            for (let j = 0; j <= 80; j++) {
+                const v = (j / 80) * Math.PI * 2;
+                const wave = Math.cos(v * 4 + i * 2) * 1;
+                const point = getTorusPoint(u + wave * 0.05, v, torusR + wave, torusr);
+                poloidalPoints.push(point);
             }
-            const ringCurve = new THREE.CatmullRomCurve3(ringPoints, true);
-            allWebCurves.push(ringCurve);
-            const ringTube = new THREE.TubeGeometry(ringCurve, 300, 0.1, 8, false);
-            const ringColor = webTrackColors[(ring + 5) % webTrackColors.length];
-            const ringMesh = new THREE.Mesh(ringTube, new THREE.MeshPhongMaterial({
-                color: ringColor,
-                emissive: ringColor,
+            const poloidalCurve = new THREE.CatmullRomCurve3(poloidalPoints, true); // Closed loop!
+            allWebCurves.push(poloidalCurve);
+            const poloidalTube = new THREE.TubeGeometry(poloidalCurve, 200, 0.12, 8, false);
+            const poloidalColor = webTrackColors[(i + 6) % webTrackColors.length];
+            const poloidalMesh = new THREE.Mesh(poloidalTube, new THREE.MeshPhongMaterial({
+                color: poloidalColor,
+                emissive: poloidalColor,
                 emissiveIntensity: 0.3,
                 shininess: 80
             }));
-            scene.add(ringMesh);
+            scene.add(poloidalMesh);
         }
         
-        // Create diagonal cross-connections for true spider web effect
-        for (let i = 0; i < 8; i++) {
-            const startAngle = (i / 8) * Math.PI * 2;
-            const endAngle = startAngle + Math.PI * 0.7;
-            const crossPoints = [];
-            for (let t = 0; t < 30; t++) {
-                const progress = t / 29;
-                const angle = startAngle + (endAngle - startAngle) * progress;
-                const r = 10 + progress * 25;
-                const spiralY = Math.sin(progress * Math.PI * 2 + i) * 12;
-                crossPoints.push(new THREE.Vector3(
-                    webCenter.x + Math.cos(angle) * r,
-                    webCenter.y + spiralY + progress * 5,
-                    webCenter.z + Math.sin(angle) * r
-                ));
+        // Create SPIRAL tracks that wind around the torus surface!
+        for (let i = 0; i < 6; i++) {
+            const spiralPoints = [];
+            const spiralTwist = 3 + i; // How many times it wraps around
+            for (let t = 0; t <= 200; t++) {
+                const progress = t / 200;
+                const u = progress * Math.PI * 2 * spiralTwist;
+                const v = progress * Math.PI * 2 * 2; // Goes around tube twice per full spiral
+                const wave = Math.sin(progress * Math.PI * 8 + i) * 2;
+                const point = getTorusPoint(u, v, torusR + wave * 0.5, torusr + wave * 0.3);
+                spiralPoints.push(point);
             }
-            const crossCurve = new THREE.CatmullRomCurve3(crossPoints);
-            allWebCurves.push(crossCurve);
-            const crossTube = new THREE.TubeGeometry(crossCurve, 150, 0.08, 6, false);
-            const crossMesh = new THREE.Mesh(crossTube, new THREE.MeshPhongMaterial({
+            const spiralCurve = new THREE.CatmullRomCurve3(spiralPoints);
+            allWebCurves.push(spiralCurve);
+            const spiralTube = new THREE.TubeGeometry(spiralCurve, 400, 0.08, 6, false);
+            const spiralMesh = new THREE.Mesh(spiralTube, new THREE.MeshPhongMaterial({
                 color: 0xffffff,
-                emissive: 0x444444,
+                emissive: 0x888888,
                 emissiveIntensity: 0.5,
                 transparent: true,
-                opacity: 0.7
+                opacity: 0.6
             }));
-            scene.add(crossMesh);
+            scene.add(spiralMesh);
         }
+        
+        // Add a ghostly torus surface for visual reference
+        const torusGeo = new THREE.TorusGeometry(torusR, torusr, 32, 100);
+        const torusMat = new THREE.MeshPhongMaterial({
+            color: 0x220033,
+            emissive: 0x110022,
+            transparent: true,
+            opacity: 0.15,
+            wireframe: false,
+            side: THREE.DoubleSide
+        });
+        const torusMesh = new THREE.Mesh(torusGeo, torusMat);
+        torusMesh.position.copy(webCenter);
+        torusMesh.rotation.x = Math.PI / 2;
+        scene.add(torusMesh);
+        
+        // Add wireframe overlay for that TRON feel
+        const torusWireGeo = new THREE.TorusGeometry(torusR, torusr, 16, 48);
+        const torusWireMat = new THREE.MeshBasicMaterial({
+            color: 0x00ff88,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.1
+        });
+        const torusWireMesh = new THREE.Mesh(torusWireGeo, torusWireMat);
+        torusWireMesh.position.copy(webCenter);
+        torusWireMesh.rotation.x = Math.PI / 2;
+        scene.add(torusWireMesh)
         
         // Original crossroad curves for compatibility
         const crossroadPoints1 = trackPoints.map((p, i) => {
@@ -1099,6 +1127,12 @@
                         child.rotation.x = Math.sin(Date.now() * 0.005 + i) * 0.2;
                     }
                 });
+            }
+            
+            // Animate toroidal structures
+            if (torusMesh) {
+                torusMesh.rotation.z += 0.001;
+                torusWireMesh.rotation.z += 0.001;
             }
 
             renderer.render(scene, camera);
