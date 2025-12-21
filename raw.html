@@ -100,6 +100,75 @@
             background: #4ade80;
             transition: width 0.3s;
         }
+        #soda-game {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(145deg, #2d1b4e, #1a1a2e);
+            border: 3px solid #ff6b9d;
+            border-radius: 12px;
+            padding: 15px;
+            z-index: 100;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(255, 107, 157, 0.4);
+            min-width: 280px;
+        }
+        #soda-game.active { display: block; }
+        #soda-game h3 {
+            color: #ff6b9d;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+        #soda-emoji {
+            font-size: 32px;
+            margin: 10px 0;
+            letter-spacing: 5px;
+        }
+        .soda-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .soda-btn {
+            background: linear-gradient(135deg, #ff6b9d, #c44569);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 9px;
+            border-radius: 6px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .soda-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(255, 107, 157, 0.6);
+        }
+        #soda-result {
+            margin-top: 10px;
+            font-size: 10px;
+            min-height: 20px;
+        }
+        .soda-vendor {
+            animation: vendorBob 1s ease-in-out infinite;
+        }
+        @keyframes vendorBob {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-2px); }
+        }
+        #soda-score {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0,0,0,0.7);
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 10px;
+            color: #ff6b9d;
+        }
     </style>
 </head>
 <body>
@@ -107,6 +176,16 @@
 <canvas height="300" id="gameCanvas" width="400"></canvas>
 <div id="ui">
 <div>🎮 Monsters: <span id="caught">0</span>/6</div>
+<div>🥤 Sodas: <span id="sodas-won">0</span></div>
+</div>
+<div id="soda-score">🏪 Find the Soda Vendor!</div>
+<div id="soda-game">
+<h3>🥤 SODA VENDOR 🥤</h3>
+<div>Guess the soda from emojis!</div>
+<div id="soda-emoji">🔴⚫🍬</div>
+<div class="soda-options" id="soda-options"></div>
+<div id="soda-result"></div>
+<button class="soda-btn" onclick="closeSodaGame()" style="margin-top:10px;background:#666;">❌ Leave</button>
 </div>
 <div id="battle-ui">
 <div class="monster-display">
@@ -176,6 +255,27 @@
             if (!(tx === 10 && ty === 7)) map[ty][tx] = 'tree';
         }
         
+        // Add Soda Vendor!
+        let vendorX = 5, vendorY = 5;
+        map[vendorY][vendorX] = 'vendor';
+        
+        // Soda game data
+        const sodaQuizzes = [
+            { emoji: '🔴⚫🍬', answer: 'Coca-Cola', options: ['Coca-Cola', 'Pepsi', 'Dr Pepper', 'Fanta'] },
+            { emoji: '🔵🌊💫', answer: 'Pepsi', options: ['Sprite', 'Pepsi', '7-Up', 'Mountain Dew'] },
+            { emoji: '🍋💚✨', answer: 'Sprite', options: ['Sprite', 'Sierra Mist', 'Ginger Ale', 'Tonic'] },
+            { emoji: '🍊☀️🎉', answer: 'Fanta', options: ['Crush', 'Fanta', 'Sunkist', 'Mirinda'] },
+            { emoji: '⛰️🌲💚', answer: 'Mountain Dew', options: ['Sprite', 'Mello Yello', 'Mountain Dew', 'Surge'] },
+            { emoji: '👨‍⚕️🌶️🍒', answer: 'Dr Pepper', options: ['Dr Pepper', 'Mr Pibb', 'Cherry Coke', 'Root Beer'] },
+            { emoji: '🍒🔴💋', answer: 'Cherry Coke', options: ['Dr Pepper', 'Cherry Coke', 'Big Red', 'Cheerwine'] },
+            { emoji: '🌳🍺🌿', answer: 'Root Beer', options: ['Ginger Ale', 'Root Beer', 'Cream Soda', 'Birch Beer'] },
+            { emoji: '🐂⚡💪', answer: 'Red Bull', options: ['Monster', 'Red Bull', 'Rockstar', 'Nos'] },
+            { emoji: '👹💚⚡', answer: 'Monster', options: ['Red Bull', 'Monster', 'Full Throttle', 'Amp'] }
+        ];
+        let currentQuiz = null;
+        let sodasWon = 0;
+        let inSodaGame = false;
+        
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
@@ -193,6 +293,11 @@
                         ctx.fillRect(x * TILE, y * TILE, TILE, TILE);
                         ctx.font = '16px Arial';
                         ctx.fillText('🌲', x * TILE + 2, y * TILE + 16);
+                    } else if (map[y][x] === 'vendor') {
+                        ctx.fillStyle = '#5a9b5c';
+                        ctx.fillRect(x * TILE, y * TILE, TILE, TILE);
+                        ctx.font = '16px Arial';
+                        ctx.fillText('🏪', x * TILE + 2, y * TILE + 16);
                     } else {
                         ctx.fillStyle = '#5a9b5c';
                         ctx.fillRect(x * TILE, y * TILE, TILE, TILE);
@@ -209,7 +314,7 @@
             if (inBattle) return;
             let nx = player.x + dx;
             let ny = player.y + dy;
-            if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS && map[ny][nx] !== 'tree') {
+            if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS && map[ny][nx] !== 'tree' && map[ny][nx] !== 'vendor') {
                 player.x = nx;
                 player.y = ny;
                 draw();
@@ -217,6 +322,11 @@
                 // Check for wild encounter in grass
                 if (map[ny][nx] === 'grass' && Math.random() < 0.15) {
                     startBattle();
+                }
+                
+                // Check if near vendor
+                if (Math.abs(nx - vendorX) <= 1 && Math.abs(ny - vendorY) <= 1 && !inSodaGame && !inBattle) {
+                    openSodaGame();
                 }
             }
         }
@@ -319,6 +429,65 @@
         
         draw();
         
+        // SODA GAME FUNCTIONS
+        function openSodaGame() {
+            inSodaGame = true;
+            currentQuiz = sodaQuizzes[Math.floor(Math.random() * sodaQuizzes.length)];
+            document.getElementById('soda-emoji').textContent = currentQuiz.emoji;
+            
+            const optionsDiv = document.getElementById('soda-options');
+            optionsDiv.innerHTML = '';
+            
+            // Shuffle options
+            let shuffled = [...currentQuiz.options].sort(() => Math.random() - 0.5);
+            shuffled.forEach(opt => {
+                let btn = document.createElement('button');
+                btn.className = 'soda-btn';
+                btn.textContent = opt;
+                btn.onclick = () => guessSoda(opt);
+                optionsDiv.appendChild(btn);
+            });
+            
+            document.getElementById('soda-result').textContent = '';
+            document.getElementById('soda-game').classList.add('active');
+        }
+        
+        function guessSoda(guess) {
+            const resultDiv = document.getElementById('soda-result');
+            if (guess === currentQuiz.answer) {
+                sodasWon++;
+                document.getElementById('sodas-won').textContent = sodasWon;
+                resultDiv.innerHTML = '🎉 CORRECT! +1 Soda! Your monster healed!';
+                resultDiv.style.color = '#4ade80';
+                player.monster.hp = Math.min(player.monster.maxHp, player.monster.hp + 10);
+            } else {
+                resultDiv.innerHTML = '❌ Wrong! It was ' + currentQuiz.answer;
+                resultDiv.style.color = '#ff6b6b';
+            }
+            
+            setTimeout(() => {
+                // Load new quiz
+                currentQuiz = sodaQuizzes[Math.floor(Math.random() * sodaQuizzes.length)];
+                document.getElementById('soda-emoji').textContent = currentQuiz.emoji;
+                const optionsDiv = document.getElementById('soda-options');
+                optionsDiv.innerHTML = '';
+                let shuffled = [...currentQuiz.options].sort(() => Math.random() - 0.5);
+                shuffled.forEach(opt => {
+                    let btn = document.createElement('button');
+                    btn.className = 'soda-btn';
+                    btn.textContent = opt;
+                    btn.onclick = () => guessSoda(opt);
+                    optionsDiv.appendChild(btn);
+                });
+                resultDiv.textContent = '';
+            }, 1500);
+        }
+        
+        function closeSodaGame() {
+            inSodaGame = false;
+            document.getElementById('soda-game').classList.remove('active');
+        }
+        
         // AI AUTOPILOT SYSTEM
         let autoMode = true;
         let aiThinkTimer = null;
@@ -347,7 +516,7 @@
         }
         
         function aiMove() {
-            if (!autoMode || inBattle) return;
+            if (!autoMode || inBattle || inSodaGame) return;
             
             let grass = findNearestGrass();
             let dx = 0, dy = 0;
