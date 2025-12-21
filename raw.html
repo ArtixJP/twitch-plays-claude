@@ -296,6 +296,71 @@
         const stars = new THREE.Points(starsGeometry, new THREE.PointsMaterial({ color: 0xffffff, size: 0.2 }));
         scene.add(stars);
 
+        // 360 Sphere Background - Cosmic Chaos
+        const sphereGeo = new THREE.SphereGeometry(500, 64, 64);
+        sphereGeo.scale(-1, 1, 1); // Invert for inside view
+        const sphereTexture = new THREE.TextureLoader().load('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=2048&q=80');
+        sphereTexture.wrapS = THREE.RepeatWrapping;
+        sphereTexture.wrapT = THREE.RepeatWrapping;
+        const sphereMat = new THREE.MeshBasicMaterial({ map: sphereTexture, side: THREE.BackSide });
+        const skySphere = new THREE.Mesh(sphereGeo, sphereMat);
+        scene.add(skySphere);
+
+        // Rival Carts
+        const rivalCarts = [];
+        const rivalColors = [0x00ff00, 0xff00ff, 0x00ffff, 0xffff00];
+        const riderColors = [0xff8800, 0x8800ff, 0x0088ff, 0xff0088];
+        
+        for (let r = 0; r < 4; r++) {
+            const rivalGroup = new THREE.Group();
+            const rivalBody = new THREE.Mesh(
+                new THREE.BoxGeometry(1.5, 0.8, 1),
+                new THREE.MeshPhongMaterial({ color: rivalColors[r], shininess: 100 })
+            );
+            rivalGroup.add(rivalBody);
+            
+            const rivalRiderBody = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.2, 0.25, 0.6, 8),
+                new THREE.MeshPhongMaterial({ color: riderColors[r] })
+            );
+            rivalRiderBody.position.y = 0.7;
+            rivalGroup.add(rivalRiderBody);
+            
+            const rivalHead = new THREE.Mesh(
+                new THREE.SphereGeometry(0.2, 16, 16),
+                new THREE.MeshPhongMaterial({ color: 0xffcc99 })
+            );
+            rivalHead.position.y = 1.2;
+            rivalGroup.add(rivalHead);
+            
+            rivalGroup.userData = { offset: (r + 1) * 0.05, zOffset: (r % 2 === 0 ? -3 : 3) + (r > 1 ? 1 : -1) };
+            scene.add(rivalGroup);
+            rivalCarts.push(rivalGroup);
+        }
+
+        // Crossroads - Alternative track paths
+        const crossroadPoints1 = trackPoints.map((p, i) => {
+            const wave = Math.sin(i * 0.08) * 8;
+            return new THREE.Vector3(p.x, p.y + Math.sin(i * 0.05) * 3, p.z + wave + 5);
+        });
+        const crossCurve1 = new THREE.CatmullRomCurve3(crossroadPoints1);
+        const crossTube1 = new THREE.TubeGeometry(crossCurve1, 500, 0.12, 8, false);
+        const crossTrack1 = new THREE.Mesh(crossTube1, new THREE.MeshPhongMaterial({ 
+            color: 0x00ffff, emissive: 0x00aaaa, emissiveIntensity: 0.3 
+        }));
+        scene.add(crossTrack1);
+
+        const crossroadPoints2 = trackPoints.map((p, i) => {
+            const wave = Math.cos(i * 0.06) * 6;
+            return new THREE.Vector3(p.x, p.y - Math.cos(i * 0.04) * 4, p.z + wave - 5);
+        });
+        const crossCurve2 = new THREE.CatmullRomCurve3(crossroadPoints2);
+        const crossTube2 = new THREE.TubeGeometry(crossCurve2, 500, 0.12, 8, false);
+        const crossTrack2 = new THREE.Mesh(crossTube2, new THREE.MeshPhongMaterial({ 
+            color: 0xff00ff, emissive: 0xaa00aa, emissiveIntensity: 0.3 
+        }));
+        scene.add(crossTrack2);
+
         // Animation
         let t = 0;
         let lastY = 0;
@@ -374,6 +439,23 @@
                 screamEl.style.opacity = '0';
             }
             lastY = position.y;
+
+            // Animate rival carts on crossroads
+            rivalCarts.forEach((rival, idx) => {
+                const rivalT = (t + rival.userData.offset) % 1;
+                const useCurve = idx < 2 ? crossCurve1 : crossCurve2;
+                const rivalPos = useCurve.getPoint(rivalT);
+                const rivalTan = useCurve.getTangent(rivalT);
+                rival.position.copy(rivalPos);
+                rival.position.z += rival.userData.zOffset;
+                rival.position.y += 0.5;
+                const rivalLook = rivalPos.clone().add(rivalTan);
+                rival.lookAt(rivalLook);
+            });
+
+            // Rotate sky sphere slowly for trippy effect
+            skySphere.rotation.y += 0.0003;
+            skySphere.rotation.x += 0.0001;
 
             renderer.render(scene, camera);
         }
