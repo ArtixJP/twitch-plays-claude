@@ -12,7 +12,7 @@
         body { 
             font-family: 'Courier New', monospace; 
             overflow: hidden;
-            background: #0a0a0f;
+            background: #12121f;
         }
         #canvas-container {
             width: 100vw;
@@ -73,7 +73,7 @@
             height: 16px;
             background: #222;
             border-radius: 50% 50% 0 0;
-            animation: headbang 0.25s ease-in-out infinite;
+            animation: headbang 1.5s ease-in-out infinite;
         }
         .drummer-arm-left {
             position: absolute;
@@ -84,7 +84,7 @@
             background: #1a1a1a;
             border-radius: 3px;
             transform-origin: top center;
-            animation: drum-left 0.125s ease-in-out infinite;
+            animation: drum-left 0.8s ease-in-out infinite;
         }
         .drummer-arm-right {
             position: absolute;
@@ -95,7 +95,7 @@
             background: #1a1a1a;
             border-radius: 3px;
             transform-origin: top center;
-            animation: drum-right 0.125s ease-in-out infinite 0.0625s;
+            animation: drum-right 0.8s ease-in-out infinite 0.4s;
         }
         .drumstick-left, .drumstick-right {
             position: absolute;
@@ -108,13 +108,13 @@
             bottom: 15px;
             left: 16px;
             transform: rotate(-30deg);
-            animation: stick-left 0.125s ease-in-out infinite;
+            animation: stick-left 0.8s ease-in-out infinite;
         }
         .drumstick-right {
             bottom: 15px;
             right: 16px;
             transform: rotate(30deg);
-            animation: stick-right 0.125s ease-in-out infinite 0.0625s;
+            animation: stick-right 0.8s ease-in-out infinite 0.4s;
         }
         .drum-kit {
             position: absolute;
@@ -157,7 +157,7 @@
             border-radius: 50%;
             border: 2px solid #ff4444;
             box-shadow: 0 0 10px #ff4444;
-            animation: kick-pulse 0.25s ease-in-out infinite;
+            animation: kick-pulse 1.5s ease-in-out infinite;
         }
         .rock-text {
             position: absolute;
@@ -168,7 +168,7 @@
             color: #ff4444;
             text-shadow: 0 0 5px #ff4444;
             font-weight: bold;
-            animation: rock-flash 0.5s ease-in-out infinite;
+            animation: rock-flash 3s ease-in-out infinite;
             white-space: nowrap;
         }
         @keyframes headbang {
@@ -282,7 +282,7 @@
             pointer-events: none;
             z-index: 50;
             mix-blend-mode: overlay;
-            opacity: 0.3;
+            opacity: 0.12;
             background: linear-gradient(45deg, 
                 rgba(255,0,0,0.3) 0%, 
                 rgba(255,127,0,0.3) 14%, 
@@ -293,7 +293,7 @@
                 rgba(148,0,211,0.3) 85%, 
                 rgba(255,0,0,0.3) 100%);
             background-size: 400% 400%;
-            animation: psychedelic-shift 3s ease-in-out infinite;
+            animation: psychedelic-shift 15s ease-in-out infinite;
         }
         
         .chromatic-aberration {
@@ -308,7 +308,7 @@
             box-shadow: 
                 inset 3px 0 10px rgba(255,0,0,0.1),
                 inset -3px 0 10px rgba(0,255,255,0.1);
-            animation: chromatic-pulse 2s ease-in-out infinite;
+            animation: chromatic-pulse 8s ease-in-out infinite;
         }
         
         .kaleidoscope-border {
@@ -322,7 +322,7 @@
             border: 8px solid transparent;
             border-image: linear-gradient(var(--psychedelic-angle, 0deg), 
                 #ff0080, #ff8c00, #40e0d0, #ff0080) 1;
-            animation: border-rotate 4s linear infinite;
+            animation: border-rotate 20s linear infinite;
         }
         
         @keyframes psychedelic-shift {
@@ -355,7 +355,7 @@
         
         /* Breathing/pulsating effect on HUD */
         .hud {
-            animation: hud-breathe 4s ease-in-out infinite;
+            animation: hud-breathe 12s ease-in-out infinite;
         }
         
         @keyframes hud-breathe {
@@ -365,7 +365,7 @@
         
         /* Rainbow text effect */
         .price {
-            animation: rainbow-text 2s linear infinite;
+            animation: rainbow-text 10s linear infinite;
             background: linear-gradient(90deg, #ff0000, #ff8000, #ffff00, #00ff00, #00ffff, #0080ff, #8000ff, #ff0080, #ff0000);
             background-size: 200% auto;
             -webkit-background-clip: text;
@@ -452,11 +452,11 @@
 <div class="kick"></div>
 <div class="hi-hat"></div>
 </div>
-<div class="rock-text">🤘 ROCK 🤘</div>
+<div class="rock-text">🎵 chill 🎵</div>
 </div>
 </div>
 <div class="hud">
-<h1><span class="btc-icon">₿</span> BITCOIN COASTER</h1>
+<h1><span class="btc-icon">₿</span> BITCOIN DRIFT</h1>
 <div class="price up" id="price">$67,432.18</div>
 <div class="change" id="change">▲ +2.34%</div>
 <div class="track-indicator" id="track-indicator" style="margin-top:8px;font-size:0.7rem;color:#888;">TRACK: MAIN</div>
@@ -469,7 +469,7 @@
     PHOTOSENSITIVITY WARNING
     <div class="warning-text">This content contains strobing effects</div>
 </div>
-<div class="audio-indicator" id="audio-toggle">🎵 Physics-Reactive Audio</div>
+<div class="audio-indicator" id="audio-toggle">🎵 Ambient Soundscape</div>
 <p class="instruction">
         Type <code>!idea your idea</code> in chat to modify this world
     </p>
@@ -512,7 +512,7 @@
             
             // Master chain
             masterGain = audioContext.createGain();
-            masterGain.gain.value = 0.4;
+            masterGain.gain.value = 0.25;
             
             compressor = audioContext.createDynamicsCompressor();
             compressor.threshold.value = -24;
@@ -781,10 +781,7 @@
                 }, 800);
             }
         }
-        // Show warning every 7 seconds
-        setInterval(showStrobeWarning, 7000);
-        // Show initial warning after 2 seconds
-        setTimeout(showStrobeWarning, 2000);
+        // Strobe warning disabled for chill mode
         
         // Also start on first user interaction as fallback
         document.addEventListener('click', () => {
@@ -809,7 +806,7 @@
         
         // Scene setup
         const scene = new THREE.Scene();
-        scene.fog = new THREE.Fog(0x0a0a0f, 10, 100);
+        scene.fog = new THREE.Fog(0x1a1a2f, 20, 150);
         
         const camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 1000); // Wider FOV for immersive FPV
         const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -1457,7 +1454,7 @@
         function animate() {
             requestAnimationFrame(animate);
             
-            t += 0.001;
+            t += 0.0003;
             
             // Get position with smooth track transitions - MUST BE FIRST!
             let position, tangent;
@@ -1528,7 +1525,7 @@
             const fpvPosition = position.clone().add(fpvOffset);
             
             // Smooth camera movement for less motion sickness
-            const lerpFactor = 0.15; // Responsive but not jarring
+            const lerpFactor = 0.05; // Super smooth for chill vibes
             camera.position.lerp(fpvPosition, lerpFactor);
             
             // Look ahead along the track
@@ -1601,8 +1598,8 @@
             
             // Scream on big drops
             if (yDiff < -0.15) {
-                screamEl.style.opacity = '1';
-                screamEl.textContent = ['😱', '🎢', '📉', '💀', '👽', '🛸', '∞', '🔀'][Math.floor(Math.random() * 8)];
+                screamEl.style.opacity = '0.5';
+                screamEl.textContent = ['✨', '🌙', '💫', '🌊', '🍃', '☁️', '🦋', '🌸'][Math.floor(Math.random() * 8)];
             } else {
                 screamEl.style.opacity = '0';
             }
