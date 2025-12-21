@@ -233,11 +233,21 @@
             const lookAt = position.clone().add(tangent);
             cartGroup.lookAt(lookAt);
 
-            // Camera follows cart
-            camera.position.x = position.x - tangent.x * 8;
-            camera.position.y = position.y + 4;
-            camera.position.z = position.z + 8;
-            camera.lookAt(cartGroup.position);
+            // Smooth camera follow with interpolation
+            const targetCamX = position.x - tangent.x * 8;
+            const targetCamY = position.y + 4;
+            const targetCamZ = position.z + 8;
+            const lerpFactor = 0.03; // Lower = smoother/slower
+            
+            camera.position.x += (targetCamX - camera.position.x) * lerpFactor;
+            camera.position.y += (targetCamY - camera.position.y) * lerpFactor;
+            camera.position.z += (targetCamZ - camera.position.z) * lerpFactor;
+            
+            // Smooth look-at using a target object
+            const targetLook = cartGroup.position.clone();
+            if (!camera.userData.lookTarget) camera.userData.lookTarget = targetLook.clone();
+            camera.userData.lookTarget.lerp(targetLook, lerpFactor * 2);
+            camera.lookAt(camera.userData.lookTarget);
 
             // Update price display
             const currentPriceIndex = Math.floor(t * priceData.length);
