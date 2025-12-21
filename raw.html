@@ -642,17 +642,17 @@
 <span class="saves">Saves: <span id="saves">0</span></span>
 <span>Shots: <span id="shots">0</span></span>
 <span style="color:#ff6b35;">🦖 Monsters: 2</span>
-<span style="color:#00aaff;">🚁 ELON: <span id="elonStatus">INCOMING</span></span>
+<span style="color:#00aaff;">🦸 ELON: <span id="elonStatus">YOU ARE ELON!</span></span>
 <span style="color:#00ffff;">🎯 PINBALL: <span id="pinballScore">0</span></span>
 <span style="color:#ff00ff;">x<span id="comboMultiplier">1</span></span>
 </div>
 <div id="game-container">
-<div class="three-d-badge" onclick="toggleFPV()" style="cursor:pointer" title="Click to toggle FPV">🎯 PINBALL MODE</div>
+<div class="three-d-badge" onclick="toggleElonPOV()" style="cursor:pointer;background:linear-gradient(145deg, #ff6600, #ff0000);" title="Click to toggle ELON POV">🦸 ELON POV: ON</div>
 <div class="hipoly-badge">✨ HI-POLY MODELS v2.0</div>
 <div style="position:fixed;top:100px;left:10px;background:linear-gradient(145deg,rgba(255,0,102,0.9),rgba(0,255,136,0.9));color:white;font-weight:bold;font-size:0.6rem;padding:6px 12px;border-radius:15px;z-index:100;animation:badgePulse 1s infinite;">🎰 BOUNCE = POINTS!</div>
 <div class="power-bar-container" id="powerBar"><div class="power-bar-fill" id="powerFill" style="height: 0%"></div></div>
 <div class="aim-indicator"><div class="aim-marker" id="aimMarker" style="left: 50%"></div></div>
-<div class="controls-hint" id="controlsHint">🤖 AI PLAYING... Click button to control!</div>
+<div class="controls-hint" id="controlsHint">🦸 WASD to MOVE ELON • SPACE to PUNCH MONSTERS!</div>
 </div>
 <div class="result-flash" id="result"></div>
 <div class="bbq-announcement" id="bbqAnnouncement">🔥 GODZILLA DEFEATED! 🔥<br/>🍖 BBQ TIME! 🍖</div>
@@ -691,8 +691,10 @@ camera.lookAt(0, 2, 0);
 
 // FPV Camera settings
 let fpvMode = true;
+let elonPOVMode = true; // NEW: Play as Elon!
 const defaultCamPos = { x: 0, y: 15, z: 45 };
 const fpvOffset = { x: 0, y: 4, z: 12 }; // Behind and above ball - wider view for city
+const elonCamOffset = { x: 0, y: 3, z: 8 }; // Behind Elon for action view
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(width, height);
@@ -1815,17 +1817,86 @@ function updateHelicopter() {
     }
 }
 
-// Spawn helicopter every 15 seconds
-setInterval(() => {
-    if (helicopterState === 'waiting' && !elonGroup.visible) {
-        spawnHelicopter();
-    }
-}, 15000);
-
-// Initial spawn after 5 seconds
+// ELON ALWAYS PRESENT NOW - Player controls him!
+// Spawn Elon immediately on the field
 setTimeout(() => {
-    if (helicopterState === 'waiting') spawnHelicopter();
-}, 5000);
+    elonGroup.visible = true;
+    elonGroup.position.set(0, 0, 25);
+    elonGroup.userData.state = 'player_controlled';
+    helicopterState = 'player_mode';
+    document.getElementById('elonStatus').textContent = 'FIGHTING!';
+}, 500);
+
+// Player controls for Elon
+let elonMoveX = 0, elonMoveZ = 0;
+let elonPunching = false;
+
+document.addEventListener('keydown', (e) => {
+    if (!elonPOVMode) return;
+    if (e.key === 'w' || e.key === 'W' || e.key === 'ArrowUp') elonMoveZ = -1;
+    if (e.key === 's' || e.key === 'S' || e.key === 'ArrowDown') elonMoveZ = 1;
+    if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') elonMoveX = -1;
+    if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') elonMoveX = 1;
+    if (e.key === ' ' && !elonPunching) {
+        elonPunching = true;
+        elonPunch();
+        setTimeout(() => elonPunching = false, 300);
+    }
+});
+
+document.addEventListener('keyup', (e) => {
+    if (e.key === 'w' || e.key === 'W' || e.key === 'ArrowUp') elonMoveZ = 0;
+    if (e.key === 's' || e.key === 'S' || e.key === 'ArrowDown') elonMoveZ = 0;
+    if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') elonMoveX = 0;
+    if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') elonMoveX = 0;
+});
+
+function elonPunch() {
+    // Check if near a monster
+    monsters.forEach(monster => {
+        const dist = Math.sqrt(
+            Math.pow(elonGroup.position.x - monster.position.x, 2) +
+            Math.pow(elonGroup.position.z - monster.position.z, 2)
+        );
+        if (dist < 12) {
+            // HIT THE MONSTER!
+            const punchX = monster.position.x + (Math.random() - 0.5) * 4;
+            const punchY = 8 + Math.random() * 6;
+            const punchZ = monster.position.z + 3;
+            createBounceVFX(punchX, punchY, punchZ, 0xff0000);
+            addPinballPoints(250, punchX, punchY, punchZ);
+            
+            // Knockback monster
+            monster.position.x += (monster.position.x - elonGroup.position.x) * 0.3;
+            monster.position.z += (monster.position.z - elonGroup.position.z) * 0.3;
+            
+            const punchTexts = ['💥 POW!', '👊 WHAM!', '⚡ TESLA PUNCH!', '💫 BOOM!', '🔥 CRITICAL!', '🚀 TO MARS!'];
+            showMonsterAction(punchTexts[Math.floor(Math.random() * punchTexts.length)]);
+        }
+    });
+}
+
+function updateElonPlayer() {
+    if (!elonPOVMode || !elonGroup.visible) return;
+    
+    // Move Elon based on player input
+    const moveSpeed = 0.5;
+    elonGroup.position.x += elonMoveX * moveSpeed;
+    elonGroup.position.z += elonMoveZ * moveSpeed;
+    
+    // Clamp to arena bounds
+    elonGroup.position.x = Math.max(-80, Math.min(80, elonGroup.position.x));
+    elonGroup.position.z = Math.max(-80, Math.min(80, elonGroup.position.z));
+    
+    // Face movement direction
+    if (elonMoveX !== 0 || elonMoveZ !== 0) {
+        elonGroup.rotation.y = Math.atan2(elonMoveX, -elonMoveZ);
+        // Running animation
+        elonGroup.position.y = Math.abs(Math.sin(Date.now() * 0.02)) * 0.3;
+    } else {
+        elonGroup.position.y = 0;
+    }
+}
 
 // Monster eating VFX
 function monsterEat(monster, targetPos) {
@@ -2215,8 +2286,26 @@ function animate() {
         }
     });
     
-    // FPV Camera follows ball
-    if (fpvMode && gamePhase === 'shooting') {
+    // Update player-controlled Elon
+    updateElonPlayer();
+    
+    // ELON POV Camera - follows Elon!
+    if (elonPOVMode && elonGroup.visible) {
+        // Third-person camera behind Elon
+        const elonDir = elonGroup.rotation.y;
+        const targetCamX = elonGroup.position.x - Math.sin(elonDir) * elonCamOffset.z;
+        const targetCamY = elonGroup.position.y + elonCamOffset.y;
+        const targetCamZ = elonGroup.position.z + Math.cos(elonDir) * elonCamOffset.z;
+        
+        camera.position.x += (targetCamX - camera.position.x) * 0.1;
+        camera.position.y += (targetCamY - camera.position.y) * 0.1;
+        camera.position.z += (targetCamZ - camera.position.z) * 0.1;
+        
+        // Look at Elon and slightly ahead
+        const lookX = elonGroup.position.x + Math.sin(elonDir) * 5;
+        const lookZ = elonGroup.position.z - Math.cos(elonDir) * 5;
+        camera.lookAt(lookX, elonGroup.position.y + 2, lookZ);
+    } else if (fpvMode && gamePhase === 'shooting') {
         // Smooth follow behind the ball
         const targetCamX = ball.position.x * 0.8;
         const targetCamY = Math.max(2, ball.position.y + fpvOffset.y);
@@ -2362,12 +2451,19 @@ function manualFireworks() {
 }
 window.manualFireworks = manualFireworks;
 
-// FPV Toggle
+// ELON POV Toggle
+function toggleElonPOV() {
+    elonPOVMode = !elonPOVMode;
+    const badge = document.querySelector('.three-d-badge');
+    badge.textContent = elonPOVMode ? '🦸 ELON POV: ON' : '🎲 SPECTATOR';
+    badge.style.background = elonPOVMode ? 'linear-gradient(145deg, #ff6600, #ff0000)' : 'linear-gradient(145deg, #9147ff, #00ffff)';
+    document.getElementById('elonStatus').textContent = elonPOVMode ? 'FIGHTING!' : 'WATCHING';
+}
+window.toggleElonPOV = toggleElonPOV;
+
+// Legacy FPV toggle
 function toggleFPV() {
     fpvMode = !fpvMode;
-    const badge = document.querySelector('.three-d-badge');
-    badge.textContent = fpvMode ? '🎥 FPV ON' : '🎲 3D MODE';
-    badge.style.background = fpvMode ? 'linear-gradient(145deg, #00ff88, #00aa55)' : 'linear-gradient(145deg, #ff00ff, #00ffff)';
 }
 window.toggleFPV = toggleFPV;
 
