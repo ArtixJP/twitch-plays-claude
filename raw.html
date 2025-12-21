@@ -265,6 +265,80 @@
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
+        .intel-btn {
+            position: fixed;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(145deg, #1a1a2e 0%, #0f0f1a 100%);
+            border: 2px solid #ff4757;
+            border-radius: 8px;
+            padding: 10px 15px;
+            color: #ff4757;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(255,71,87,0.3);
+            z-index: 50;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+        .intel-btn:hover {
+            background: #ff4757;
+            color: #1a1a2e;
+            box-shadow: 0 0 30px rgba(255,71,87,0.6);
+        }
+        .intel-btn.flash {
+            animation: intelFlash 0.5s ease;
+        }
+        @keyframes intelFlash {
+            0%, 100% { transform: translateY(-50%) scale(1); }
+            50% { transform: translateY(-50%) scale(1.1); box-shadow: 0 0 40px rgba(255,71,87,0.8); }
+        }
+        .intel-popup {
+            position: fixed;
+            left: 15px;
+            top: calc(50% + 60px);
+            width: 160px;
+            background: linear-gradient(#fffef0 0%, #f0e6d3 100%);
+            border: 2px solid #333;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.6rem;
+            color: #333;
+            z-index: 49;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            display: none;
+            max-height: 120px;
+            overflow: hidden;
+        }
+        .intel-popup.show { display: block; animation: popIn 0.3s ease; }
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        .intel-popup::before {
+            content: '🔒 CLASSIFIED';
+            display: block;
+            color: #ff4757;
+            font-weight: bold;
+            font-size: 0.7rem;
+            margin-bottom: 5px;
+            border-bottom: 1px dashed #999;
+            padding-bottom: 3px;
+        }
+        .intel-stamp {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-15deg);
+            font-size: 1.5rem;
+            color: rgba(255,0,0,0.3);
+            font-weight: bold;
+            pointer-events: none;
+        }
         .todo-recur {
             font-size: 0.5rem;
             color: #9147ff;
@@ -284,6 +358,11 @@
 </div>
 <canvas height="280" id="penalty-arena" width="400"></canvas>
 <div class="result-flash" id="result"></div>
+<button class="intel-btn" id="intelBtn" onclick="revealIntel()">🔓 LEAK<br/>MATCH INTEL</button>
+<div class="intel-popup" id="intelPopup">
+<div id="intelText">Click to reveal secrets...</div>
+<div class="intel-stamp">LEAKED</div>
+</div>
 <div class="clipboard">
 <div class="clipboard-title">📋 Match Calendar</div>
 <div class="clipboard-paper">
@@ -880,6 +959,46 @@
         renderCalendar();
         renderStoredTasks();
         
+        // Leaked Intel System
+        const leakedIntel = [
+            "The keeper's gloves are filled with magnets. Investigation pending.",
+            "VAR operator spotted betting on corners. Match under review.",
+            "Ball boy network runs underground trading ring for match balls.",
+            "Referee's whistle contains hidden GPS tracker from sponsors.",
+            "Goalkeeper's water bottle: 40% energy drink, 60% classified.",
+            "Corner flags are actually 5G antennas. Don't ask questions.",
+            "Half-time oranges laced with performance algorithms.",
+            "The offside line is controlled by an AI named 'Gary'.",
+            "Pitch grass grown from seeds blessed by ancient football monks.",
+            "Goal nets manufactured by former spy agency operatives.",
+            "The fourth official knows everything. EVERYTHING.",
+            "Penalty spot contains pressure sensor linked to bookmakers.",
+            "Substitution board runs on Windows 95. It's sentient now.",
+            "Manager's tactical notepad is actually a portal to dimension X.",
+            "The crowd's cheers are 30% AI-generated for atmosphere."
+        ];
+        
+        let lastIntelIndex = -1;
+        
+        function revealIntel() {
+            const btn = document.getElementById('intelBtn');
+            const popup = document.getElementById('intelPopup');
+            const text = document.getElementById('intelText');
+            
+            btn.classList.add('flash');
+            setTimeout(() => btn.classList.remove('flash'), 500);
+            
+            let newIndex;
+            do { newIndex = Math.floor(Math.random() * leakedIntel.length); } 
+            while (newIndex === lastIntelIndex && leakedIntel.length > 1);
+            lastIntelIndex = newIndex;
+            
+            text.textContent = leakedIntel[newIndex];
+            popup.classList.add('show');
+            
+            setTimeout(() => popup.classList.remove('show'), 4000);
+        }
+        
         // Sync on goal (recurring 'match' tasks)
         const origGoalHandler = () => {
             taskDB.tasks.forEach(t => {
@@ -890,7 +1009,26 @@
             taskDB.save();
             renderStoredTasks();
         };
-        setInterval(() => { if (goals > parseInt(document.getElementById('goals').textContent || 0)) origGoalHandler(); }, 500);
+        
+        // Track goals and saves for auto-intel reveal
+        let prevGoals = 0;
+        let prevSaves = 0;
+        
+        setInterval(() => {
+            const currentGoals = parseInt(document.getElementById('goals').textContent || 0);
+            const currentSaves = parseInt(document.getElementById('saves').textContent || 0);
+            
+            if (currentGoals > prevGoals) {
+                origGoalHandler();
+                revealIntel(); // Auto-reveal on goal!
+            }
+            if (currentSaves > prevSaves) {
+                revealIntel(); // Auto-reveal on save!
+            }
+            
+            prevGoals = currentGoals;
+            prevSaves = currentSaves;
+        }, 500);
     </script>
 </body>
 </html>
