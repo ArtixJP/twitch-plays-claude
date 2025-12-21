@@ -122,100 +122,215 @@
         Type <code>!idea your idea</code> in chat to modify this world
     </p>
 <script>
-        // Dynamic Audio System - Adapts to rollercoaster height
+        // Dynamic UPBEAT Audio System - Rhythmic and melodic!
         let audioContext = null;
         let audioStarted = false;
         let masterGain = null;
-        let oscillators = [];
-        let lfoGain = null;
-        let currentHeight = 0;
+        let melodySynths = [];
+        let bassOsc = null;
+        let drumGain = null;
+        let currentBeat = 0;
+        let bpm = 128;
+        let beatInterval = null;
+        let currentChord = 0;
+        let arpIndex = 0;
+        
+        // Musical scales and chords for happy vibes
+        const chordProgressions = [
+            [261.63, 329.63, 392.00, 523.25], // C major
+            [293.66, 369.99, 440.00, 587.33], // D major  
+            [329.63, 415.30, 493.88, 659.25], // E major
+            [349.23, 440.00, 523.25, 698.46], // F major
+            [392.00, 493.88, 587.33, 783.99], // G major
+            [440.00, 554.37, 659.25, 880.00]  // A major
+        ];
         
         function initAudio() {
             if (audioStarted) return;
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
             masterGain = audioContext.createGain();
-            masterGain.gain.value = 0.3;
+            masterGain.gain.value = 0.35;
             masterGain.connect(audioContext.destination);
             
-            // Create layered oscillators for rich sound
-            const oscConfigs = [
-                { type: 'sine', baseFreq: 80, heightMult: 0.5 },      // Deep bass
-                { type: 'triangle', baseFreq: 160, heightMult: 1 },   // Mid tone
-                { type: 'sine', baseFreq: 320, heightMult: 2 },       // High harmonic
-                { type: 'sawtooth', baseFreq: 40, heightMult: 0.3 }   // Sub rumble
-            ];
+            // Compressor for punch
+            const compressor = audioContext.createDynamicsCompressor();
+            compressor.threshold.value = -20;
+            compressor.knee.value = 10;
+            compressor.ratio.value = 4;
+            compressor.connect(masterGain);
             
-            oscConfigs.forEach((config, i) => {
+            // Create melodic synth voices
+            for (let i = 0; i < 4; i++) {
                 const osc = audioContext.createOscillator();
                 const gain = audioContext.createGain();
                 const filter = audioContext.createBiquadFilter();
                 
-                osc.type = config.type;
-                osc.frequency.value = config.baseFreq;
-                
+                osc.type = i === 0 ? 'square' : i === 1 ? 'sawtooth' : 'triangle';
+                osc.frequency.value = 440;
                 filter.type = 'lowpass';
-                filter.frequency.value = 800;
-                filter.Q.value = 2;
-                
-                gain.gain.value = 0.15 / (i + 1); // Decreasing volume for harmonics
+                filter.frequency.value = 2000;
+                filter.Q.value = 5;
+                gain.gain.value = 0;
                 
                 osc.connect(filter);
                 filter.connect(gain);
-                gain.connect(masterGain);
+                gain.connect(compressor);
                 osc.start();
                 
-                oscillators.push({ osc, gain, filter, config });
-            });
+                melodySynths.push({ osc, gain, filter });
+            }
             
-            // LFO for tremolo effect during drops
-            const lfo = audioContext.createOscillator();
-            lfoGain = audioContext.createGain();
-            lfo.frequency.value = 4;
-            lfoGain.gain.value = 0;
-            lfo.connect(lfoGain);
-            lfoGain.connect(masterGain.gain);
-            lfo.start();
+            // Punchy bass
+            bassOsc = audioContext.createOscillator();
+            const bassGain = audioContext.createGain();
+            const bassFilter = audioContext.createBiquadFilter();
+            bassOsc.type = 'sawtooth';
+            bassOsc.frequency.value = 65;
+            bassFilter.type = 'lowpass';
+            bassFilter.frequency.value = 400;
+            bassGain.gain.value = 0.25;
+            bassOsc.connect(bassFilter);
+            bassFilter.connect(bassGain);
+            bassGain.connect(compressor);
+            bassOsc.start();
+            
+            // Drum channel
+            drumGain = audioContext.createGain();
+            drumGain.gain.value = 0.4;
+            drumGain.connect(masterGain);
+            
+            // Start the beat!
+            const beatTime = 60 / bpm;
+            beatInterval = setInterval(() => {
+                playBeat();
+                currentBeat = (currentBeat + 1) % 16;
+                if (currentBeat === 0) {
+                    currentChord = (currentChord + 1) % chordProgressions.length;
+                }
+            }, beatTime * 250); // 16th notes
             
             audioStarted = true;
             document.getElementById('audio-toggle').textContent = '🔊 Music Playing';
             document.getElementById('audio-toggle').classList.add('playing');
         }
         
+        function playBeat() {
+            if (!audioContext) return;
+            const now = audioContext.currentTime;
+            const chord = chordProgressions[currentChord];
+            
+            // Kick on 1, 5, 9, 13
+            if (currentBeat % 4 === 0) {
+                playKick(now);
+            }
+            // Snare on 4, 12
+            if (currentBeat === 4 || currentBeat === 12) {
+                playSnare(now);
+            }
+            // Hi-hat on every beat, open on off-beats
+            playHiHat(now, currentBeat % 2 === 1);
+            
+            // Arpeggio melody
+            if (currentBeat % 2 === 0) {
+                const noteIndex = arpIndex % chord.length;
+                const freq = chord[noteIndex] * (Math.random() > 0.8 ? 2 : 1);
+                playArpNote(freq, now);
+                arpIndex++;
+            }
+        }
+        
+        function playKick(time) {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(150, time);
+            osc.frequency.exponentialRampToValueAtTime(30, time + 0.1);
+            gain.gain.setValueAtTime(0.8, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + 0.3);
+            osc.connect(gain);
+            gain.connect(drumGain);
+            osc.start(time);
+            osc.stop(time + 0.3);
+        }
+        
+        function playSnare(time) {
+            const noise = audioContext.createBufferSource();
+            const buffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.2, audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+            noise.buffer = buffer;
+            const gain = audioContext.createGain();
+            const filter = audioContext.createBiquadFilter();
+            filter.type = 'highpass';
+            filter.frequency.value = 1000;
+            gain.gain.setValueAtTime(0.5, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + 0.15);
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(drumGain);
+            noise.start(time);
+        }
+        
+        function playHiHat(time, open) {
+            const noise = audioContext.createBufferSource();
+            const buffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.1, audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+            noise.buffer = buffer;
+            const gain = audioContext.createGain();
+            const filter = audioContext.createBiquadFilter();
+            filter.type = 'highpass';
+            filter.frequency.value = 7000;
+            gain.gain.setValueAtTime(open ? 0.15 : 0.1, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + (open ? 0.1 : 0.05));
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(drumGain);
+            noise.start(time);
+        }
+        
+        function playArpNote(freq, time) {
+            const synth = melodySynths[arpIndex % melodySynths.length];
+            synth.osc.frequency.setValueAtTime(freq, time);
+            synth.gain.gain.setValueAtTime(0.15, time);
+            synth.gain.gain.exponentialRampToValueAtTime(0.01, time + 0.2);
+            synth.filter.frequency.setValueAtTime(3000, time);
+            synth.filter.frequency.exponentialRampToValueAtTime(800, time + 0.2);
+        }
+        
         function updateAudioFromHeight(height, velocity) {
             if (!audioStarted || !audioContext) return;
             
-            // Normalize height (-15 to +15 range typically)
-            const normalizedHeight = (height + 15) / 30; // 0 to 1
+            // Normalize height
+            const normalizedHeight = (height + 15) / 30;
             const clampedHeight = Math.max(0, Math.min(1, normalizedHeight));
             
-            oscillators.forEach(({ osc, gain, filter, config }) => {
-                // Frequency shifts with height
-                const targetFreq = config.baseFreq + (clampedHeight * 100 * config.heightMult);
-                osc.frequency.exponentialRampToValueAtTime(
-                    Math.max(20, targetFreq),
-                    audioContext.currentTime + 0.1
-                );
-                
-                // Filter opens up at higher altitudes
-                filter.frequency.exponentialRampToValueAtTime(
-                    400 + clampedHeight * 2000,
+            // Tempo changes with height - faster when high!
+            const newBpm = 100 + clampedHeight * 60;
+            if (Math.abs(newBpm - bpm) > 10) {
+                bpm = newBpm;
+            }
+            
+            // Filter sweep on synths based on height
+            melodySynths.forEach((synth, i) => {
+                synth.filter.frequency.linearRampToValueAtTime(
+                    800 + clampedHeight * 4000,
                     audioContext.currentTime + 0.1
                 );
             });
             
-            // Tremolo intensity on drops
-            if (velocity < -0.1) {
-                lfoGain.gain.linearRampToValueAtTime(0.15, audioContext.currentTime + 0.05);
-            } else {
-                lfoGain.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.2);
+            // Bass follows height
+            if (bassOsc) {
+                const bassFreq = 40 + clampedHeight * 40;
+                bassOsc.frequency.linearRampToValueAtTime(bassFreq, audioContext.currentTime + 0.1);
             }
             
-            // Master volume based on action
-            const intensity = Math.abs(velocity) * 3 + 0.3;
-            masterGain.gain.linearRampToValueAtTime(
-                Math.min(0.5, intensity),
-                audioContext.currentTime + 0.1
-            );
+            // Volume pumps on drops
+            if (velocity < -0.1) {
+                masterGain.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + 0.05);
+            } else {
+                masterGain.gain.linearRampToValueAtTime(0.35, audioContext.currentTime + 0.2);
+            }
         }
         
         // Auto-start music on page load
