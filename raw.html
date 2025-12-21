@@ -517,6 +517,9 @@
         const skySphere = new THREE.Mesh(sphereGeo, sphereMat);
         scene.add(skySphere);
         
+        // Define web center for spider web network
+        const webCenter = new THREE.Vector3(0, 5, 0);
+        
         // Add a glowing spider at the center of the web!
         const spiderGroup = new THREE.Group();
         const spiderBody = new THREE.Mesh(
@@ -597,7 +600,7 @@
         }
 
         // SPHERICAL SPIDER WEB TRACK NETWORK
-        const webCenter = new THREE.Vector3(0, 5, 0);
+        // webCenter already defined above for spider
         const webRadius = 40;
         const numRadialTracks = 12; // Spokes of the web
         const numRingTracks = 6; // Concentric rings
