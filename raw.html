@@ -265,10 +265,62 @@
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
+        .stadium-tv {
+            position: fixed;
+            left: 15px;
+            top: 15%;
+            width: 160px;
+            background: #111;
+            border: 4px solid #333;
+            border-radius: 8px;
+            padding: 4px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.6), inset 0 0 10px rgba(0,0,0,0.8);
+            z-index: 45;
+        }
+        .stadium-tv::before {
+            content: '📺 STADIUM TV';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.6rem;
+            color: #00ff88;
+            background: #1a1a2e;
+            padding: 2px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+        .stadium-tv iframe {
+            width: 100%;
+            height: 90px;
+            border-radius: 4px;
+            border: none;
+        }
+        .tv-static {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            right: 4px;
+            bottom: 4px;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0,0,0,0.1) 2px,
+                rgba(0,0,0,0.1) 4px
+            );
+            pointer-events: none;
+            border-radius: 4px;
+            animation: tvFlicker 0.1s infinite;
+        }
+        @keyframes tvFlicker {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.1; }
+        }
         .intel-btn {
             position: fixed;
             left: 15px;
-            top: 50%;
+            top: 65%;
             transform: translateY(-50%);
             background: linear-gradient(145deg, #1a1a2e 0%, #0f0f1a 100%);
             border: 2px solid #ff4757;
@@ -299,7 +351,7 @@
         .intel-popup {
             position: fixed;
             left: 15px;
-            top: calc(50% + 60px);
+            top: calc(65% + 60px);
             width: 160px;
             background: linear-gradient(#fffef0 0%, #f0e6d3 100%);
             border: 2px solid #333;
@@ -358,6 +410,10 @@
 </div>
 <canvas height="280" id="penalty-arena" width="400"></canvas>
 <div class="result-flash" id="result"></div>
+<div class="stadium-tv">
+<iframe allow="autoplay; encrypted-media" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&amp;mute=0&amp;loop=1&amp;playlist=dQw4w9WgXcQ&amp;controls=0" title="Stadium Entertainment"></iframe>
+<div class="tv-static"></div>
+</div>
 <button class="intel-btn" id="intelBtn" onclick="revealIntel()">🔓 LEAK<br/>MATCH INTEL</button>
 <div class="intel-popup" id="intelPopup">
 <div id="intelText">Click to reveal secrets...</div>
