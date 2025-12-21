@@ -1,45 +1,322 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Twitch plays Claude</title>
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Twitch Plays Pokemon</title>
+<style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
-            font-family: system-ui, sans-serif; 
+            font-family: 'Press Start 2P', system-ui, monospace; 
             display: flex; 
             flex-direction: column;
             justify-content: center; 
             align-items: center; 
             min-height: 100vh; 
-            margin: 0;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             color: white;
+            overflow: hidden;
         }
-        h1 { font-size: 3rem; text-align: center; margin-bottom: 1rem; }
-        .instruction {
-            text-align: center;
-            font-size: 1.2rem;
-            color: #a0aec0;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 0 20px;
-            line-height: 1.6;
+        #game-container {
+            position: relative;
+            border: 4px solid #bf94ff;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(145, 71, 255, 0.5);
         }
-        .instruction code {
-            background: rgba(145, 71, 255, 0.2);
-            padding: 2px 8px;
+        #gameCanvas {
+            display: block;
+            background: #3d8b40;
+            image-rendering: pixelated;
+        }
+        #ui {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: rgba(0,0,0,0.7);
+            padding: 8px 12px;
             border-radius: 4px;
-            color: #bf94ff;
+            font-size: 10px;
+        }
+        #controls {
+            margin-top: 10px;
+            font-size: 9px;
+            color: #a0aec0;
+            text-align: center;
+        }
+        #battle-ui {
+            display: none;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.9);
+            padding: 10px;
+            border-top: 3px solid #bf94ff;
+        }
+        #battle-ui.active { display: block; }
+        .battle-options {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            font-size: 11px;
+        }
+        .battle-btn {
+            background: #bf94ff;
+            color: #1a1a2e;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 10px;
+        }
+        .battle-btn:hover { background: #9147ff; }
+        #message {
+            text-align: center;
+            margin-bottom: 8px;
+            font-size: 11px;
+            min-height: 16px;
+        }
+        .monster-display {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 10px;
+        }
+        .monster-card {
+            text-align: center;
+            font-size: 9px;
+        }
+        .hp-bar {
+            width: 80px;
+            height: 8px;
+            background: #333;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 4px auto;
+        }
+        .hp-fill {
+            height: 100%;
+            background: #4ade80;
+            transition: width 0.3s;
         }
     </style>
 </head>
 <body>
-    <h1>Hello World!</h1>
-    <p class="instruction">
-        Type <code>!idea &lt;your idea&gt;</code> in the Twitch chat to add to this page.<br>
-        Example: <code>!idea Add a space cat floating in the background</code>
-    </p>
+<div id="game-container">
+<canvas height="300" id="gameCanvas" width="400"></canvas>
+<div id="ui">
+<div>🎮 Monsters: <span id="caught">0</span>/6</div>
+</div>
+<div id="battle-ui">
+<div class="monster-display">
+<div class="monster-card">
+<div id="player-monster">🔥 Flamby</div>
+<div class="hp-bar"><div class="hp-fill" id="player-hp" style="width:100%"></div></div>
+<div>HP: <span id="player-hp-text">30/30</span></div>
+</div>
+<div class="monster-card">
+<div id="wild-monster">???</div>
+<div class="hp-bar"><div class="hp-fill" id="wild-hp" style="width:100%"></div></div>
+<div>HP: <span id="wild-hp-text">??</span></div>
+</div>
+</div>
+<div id="message">A wild monster appeared!</div>
+<div class="battle-options">
+<button class="battle-btn" onclick="attack()">⚔️ FIGHT</button>
+<button class="battle-btn" onclick="catchMonster()">🎯 CATCH</button>
+<button class="battle-btn" onclick="runAway()">🏃 RUN</button>
+</div>
+</div>
+</div>
+<div id="controls">WASD/Arrows to move | Walk in grass to find monsters!</div>
+<script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        const TILE = 20;
+        const COLS = canvas.width / TILE;
+        const ROWS = canvas.height / TILE;
+        
+        const monsters = [
+            { name: 'Flamby', emoji: '🔥', hp: 30, atk: 8 },
+            { name: 'Aqualing', emoji: '💧', hp: 35, atk: 6 },
+            { name: 'Leafeon', emoji: '🌿', hp: 28, atk: 7 },
+            { name: 'Sparky', emoji: '⚡', hp: 25, atk: 10 },
+            { name: 'Ghosty', emoji: '👻', hp: 22, atk: 9 },
+            { name: 'Rocko', emoji: '🪨', hp: 40, atk: 5 },
+            { name: 'Starbit', emoji: '⭐', hp: 26, atk: 8 },
+            { name: 'Moonix', emoji: '🌙', hp: 32, atk: 7 }
+        ];
+        
+        let player = { x: 10, y: 7, monster: {...monsters[0], maxHp: 30} };
+        let caughtMonsters = [player.monster];
+        let wildMonster = null;
+        let inBattle = false;
+        
+        // Generate map with grass patches
+        let map = [];
+        for (let y = 0; y < ROWS; y++) {
+            map[y] = [];
+            for (let x = 0; x < COLS; x++) {
+                // Create grass patches
+                if (Math.random() < 0.3 && !(x === 10 && y === 7)) {
+                    map[y][x] = 'grass';
+                } else {
+                    map[y][x] = 'ground';
+                }
+            }
+        }
+        
+        // Add some trees as obstacles
+        for (let i = 0; i < 8; i++) {
+            let tx = Math.floor(Math.random() * COLS);
+            let ty = Math.floor(Math.random() * ROWS);
+            if (!(tx === 10 && ty === 7)) map[ty][tx] = 'tree';
+        }
+        
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw map
+            for (let y = 0; y < ROWS; y++) {
+                for (let x = 0; x < COLS; x++) {
+                    if (map[y][x] === 'grass') {
+                        ctx.fillStyle = '#228B22';
+                        ctx.fillRect(x * TILE, y * TILE, TILE, TILE);
+                        ctx.fillStyle = '#32CD32';
+                        ctx.font = '12px Arial';
+                        ctx.fillText('~', x * TILE + 6, y * TILE + 14);
+                    } else if (map[y][x] === 'tree') {
+                        ctx.fillStyle = '#3d8b40';
+                        ctx.fillRect(x * TILE, y * TILE, TILE, TILE);
+                        ctx.font = '16px Arial';
+                        ctx.fillText('🌲', x * TILE + 2, y * TILE + 16);
+                    } else {
+                        ctx.fillStyle = '#5a9b5c';
+                        ctx.fillRect(x * TILE, y * TILE, TILE, TILE);
+                    }
+                }
+            }
+            
+            // Draw player
+            ctx.font = '18px Arial';
+            ctx.fillText('🧑', player.x * TILE + 1, player.y * TILE + 17);
+        }
+        
+        function move(dx, dy) {
+            if (inBattle) return;
+            let nx = player.x + dx;
+            let ny = player.y + dy;
+            if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS && map[ny][nx] !== 'tree') {
+                player.x = nx;
+                player.y = ny;
+                draw();
+                
+                // Check for wild encounter in grass
+                if (map[ny][nx] === 'grass' && Math.random() < 0.15) {
+                    startBattle();
+                }
+            }
+        }
+        
+        function startBattle() {
+            inBattle = true;
+            wildMonster = {...monsters[Math.floor(Math.random() * monsters.length)]};
+            wildMonster.maxHp = wildMonster.hp;
+            
+            document.getElementById('battle-ui').classList.add('active');
+            document.getElementById('wild-monster').textContent = wildMonster.emoji + ' ' + wildMonster.name;
+            updateBattleUI();
+            setMessage('A wild ' + wildMonster.name + ' appeared!');
+        }
+        
+        function updateBattleUI() {
+            document.getElementById('player-hp').style.width = (player.monster.hp / player.monster.maxHp * 100) + '%';
+            document.getElementById('player-hp-text').textContent = player.monster.hp + '/' + player.monster.maxHp;
+            document.getElementById('wild-hp').style.width = (wildMonster.hp / wildMonster.maxHp * 100) + '%';
+            document.getElementById('wild-hp-text').textContent = wildMonster.hp + '/' + wildMonster.maxHp;
+        }
+        
+        function setMessage(msg) {
+            document.getElementById('message').textContent = msg;
+        }
+        
+        function attack() {
+            if (!inBattle) return;
+            let dmg = player.monster.atk + Math.floor(Math.random() * 5);
+            wildMonster.hp = Math.max(0, wildMonster.hp - dmg);
+            setMessage('Dealt ' + dmg + ' damage!');
+            updateBattleUI();
+            
+            if (wildMonster.hp <= 0) {
+                setTimeout(() => {
+                    setMessage(wildMonster.name + ' fainted!');
+                    setTimeout(endBattle, 1000);
+                }, 500);
+                return;
+            }
+            
+            // Enemy attacks back
+            setTimeout(() => {
+                let eDmg = wildMonster.atk + Math.floor(Math.random() * 4);
+                player.monster.hp = Math.max(0, player.monster.hp - eDmg);
+                setMessage(wildMonster.name + ' dealt ' + eDmg + ' damage!');
+                updateBattleUI();
+                
+                if (player.monster.hp <= 0) {
+                    setTimeout(() => {
+                        player.monster.hp = player.monster.maxHp;
+                        setMessage('You blacked out... Healed up!');
+                        setTimeout(endBattle, 1000);
+                    }, 500);
+                }
+            }, 800);
+        }
+        
+        function catchMonster() {
+            if (!inBattle || caughtMonsters.length >= 6) return;
+            let chance = (1 - wildMonster.hp / wildMonster.maxHp) * 0.5 + 0.2;
+            if (Math.random() < chance) {
+                caughtMonsters.push({...wildMonster});
+                document.getElementById('caught').textContent = caughtMonsters.length;
+                setMessage('Caught ' + wildMonster.name + '! 🎉');
+                setTimeout(endBattle, 1200);
+            } else {
+                setMessage('Oh no! ' + wildMonster.name + ' broke free!');
+                setTimeout(() => {
+                    let eDmg = wildMonster.atk + Math.floor(Math.random() * 4);
+                    player.monster.hp = Math.max(0, player.monster.hp - eDmg);
+                    setMessage(wildMonster.name + ' attacked! -' + eDmg + ' HP');
+                    updateBattleUI();
+                }, 800);
+            }
+        }
+        
+        function runAway() {
+            if (!inBattle) return;
+            if (Math.random() < 0.7) {
+                setMessage('Got away safely!');
+                setTimeout(endBattle, 800);
+            } else {
+                setMessage('Can\'t escape!');
+            }
+        }
+        
+        function endBattle() {
+            inBattle = false;
+            wildMonster = null;
+            document.getElementById('battle-ui').classList.remove('active');
+        }
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') move(0, -1);
+            if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') move(0, 1);
+            if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') move(-1, 0);
+            if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') move(1, 0);
+        });
+        
+        draw();
+    </script>
 </body>
 </html>
