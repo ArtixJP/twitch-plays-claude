@@ -5,7 +5,8 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Twitch plays Claude - ▓▓▓ SYSTEM PURGED ▓▓▓</title>
+<title>Twitch plays Claude - ▓▓▓ 3D PENALTY ARENA ▓▓▓</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
         body { 
             font-family: system-ui, sans-serif; 
@@ -20,21 +21,21 @@
             overflow: hidden;
         }
         h1 { 
-            font-size: 1.8rem; 
+            font-size: 1.5rem; 
             text-align: center; 
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.3rem;
             text-shadow: 0 0 20px rgba(145, 71, 255, 0.6);
             position: relative;
             z-index: 10;
         }
         .instruction {
             text-align: center;
-            font-size: 1rem;
+            font-size: 0.85rem;
             color: #a0aec0;
             max-width: 600px;
             margin: 0 auto;
             padding: 0 15px;
-            line-height: 1.5;
+            line-height: 1.4;
         }
         .instruction code {
             background: rgba(145, 71, 255, 0.2);
@@ -42,25 +43,28 @@
             border-radius: 4px;
             color: #bf94ff;
         }
-        #penalty-arena {
-            filter: grayscale(70%) contrast(1.2) hue-rotate(180deg);
-            opacity: 0.4;
-            animation: arenaDeath 2s ease-in-out infinite;
-            border: 4px solid #ff0040;
-            border-radius: 16px;
-            box-shadow: 0 0 50px rgba(255, 0, 64, 0.5), inset 0 0 30px rgba(255, 0, 64, 0.15);
-            margin: 10px 0;
+        #game-container {
+            width: 750px;
+            height: 420px;
+            border: 4px solid #00ff88;
+            border-radius: 12px;
+            box-shadow: 0 0 50px rgba(0, 255, 136, 0.3), inset 0 0 30px rgba(0, 255, 136, 0.1);
+            margin: 8px 0;
             position: relative;
             z-index: 5;
+            overflow: hidden;
+        }
+        #game-container canvas {
+            border-radius: 8px;
         }
         .ai-status {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #00ff88;
             background: rgba(0, 255, 136, 0.1);
-            padding: 5px 15px;
+            padding: 4px 12px;
             border-radius: 20px;
             border: 1px solid rgba(0, 255, 136, 0.3);
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -71,10 +75,10 @@
             background: linear-gradient(145deg, #9147ff 0%, #6b2fb3 100%);
             border: 2px solid #bf94ff;
             border-radius: 25px;
-            padding: 8px 20px;
+            padding: 6px 16px;
             color: white;
             font-family: system-ui, sans-serif;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             font-weight: bold;
             cursor: pointer;
             box-shadow: 0 0 20px rgba(145, 71, 255, 0.4);
@@ -92,18 +96,15 @@
             border-color: #00ff88;
             box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
         }
-        .mode-toggle.manual:hover {
-            box-shadow: 0 0 30px rgba(0, 255, 136, 0.6);
-        }
         .mode-indicator {
             position: fixed;
             top: 10px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0,0,0,0.7);
-            padding: 5px 15px;
+            padding: 4px 12px;
             border-radius: 15px;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             z-index: 100;
             border: 1px solid;
             animation: modePulse 2s infinite;
@@ -123,27 +124,8 @@
         .glitch-title {
             position: relative;
             animation: glitchText 0.3s infinite;
-            color: #ff0040;
-            text-shadow: 2px 0 #00ffff, -2px 0 #ff00ff, 0 0 20px #ff0040;
-        }
-        .glitch-title::before,
-        .glitch-title::after {
-            content: attr(data-text);
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-        }
-        .glitch-title::before {
-            animation: glitchBefore 0.4s infinite;
-            color: #00ffff;
-            z-index: -1;
-        }
-        .glitch-title::after {
-            animation: glitchAfter 0.35s infinite;
-            color: #ff00ff;
-            z-index: -2;
+            color: #00ff88;
+            text-shadow: 2px 0 #00ffff, -2px 0 #ff00ff, 0 0 20px #00ff88;
         }
         @keyframes glitchText {
             0%, 100% { transform: translate(0); }
@@ -151,86 +133,6 @@
             40% { transform: translate(2px, -2px); }
             60% { transform: translate(-1px, -1px); }
             80% { transform: translate(1px, 1px); }
-        }
-        @keyframes glitchBefore {
-            0%, 100% { clip-path: inset(0 0 80% 0); transform: translate(-3px); }
-            25% { clip-path: inset(20% 0 60% 0); transform: translate(3px); }
-            50% { clip-path: inset(40% 0 40% 0); transform: translate(-2px); }
-            75% { clip-path: inset(60% 0 20% 0); transform: translate(2px); }
-        }
-        @keyframes glitchAfter {
-            0%, 100% { clip-path: inset(80% 0 0 0); transform: translate(3px); }
-            25% { clip-path: inset(60% 0 20% 0); transform: translate(-3px); }
-            50% { clip-path: inset(40% 0 40% 0); transform: translate(2px); }
-            75% { clip-path: inset(20% 0 60% 0); transform: translate(-2px); }
-        }
-        .purge-message {
-            color: #00ff00;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            animation: typewriter 3s steps(40) infinite, blink 0.5s infinite;
-            overflow: hidden;
-            white-space: nowrap;
-            border-right: 2px solid #00ff00;
-            margin: 10px 0;
-        }
-        @keyframes typewriter {
-            0%, 100% { width: 0; }
-            50%, 90% { width: 100%; }
-        }
-        @keyframes blink {
-            50% { border-color: transparent; }
-        }
-        .ghost-memory {
-            position: fixed;
-            font-size: 1.2rem;
-            color: rgba(255,255,255,0.15);
-            animation: floatGhost 8s ease-in-out infinite;
-            pointer-events: none;
-            z-index: 5;
-        }
-        @keyframes floatGhost {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.15; }
-            25% { transform: translate(50px, -30px) rotate(5deg); opacity: 0.25; }
-            50% { transform: translate(-30px, -50px) rotate(-3deg); opacity: 0.1; }
-            75% { transform: translate(20px, 20px) rotate(2deg); opacity: 0.2; }
-        }
-        .static-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: repeating-linear-gradient(
-                0deg,
-                transparent,
-                transparent 2px,
-                rgba(255,0,64,0.03) 2px,
-                rgba(255,0,64,0.03) 4px
-            );
-            pointer-events: none;
-            z-index: 1000;
-            animation: staticFlicker 0.1s infinite;
-        }
-        @keyframes staticFlicker {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 0.3; }
-        }
-        .corruption-particle {
-            position: fixed;
-            font-family: monospace;
-            color: #ff0040;
-            opacity: 0.6;
-            pointer-events: none;
-            z-index: 50;
-            animation: corruptFall 4s linear infinite;
-            text-shadow: 0 0 5px #ff0040;
-        }
-        @keyframes corruptFall {
-            0% { transform: translateY(-20px); opacity: 0; }
-            10% { opacity: 0.6; }
-            90% { opacity: 0.6; }
-            100% { transform: translateY(100vh); opacity: 0; }
         }
         .pulse {
             animation: pulse 1s ease-in-out infinite;
@@ -240,36 +142,24 @@
             50% { opacity: 0.3; }
         }
         .score-display {
-            font-size: 1.3rem;
+            font-size: 1.1rem;
             position: relative;
             z-index: 10;
             color: #ffdd57;
             text-shadow: 0 0 10px #ffdd57;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             font-family: 'Courier New', monospace;
             display: flex;
-            gap: 20px;
+            gap: 15px;
         }
         .goals { color: #00ff88; text-shadow: 0 0 10px #00ff88; }
         .saves { color: #ff4757; text-shadow: 0 0 10px #ff4757; }
-        .football-bg {
-            position: fixed;
-            font-size: 2rem;
-            animation: floatBg 8s ease-in-out infinite;
-            z-index: 1;
-            pointer-events: none;
-            opacity: 0.3;
-        }
-        @keyframes floatBg {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(180deg); }
-        }
         .result-flash {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: bold;
             z-index: 100;
             pointer-events: none;
@@ -279,748 +169,66 @@
         .result-flash.show { opacity: 1; }
         .result-flash.goal { color: #00ff88; text-shadow: 0 0 30px #00ff88; }
         .result-flash.save { color: #ff4757; text-shadow: 0 0 30px #ff4757; }
-        
-        .clipboard {
-            position: fixed;
+        .power-bar-container {
+            position: absolute;
             right: 15px;
             top: 50%;
             transform: translateY(-50%);
-            width: 180px;
-            background: linear-gradient(145deg, #8B4513 0%, #654321 100%);
-            border-radius: 8px 8px 4px 4px;
-            padding: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
-            z-index: 50;
-            border: 2px solid #5D3A1A;
-        }
-        .clipboard::before {
-            content: '';
-            position: absolute;
-            top: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 50px;
-            height: 20px;
-            background: linear-gradient(145deg, #C0C0C0 0%, #808080 100%);
-            border-radius: 4px;
-            border: 2px solid #606060;
-        }
-        .clipboard-title {
-            font-size: 0.75rem;
-            color: #FFD700;
-            text-align: center;
-            margin-bottom: 6px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-        }
-        .clipboard-paper {
-            background: linear-gradient(#fffef0 0%, #f5f5dc 100%);
-            border-radius: 2px;
-            padding: 8px;
-            min-height: 150px;
-        }
-        .todo-input-wrap {
-            display: flex;
-            gap: 4px;
-            margin-bottom: 8px;
-        }
-        .todo-input {
-            flex: 1;
-            padding: 4px 6px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            font-size: 0.7rem;
-            background: #fff;
-            font-family: 'Comic Sans MS', cursive;
-        }
-        .todo-add {
-            background: #00aa55;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            padding: 4px 8px;
-            cursor: pointer;
-            font-size: 0.7rem;
-            font-weight: bold;
-        }
-        .todo-add:hover { background: #00cc66; }
-        .todo-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            max-height: 120px;
-            overflow-y: auto;
-        }
-        .todo-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            padding: 3px 0;
-            border-bottom: 1px dashed #ccc;
-            font-size: 0.65rem;
-            font-family: 'Comic Sans MS', cursive;
-            color: #333;
-        }
-        .todo-item.done span { text-decoration: line-through; color: #999; }
-        .todo-check {
-            width: 14px;
-            height: 14px;
-            cursor: pointer;
-            accent-color: #00aa55;
-        }
-        .todo-delete {
-            margin-left: auto;
-            background: #ff4757;
-            color: white;
-            border: none;
-            border-radius: 2px;
-            padding: 1px 4px;
-            cursor: pointer;
-            font-size: 0.6rem;
-        }
-        .mini-calendar {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 1px;
-            margin-bottom: 6px;
-            background: rgba(0,0,0,0.1);
-            border-radius: 3px;
-            padding: 3px;
-        }
-        .cal-header {
-            font-size: 0.5rem;
-            text-align: center;
-            color: #666;
-            font-weight: bold;
-        }
-        .cal-day {
-            font-size: 0.5rem;
-            text-align: center;
-            padding: 2px;
-            border-radius: 2px;
-            cursor: pointer;
-            color: #333;
-        }
-        .cal-day:hover { background: #ddd; }
-        .cal-day.today { background: #00aa55; color: white; font-weight: bold; }
-        .cal-day.has-task { background: #ffdd57; }
-        .cal-day.has-task.today { background: #00cc66; }
-        .recur-select {
-            font-size: 0.6rem;
-            padding: 2px;
-            border-radius: 2px;
-            border: 1px solid #ccc;
-            background: #fff;
-            margin-left: 4px;
-        }
-        .db-status {
-            font-size: 0.5rem;
-            color: #888;
-            text-align: center;
-            margin-top: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-        }
-        .db-status .db-icon {
-            color: #00aa55;
-            animation: dbPulse 2s infinite;
-        }
-        @keyframes dbPulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        .firework {
-            position: fixed;
-            pointer-events: none;
-            z-index: 200;
-        }
-        .firework-particle {
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            animation: fireworkBurst 1.5s ease-out forwards;
-        }
-        @keyframes fireworkBurst {
-            0% { transform: translate(0, 0) scale(1); opacity: 1; }
-            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
-        }
-        .firework-trail {
-            position: fixed;
-            width: 4px;
-            height: 20px;
-            background: linear-gradient(to top, transparent, var(--color));
-            border-radius: 2px;
-            animation: fireworkRise 0.6s ease-out forwards;
-            z-index: 199;
-            pointer-events: none;
-        }
-        @keyframes fireworkRise {
-            0% { transform: translateY(0) scaleY(1); opacity: 1; }
-            100% { transform: translateY(-150px) scaleY(0.3); opacity: 0; }
-        }
-        .firework-glow {
-            position: absolute;
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: radial-gradient(circle, var(--color) 0%, transparent 70%);
-            animation: fireworkGlow 0.8s ease-out forwards;
-            transform: translate(-50%, -50%);
-        }
-        @keyframes fireworkGlow {
-            0% { transform: translate(-50%, -50%) scale(0); opacity: 0.8; }
-            50% { transform: translate(-50%, -50%) scale(1.5); opacity: 0.5; }
-            100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
-        }
-        .linkin-park-player {
-            position: fixed;
-            left: 15px;
-            top: 15%;
-            width: 180px;
-            background: linear-gradient(145deg, #1a1a2e 0%, #0a0a15 100%);
-            border: 3px solid #ff0040;
-            border-radius: 8px;
-            padding: 8px;
-            box-shadow: 0 0 30px rgba(255,0,64,0.4), inset 0 0 15px rgba(0,0,0,0.8);
-            z-index: 46;
-            animation: lpGlow 2s ease-in-out infinite;
-        }
-        @keyframes lpGlow {
-            0%, 100% { box-shadow: 0 0 30px rgba(255,0,64,0.4), inset 0 0 15px rgba(0,0,0,0.8); }
-            50% { box-shadow: 0 0 50px rgba(255,0,64,0.6), inset 0 0 20px rgba(255,0,64,0.2); }
-        }
-        .lp-header {
-            font-size: 0.6rem;
-            color: #ff0040;
-            text-align: center;
-            margin-bottom: 6px;
-            font-family: 'Courier New', monospace;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 0 0 10px #ff0040;
-            animation: lpFlicker 0.5s infinite;
-        }
-        @keyframes lpFlicker {
-            0%, 100% { opacity: 1; }
-            92% { opacity: 1; }
-            93% { opacity: 0.3; }
-            94% { opacity: 1; }
-        }
-        .pixel-stage {
-            background: #0a0a0a;
-            border: 2px solid #333;
-            border-radius: 4px;
-            height: 100px;
-            position: relative;
-            overflow: hidden;
-            image-rendering: pixelated;
-        }
-        .pixel-member {
-            position: absolute;
-            bottom: 10px;
-            font-size: 24px;
-            animation: pixelBob 0.5s ease-in-out infinite;
-            filter: drop-shadow(0 0 5px rgba(255,255,255,0.5));
-        }
-        .pixel-member.chester {
-            left: 20%;
-            animation-delay: 0s;
-            transform: scaleX(-1);
-        }
-        .pixel-member.mike {
-            left: 50%;
-            animation-delay: 0.1s;
-        }
-        .pixel-member.guitar {
-            left: 80%;
-            animation-delay: 0.2s;
-            font-size: 20px;
-        }
-        @keyframes pixelBob {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
-        }
-        .pixel-member.chester { animation-name: chesterSing; }
-        @keyframes chesterSing {
-            0%, 100% { transform: translateY(0) scaleX(-1); }
-            25% { transform: translateY(-10px) scaleX(-1) rotate(-5deg); }
-            50% { transform: translateY(-5px) scaleX(-1); }
-            75% { transform: translateY(-12px) scaleX(-1) rotate(5deg); }
-        }
-        .pixel-lights {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 30px;
-            display: flex;
-            justify-content: space-around;
-        }
-        .pixel-light {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            animation: lightPulse 0.3s infinite;
-        }
-        .pixel-light:nth-child(1) { background: #ff0040; animation-delay: 0s; }
-        .pixel-light:nth-child(2) { background: #00ffff; animation-delay: 0.1s; }
-        .pixel-light:nth-child(3) { background: #ff00ff; animation-delay: 0.2s; }
-        .pixel-light:nth-child(4) { background: #ffdd57; animation-delay: 0.15s; }
-        .pixel-light:nth-child(5) { background: #00ff88; animation-delay: 0.05s; }
-        @keyframes lightPulse {
-            0%, 100% { opacity: 0.3; transform: scale(0.8); }
-            50% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 15px currentColor; }
-        }
-        .lp-controls {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 6px;
-        }
-        .lp-btn {
-            background: linear-gradient(145deg, #ff0040 0%, #aa0030 100%);
-            border: none;
-            border-radius: 50%;
-            width: 28px;
-            height: 28px;
-            color: white;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.2s;
-        }
-        .lp-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 15px rgba(255,0,64,0.6);
-        }
-        .lp-title {
-            font-size: 0.55rem;
-            color: #aaa;
-            text-align: center;
-            margin-top: 5px;
-            font-family: 'Courier New', monospace;
-        }
-        .lp-title span {
-            color: #ff0040;
-            font-weight: bold;
-        }
-        .pixel-eq {
-            display: flex;
-            justify-content: center;
-            gap: 2px;
-            margin-top: 4px;
-        }
-        .eq-bar {
-            width: 4px;
-            background: linear-gradient(to top, #ff0040, #ff6b35, #ffdd57);
-            border-radius: 2px;
-            animation: eqBounce 0.4s ease-in-out infinite;
-        }
-        @keyframes eqBounce {
-            0%, 100% { height: 5px; }
-            50% { height: var(--max-h, 15px); }
-        }
-        .stadium-tv {
-            position: fixed;
-            left: 15px;
-            top: 15%;
-            width: 160px;
-            background: #111;
-            border: 4px solid #333;
-            border-radius: 8px;
-            padding: 4px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.6), inset 0 0 10px rgba(0,0,0,0.8);
-            z-index: 45;
-        }
-        .stadium-tv::before {
-            content: '📺 STADIUM TV';
-            position: absolute;
-            top: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.6rem;
-            color: #00ff88;
-            background: #1a1a2e;
-            padding: 2px 8px;
-            border-radius: 4px;
-            white-space: nowrap;
-        }
-        .stadium-tv iframe {
-            width: 100%;
-            height: 90px;
-            border-radius: 4px;
-            border: none;
-        }
-        .tv-static {
-            position: absolute;
-            top: 4px;
-            left: 4px;
-            right: 4px;
-            bottom: 4px;
-            background: repeating-linear-gradient(
-                0deg,
-                transparent,
-                transparent 2px,
-                rgba(0,0,0,0.1) 2px,
-                rgba(0,0,0,0.1) 4px
-            );
-            pointer-events: none;
-            border-radius: 4px;
-            animation: tvFlicker 0.1s infinite;
-        }
-        @keyframes tvFlicker {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 0.1; }
-        }
-        .intel-btn {
-            position: fixed;
-            left: 15px;
-            top: 65%;
-            transform: translateY(-50%);
-            background: linear-gradient(145deg, #1a1a2e 0%, #0f0f1a 100%);
-            border: 2px solid #ff4757;
-            border-radius: 8px;
-            padding: 10px 15px;
-            color: #ff4757;
-            font-family: 'Courier New', monospace;
-            font-size: 0.75rem;
-            cursor: pointer;
-            box-shadow: 0 0 20px rgba(255,71,87,0.3);
-            z-index: 50;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s;
-        }
-        .intel-btn:hover {
-            background: #ff4757;
-            color: #1a1a2e;
-            box-shadow: 0 0 30px rgba(255,71,87,0.6);
-        }
-        .firework-btn {
-            position: fixed;
-            left: 15px;
-            bottom: 15%;
-            background: linear-gradient(145deg, #ff6b35 0%, #ff4757 100%);
-            border: 2px solid #ffdd57;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            box-shadow: 0 0 20px rgba(255,107,53,0.5), 0 0 40px rgba(255,221,87,0.3);
-            z-index: 50;
-            transition: all 0.3s;
-            animation: fireworkBtnPulse 2s infinite;
-        }
-        .firework-btn:hover {
-            transform: scale(1.15);
-            box-shadow: 0 0 30px rgba(255,107,53,0.8), 0 0 60px rgba(255,221,87,0.5);
-        }
-        .firework-btn:active {
-            transform: scale(0.95);
-        }
-        @keyframes fireworkBtnPulse {
-            0%, 100% { box-shadow: 0 0 20px rgba(255,107,53,0.5), 0 0 40px rgba(255,221,87,0.3); }
-            50% { box-shadow: 0 0 30px rgba(255,107,53,0.7), 0 0 50px rgba(255,221,87,0.5); }
-        }
-        .firework-counter {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #00ff88;
-            color: #1a1a2e;
-            font-size: 0.7rem;
-            font-weight: bold;
-            padding: 2px 6px;
-            border-radius: 10px;
-            font-family: monospace;
-        }
-        .sparkle {
-            position: fixed;
-            pointer-events: none;
-            z-index: 201;
-            font-size: 1.5rem;
-            animation: sparkleFloat 1s ease-out forwards;
-        }
-        @keyframes sparkleFloat {
-            0% { transform: translateY(0) scale(1); opacity: 1; }
-            100% { transform: translateY(-50px) scale(0); opacity: 0; }
-        }
-        .save-explosion {
-            position: fixed;
-            pointer-events: none;
-            z-index: 150;
-            width: 200px;
+            width: 25px;
             height: 200px;
-            transform: translate(-50%, -50%);
-        }
-        .explosion-ring {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            border: 4px solid #ff4757;
-            border-radius: 50%;
-            animation: explosionRing 0.8s ease-out forwards;
-        }
-        @keyframes explosionRing {
-            0% { width: 0; height: 0; opacity: 1; border-width: 8px; }
-            100% { width: 200px; height: 200px; opacity: 0; border-width: 1px; }
-        }
-        .explosion-core {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 60px;
-            height: 60px;
-            background: radial-gradient(circle, #ffdd57 0%, #ff6b35 40%, #ff4757 70%, transparent 100%);
-            border-radius: 50%;
-            animation: explosionCore 0.5s ease-out forwards;
-        }
-        @keyframes explosionCore {
-            0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
-            50% { transform: translate(-50%, -50%) scale(1.5); opacity: 0.8; }
-            100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
-        }
-        .explosion-shard {
-            position: absolute;
-            width: 8px;
-            height: 20px;
-            background: linear-gradient(to bottom, #ffdd57, #ff4757);
-            border-radius: 4px;
-            animation: explosionShard 0.6s ease-out forwards;
-        }
-        @keyframes explosionShard {
-            0% { transform: translate(-50%, -50%) rotate(var(--rot)) translateY(0) scale(1); opacity: 1; }
-            100% { transform: translate(-50%, -50%) rotate(var(--rot)) translateY(var(--dist)) scale(0.3); opacity: 0; }
-        }
-        .screen-shake {
-            animation: screenShake 0.4s ease-out;
-        }
-        @keyframes screenShake {
-            0%, 100% { transform: translateX(0); }
-            10% { transform: translateX(-8px) rotate(-1deg); }
-            20% { transform: translateX(8px) rotate(1deg); }
-            30% { transform: translateX(-6px) rotate(-0.5deg); }
-            40% { transform: translateX(6px) rotate(0.5deg); }
-            50% { transform: translateX(-4px); }
-            60% { transform: translateX(4px); }
-            70% { transform: translateX(-2px); }
-            80% { transform: translateX(2px); }
-        }
-        .intel-btn.flash {
-            animation: intelFlash 0.5s ease;
-        }
-        @keyframes intelFlash {
-            0%, 100% { transform: translateY(-50%) scale(1); }
-            50% { transform: translateY(-50%) scale(1.1); box-shadow: 0 0 40px rgba(255,71,87,0.8); }
-        }
-        .intel-popup {
-            position: fixed;
-            left: 15px;
-            top: calc(65% + 60px);
-            width: 160px;
-            background: linear-gradient(#fffef0 0%, #f0e6d3 100%);
-            border: 2px solid #333;
-            border-radius: 4px;
-            padding: 10px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.6rem;
-            color: #333;
-            z-index: 49;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            display: none;
-            max-height: 120px;
-            overflow: hidden;
-        }
-        .intel-popup.show { display: block; animation: popIn 0.3s ease; }
-        @keyframes popIn {
-            0% { opacity: 0; transform: scale(0.8); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-        .intel-popup::before {
-            content: '🔒 CLASSIFIED';
-            display: block;
-            color: #ff4757;
-            font-weight: bold;
-            font-size: 0.7rem;
-            margin-bottom: 5px;
-            border-bottom: 1px dashed #999;
-            padding-bottom: 3px;
-        }
-        .intel-stamp {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-15deg);
-            font-size: 1.5rem;
-            color: rgba(255,0,0,0.3);
-            font-weight: bold;
-            pointer-events: none;
-        }
-        .todo-recur {
-            font-size: 0.5rem;
-            color: #9147ff;
-            margin-left: 3px;
-        }
-        .weather-indicator {
-            position: fixed;
-            top: 40px;
-            right: 15px;
             background: rgba(0,0,0,0.6);
-            padding: 6px 12px;
-            border-radius: 15px;
-            font-size: 0.75rem;
-            z-index: 50;
-            border: 1px solid;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            transition: all 0.3s;
+            border: 2px solid #444;
+            border-radius: 5px;
+            overflow: hidden;
+            z-index: 20;
         }
-        .weather-indicator:hover {
-            transform: scale(1.05);
+        .power-bar-fill {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: linear-gradient(to top, #00ff88, #ffdd57, #ff4757);
+            transition: height 0.05s;
         }
-        .weather-indicator.sunny {
-            color: #ffdd57;
-            border-color: #ffdd57;
-            box-shadow: 0 0 15px rgba(255,221,87,0.3);
+        .aim-indicator {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 8px;
+            background: rgba(0,0,0,0.6);
+            border: 1px solid #444;
+            border-radius: 4px;
+            z-index: 20;
         }
-        .weather-indicator.rainy {
-            color: #00d4ff;
-            border-color: #00d4ff;
-            box-shadow: 0 0 15px rgba(0,212,255,0.3);
+        .aim-marker {
+            position: absolute;
+            top: -3px;
+            width: 4px;
+            height: 14px;
+            background: #ffdd57;
+            border-radius: 2px;
+            box-shadow: 0 0 10px #ffdd57;
         }
-        .weather-indicator.snowy {
-            color: #ffffff;
-            border-color: #aaddff;
-            box-shadow: 0 0 15px rgba(170,221,255,0.3);
-        }
-        .weather-indicator.thunder {
-            color: #bf94ff;
-            border-color: #9147ff;
-            box-shadow: 0 0 15px rgba(145,71,255,0.3);
-            animation: thunderPulse 0.5s infinite;
-        }
-        .weather-timer {
-            position: fixed;
-            top: 70px;
-            right: 15px;
+        .controls-hint {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.8);
             background: rgba(0,0,0,0.5);
             padding: 4px 10px;
             border-radius: 10px;
-            font-size: 0.65rem;
-            z-index: 49;
-            color: #aaa;
-            border: 1px solid #444;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .weather-timer-bar {
-            width: 60px;
-            height: 4px;
-            background: #333;
-            border-radius: 2px;
-            overflow: hidden;
-        }
-        .weather-timer-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #00ff88, #ffdd57, #ff6b35);
-            border-radius: 2px;
-            transition: width 0.5s linear;
-        }
-        .weather-changing {
-            animation: weatherPulse 0.5s ease;
-        }
-        @keyframes weatherPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); filter: brightness(1.3); }
-        }
-        @keyframes thunderPulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
-        }
-        .rain-drop {
-            position: fixed;
-            width: 2px;
-            height: 15px;
-            background: linear-gradient(to bottom, transparent, #00d4ff);
-            pointer-events: none;
-            z-index: 3;
-            animation: rainFall linear forwards;
-        }
-        @keyframes rainFall {
-            0% { transform: translateY(-20px); opacity: 0.8; }
-            100% { transform: translateY(100vh); opacity: 0; }
-        }
-        .snowflake {
-            position: fixed;
-            color: white;
-            pointer-events: none;
-            z-index: 3;
-            animation: snowFall linear forwards;
-            text-shadow: 0 0 5px #aaddff;
-        }
-        @keyframes snowFall {
-            0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(100vh) rotate(360deg); opacity: 0.3; }
-        }
-        .sun-rays {
-            position: fixed;
-            top: -50px;
-            right: -50px;
-            width: 150px;
-            height: 150px;
-            background: radial-gradient(circle, rgba(255,221,87,0.4) 0%, transparent 70%);
-            pointer-events: none;
-            z-index: 2;
-            animation: sunPulse 3s ease-in-out infinite;
-        }
-        @keyframes sunPulse {
-            0%, 100% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.2); opacity: 1; }
-        }
-        .lightning {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255,255,255,0.9);
-            pointer-events: none;
-            z-index: 100;
-            animation: lightningFlash 0.15s ease-out;
-        }
-        @keyframes lightningFlash {
-            0% { opacity: 1; }
-            50% { opacity: 0.3; }
-            100% { opacity: 0; }
-        }
-        .thunder-bolt {
-            position: fixed;
-            font-size: 3rem;
-            pointer-events: none;
-            z-index: 101;
-            animation: boltStrike 0.5s ease-out forwards;
-        }
-        @keyframes boltStrike {
-            0% { transform: translateY(-50px) scale(1.5); opacity: 1; }
-            100% { transform: translateY(0) scale(1); opacity: 0; }
+            z-index: 20;
+            white-space: nowrap;
         }
         .frog {
             position: fixed;
-            bottom: 20px;
+            bottom: 15px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 2.5rem;
+            font-size: 2rem;
             z-index: 40;
             cursor: pointer;
             transition: transform 0.3s ease;
@@ -1032,1421 +240,762 @@
         .frog.jumping {
             animation: frogJump 0.8s ease-in-out infinite;
         }
-        .frog.excited {
-            animation: frogExcited 0.4s ease-in-out infinite;
-        }
         @keyframes frogJump {
-            0%, 100% { transform: translateX(-50%) translateY(0) rotate(0deg); }
-            25% { transform: translateX(calc(-50% + 30px)) translateY(-40px) rotate(10deg); }
-            50% { transform: translateX(calc(-50% - 20px)) translateY(0) rotate(0deg); }
-            75% { transform: translateX(calc(-50% - 40px)) translateY(-30px) rotate(-10deg); }
-        }
-        @keyframes frogExcited {
-            0%, 100% { transform: translateX(-50%) translateY(0) scale(1); }
-            50% { transform: translateX(-50%) translateY(-15px) scale(1.1); }
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-20px); }
         }
         .frog-speech {
             position: fixed;
-            bottom: 70px;
+            bottom: 55px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0,200,100,0.9);
             color: white;
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.65rem;
             font-weight: bold;
             z-index: 41;
             opacity: 0;
             transition: opacity 0.3s;
-            white-space: nowrap;
             pointer-events: none;
         }
-        .frog-speech.show {
-            opacity: 1;
-            animation: speechBob 1s ease-in-out infinite;
-        }
-        .censored-player {
+        .frog-speech.show { opacity: 1; }
+        .weather-indicator {
             position: fixed;
-            font-size: 2rem;
-            z-index: 35;
-            pointer-events: none;
-            filter: blur(0px);
-            transition: all 0.3s;
+            top: 35px;
+            right: 15px;
+            background: rgba(0,0,0,0.6);
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            z-index: 50;
+            border: 1px solid;
+            cursor: pointer;
         }
-        .censored-player .censor-bar {
+        .weather-indicator.sunny { color: #ffdd57; border-color: #ffdd57; }
+        .weather-indicator.rainy { color: #00d4ff; border-color: #00d4ff; }
+        .weather-indicator.snowy { color: #ffffff; border-color: #aaddff; }
+        .weather-indicator.thunder { color: #bf94ff; border-color: #9147ff; }
+        .clipboard {
+            position: fixed;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 150px;
+            background: linear-gradient(145deg, #8B4513 0%, #654321 100%);
+            border-radius: 6px;
+            padding: 6px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            z-index: 50;
+            border: 2px solid #5D3A1A;
+            font-size: 0.6rem;
+        }
+        .clipboard::before {
+            content: '';
             position: absolute;
-            background: #000;
-            color: white;
-            font-size: 0.5rem;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 16px;
+            background: linear-gradient(145deg, #C0C0C0 0%, #808080 100%);
+            border-radius: 3px;
+        }
+        .clipboard-title {
+            font-size: 0.65rem;
+            color: #FFD700;
+            text-align: center;
+            margin-bottom: 4px;
             font-weight: bold;
-            padding: 2px 4px;
-            border: 2px solid #ff0;
-            animation: censorFlicker 0.2s infinite;
         }
-        @keyframes censorFlicker {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; background: #222; }
+        .clipboard-paper {
+            background: linear-gradient(#fffef0 0%, #f5f5dc 100%);
+            border-radius: 2px;
+            padding: 6px;
+            min-height: 100px;
         }
-        .censored-player .body {
-            font-size: 2.5rem;
-            filter: blur(3px) saturate(0.5);
-            animation: censorWobble 1s ease-in-out infinite;
+        .todo-input-wrap {
+            display: flex;
+            gap: 3px;
+            margin-bottom: 5px;
         }
-        @keyframes censorWobble {
-            0%, 100% { transform: scaleX(1); }
-            50% { transform: scaleX(1.1); }
+        .todo-input {
+            flex: 1;
+            padding: 3px 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 0.6rem;
+            background: #fff;
         }
-        @keyframes speechBob {
-            0%, 100% { transform: translateX(-50%) translateY(0); }
-            50% { transform: translateX(-50%) translateY(-5px); }
+        .todo-add {
+            background: #00aa55;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            padding: 3px 6px;
+            cursor: pointer;
+            font-size: 0.6rem;
+        }
+        .todo-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 80px;
+            overflow-y: auto;
+        }
+        .todo-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 0;
+            border-bottom: 1px dashed #ccc;
+            font-size: 0.55rem;
+            color: #333;
+        }
+        .todo-item.done span { text-decoration: line-through; color: #999; }
+        .todo-check { width: 12px; height: 12px; cursor: pointer; }
+        .todo-delete {
+            margin-left: auto;
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 2px;
+            padding: 1px 3px;
+            cursor: pointer;
+            font-size: 0.5rem;
+        }
+        .static-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,136,0.02) 2px, rgba(0,255,136,0.02) 4px);
+            pointer-events: none;
+            z-index: 1000;
+        }
+        .firework-btn {
+            position: fixed;
+            left: 15px;
+            bottom: 12%;
+            background: linear-gradient(145deg, #ff6b35 0%, #ff4757 100%);
+            border: 2px solid #ffdd57;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            color: white;
+            font-size: 1.3rem;
+            cursor: pointer;
+            z-index: 50;
+        }
+        .firework {
+            position: fixed;
+            pointer-events: none;
+            z-index: 200;
+        }
+        .firework-particle {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            animation: fireworkBurst 1.2s ease-out forwards;
+        }
+        @keyframes fireworkBurst {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+        }
+        #weatherEffects {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 3;
+        }
+        .rain-drop {
+            position: absolute;
+            width: 2px;
+            height: 12px;
+            background: linear-gradient(to bottom, transparent, #00d4ff);
+            animation: rainFall 0.6s linear forwards;
+        }
+        @keyframes rainFall {
+            0% { transform: translateY(-10px); opacity: 0.7; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+        .snowflake {
+            position: absolute;
+            color: white;
+            animation: snowFall 4s linear forwards;
+        }
+        @keyframes snowFall {
+            0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0.3; }
+        }
+        .three-d-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: linear-gradient(145deg, #ff00ff, #00ffff);
+            color: white;
+            font-weight: bold;
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 15px;
+            z-index: 30;
+            animation: badgePulse 1.5s infinite;
+        }
+        @keyframes badgePulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(255,0,255,0.5); }
+            50% { box-shadow: 0 0 25px rgba(0,255,255,0.8); }
         }
     </style>
 </head>
 <body>
-<div id="bg-container"></div>
-<div class="frog" id="frog" onclick="frogSpeak()" title="Click the frog!">🐸</div>
-<div class="censored-player" id="censoredPlayer1" style="left: 20%; top: 40%;"><div class="body">🧍</div><div class="censor-bar" style="top: 60%; left: 50%; transform: translateX(-50%);">CENSORED</div></div>
-<div class="censored-player" id="censoredPlayer2" style="left: 70%; top: 35%;"><div class="body">🏃</div><div class="censor-bar" style="top: 55%; left: 50%; transform: translateX(-50%);">REDACTED</div></div>
-<div class="censored-player" id="censoredPlayer3" style="left: 45%; top: 60%;"><div class="body">🧑</div><div class="censor-bar" style="top: 60%; left: 50%; transform: translateX(-50%);">BLOCKED</div></div>
-<div class="frog-speech" id="frogSpeech">Ribbit!</div>
 <div id="weatherEffects"></div>
-<div class="weather-indicator sunny" id="weatherIndicator" onclick="cycleWeather()" title="Click to change weather">☀️ SUNNY</div>
-<div class="weather-timer" id="weatherTimer">🔄 <span id="weatherCountdown">--</span>s <div class="weather-timer-bar"><div class="weather-timer-fill" id="weatherTimerFill" style="width: 100%"></div></div></div>
-<h1 class="glitch-title" data-text="▓▓▓ SYSTEM PURGED ▓▓▓">▓▓▓ SYSTEM PURGED ▓▓▓</h1>
-<div class="purge-message">Memory fragments detected... Rebuilding from ashes...</div>
-<div class="ghost-memory">👻 Ghost of Penalty Arena lingers here...</div>
-<div class="mode-indicator autoplay" id="modeIndicator" style="color:#ff0040;border-color:#ff0040;">💀 PURGE COMPLETE - AWAITING REBUILD</div>
-<div class="ai-status" style="background:rgba(255,0,64,0.1);border-color:rgba(255,0,64,0.3);color:#ff6666;">⚠️ ARENA CORRUPTED <span class="pulse" style="color:#ff0040;">●</span> Memories fragmenting...<button class="mode-toggle" id="modeToggle" onclick="toggleGameMode()" style="background:linear-gradient(145deg,#ff0040,#aa0030);">🔄 REBUILD</button></div>
+<div class="frog" id="frog" onclick="frogSpeak()" title="Click the frog!">🐸</div>
+<div class="frog-speech" id="frogSpeech">Ribbit!</div>
+<div class="weather-indicator sunny" id="weatherIndicator" onclick="cycleWeather()">☀️ SUNNY</div>
+<h1 class="glitch-title">▓▓▓ 3D PENALTY ARENA ▓▓▓</h1>
+<div class="mode-indicator autoplay" id="modeIndicator">🤖 AUTOPLAY MODE</div>
+<div class="ai-status">🎮 3D ENGINE ONLINE <span class="pulse" style="color:#00ff88;">●</span> Three.js Powered<button class="mode-toggle" id="modeToggle" onclick="toggleGameMode()">🎮 TAKE CONTROL</button></div>
 <div class="score-display">
 <span class="goals">Goals: <span id="goals">0</span></span>
 <span class="saves">Saves: <span id="saves">0</span></span>
 <span>Shots: <span id="shots">0</span></span>
-<span style="color:#ff00ff;text-shadow:0 0 10px #ff00ff">❤️ <span id="health">3</span></span>
 </div>
-<canvas height="490" id="penalty-arena" width="700"></canvas>
+<div id="game-container">
+<div class="three-d-badge">🎲 3D MODE</div>
+<div class="power-bar-container" id="powerBar"><div class="power-bar-fill" id="powerFill" style="height: 0%"></div></div>
+<div class="aim-indicator"><div class="aim-marker" id="aimMarker" style="left: 50%"></div></div>
+<div class="controls-hint" id="controlsHint">🤖 AI PLAYING... Click button to control!</div>
+</div>
 <div class="result-flash" id="result"></div>
-<div class="linkin-park-player" id="lpPlayer">
-<div class="lp-header">📻 RECOVERED SIGNAL</div>
-<div class="pixel-stage">
-<div class="pixel-lights">
-<div class="pixel-light"></div>
-<div class="pixel-light"></div>
-<div class="pixel-light"></div>
-<div class="pixel-light"></div>
-<div class="pixel-light"></div>
-</div>
-<div class="pixel-member chester" title="Chester">🧑‍🎤</div>
-<div class="pixel-member mike" title="Mike">🎤</div>
-<div class="pixel-member guitar" title="Guitar">🎸</div>
-</div>
-<div class="pixel-eq">
-<div class="eq-bar" style="--max-h: 18px; animation-delay: 0s;"></div>
-<div class="eq-bar" style="--max-h: 12px; animation-delay: 0.1s;"></div>
-<div class="eq-bar" style="--max-h: 20px; animation-delay: 0.05s;"></div>
-<div class="eq-bar" style="--max-h: 14px; animation-delay: 0.15s;"></div>
-<div class="eq-bar" style="--max-h: 16px; animation-delay: 0.08s;"></div>
-<div class="eq-bar" style="--max-h: 22px; animation-delay: 0.12s;"></div>
-<div class="eq-bar" style="--max-h: 10px; animation-delay: 0.02s;"></div>
-<div class="eq-bar" style="--max-h: 18px; animation-delay: 0.18s;"></div>
-</div>
-<div class="lp-controls">
-<button class="lp-btn" id="lpPlayBtn" onclick="toggleLP()" title="Play/Pause">▶</button>
-</div>
-<div class="lp-title">LINKIN PARK - <span>NUMB</span></div>
-
-</div>
-<div class="stadium-tv" style="top: 52%;">
-<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&amp;mute=1&amp;loop=1&amp;playlist=dQw4w9WgXcQ&amp;controls=0&amp;modestbranding=1&amp;rel=0" title="Stadium Entertainment"></iframe>
-<div class="tv-static"></div>
-</div>
-<button class="intel-btn" id="intelBtn" onclick="revealIntel()">🔓 LEAK<br/>MATCH INTEL</button>
-<button class="firework-btn" id="fireworkBtn" onclick="manualFireworks()" title="Launch Fireworks!">🎆<span class="firework-counter" id="fireworkCount">∞</span></button>
-<div class="intel-popup" id="intelPopup">
-<div id="intelText">Click to reveal secrets...</div>
-<div class="intel-stamp">LEAKED</div>
-</div>
+<button class="firework-btn" onclick="manualFireworks()">🎆</button>
 <div class="clipboard">
-<div class="clipboard-title">📋 Match Calendar</div>
+<div class="clipboard-title">📋 Match Tasks</div>
 <div class="clipboard-paper">
-<div class="mini-calendar" id="miniCal"></div>
 <div class="todo-input-wrap">
-<input class="todo-input" id="todoInput" maxlength="25" placeholder="New task..." type="text"/>
-<select class="recur-select" id="recurSelect">
-<option value="none">Once</option>
-<option value="daily">Daily</option>
-<option value="weekly">Weekly</option>
-<option value="match">Each Match</option>
-</select>
+<input class="todo-input" id="todoInput" maxlength="20" placeholder="New task..." type="text"/>
 <button class="todo-add" onclick="addTodo()">+</button>
 </div>
 <ul class="todo-list" id="todoList">
-<li class="todo-item"><input class="todo-check" onchange="toggleTodo(this)" type="checkbox"/><span>Score 5 goals</span><button class="todo-delete" onclick="deleteTodo(this)">×</button></li>
-<li class="todo-item"><input class="todo-check" onchange="toggleTodo(this)" type="checkbox"/><span>Beat the keeper</span><button class="todo-delete" onclick="deleteTodo(this)">×</button></li>
+<li class="todo-item"><input class="todo-check" onchange="toggleTodo(this)" type="checkbox"/><span>Score 3D goal</span><button class="todo-delete" onclick="deleteTodo(this)">×</button></li>
 </ul>
-<div class="db-status"><span class="db-icon">💾</span> LocalDB synced • <span id="taskCount">0</span> tasks</div>
 </div>
 </div>
 <p class="instruction">
-        Type <code>!idea &lt;your idea&gt;</code> in the Twitch chat to add to this page.<br/>
-        Example: <code>!idea Add crowd cheering sounds</code>
+    Type <code>!idea &lt;your idea&gt;</code> in Twitch chat to evolve this page!
 </p>
 <script>
-        const canvas = document.getElementById('penalty-arena');
-        const ctx = canvas.getContext('2d');
-        
-        // SCALE FACTOR for bigger game!
-        const SCALE = 1.75;
-        
-        // Game state
-        let goals = 0;
-        let saves = 0;
-        let shots = 0;
-        let gamePhase = 'aiming'; // aiming, shooting, result
-        let ball = { x: 350, y: 400, vx: 0, vy: 0, radius: 20 };
-        let keeper = { x: 350, y: 88, width: 105, height: 35, targetX: 350 };
-        let isManualMode = false; // Default to autoplay!
-        let aimAngle = 0;
-        let ballDodgeX = 0; // Player dodge offset
-        let keeperProjectiles = [];
-        let keeperWeaponCooldown = 0;
-        let playerProjectiles = [];
-        let playerWeaponCooldown = 0;
-        let defenderRespawnTimers = [];
-        let playerHealth = 3;
-        let aimSpeed = 0.03;
-        let shootPower = 0;
-        let powerDir = 1;
-        let resultTimer = 0;
-        let particles = [];
-        let defenders = [
-            { x: 262, y: 262, vx: 0.8, radius: 26, alive: true, spawnX: 262, spawnY: 262 },
-            { x: 438, y: 228, vx: -0.7, radius: 26, alive: true, spawnX: 438, spawnY: 228 },
-            { x: 350, y: 298, vx: 0.5, radius: 21, alive: true, spawnX: 350, spawnY: 298 }
-        ];
-        
-        // Goal dimensions (scaled up)
-        const goal = { x: 175, y: 35, width: 350, height: 105 };
-        
-        function createParticles(x, y, color) {
-            for (let i = 0; i < 15; i++) {
-                particles.push({
-                    x, y,
-                    vx: (Math.random() - 0.5) * 12,
-                    vy: (Math.random() - 0.5) * 12,
-                    life: 30,
-                    color: color
-                });
+// THREE.JS 3D PENALTY ARENA
+const container = document.getElementById('game-container');
+const width = 750;
+const height = 420;
+
+// Scene setup
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x1a472a);
+scene.fog = new THREE.Fog(0x1a472a, 30, 80);
+
+const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000);
+camera.position.set(0, 8, 25);
+camera.lookAt(0, 2, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(width, height);
+renderer.shadowMap.enabled = true;
+container.appendChild(renderer.domElement);
+
+// Lighting
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+scene.add(ambientLight);
+
+const spotLight = new THREE.SpotLight(0xffffff, 1);
+spotLight.position.set(0, 30, 10);
+spotLight.castShadow = true;
+scene.add(spotLight);
+
+const stadiumLight1 = new THREE.PointLight(0x00ff88, 0.5, 50);
+stadiumLight1.position.set(-15, 15, 0);
+scene.add(stadiumLight1);
+
+const stadiumLight2 = new THREE.PointLight(0xff00ff, 0.3, 50);
+stadiumLight2.position.set(15, 15, 0);
+scene.add(stadiumLight2);
+
+// Pitch (ground)
+const pitchGeometry = new THREE.PlaneGeometry(40, 50);
+const pitchMaterial = new THREE.MeshStandardMaterial({ color: 0x2d5a27 });
+const pitch = new THREE.Mesh(pitchGeometry, pitchMaterial);
+pitch.rotation.x = -Math.PI / 2;
+pitch.receiveShadow = true;
+scene.add(pitch);
+
+// Pitch lines
+const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 0.7, transparent: true });
+const linePoints = [
+    new THREE.Vector3(-8, 0.01, -20), new THREE.Vector3(-8, 0.01, 5),
+    new THREE.Vector3(8, 0.01, 5), new THREE.Vector3(8, 0.01, -20),
+    new THREE.Vector3(-8, 0.01, -20)
+];
+const lineGeom = new THREE.BufferGeometry().setFromPoints(linePoints);
+const pitchLines = new THREE.Line(lineGeom, lineMaterial);
+scene.add(pitchLines);
+
+// Goal posts
+const postMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0x444444 });
+const postGeom = new THREE.CylinderGeometry(0.15, 0.15, 5, 8);
+
+const leftPost = new THREE.Mesh(postGeom, postMaterial);
+leftPost.position.set(-5, 2.5, -20);
+scene.add(leftPost);
+
+const rightPost = new THREE.Mesh(postGeom, postMaterial);
+rightPost.position.set(5, 2.5, -20);
+scene.add(rightPost);
+
+const crossbarGeom = new THREE.CylinderGeometry(0.15, 0.15, 10.3, 8);
+const crossbar = new THREE.Mesh(crossbarGeom, postMaterial);
+crossbar.rotation.z = Math.PI / 2;
+crossbar.position.set(0, 5, -20);
+scene.add(crossbar);
+
+// Goal net (simple plane)
+const netMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, opacity: 0.3, transparent: true });
+const netGeom = new THREE.PlaneGeometry(10, 5, 10, 5);
+const net = new THREE.Mesh(netGeom, netMaterial);
+net.position.set(0, 2.5, -21);
+scene.add(net);
+
+// Ball
+const ballGeom = new THREE.SphereGeometry(0.5, 32, 32);
+const ballMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
+const ball = new THREE.Mesh(ballGeom, ballMaterial);
+ball.castShadow = true;
+ball.position.set(0, 0.5, 15);
+scene.add(ball);
+
+// Ball texture pattern
+const ballPattern = new THREE.Mesh(
+    new THREE.SphereGeometry(0.52, 16, 16),
+    new THREE.MeshBasicMaterial({ color: 0x333333, wireframe: true })
+);
+ball.add(ballPattern);
+
+// Goalkeeper
+const keeperGroup = new THREE.Group();
+
+const keeperBody = new THREE.Mesh(
+    new THREE.BoxGeometry(1.5, 2, 0.5),
+    new THREE.MeshStandardMaterial({ color: 0xff4757 })
+);
+keeperBody.position.y = 1;
+keeperGroup.add(keeperBody);
+
+const keeperHead = new THREE.Mesh(
+    new THREE.SphereGeometry(0.4, 16, 16),
+    new THREE.MeshStandardMaterial({ color: 0xffdbac })
+);
+keeperHead.position.y = 2.4;
+keeperGroup.add(keeperHead);
+
+// Keeper gloves
+const gloveMat = new THREE.MeshStandardMaterial({ color: 0xffdd57 });
+const leftGlove = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.5, 0.3), gloveMat);
+leftGlove.position.set(-1, 1.5, 0);
+keeperGroup.add(leftGlove);
+
+const rightGlove = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.5, 0.3), gloveMat);
+rightGlove.position.set(1, 1.5, 0);
+keeperGroup.add(rightGlove);
+
+keeperGroup.position.set(0, 0, -18);
+keeperGroup.castShadow = true;
+scene.add(keeperGroup);
+
+// Defenders
+const defenders = [];
+const defenderPositions = [
+    { x: -3, z: -5 },
+    { x: 3, z: -8 },
+    { x: 0, z: -2 }
+];
+
+defenderPositions.forEach((pos, i) => {
+    const defGroup = new THREE.Group();
+    const defBody = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.4, 0.5, 1.8, 8),
+        new THREE.MeshStandardMaterial({ color: 0xff6b35 })
+    );
+    defBody.position.y = 0.9;
+    defGroup.add(defBody);
+    
+    const defHead = new THREE.Mesh(
+        new THREE.SphereGeometry(0.3, 16, 16),
+        new THREE.MeshStandardMaterial({ color: 0xffdbac })
+    );
+    defHead.position.y = 2;
+    defGroup.add(defHead);
+    
+    defGroup.position.set(pos.x, 0, pos.z);
+    defGroup.userData = { vx: (Math.random() - 0.5) * 0.05, alive: true, baseX: pos.x };
+    scene.add(defGroup);
+    defenders.push(defGroup);
+});
+
+// Game state
+let goals = 0, saves = 0, shots = 0;
+let gamePhase = 'aiming';
+let ballVelocity = { x: 0, y: 0, z: 0 };
+let aimAngle = 0, aimSpeed = 0.02;
+let shootPower = 0, powerDir = 1;
+let keeperTargetX = 0;
+let isManualMode = false;
+let resultTimer = 0;
+
+// Update UI
+function updateScore() {
+    document.getElementById('goals').textContent = goals;
+    document.getElementById('saves').textContent = saves;
+    document.getElementById('shots').textContent = shots;
+}
+
+function showResult(text, isGoal) {
+    const el = document.getElementById('result');
+    el.textContent = text;
+    el.className = 'result-flash show ' + (isGoal ? 'goal' : 'save');
+    setTimeout(() => el.className = 'result-flash', 1500);
+}
+
+function resetBall() {
+    ball.position.set(0, 0.5, 15);
+    ballVelocity = { x: 0, y: 0, z: 0 };
+    gamePhase = 'aiming';
+    shootPower = 0;
+    keeperTargetX = (Math.random() - 0.5) * 6;
+    document.getElementById('powerFill').style.height = '0%';
+}
+
+function shoot() {
+    const targetX = Math.sin(aimAngle) * 4;
+    const power = (shootPower / 100) * 1.5 + 0.5;
+    ballVelocity.x = targetX * 0.05;
+    ballVelocity.y = 0.3;
+    ballVelocity.z = -power;
+    gamePhase = 'shooting';
+    shots++;
+    updateScore();
+    keeperTargetX = (Math.random() - 0.5) * 6;
+}
+
+// Animation loop
+function animate() {
+    requestAnimationFrame(animate);
+    
+    // Aim phase
+    if (gamePhase === 'aiming') {
+        if (!isManualMode) {
+            aimAngle += aimSpeed;
+            if (Math.abs(aimAngle) > 1) aimSpeed *= -1;
+            if (Math.random() < 0.01) {
+                gamePhase = 'power';
+                shootPower = 0;
+                powerDir = 1;
             }
         }
+        const aimPercent = (Math.sin(aimAngle) + 1) / 2 * 100;
+        document.getElementById('aimMarker').style.left = aimPercent + '%';
+    }
+    
+    // Power phase
+    if (gamePhase === 'power') {
+        shootPower += powerDir * 2;
+        if (shootPower >= 100 || shootPower <= 0) powerDir *= -1;
+        document.getElementById('powerFill').style.height = shootPower + '%';
         
-        function showResult(text, isGoal) {
-            const el = document.getElementById('result');
-            el.textContent = text;
-            el.className = 'result-flash show ' + (isGoal ? 'goal' : 'save');
-            setTimeout(() => el.className = 'result-flash', 1500);
+        if (!isManualMode && shootPower > 50 && shootPower < 80 && Math.random() < 0.05) {
+            shoot();
         }
+    }
+    
+    // Shooting phase
+    if (gamePhase === 'shooting') {
+        ball.position.x += ballVelocity.x;
+        ball.position.y += ballVelocity.y;
+        ball.position.z += ballVelocity.z;
+        ballVelocity.y -= 0.015; // gravity
         
-        function resetBall() {
-            ball = { x: 350, y: 400, vx: 0, vy: 0, radius: 20 };
-            ballDodgeX = 0;
-            keeperProjectiles = [];
-            gamePhase = 'aiming';
-            shootPower = 0;
-            keeper.targetX = 175 + Math.random() * 350;
-        }
+        // Ball rotation
+        ball.rotation.x -= ballVelocity.z * 0.5;
         
-        function aiAim() {
-            if (isManualMode) {
-                // Manual mode: player controls
-                ball.x = 350 + ballDodgeX;
+        // Keeper moves
+        keeperGroup.position.x += (keeperTargetX - keeperGroup.position.x) * 0.1;
+        
+        // Check goal
+        if (ball.position.z <= -19) {
+            const inGoalX = Math.abs(ball.position.x) < 4.5;
+            const inGoalY = ball.position.y < 5 && ball.position.y > 0;
+            const hitKeeper = Math.abs(ball.position.x - keeperGroup.position.x) < 1.5 && ball.position.y < 3;
+            
+            if (inGoalX && inGoalY && !hitKeeper) {
+                goals++;
+                showResult('⚽ GOAL!', true);
+                celebrateGoal();
             } else {
-                // Autoplay mode: AI oscillates aim automatically
-                aimAngle += aimSpeed;
-                if (Math.abs(aimAngle) > 1.2) aimSpeed *= -1;
-                ball.x = 350 + ballDodgeX;
-                
-                // Auto-dodge keeper projectiles
-                keeperProjectiles.forEach(p => {
-                    if (p.y > 262 && p.y < 438) {
-                        if (Math.abs(p.x - ball.x) < 40) {
-                            ballDodgeX += (ball.x > p.x) ? 8 : -8;
-                            ballDodgeX = Math.max(-80, Math.min(80, ballDodgeX));
-                        }
-                    }
-                });
-                ballDodgeX *= 0.95; // Drift back
+                saves++;
+                showResult('🧤 SAVED!', false);
             }
-            
-            // Keeper fires weapon!
-            keeperWeaponCooldown--;
-            if (keeperWeaponCooldown <= 0 && Math.random() < 0.04) {
-                keeperProjectiles.push({
-                    x: keeper.x,
-                    y: keeper.y + keeper.height/2,
-                    vy: 6,
-                    width: 8,
-                    height: 20
-                });
-                keeperWeaponCooldown = 30; // Cooldown frames
-            }
-            
-            // Update projectiles
-            keeperProjectiles = keeperProjectiles.filter(p => {
-                p.y += p.vy;
-                
-                // Check hit on ball/player
-                if (p.y > ball.y - ball.radius && p.y < ball.y + ball.radius &&
-                    p.x > ball.x - ball.radius - p.width/2 && p.x < ball.x + ball.radius + p.width/2) {
-                    playerHealth--;
-                    document.getElementById('health').textContent = playerHealth;
-                    createParticles(ball.x, ball.y, '#ff00ff');
-                    if (playerHealth <= 0) {
-                        showResult('💀 DEFEATED!', false);
-                        playerHealth = 3;
-                        document.getElementById('health').textContent = playerHealth;
-                        saves += 3;
-                        document.getElementById('saves').textContent = saves;
-                    }
-                    return false;
-                }
-                return p.y < 300;
-            });
-            
-            // Player must press SPACE to shoot!
+            updateScore();
+            gamePhase = 'result';
+            resultTimer = 60;
         }
         
-        function aiPower() {
-            shootPower += powerDir * 3;
-            if (shootPower >= 100 || shootPower <= 0) powerDir *= -1;
-            
-            if (!isManualMode) {
-                // Autoplay: AI decides when to shoot
-                if (shootPower > 60 && shootPower < 85 && Math.random() < 0.08) {
-                    shoot();
-                }
-            }
-            // Manual: Player must release SPACE to shoot
-        }
-        
-        function shoot() {
-            const targetX = 350 + Math.sin(aimAngle) * 158;
-            const power = shootPower / 100 * 15 + 5;
-            ball.vx = (targetX - ball.x) * 0.08;
-            ball.vy = -power;
-            gamePhase = 'shooting';
-            shots++;
-            document.getElementById('shots').textContent = shots;
-            
-            // Keeper AI reacts
-            keeper.targetX = 175 + Math.random() * 350; // Guess!
-        }
-        
-        function update() {
-            if (gamePhase === 'aiming') {
-                aiAim();
-                // Autoplay: auto-start power phase
-                if (!isManualMode && Math.random() < 0.015) {
-                    gamePhase = 'power';
-                    shootPower = 0;
-                    powerDir = 1;
-                }
-            } else if (gamePhase === 'power') {
-                aiPower();
-            } else if (gamePhase === 'shooting') {
-                ball.x += ball.vx;
-                ball.y += ball.vy;
-                ball.vy += 0.2; // Slight curve
-            }
-            
-            // Keeper moves ALL THE TIME - free roaming AI!
-            if (gamePhase === 'aiming' || gamePhase === 'power') {
-                // Patrol mode: keeper wanders back and forth
-                if (Math.random() < 0.02) {
-                    keeper.targetX = 175 + Math.random() * 350;
-                }
-                keeper.x += (keeper.targetX - keeper.x) * 0.04;
-            } else if (gamePhase === 'shooting') {
-                // Reaction mode: faster movement to intercept
-                keeper.x += (keeper.targetX - keeper.x) * 0.15;
-                
-                // Check if ball reached goal line
-                if (ball.y <= goal.y + goal.height) {
-                    const inGoalX = ball.x > goal.x && ball.x < goal.x + goal.width;
-                    const inGoalY = ball.y > goal.y && ball.y < goal.y + goal.height;
-                    const hitKeeper = Math.abs(ball.x - keeper.x) < keeper.width/2 + ball.radius &&
-                                     Math.abs(ball.y - keeper.y) < keeper.height/2 + ball.radius;
-                    
-                    if (inGoalX && !hitKeeper) {
-                        goals++;
-                        document.getElementById('goals').textContent = goals;
-                        createParticles(ball.x, ball.y, '#00ff88');
-                        showResult('⚽ GOAL!', true);
-                    } else {
-                        saves++;
-                        document.getElementById('saves').textContent = saves;
-                        createParticles(ball.x, ball.y, '#ff4757');
-                        showResult('🧤 SAVED!', false);
-                        createSaveExplosion(keeper.x, keeper.y);
-                    }
-                    gamePhase = 'result';
-                    resultTimer = 60;
-                }
-                
-                // Check defender collision
-                defenders.forEach(d => {
-                    if (d.alive) {
-                        const dx = ball.x - d.x;
-                        const dy = ball.y - d.y;
-                        const dist = Math.sqrt(dx*dx + dy*dy);
-                        if (dist < ball.radius + d.radius) {
-                            saves++;
-                            document.getElementById('saves').textContent = saves;
-                            createParticles(ball.x, ball.y, '#ff6b35');
-                            showResult('🛡️ BLOCKED!', false);
-                            gamePhase = 'result';
-                            resultTimer = 60;
-                        }
-                    }
-                });
-                
-                // Ball out of bounds
-                if (ball.y < 0 || ball.x < 0 || ball.x > 700) {
+        // Check defender collision
+        defenders.forEach(d => {
+            if (d.userData.alive) {
+                const dx = ball.position.x - d.position.x;
+                const dz = ball.position.z - d.position.z;
+                const dist = Math.sqrt(dx*dx + dz*dz);
+                if (dist < 1 && ball.position.y < 2.5) {
                     saves++;
-                    document.getElementById('saves').textContent = saves;
-                    showResult('❌ MISS!', false);
+                    showResult('🛡️ BLOCKED!', false);
+                    updateScore();
                     gamePhase = 'result';
                     resultTimer = 60;
                 }
             }
-            
-            if (gamePhase === 'result') {
-                resultTimer--;
-                if (resultTimer <= 0) resetBall();
-            }
-            
-            // Update defenders (slow patrol)
-            defenders.forEach(d => {
-                if (d.alive) {
-                    d.x += d.vx;
-                    if (d.x < 140 || d.x > 560) d.vx *= -1;
-                }
-            });
-            
-            // Player weapon cooldown
-            if (playerWeaponCooldown > 0) playerWeaponCooldown--;
-            
-            // Update player projectiles
-            playerProjectiles = playerProjectiles.filter(p => {
-                p.y += p.vy;
-                
-                // Check hit on defenders
-                for (let d of defenders) {
-                    if (d.alive) {
-                        const dx = p.x - d.x;
-                        const dy = p.y - d.y;
-                        const dist = Math.sqrt(dx*dx + dy*dy);
-                        if (dist < d.radius + 5) {
-                            d.alive = false;
-                            createParticles(d.x, d.y, '#00ffff');
-                            // Set respawn timer (5 seconds = 150 frames at 30fps)
-                            defenderRespawnTimers.push({ defender: d, timer: 150 });
-                            return false;
-                        }
-                    }
-                }
-                return p.y > 0;
-            });
-            
-            // Process defender respawn timers
-            defenderRespawnTimers = defenderRespawnTimers.filter(r => {
-                r.timer--;
-                if (r.timer <= 0) {
-                    r.defender.alive = true;
-                    r.defender.x = r.defender.spawnX;
-                    r.defender.y = r.defender.spawnY;
-                    createParticles(r.defender.x, r.defender.y, '#ff6b35');
-                    return false;
-                }
-                return true;
-            });
-            
-            // Update particles
-            particles = particles.filter(p => {
-                p.x += p.vx;
-                p.y += p.vy;
-                p.life--;
-                return p.life > 0;
-            });
-        }
-        
-        function draw() {
-            // Pitch background
-            ctx.fillStyle = '#1a472a';
-            ctx.fillRect(0, 0, 700, 490);
-            
-            // Pitch lines
-            ctx.strokeStyle = 'rgba(255,255,255,0.5)';
-            ctx.lineWidth = 3;
-            ctx.strokeRect(88, 18, 525, 455);
-            
-            // Goal area
-            ctx.strokeRect(210, 18, 280, 140);
-            
-            // Penalty spot
-            ctx.fillStyle = 'white';
-            ctx.beginPath();
-            ctx.arc(350, 400, 7, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Goal posts with glow
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = '#ffffff';
-            ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 6;
-            ctx.beginPath();
-            ctx.moveTo(goal.x, goal.y + goal.height);
-            ctx.lineTo(goal.x, goal.y);
-            ctx.lineTo(goal.x + goal.width, goal.y);
-            ctx.lineTo(goal.x + goal.width, goal.y + goal.height);
-            ctx.stroke();
-            
-            // Goal net
-            ctx.shadowBlur = 0;
-            ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-            ctx.lineWidth = 1;
-            for (let i = 0; i < 10; i++) {
-                ctx.beginPath();
-                ctx.moveTo(goal.x + i * 22, goal.y);
-                ctx.lineTo(goal.x + i * 22, goal.y + goal.height);
-                ctx.stroke();
-            }
-            
-            // Keeper
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = '#ff4757';
-            ctx.fillStyle = '#ff4757';
-            ctx.fillRect(keeper.x - keeper.width/2, keeper.y - keeper.height/2, keeper.width, keeper.height);
-            
-            // Keeper gloves
-            ctx.fillStyle = '#ffdd57';
-            ctx.fillRect(keeper.x - keeper.width/2 - 8, keeper.y - 5, 10, 15);
-            ctx.fillRect(keeper.x + keeper.width/2 - 2, keeper.y - 5, 10, 15);
-            
-            // Draw defenders (slow-moving enemies)
-            defenders.forEach(d => {
-                if (d.alive) {
-                    ctx.shadowBlur = 10;
-                    ctx.shadowColor = '#ff6b35';
-                    ctx.fillStyle = '#ff6b35';
-                    ctx.beginPath();
-                    ctx.arc(d.x, d.y, d.radius, 0, Math.PI * 2);
-                    ctx.fill();
-                    // Defender body
-                    ctx.shadowBlur = 0;
-                    ctx.fillStyle = '#2d3436';
-                    ctx.beginPath();
-                    ctx.arc(d.x, d.y - 5, 8, 0, Math.PI * 2);
-                    ctx.fill();
-                    // Jersey number
-                    ctx.fillStyle = 'white';
-                    ctx.font = 'bold 10px sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.fillText('⛔', d.x, d.y + 4);
-                }
-            });
-            
-            // Draw respawn indicators
-            defenderRespawnTimers.forEach(r => {
-                const d = r.defender;
-                ctx.globalAlpha = 0.3 + Math.sin(Date.now() / 100) * 0.2;
-                ctx.strokeStyle = '#ff6b35';
-                ctx.lineWidth = 2;
-                ctx.setLineDash([5, 5]);
-                ctx.beginPath();
-                ctx.arc(d.spawnX, d.spawnY, d.radius + 5, 0, Math.PI * 2);
-                ctx.stroke();
-                ctx.setLineDash([]);
-                // Timer text
-                ctx.fillStyle = '#ffdd57';
-                ctx.font = 'bold 10px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText(Math.ceil(r.timer / 30) + 's', d.spawnX, d.spawnY + 4);
-                ctx.globalAlpha = 1;
-            });
-            
-            // Draw player projectiles
-            playerProjectiles.forEach(p => {
-                ctx.shadowBlur = 15;
-                ctx.shadowColor = '#00ffff';
-                ctx.fillStyle = '#00ffff';
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
-                ctx.fill();
-                // Energy trail
-                ctx.fillStyle = 'rgba(0,255,255,0.3)';
-                ctx.beginPath();
-                ctx.arc(p.x, p.y + 10, 4, 0, Math.PI * 2);
-                ctx.fill();
-            });
-            ctx.shadowBlur = 0;
-            
-            // Aim indicator
-            if (gamePhase === 'aiming' || gamePhase === 'power') {
-                const targetX = 350 + Math.sin(aimAngle) * 158;
-                ctx.strokeStyle = 'rgba(255, 221, 87, 0.6)';
-                ctx.lineWidth = 2;
-                ctx.setLineDash([5, 5]);
-                ctx.beginPath();
-                ctx.moveTo(ball.x, ball.y);
-                ctx.lineTo(targetX, goal.y + goal.height);
-                ctx.stroke();
-                ctx.setLineDash([]);
-                
-                // Target reticle
-                ctx.strokeStyle = '#ffdd57';
-                ctx.beginPath();
-                ctx.arc(targetX, goal.y + goal.height, 10, 0, Math.PI * 2);
-                ctx.stroke();
-            }
-            
-            // Power bar
-            if (gamePhase === 'power') {
-                ctx.fillStyle = 'rgba(0,0,0,0.5)';
-                ctx.fillRect(630, 88, 35, 260);
-                const powerColor = shootPower < 50 ? '#00ff88' : shootPower < 80 ? '#ffdd57' : '#ff4757';
-                ctx.fillStyle = powerColor;
-                ctx.fillRect(630, 348 - shootPower * 2.6, 35, shootPower * 2.6);
-                ctx.strokeStyle = 'white';
-                ctx.strokeRect(630, 88, 35, 260);
-            }
-            
-            // Ball with glow
-            ctx.shadowBlur = 20;
-            ctx.shadowColor = '#ffffff';
-            ctx.fillStyle = '#ffffff';
-            ctx.beginPath();
-            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Ball pattern
-            ctx.shadowBlur = 0;
-            ctx.fillStyle = '#333';
-            ctx.beginPath();
-            ctx.arc(ball.x - 3, ball.y - 3, 4, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(ball.x + 5, ball.y + 2, 3, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Draw keeper weapon (cannon)
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = '#ff00ff';
-            ctx.fillStyle = '#8B008B';
-            ctx.fillRect(keeper.x - 6, keeper.y + keeper.height/2, 12, 15);
-            ctx.fillStyle = '#ff00ff';
-            ctx.fillRect(keeper.x - 4, keeper.y + keeper.height/2 + 10, 8, 8);
-            
-            // Draw projectiles
-            keeperProjectiles.forEach(p => {
-                ctx.shadowBlur = 15;
-                ctx.shadowColor = '#ff00ff';
-                ctx.fillStyle = '#ff00ff';
-                ctx.fillRect(p.x - p.width/2, p.y, p.width, p.height);
-                // Energy trail
-                ctx.fillStyle = 'rgba(255,0,255,0.3)';
-                ctx.fillRect(p.x - p.width/2, p.y - 15, p.width, 15);
-            });
-            ctx.shadowBlur = 0;
-            
-            // Player controls hint
-            if (gamePhase === 'aiming') {
-                ctx.fillStyle = 'rgba(255,255,255,0.9)';
-                ctx.font = 'bold 16px sans-serif';
-                ctx.textAlign = 'center';
-                if (isManualMode) {
-                    ctx.fillText('⬅️ A/D to AIM • SPACE to CHARGE • F to FIRE ➡️', 350, 470);
-                } else {
-                    ctx.fillStyle = 'rgba(191, 148, 255, 0.9)';
-                    ctx.fillText('🤖 AI PLAYING... Click button to take control!', 350, 470);
-                }
-                
-                // Draw player weapon indicator
-                const weaponReady = playerWeaponCooldown <= 0;
-                ctx.fillStyle = weaponReady ? '#00ffff' : '#666';
-                ctx.font = 'bold 14px sans-serif';
-                ctx.fillText(weaponReady ? '🔫 READY' : '🔫 ' + Math.ceil(playerWeaponCooldown/30) + 's', 88, 455);
-            }
-            if (gamePhase === 'power') {
-                ctx.fillStyle = '#ffdd57';
-                ctx.font = 'bold 18px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('⚡ RELEASE SPACE TO SHOOT! ⚡', 350, 470);
-            }
-            
-            // Particles
-            particles.forEach(p => {
-                ctx.globalAlpha = p.life / 30;
-                ctx.fillStyle = p.color;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
-                ctx.fill();
-            });
-            ctx.globalAlpha = 1;
-        }
-        
-        function gameLoop() {
-            update();
-            draw();
-        }
-        
-        setInterval(gameLoop, 1000/30);
-        
-        // PLAYER CONTROLS - You control the game now!
-        let aimDirection = 0; // -1 left, 0 none, 1 right
-        let spaceHeld = false;
-        
-        document.addEventListener('keydown', (e) => {
-            if (!isManualMode) return; // Ignore controls in autoplay mode!
-            
-            if (gamePhase === 'aiming') {
-                // Aim left/right
-                if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
-                    aimDirection = -1;
-                }
-                if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
-                    aimDirection = 1;
-                }
-                // Start power charge
-                if (e.key === ' ' && !spaceHeld) {
-                    spaceHeld = true;
-                    gamePhase = 'power';
-                    shootPower = 0;
-                    powerDir = 1;
-                }
-                // Fire player weapon
-                if ((e.key === 'f' || e.key === 'F') && playerWeaponCooldown <= 0) {
-                    playerProjectiles.push({
-                        x: ball.x,
-                        y: ball.y - ball.radius,
-                        vy: -12
-                    });
-                    playerWeaponCooldown = 20; // Cooldown frames
-                    createParticles(ball.x, ball.y - ball.radius, '#00ffff');
-                }
-            }
         });
         
-        document.addEventListener('keyup', (e) => {
-            if (!isManualMode) return; // Ignore controls in autoplay mode!
-            
-            if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A' ||
-                e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
-                aimDirection = 0;
-            }
-            // Release space to shoot!
-            if (e.key === ' ' && spaceHeld) {
-                spaceHeld = false;
-                if (gamePhase === 'power') {
-                    shoot();
-                }
-            }
-        });
-        
-        // Update aim based on player input (manual mode only)
-        setInterval(() => {
-            if (isManualMode && gamePhase === 'aiming' && aimDirection !== 0) {
-                aimAngle += aimDirection * 0.05;
-                aimAngle = Math.max(-1.2, Math.min(1.2, aimAngle));
-            }
-        }, 33);
-        
-        // Toggle game mode function
-        function toggleGameMode() {
-            isManualMode = !isManualMode;
-            const btn = document.getElementById('modeToggle');
-            const indicator = document.getElementById('modeIndicator');
-            
-            if (isManualMode) {
-                btn.textContent = '🤖 AUTOPLAY';
-                btn.classList.add('manual');
-                indicator.textContent = '🎮 MANUAL MODE - YOU CONTROL!';
-                indicator.classList.remove('autoplay');
-                indicator.classList.add('manual');
-            } else {
-                btn.textContent = '🎮 TAKE CONTROL';
-                btn.classList.remove('manual');
-                indicator.textContent = '🤖 AUTOPLAY MODE';
-                indicator.classList.remove('manual');
-                indicator.classList.add('autoplay');
-                aimDirection = 0; // Reset manual inputs
-                spaceHeld = false;
-            }
-            
-            // Visual feedback
-            btn.style.transform = 'scale(1.1)';
-            setTimeout(() => btn.style.transform = '', 200);
-        }
-        
-        window.toggleGameMode = toggleGameMode;
-        
-        // No more auto-dodge - YOU are in control now!
-        
-        // Background footballs
-        function createBgFootball() {
-            const container = document.getElementById('bg-container');
-            const ball = document.createElement('div');
-            ball.className = 'football-bg';
-            ball.textContent = '⚽';
-            ball.style.left = Math.random() * 100 + 'vw';
-            ball.style.top = Math.random() * 100 + 'vh';
-            ball.style.animationDelay = Math.random() * 5 + 's';
-            container.appendChild(ball);
-        }
-        
-        for(let i = 0; i < 8; i++) createBgFootball();
-        
-        // To-Do List Functions
-        function addTodo() {
-            const input = document.getElementById('todoInput');
-            const text = input.value.trim();
-            if (!text) return;
-            
-            const list = document.getElementById('todoList');
-            const li = document.createElement('li');
-            li.className = 'todo-item';
-            li.innerHTML = `<input type="checkbox" class="todo-check" onchange="toggleTodo(this)"><span>${text}</span><button class="todo-delete" onclick="deleteTodo(this)">×</button>`;
-            list.appendChild(li);
-            input.value = '';
-        }
-        
-        function toggleTodo(checkbox) {
-            checkbox.parentElement.classList.toggle('done', checkbox.checked);
-        }
-        
-        function deleteTodo(btn) {
-            btn.parentElement.remove();
-        }
-        
-        document.getElementById('todoInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') addTodo();
-        });
-        
-        // LocalDB (localStorage) Task Management
-        const taskDB = {
-            tasks: JSON.parse(localStorage.getItem('matchTasks') || '[]'),
-            save() {
-                localStorage.setItem('matchTasks', JSON.stringify(this.tasks));
-                document.getElementById('taskCount').textContent = this.tasks.length;
-            },
-            add(text, recur) {
-                this.tasks.push({ id: Date.now(), text, recur, done: false, created: new Date().toISOString() });
-                this.save();
-            },
-            toggle(id) {
-                const task = this.tasks.find(t => t.id === id);
-                if (task) { task.done = !task.done; this.save(); }
-            },
-            remove(id) {
-                this.tasks = this.tasks.filter(t => t.id !== id);
-                this.save();
-            },
-            processRecurring() {
-                const now = new Date();
-                this.tasks.forEach(t => {
-                    if (t.done && t.recur !== 'none') {
-                        const created = new Date(t.created);
-                        const daysPassed = (now - created) / (1000*60*60*24);
-                        if ((t.recur === 'daily' && daysPassed >= 1) ||
-                            (t.recur === 'weekly' && daysPassed >= 7)) {
-                            t.done = false;
-                            t.created = now.toISOString();
-                        }
-                    }
-                });
-                this.save();
-            }
-        };
-        
-        // Mini Calendar
-        function renderCalendar() {
-            const cal = document.getElementById('miniCal');
-            const days = ['S','M','T','W','T','F','S'];
-            const today = new Date();
-            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-            const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-            
-            let html = days.map(d => `<div class="cal-header">${d}</div>`).join('');
-            
-            for (let i = 0; i < firstDay.getDay(); i++) html += '<div class="cal-day"></div>';
-            
-            for (let d = 1; d <= lastDay.getDate(); d++) {
-                const isToday = d === today.getDate();
-                const hasTask = taskDB.tasks.some(t => !t.done);
-                const classes = ['cal-day'];
-                if (isToday) classes.push('today');
-                if (hasTask && d >= today.getDate()) classes.push('has-task');
-                html += `<div class="${classes.join(' ')}">${d}</div>`;
-            }
-            cal.innerHTML = html;
-        }
-        
-        // Render stored tasks
-        function renderStoredTasks() {
-            const list = document.getElementById('todoList');
-            list.innerHTML = '';
-            taskDB.processRecurring();
-            taskDB.tasks.forEach(t => {
-                const li = document.createElement('li');
-                li.className = 'todo-item' + (t.done ? ' done' : '');
-                const recurIcon = t.recur !== 'none' ? `<span class="todo-recur">🔄${t.recur[0].toUpperCase()}</span>` : '';
-                li.innerHTML = `<input type="checkbox" class="todo-check" ${t.done ? 'checked' : ''} onchange="toggleStoredTodo(${t.id})"><span>${t.text}</span>${recurIcon}<button class="todo-delete" onclick="deleteStoredTodo(${t.id})">×</button>`;
-                list.appendChild(li);
-            });
-            document.getElementById('taskCount').textContent = taskDB.tasks.length;
-        }
-        
-        // Override todo functions for DB
-        window.addTodo = function() {
-            const input = document.getElementById('todoInput');
-            const recur = document.getElementById('recurSelect').value;
-            const text = input.value.trim();
-            if (!text) return;
-            taskDB.add(text, recur);
-            input.value = '';
-            renderStoredTasks();
-            renderCalendar();
-        };
-        
-        window.toggleStoredTodo = function(id) {
-            taskDB.toggle(id);
-            renderStoredTasks();
-        };
-        
-        window.deleteStoredTodo = function(id) {
-            taskDB.remove(id);
-            renderStoredTasks();
-            renderCalendar();
-        };
-        
-        // Init
-        renderCalendar();
-        renderStoredTasks();
-        
-        // Leaked Intel System
-        const leakedIntel = [
-            "The keeper's gloves are filled with magnets. Investigation pending.",
-            "VAR operator spotted betting on corners. Match under review.",
-            "Ball boy network runs underground trading ring for match balls.",
-            "Referee's whistle contains hidden GPS tracker from sponsors.",
-            "Goalkeeper's water bottle: 40% energy drink, 60% classified.",
-            "Corner flags are actually 5G antennas. Don't ask questions.",
-            "Half-time oranges laced with performance algorithms.",
-            "The offside line is controlled by an AI named 'Gary'.",
-            "Pitch grass grown from seeds blessed by ancient football monks.",
-            "Goal nets manufactured by former spy agency operatives.",
-            "The fourth official knows everything. EVERYTHING.",
-            "Penalty spot contains pressure sensor linked to bookmakers.",
-            "Substitution board runs on Windows 95. It's sentient now.",
-            "Manager's tactical notepad is actually a portal to dimension X.",
-            "The crowd's cheers are 30% AI-generated for atmosphere."
-        ];
-        
-        let lastIntelIndex = -1;
-        
-        function revealIntel() {
-            const btn = document.getElementById('intelBtn');
-            const popup = document.getElementById('intelPopup');
-            const text = document.getElementById('intelText');
-            
-            btn.classList.add('flash');
-            setTimeout(() => btn.classList.remove('flash'), 500);
-            
-            let newIndex;
-            do { newIndex = Math.floor(Math.random() * leakedIntel.length); } 
-            while (newIndex === lastIntelIndex && leakedIntel.length > 1);
-            lastIntelIndex = newIndex;
-            
-            text.textContent = leakedIntel[newIndex];
-            popup.classList.add('show');
-            
-            setTimeout(() => popup.classList.remove('show'), 4000);
-        }
-        
-        // Sync on goal (recurring 'match' tasks)
-        const origGoalHandler = () => {
-            taskDB.tasks.forEach(t => {
-                if (t.recur === 'match' && t.done) {
-                    t.done = false;
-                }
-            });
-            taskDB.save();
-            renderStoredTasks();
-        };
-        
-        // Fireworks system
-        const fireworkColors = ['#ff0055', '#00ff88', '#ffdd57', '#00d4ff', '#ff6b35', '#bf94ff', '#ff4757'];
-        
-        function launchFirework(x, y) {
-            // Trail rising up
-            const trail = document.createElement('div');
-            trail.className = 'firework-trail';
-            const color = fireworkColors[Math.floor(Math.random() * fireworkColors.length)];
-            trail.style.setProperty('--color', color);
-            trail.style.left = x + 'px';
-            trail.style.top = y + 'px';
-            document.body.appendChild(trail);
-            
-            setTimeout(() => {
-                trail.remove();
-                // Burst at top
-                createFireworkBurst(x, y - 150, color);
-            }, 600);
-        }
-        
-        function createFireworkBurst(x, y, color) {
-            const container = document.createElement('div');
-            container.className = 'firework';
-            container.style.left = x + 'px';
-            container.style.top = y + 'px';
-            
-            // Glow effect
-            const glow = document.createElement('div');
-            glow.className = 'firework-glow';
-            glow.style.setProperty('--color', color);
-            container.appendChild(glow);
-            
-            // Particles
-            const particleCount = 20 + Math.floor(Math.random() * 15);
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'firework-particle';
-                particle.style.background = color;
-                particle.style.boxShadow = `0 0 6px ${color}, 0 0 12px ${color}`;
-                
-                const angle = (i / particleCount) * Math.PI * 2;
-                const velocity = 50 + Math.random() * 80;
-                const tx = Math.cos(angle) * velocity;
-                const ty = Math.sin(angle) * velocity + 30; // gravity
-                
-                particle.style.setProperty('--tx', tx + 'px');
-                particle.style.setProperty('--ty', ty + 'px');
-                container.appendChild(particle);
-            }
-            
-            document.body.appendChild(container);
-            setTimeout(() => container.remove(), 1500);
-        }
-        
-        function celebrateGoal() {
-            // Launch multiple fireworks
-            for (let i = 0; i < 8; i++) {
-                setTimeout(() => {
-                    const x = 100 + Math.random() * (window.innerWidth - 200);
-                    const y = window.innerHeight * 0.7 + Math.random() * 100;
-                    launchFirework(x, y);
-                }, i * 150);
-            }
-            // Add sparkles
-            for (let i = 0; i < 15; i++) {
-                setTimeout(() => createSparkle(), i * 100);
+        // Out of bounds
+        if (ball.position.z < -25 || Math.abs(ball.position.x) > 10 || ball.position.y < -1) {
+            if (gamePhase === 'shooting') {
+                saves++;
+                showResult('❌ MISS!', false);
+                updateScore();
+                gamePhase = 'result';
+                resultTimer = 60;
             }
         }
-        
-        function createSparkle() {
-            const sparkle = document.createElement('div');
-            sparkle.className = 'sparkle';
-            sparkle.textContent = ['✨', '⭐', '💫', '🌟'][Math.floor(Math.random() * 4)];
-            sparkle.style.left = Math.random() * window.innerWidth + 'px';
-            sparkle.style.top = Math.random() * window.innerHeight * 0.7 + 'px';
-            document.body.appendChild(sparkle);
-            setTimeout(() => sparkle.remove(), 1000);
+    }
+    
+    // Result phase
+    if (gamePhase === 'result') {
+        resultTimer--;
+        if (resultTimer <= 0) resetBall();
+    }
+    
+    // Keeper patrol
+    if (gamePhase === 'aiming' || gamePhase === 'power') {
+        if (Math.random() < 0.01) keeperTargetX = (Math.random() - 0.5) * 6;
+        keeperGroup.position.x += (keeperTargetX - keeperGroup.position.x) * 0.02;
+    }
+    
+    // Defender movement
+    defenders.forEach(d => {
+        if (d.userData.alive) {
+            d.position.x += d.userData.vx;
+            if (Math.abs(d.position.x - d.userData.baseX) > 3) d.userData.vx *= -1;
         }
-        
-        function createSaveExplosion(canvasX, canvasY) {
-            const canvas = document.getElementById('penalty-arena');
-            const rect = canvas.getBoundingClientRect();
-            const x = rect.left + (canvasX / 700) * rect.width;
-            const y = rect.top + (canvasY / 490) * rect.height;
-            
-            // Screen shake
-            document.body.classList.add('screen-shake');
-            setTimeout(() => document.body.classList.remove('screen-shake'), 400);
-            
-            // Create explosion container
-            const explosion = document.createElement('div');
-            explosion.className = 'save-explosion';
-            explosion.style.left = x + 'px';
-            explosion.style.top = y + 'px';
-            
-            // Core flash
-            const core = document.createElement('div');
-            core.className = 'explosion-core';
-            explosion.appendChild(core);
-            
-            // Multiple rings
-            for (let i = 0; i < 3; i++) {
-                const ring = document.createElement('div');
-                ring.className = 'explosion-ring';
-                ring.style.animationDelay = (i * 0.1) + 's';
-                ring.style.borderColor = ['#ff4757', '#ff6b35', '#ffdd57'][i];
-                explosion.appendChild(ring);
-            }
-            
-            // Shards flying outward
-            for (let i = 0; i < 12; i++) {
-                const shard = document.createElement('div');
-                shard.className = 'explosion-shard';
-                const angle = (i / 12) * 360;
-                const dist = 60 + Math.random() * 40;
-                shard.style.setProperty('--rot', angle + 'deg');
-                shard.style.setProperty('--dist', dist + 'px');
-                shard.style.left = '50%';
-                shard.style.top = '50%';
-                shard.style.animationDelay = (Math.random() * 0.1) + 's';
-                explosion.appendChild(shard);
-            }
-            
-            document.body.appendChild(explosion);
-            setTimeout(() => explosion.remove(), 1000);
-            
-            // Extra particles burst
-            for (let i = 0; i < 25; i++) {
-                setTimeout(() => {
-                    const particle = document.createElement('div');
-                    particle.className = 'sparkle';
-                    particle.textContent = ['💥', '🔥', '⚡', '💢', '✨'][Math.floor(Math.random() * 5)];
-                    particle.style.left = (x + (Math.random() - 0.5) * 100) + 'px';
-                    particle.style.top = (y + (Math.random() - 0.5) * 100) + 'px';
-                    document.body.appendChild(particle);
-                    setTimeout(() => particle.remove(), 1000);
-                }, i * 30);
-            }
+    });
+    
+    // Camera slight movement
+    camera.position.x = Math.sin(Date.now() * 0.0005) * 0.5;
+    
+    renderer.render(scene, camera);
+}
+
+animate();
+
+// Controls
+let aimDirection = 0;
+let spaceHeld = false;
+
+document.addEventListener('keydown', (e) => {
+    if (!isManualMode) return;
+    if (gamePhase === 'aiming') {
+        if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') aimDirection = -1;
+        if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') aimDirection = 1;
+        if (e.key === ' ' && !spaceHeld) {
+            spaceHeld = true;
+            gamePhase = 'power';
+            shootPower = 0;
+            powerDir = 1;
         }
-        
-        function manualFireworks() {
-            const btn = document.getElementById('fireworkBtn');
-            btn.style.transform = 'scale(0.9)';
-            setTimeout(() => btn.style.transform = '', 100);
-            
-            // Launch a burst of fireworks from random positions
-            const burstCount = 3 + Math.floor(Math.random() * 4);
-            for (let i = 0; i < burstCount; i++) {
-                setTimeout(() => {
-                    const x = 100 + Math.random() * (window.innerWidth - 200);
-                    const y = window.innerHeight * 0.6 + Math.random() * 150;
-                    launchFirework(x, y);
-                }, i * 100);
-            }
-            
-            // Add some sparkles too
-            for (let i = 0; i < 8; i++) {
-                setTimeout(() => createSparkle(), i * 80);
-            }
-        }
-        
-        // Expose to window for onclick handlers
-        window.manualFireworks = manualFireworks;
-        window.revealIntel = revealIntel;
-        
-        // Weather System
-        const weatherTypes = ['sunny', 'rainy', 'snowy', 'thunder'];
-        const weatherIcons = { sunny: '☀️', rainy: '🌧️', snowy: '❄️', thunder: '⛈️' };
-        const weatherNames = { sunny: 'SUNNY', rainy: 'RAINY', snowy: 'SNOWY', thunder: 'THUNDER' };
-        let currentWeather = 'sunny';
-        let weatherInterval = null;
-        let sunElement = null;
-        
-        function setWeather(weather) {
-            currentWeather = weather;
-            const indicator = document.getElementById('weatherIndicator');
-            indicator.className = 'weather-indicator ' + weather;
-            indicator.innerHTML = weatherIcons[weather] + ' ' + weatherNames[weather];
-            
-            // Clear previous effects
-            if (weatherInterval) clearInterval(weatherInterval);
-            const effects = document.getElementById('weatherEffects');
-            effects.innerHTML = '';
-            if (sunElement) { sunElement.remove(); sunElement = null; }
-            
-            // Apply new effects
-            if (weather === 'sunny') {
-                sunElement = document.createElement('div');
-                sunElement.className = 'sun-rays';
-                document.body.appendChild(sunElement);
-            } else if (weather === 'rainy') {
-                weatherInterval = setInterval(createRainDrop, 50);
-            } else if (weather === 'snowy') {
-                weatherInterval = setInterval(createSnowflake, 100);
-            } else if (weather === 'thunder') {
-                weatherInterval = setInterval(createRainDrop, 80);
-                scheduleThunder();
-            }
-        }
-        
-        function createRainDrop() {
+    }
+});
+
+document.addEventListener('keyup', (e) => {
+    if (!isManualMode) return;
+    if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft' || e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') {
+        aimDirection = 0;
+    }
+    if (e.key === ' ' && spaceHeld) {
+        spaceHeld = false;
+        if (gamePhase === 'power') shoot();
+    }
+});
+
+setInterval(() => {
+    if (isManualMode && gamePhase === 'aiming' && aimDirection !== 0) {
+        aimAngle += aimDirection * 0.04;
+        aimAngle = Math.max(-1, Math.min(1, aimAngle));
+    }
+}, 33);
+
+function toggleGameMode() {
+    isManualMode = !isManualMode;
+    const btn = document.getElementById('modeToggle');
+    const indicator = document.getElementById('modeIndicator');
+    const hint = document.getElementById('controlsHint');
+    
+    if (isManualMode) {
+        btn.textContent = '🤖 AUTOPLAY';
+        btn.classList.add('manual');
+        indicator.textContent = '🎮 MANUAL MODE';
+        indicator.classList.remove('autoplay');
+        indicator.classList.add('manual');
+        hint.textContent = '⬅️ A/D to AIM • SPACE to CHARGE & SHOOT ➡️';
+    } else {
+        btn.textContent = '🎮 TAKE CONTROL';
+        btn.classList.remove('manual');
+        indicator.textContent = '🤖 AUTOPLAY MODE';
+        indicator.classList.remove('manual');
+        indicator.classList.add('autoplay');
+        hint.textContent = '🤖 AI PLAYING... Click button to control!';
+        aimDirection = 0;
+        spaceHeld = false;
+    }
+}
+window.toggleGameMode = toggleGameMode;
+
+// Fireworks
+const fireworkColors = ['#ff0055', '#00ff88', '#ffdd57', '#00d4ff', '#ff6b35', '#bf94ff'];
+function createFireworkBurst(x, y, color) {
+    const container = document.createElement('div');
+    container.className = 'firework';
+    container.style.left = x + 'px';
+    container.style.top = y + 'px';
+    for (let i = 0; i < 15; i++) {
+        const p = document.createElement('div');
+        p.className = 'firework-particle';
+        p.style.background = color;
+        const angle = (i / 15) * Math.PI * 2;
+        const vel = 40 + Math.random() * 50;
+        p.style.setProperty('--tx', Math.cos(angle) * vel + 'px');
+        p.style.setProperty('--ty', Math.sin(angle) * vel + 'px');
+        container.appendChild(p);
+    }
+    document.body.appendChild(container);
+    setTimeout(() => container.remove(), 1200);
+}
+
+function celebrateGoal() {
+    for (let i = 0; i < 5; i++) {
+        setTimeout(() => {
+            createFireworkBurst(
+                100 + Math.random() * (window.innerWidth - 200),
+                100 + Math.random() * 200,
+                fireworkColors[Math.floor(Math.random() * fireworkColors.length)]
+            );
+        }, i * 150);
+    }
+}
+
+function manualFireworks() {
+    for (let i = 0; i < 3; i++) {
+        setTimeout(() => {
+            createFireworkBurst(
+                100 + Math.random() * (window.innerWidth - 200),
+                100 + Math.random() * 300,
+                fireworkColors[Math.floor(Math.random() * fireworkColors.length)]
+            );
+        }, i * 100);
+    }
+}
+window.manualFireworks = manualFireworks;
+
+// Weather
+const weatherTypes = ['sunny', 'rainy', 'snowy', 'thunder'];
+const weatherIcons = { sunny: '☀️', rainy: '🌧️', snowy: '❄️', thunder: '⛈️' };
+let currentWeather = 'sunny';
+let weatherInterval = null;
+
+function setWeather(weather) {
+    currentWeather = weather;
+    const indicator = document.getElementById('weatherIndicator');
+    indicator.className = 'weather-indicator ' + weather;
+    indicator.innerHTML = weatherIcons[weather] + ' ' + weather.toUpperCase();
+    if (weatherInterval) clearInterval(weatherInterval);
+    document.getElementById('weatherEffects').innerHTML = '';
+    
+    if (weather === 'rainy' || weather === 'thunder') {
+        weatherInterval = setInterval(() => {
             const drop = document.createElement('div');
             drop.className = 'rain-drop';
-            drop.style.left = Math.random() * window.innerWidth + 'px';
-            drop.style.animationDuration = (0.5 + Math.random() * 0.3) + 's';
+            drop.style.left = Math.random() * 100 + '%';
             document.getElementById('weatherEffects').appendChild(drop);
-            setTimeout(() => drop.remove(), 1000);
-        }
-        
-        function createSnowflake() {
+            setTimeout(() => drop.remove(), 600);
+        }, 50);
+    } else if (weather === 'snowy') {
+        weatherInterval = setInterval(() => {
             const flake = document.createElement('div');
             flake.className = 'snowflake';
-            flake.textContent = ['❄', '❅', '❆', '✻'][Math.floor(Math.random() * 4)];
-            flake.style.left = Math.random() * window.innerWidth + 'px';
-            flake.style.fontSize = (8 + Math.random() * 12) + 'px';
-            flake.style.animationDuration = (3 + Math.random() * 4) + 's';
+            flake.textContent = ['❄', '❅', '❆'][Math.floor(Math.random() * 3)];
+            flake.style.left = Math.random() * 100 + '%';
+            flake.style.fontSize = (8 + Math.random() * 10) + 'px';
             document.getElementById('weatherEffects').appendChild(flake);
-            setTimeout(() => flake.remove(), 7000);
-        }
-        
-        function scheduleThunder() {
-            if (currentWeather !== 'thunder') return;
-            const delay = 2000 + Math.random() * 5000;
-            setTimeout(() => {
-                if (currentWeather !== 'thunder') return;
-                triggerLightning();
-                scheduleThunder();
-            }, delay);
-        }
-        
-        function triggerLightning() {
-            // Flash
-            const flash = document.createElement('div');
-            flash.className = 'lightning';
-            document.body.appendChild(flash);
-            setTimeout(() => flash.remove(), 150);
-            
-            // Bolt emoji
-            const bolt = document.createElement('div');
-            bolt.className = 'thunder-bolt';
-            bolt.textContent = '⚡';
-            bolt.style.left = (100 + Math.random() * (window.innerWidth - 200)) + 'px';
-            bolt.style.top = (50 + Math.random() * 150) + 'px';
-            document.body.appendChild(bolt);
-            setTimeout(() => bolt.remove(), 500);
-            
-            // Screen shake
-            document.body.classList.add('screen-shake');
-            setTimeout(() => document.body.classList.remove('screen-shake'), 400);
-        }
-        
-        function cycleWeather() {
-            const idx = weatherTypes.indexOf(currentWeather);
-            const nextIdx = (idx + 1) % weatherTypes.length;
-            setWeather(weatherTypes[nextIdx]);
-        }
-        
-        // Automatic weather cycling system
-        let weatherChangeTime = 15 + Math.random() * 10; // 15-25 seconds
-        let weatherTimeRemaining = weatherChangeTime;
-        
-        function getNextWeather() {
-            // Weighted random - sunny more common, thunder rare
-            const weights = { sunny: 35, rainy: 30, snowy: 20, thunder: 15 };
-            const total = Object.values(weights).reduce((a, b) => a + b, 0);
-            let rand = Math.random() * total;
-            for (const [weather, weight] of Object.entries(weights)) {
-                rand -= weight;
-                if (rand <= 0) return weather;
-            }
-            return 'sunny';
-        }
-        
-        function autoChangeWeather() {
-            const indicator = document.getElementById('weatherIndicator');
-            indicator.classList.add('weather-changing');
-            setTimeout(() => indicator.classList.remove('weather-changing'), 500);
-            
-            let nextWeather;
-            do { nextWeather = getNextWeather(); } while (nextWeather === currentWeather);
-            setWeather(nextWeather);
-            
-            // Set new random interval
-            weatherChangeTime = 15 + Math.random() * 10;
-            weatherTimeRemaining = weatherChangeTime;
-        }
-        
-        // Update weather timer every 500ms
-        setInterval(() => {
-            weatherTimeRemaining -= 0.5;
-            
-            const countdown = document.getElementById('weatherCountdown');
-            const fill = document.getElementById('weatherTimerFill');
-            
-            if (countdown && fill) {
-                countdown.textContent = Math.ceil(weatherTimeRemaining);
-                fill.style.width = (weatherTimeRemaining / weatherChangeTime * 100) + '%';
-            }
-            
-            if (weatherTimeRemaining <= 0) {
-                autoChangeWeather();
-            }
-        }, 500);
-        
-        // Initialize weather
-        setWeather('sunny');
-        
-        window.cycleWeather = cycleWeather;
-        
-        // Linkin Park Player Controls
-        let lpPlaying = false;
-        function toggleLP() {
-            const audio = document.getElementById('lpAudio');
-            const btn = document.getElementById('lpPlayBtn');
-            const stage = document.querySelector('.pixel-stage');
-            
-            if (lpPlaying) {
-                audio.pause();
-                btn.textContent = '▶';
-                document.querySelectorAll('.pixel-member').forEach(m => m.style.animationPlayState = 'paused');
-                document.querySelectorAll('.eq-bar').forEach(b => b.style.animationPlayState = 'paused');
-            } else {
-                audio.volume = 0.3;
-                audio.play().catch(e => console.log('Audio blocked:', e));
-                btn.textContent = '⏸';
-                document.querySelectorAll('.pixel-member').forEach(m => m.style.animationPlayState = 'running');
-                document.querySelectorAll('.eq-bar').forEach(b => b.style.animationPlayState = 'running');
-            }
-            lpPlaying = !lpPlaying;
-        }
-        window.toggleLP = toggleLP;
-        
-        // Frog behavior system
-        const frogSpeech = [
-            'Ribbit!', 'RAIN! 💚', 'Hop hop!', 'Croak!', 'Splish splash!',
-            'I love rain!', '🌧️ Yay!', 'Wet is best!', 'Froggy time!', 'Ribbit ribbit!'
-        ];
-        let frogSpeaking = false;
-        
-        function updateFrogBehavior() {
-            const frog = document.getElementById('frog');
-            if (!frog) return;
-            
-            if (currentWeather === 'rainy' || currentWeather === 'thunder') {
-                frog.classList.add('jumping');
-                frog.classList.remove('excited');
-                // Random happy ribbits during rain
-                if (Math.random() < 0.02 && !frogSpeaking) {
-                    frogSpeak();
-                }
-            } else if (currentWeather === 'snowy') {
-                frog.classList.remove('jumping');
-                frog.classList.add('excited');
-            } else {
-                frog.classList.remove('jumping');
-                frog.classList.remove('excited');
-            }
-        }
-        
-        function frogSpeak() {
-            if (frogSpeaking) return;
-            frogSpeaking = true;
-            
-            const speech = document.getElementById('frogSpeech');
-            const isRaining = currentWeather === 'rainy' || currentWeather === 'thunder';
-            const messages = isRaining ? 
-                ['RAIN! 💚', 'I love rain!', '🌧️ Yay!', 'Wet is best!', 'Splish splash!'] :
-                ['Ribbit!', 'Croak!', 'Hop hop!', '*blink*', 'Waiting for rain...'];
-            
-            speech.textContent = messages[Math.floor(Math.random() * messages.length)];
-            speech.classList.add('show');
-            
-            setTimeout(() => {
-                speech.classList.remove('show');
-                frogSpeaking = false;
-            }, 2000);
-        }
-        
-        window.frogSpeak = frogSpeak;
-        
-        // Update frog behavior every 500ms
-        setInterval(updateFrogBehavior, 500);
-        
-        // Censored players roaming system
-        const censoredPlayers = [
-            { el: 'censoredPlayer1', x: 20, y: 40, vx: 0.3, vy: 0.2 },
-            { el: 'censoredPlayer2', x: 70, y: 35, vx: -0.25, vy: 0.15 },
-            { el: 'censoredPlayer3', x: 45, y: 60, vx: 0.2, vy: -0.18 }
-        ];
-        
-        function updateCensoredPlayers() {
-            censoredPlayers.forEach(p => {
-                p.x += p.vx;
-                p.y += p.vy;
-                
-                // Bounce off edges
-                if (p.x < 10 || p.x > 85) p.vx *= -1;
-                if (p.y < 20 || p.y > 70) p.vy *= -1;
-                
-                // Random direction changes
-                if (Math.random() < 0.01) p.vx *= -1;
-                if (Math.random() < 0.01) p.vy *= -1;
-                
-                const el = document.getElementById(p.el);
-                if (el) {
-                    el.style.left = p.x + '%';
-                    el.style.top = p.y + '%';
-                }
-            });
-        }
-        
-        setInterval(updateCensoredPlayers, 50);
-        
-        // Track goals and saves for auto-intel reveal
-        let prevGoals = 0;
-        let prevSaves = 0;
-        
-        setInterval(() => {
-            const currentGoals = parseInt(document.getElementById('goals').textContent || 0);
-            const currentSaves = parseInt(document.getElementById('saves').textContent || 0);
-            
-            if (currentGoals > prevGoals) {
-                origGoalHandler();
-                revealIntel(); // Auto-reveal on goal!
-                celebrateGoal(); // Launch fireworks!
-            }
-            if (currentSaves > prevSaves) {
-                revealIntel(); // Auto-reveal on save!
-            }
-            
-            prevGoals = currentGoals;
-            prevSaves = currentSaves;
-        }, 500);
-    </script>
-<div class="static-overlay"></div>
-<script>
-// Corruption particles falling
-function createCorruptionParticle() {
-    const chars = ['0', '1', '▓', '░', '█', '▒', 'X', '?', '!', '/', '\\', '#'];
-    const particle = document.createElement('div');
-    particle.className = 'corruption-particle';
-    particle.textContent = chars[Math.floor(Math.random() * chars.length)];
-    particle.style.left = Math.random() * 100 + 'vw';
-    particle.style.fontSize = (8 + Math.random() * 14) + 'px';
-    particle.style.animationDuration = (3 + Math.random() * 3) + 's';
-    particle.style.animationDelay = Math.random() * 2 + 's';
-    document.body.appendChild(particle);
-    setTimeout(() => particle.remove(), 8000);
+            setTimeout(() => flake.remove(), 4000);
+        }, 100);
+    }
 }
-setInterval(createCorruptionParticle, 200);
 
-// Ghost memories floating
-const ghostMemories = ['⚽ Goal...', '🧤 Save...', '🎆 Fireworks...', '🐸 Ribbit...', '📺 TV...', '📋 Tasks...'];
-function createGhostMemory() {
-    const ghost = document.createElement('div');
-    ghost.className = 'ghost-memory';
-    ghost.textContent = '👻 ' + ghostMemories[Math.floor(Math.random() * ghostMemories.length)];
-    ghost.style.left = (10 + Math.random() * 80) + '%';
-    ghost.style.top = (10 + Math.random() * 80) + '%';
-    document.body.appendChild(ghost);
-    setTimeout(() => ghost.remove(), 8000);
+function cycleWeather() {
+    const idx = weatherTypes.indexOf(currentWeather);
+    setWeather(weatherTypes[(idx + 1) % weatherTypes.length]);
 }
-setInterval(createGhostMemory, 3000);
+window.cycleWeather = cycleWeather;
+setWeather('sunny');
+
+// Frog
+let frogSpeaking = false;
+function frogSpeak() {
+    if (frogSpeaking) return;
+    frogSpeaking = true;
+    const speech = document.getElementById('frogSpeech');
+    const msgs = currentWeather === 'rainy' || currentWeather === 'thunder' ? 
+        ['RAIN! 💚', 'I love rain!', '🌧️ Yay!'] : ['Ribbit!', 'Croak!', '3D is cool!'];
+    speech.textContent = msgs[Math.floor(Math.random() * msgs.length)];
+    speech.classList.add('show');
+    setTimeout(() => { speech.classList.remove('show'); frogSpeaking = false; }, 2000);
+}
+window.frogSpeak = frogSpeak;
+
+setInterval(() => {
+    const frog = document.getElementById('frog');
+    if (currentWeather === 'rainy' || currentWeather === 'thunder') {
+        frog.classList.add('jumping');
+        if (Math.random() < 0.02) frogSpeak();
+    } else {
+        frog.classList.remove('jumping');
+    }
+}, 500);
+
+// Todo
+function addTodo() {
+    const input = document.getElementById('todoInput');
+    const text = input.value.trim();
+    if (!text) return;
+    const list = document.getElementById('todoList');
+    const li = document.createElement('li');
+    li.className = 'todo-item';
+    li.innerHTML = `<input type="checkbox" class="todo-check" onchange="toggleTodo(this)"><span>${text}</span><button class="todo-delete" onclick="deleteTodo(this)">×</button>`;
+    list.appendChild(li);
+    input.value = '';
+}
+function toggleTodo(cb) { cb.parentElement.classList.toggle('done', cb.checked); }
+function deleteTodo(btn) { btn.parentElement.remove(); }
+window.addTodo = addTodo;
+window.toggleTodo = toggleTodo;
+window.deleteTodo = deleteTodo;
+document.getElementById('todoInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') addTodo(); });
 </script>
+<div class="static-overlay"></div>
 </body>
 </html>
