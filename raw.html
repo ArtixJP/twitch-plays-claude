@@ -1818,7 +1818,13 @@
             '⭐ Entering deep space...',
             '💫 Warp drive engaged!',
             '🌌 Approaching Andromeda...',
-            '✨ Welcome to your new home!'
+            '✨ Welcome to Andromeda!',
+            '🏠 Hmm... missing Bitcoin Beach...',
+            '🔄 Initiating return sequence!',
+            '💨 Warp drive: HOMEBOUND!',
+            '🌍 Earth in sight!',
+            '🌅 Bitcoin Beach awaits!',
+            '🏖️ Welcome home, traveler!'
         ];
         
         let launchTime = 0;
@@ -1864,6 +1870,59 @@
                 galaxyDest.classList.add('visible');
                 launchBtn.textContent = '🌌 ARRIVED!';
             }, 20000);
+            
+            // Start return journey after 15 seconds at destination
+            setTimeout(() => {
+                rocket.userData.phase = 'returning';
+                rocket.userData.returnStartTime = Date.now();
+                galaxyDest.classList.remove('visible');
+                journeyStatus.textContent = '🏠 Hmm... missing Bitcoin Beach...';
+                
+                // Update messages for return journey
+                let returnMsgIndex = 0;
+                const returnMessages = [
+                    '🔄 Initiating return sequence!',
+                    '💨 Warp drive: HOMEBOUND!',
+                    '🌍 Earth in sight!',
+                    '🌅 Bitcoin Beach awaits!',
+                    '🏖️ Welcome home, traveler!'
+                ];
+                const returnMsgInterval = setInterval(() => {
+                    returnMsgIndex++;
+                    if (returnMsgIndex < returnMessages.length) {
+                        journeyStatus.textContent = returnMessages[returnMsgIndex];
+                    } else {
+                        clearInterval(returnMsgInterval);
+                    }
+                }, 3000);
+            }, 35000);
+            
+            // Fade out space, reveal beach
+            setTimeout(() => {
+                spaceOverlay.classList.remove('active');
+                starsContainer.classList.remove('active');
+                nebulas.forEach(n => n.classList.remove('active'));
+            }, 45000);
+            
+            // Landing complete
+            setTimeout(() => {
+                rocket.userData.phase = 'landed';
+                journeyStatus.textContent = '🏖️ Back on Bitcoin Beach! What a journey! ✨';
+                launchBtn.textContent = '🏠 HOME SWEET HOME';
+                rocketLaunched = false;
+                
+                // Reset rocket position
+                setTimeout(() => {
+                    rocket.position.set(0, 1.5, 20);
+                    rocket.rotation.set(0, 0, 0);
+                    rocket.userData.flame.visible = false;
+                    rocket.userData.innerFlame.visible = false;
+                    rocket.userData.engineLight.intensity = 0;
+                    launchBtn.classList.remove('launched');
+                    launchBtn.textContent = '🚀 LAUNCH AGAIN!';
+                    journeyStatus.classList.remove('active');
+                }, 3000);
+            }, 55000);
         });
         
         // Enhanced animation loop with rocket physics
@@ -1904,8 +1963,50 @@
                     camera.position.y = rocket.position.y - 5;
                     camera.position.z = rocket.position.z + 15;
                     camera.lookAt(rocket.position);
+                } else if (rocket.userData.phase === 'returning') {
+                    // Return journey phase
+                    const returnElapsed = (Date.now() - rocket.userData.returnStartTime) / 1000;
+                    
+                    if (returnElapsed < 10) {
+                        // Descending from space
+                        rocket.rotation.x = Math.PI; // Flip rocket
+                        rocket.userData.velocity = -1.5;
+                        rocket.position.y += rocket.userData.velocity;
+                        rocket.position.z += 0.5;
+                        
+                        // Camera pans back to beach
+                        camera.position.y = Math.max(rocket.position.y - 5, 5);
+                        camera.position.z = Math.min(rocket.position.z + 10, 10);
+                        camera.lookAt(new THREE.Vector3(0, 2, 25));
+                    } else if (returnElapsed < 18) {
+                        // Final approach
+                        rocket.rotation.x = 0; // Flip back upright
+                        const targetY = 1.5;
+                        const targetZ = 20;
+                        rocket.position.y += (targetY - rocket.position.y) * 0.03;
+                        rocket.position.z += (targetZ - rocket.position.z) * 0.03;
+                        rocket.position.x += (0 - rocket.position.x) * 0.05;
+                        
+                        // Cinematic beach pan
+                        camera.position.y += (2 - camera.position.y) * 0.02;
+                        camera.position.z += (0 - camera.position.z) * 0.02;
+                        camera.position.x = Math.sin(time * 0.3) * 3;
+                        camera.lookAt(new THREE.Vector3(0, 1, 25));
+                    } else {
+                        // Landed - gentle hover
+                        rocket.position.y = 1.5 + Math.sin(time * 2) * 0.05;
+                        rocket.rotation.z = Math.sin(time) * 0.02;
+                        
+                        // Beautiful beach view
+                        camera.position.set(
+                            Math.sin(time * 0.2) * 5,
+                            3 + Math.sin(time * 0.3) * 0.5,
+                            0
+                        );
+                        camera.lookAt(new THREE.Vector3(0, 1, 25));
+                    }
                 } else {
-                    // Arrival phase - slow down
+                    // Arrival phase at Andromeda - slow down
                     rocket.userData.velocity = Math.max(rocket.userData.velocity - 0.02, 0.1);
                     rocket.position.y += rocket.userData.velocity;
                     rocket.rotation.z = Math.sin(time) * 0.1;
