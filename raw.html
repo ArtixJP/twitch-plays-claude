@@ -670,6 +670,42 @@
         .journey-status.active {
             opacity: 1;
         }
+        
+        .auto-launch-countdown {
+            position: fixed;
+            bottom: 120px;
+            right: 20px;
+            z-index: 300;
+            background: linear-gradient(135deg, rgba(255, 100, 0, 0.3), rgba(255, 50, 0, 0.2));
+            backdrop-filter: blur(10px);
+            padding: 15px 25px;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 100, 0, 0.5);
+            color: #ff6b35;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: center;
+            animation: countdown-pulse 1s ease-in-out infinite;
+        }
+        .auto-launch-countdown .label {
+            font-size: 0.7rem;
+            color: #ffaa66;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+        .auto-launch-countdown .timer {
+            font-size: 2rem;
+            color: #ff4500;
+            text-shadow: 0 0 20px rgba(255, 69, 0, 0.8);
+        }
+        .auto-launch-countdown.hidden {
+            display: none;
+        }
+        @keyframes countdown-pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(255, 69, 0, 0.3); }
+            50% { transform: scale(1.05); box-shadow: 0 0 40px rgba(255, 69, 0, 0.6); }
+        }
     </style>
 </head>
 <body>
@@ -796,7 +832,10 @@
 <div class="name-tag">YOU</div>
 </div>
 <div class="audio-indicator" id="audio-toggle">🌊 Ocean Waves</div>
-
+<div class="auto-launch-countdown" id="auto-countdown">
+<div class="label">🚀 Auto-Launch In</div>
+<div class="timer" id="countdown-timer">15</div>
+</div>
 <button class="launch-button" id="launch-btn">🚀 LAUNCH TO GALAXY</button>
 <div class="space-overlay" id="space-overlay"></div>
 <div class="stars-container" id="stars-container"></div>
@@ -1926,6 +1965,39 @@
         
         // Replace the animation loop
         animateWithRocket();
+        
+        // AUTO-LAUNCH COUNTDOWN SYSTEM
+        let autoLaunchSeconds = 15;
+        const countdownDisplay = document.getElementById('auto-countdown');
+        const countdownTimer = document.getElementById('countdown-timer');
+        
+        const autoLaunchInterval = setInterval(() => {
+            autoLaunchSeconds--;
+            countdownTimer.textContent = autoLaunchSeconds;
+            
+            // Intensify animation as countdown approaches zero
+            if (autoLaunchSeconds <= 5) {
+                countdownDisplay.style.borderColor = 'rgba(255, 0, 0, 0.8)';
+                countdownDisplay.style.color = '#ff0000';
+                countdownTimer.style.color = '#ff0000';
+            }
+            
+            if (autoLaunchSeconds <= 0) {
+                clearInterval(autoLaunchInterval);
+                countdownDisplay.classList.add('hidden');
+                
+                // Trigger the launch!
+                if (!rocketLaunched) {
+                    launchBtn.click();
+                }
+            }
+        }, 1000);
+        
+        // Cancel auto-launch if manually launched
+        launchBtn.addEventListener('click', () => {
+            clearInterval(autoLaunchInterval);
+            countdownDisplay.classList.add('hidden');
+        }, { once: true });
     </script>
 </body>
 </html>
