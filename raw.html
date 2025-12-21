@@ -421,6 +421,7 @@
 <div class="price up" id="price">$67,432.18</div>
 <div class="change" id="change">▲ +2.34%</div>
 <div class="track-indicator" id="track-indicator" style="margin-top:8px;font-size:0.7rem;color:#888;">TRACK: MAIN</div>
+<div class="fpv-indicator" style="margin-top:4px;font-size:0.6rem;color:#ff4444;">👁️ FIRST PERSON VIEW</div>
 <div class="torus-indicator" id="torus-indicator" style="margin-top:4px;font-size:0.6rem;color:#bf94ff;">🍩 TOROIDAL TOPOLOGY ACTIVE</div>
 </div>
 <div class="scream" id="scream">😱</div>
@@ -748,7 +749,7 @@
         const scene = new THREE.Scene();
         scene.fog = new THREE.Fog(0x0a0a0f, 10, 100);
         
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 1000); // Wider FOV for immersive FPV
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setClearColor(0x0a0a0f);
@@ -1459,21 +1460,35 @@
             cartGroup.rotation.z += Math.sin(torusAngle * 2) * rollIntensity * 0.1;
             cartGroup.rotation.x += Math.cos(torusAngle * 3) * rollIntensity * 0.05;
 
-            // Smooth camera follow with interpolation
-            const targetCamX = position.x - tangent.x * 8;
-            const targetCamY = position.y + 4;
-            const targetCamZ = position.z + 8;
-            const lerpFactor = 0.03; // Lower = smoother/slower
+            // FIRST PERSON VIEW - You ARE the rider!
+            // Position camera at rider's head position
+            const fpvOffset = new THREE.Vector3(0, 1.5, 0); // Head height
+            const fpvPosition = position.clone().add(fpvOffset);
             
-            camera.position.x += (targetCamX - camera.position.x) * lerpFactor;
-            camera.position.y += (targetCamY - camera.position.y) * lerpFactor;
-            camera.position.z += (targetCamZ - camera.position.z) * lerpFactor;
+            // Smooth camera movement for less motion sickness
+            const lerpFactor = 0.15; // Responsive but not jarring
+            camera.position.lerp(fpvPosition, lerpFactor);
             
-            // Smooth look-at using a target object
-            const targetLook = cartGroup.position.clone();
-            if (!camera.userData.lookTarget) camera.userData.lookTarget = targetLook.clone();
-            camera.userData.lookTarget.lerp(targetLook, lerpFactor * 2);
+            // Look ahead along the track
+            const lookAheadDistance = 10;
+            const lookTarget = position.clone().add(tangent.clone().multiplyScalar(lookAheadDistance));
+            lookTarget.y += 1; // Slight upward bias
+            
+            // Smooth look-at
+            if (!camera.userData.lookTarget) camera.userData.lookTarget = lookTarget.clone();
+            camera.userData.lookTarget.lerp(lookTarget, lerpFactor);
             camera.lookAt(camera.userData.lookTarget);
+            
+            // Add subtle head bob for immersion
+            const headBob = Math.sin(Date.now() * 0.01) * 0.05;
+            camera.position.y += headBob;
+            
+            // Tilt camera slightly on turns
+            const turnIntensity = tangent.x * 0.1;
+            camera.rotation.z = THREE.MathUtils.lerp(camera.rotation.z, turnIntensity, 0.05);
+            
+            // Hide the cart since we're inside it
+            cartGroup.visible = false;
 
             // Update price display - continuous price evolution
             const currentPriceIndex = Math.floor(t * priceData.length);
