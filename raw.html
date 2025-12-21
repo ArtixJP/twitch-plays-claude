@@ -153,6 +153,138 @@
             border-radius: 4px;
             color: #bf94ff;
         }
+        
+        /* HIGH EFFORT ENHANCEMENTS */
+        .god-rays {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 60;
+            background: radial-gradient(ellipse at 50% 30%, 
+                rgba(255, 200, 100, 0.15) 0%, 
+                rgba(255, 150, 50, 0.08) 25%,
+                transparent 60%);
+            mix-blend-mode: screen;
+            animation: rays-pulse 8s ease-in-out infinite;
+        }
+        @keyframes rays-pulse {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+        
+        .lens-flare {
+            position: fixed;
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 300px;
+            pointer-events: none;
+            z-index: 65;
+        }
+        .flare-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 200, 100, 0.3);
+            animation: flare-rotate 20s linear infinite;
+        }
+        .flare-ring:nth-child(1) { width: 100px; height: 100px; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        .flare-ring:nth-child(2) { width: 150px; height: 150px; top: 50%; left: 50%; transform: translate(-50%, -50%); animation-direction: reverse; }
+        .flare-ring:nth-child(3) { width: 200px; height: 200px; top: 50%; left: 50%; transform: translate(-50%, -50%); animation-duration: 30s; }
+        .flare-dot {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 220, 150, 0.8), transparent);
+            animation: flare-twinkle 3s ease-in-out infinite;
+        }
+        .flare-dot:nth-child(4) { width: 8px; height: 8px; top: 30%; left: 60%; animation-delay: 0s; }
+        .flare-dot:nth-child(5) { width: 12px; height: 12px; top: 70%; left: 40%; animation-delay: 1s; }
+        .flare-dot:nth-child(6) { width: 6px; height: 6px; top: 45%; left: 75%; animation-delay: 2s; }
+        @keyframes flare-rotate { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
+        @keyframes flare-twinkle { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.5); } }
+        
+        .particle-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 55;
+            overflow: hidden;
+        }
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 220, 150, 0.9), rgba(255, 180, 100, 0.4));
+            animation: float-particle linear infinite;
+            box-shadow: 0 0 10px rgba(255, 200, 100, 0.5);
+        }
+        @keyframes float-particle {
+            0% { transform: translateY(100vh) translateX(0) scale(0); opacity: 0; }
+            10% { opacity: 1; transform: translateY(90vh) translateX(10px) scale(1); }
+            90% { opacity: 1; }
+            100% { transform: translateY(-10vh) translateX(-20px) scale(0.5); opacity: 0; }
+        }
+        
+        .cloud {
+            position: fixed;
+            z-index: 40;
+            filter: blur(2px);
+            opacity: 0.6;
+            animation: cloud-drift linear infinite;
+        }
+        .cloud-shape {
+            background: linear-gradient(180deg, rgba(255, 180, 130, 0.4), rgba(255, 150, 100, 0.2));
+            border-radius: 50%;
+            position: absolute;
+        }
+        @keyframes cloud-drift {
+            from { transform: translateX(-200px); }
+            to { transform: translateX(calc(100vw + 200px)); }
+        }
+        
+        .hud {
+            background: rgba(20, 10, 40, 0.4);
+            backdrop-filter: blur(20px);
+            padding: 15px 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+        
+        .chill-message {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            padding: 20px 30px;
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        
+        .water-shimmer {
+            position: fixed;
+            bottom: 30%;
+            left: 0;
+            width: 100%;
+            height: 20%;
+            pointer-events: none;
+            z-index: 45;
+            background: linear-gradient(90deg, 
+                transparent 0%,
+                rgba(255, 220, 150, 0.1) 25%,
+                rgba(255, 200, 100, 0.15) 50%,
+                rgba(255, 220, 150, 0.1) 75%,
+                transparent 100%);
+            animation: shimmer-move 4s ease-in-out infinite;
+        }
+        @keyframes shimmer-move {
+            0%, 100% { transform: translateX(-10%); opacity: 0.5; }
+            50% { transform: translateX(10%); opacity: 1; }
+        }
         .alien-tourist {
             position: absolute;
             z-index: 140;
@@ -354,6 +486,32 @@
 <body>
 <div id="canvas-container"></div>
 <div class="beach-overlay"></div>
+
+<div class="god-rays"></div>
+<div class="water-shimmer"></div>
+<div class="lens-flare">
+<div class="flare-ring"></div>
+<div class="flare-ring"></div>
+<div class="flare-ring"></div>
+<div class="flare-dot"></div>
+<div class="flare-dot"></div>
+<div class="flare-dot"></div>
+</div>
+<div class="particle-container" id="particles"></div>
+<div class="cloud" style="top: 8%; animation-duration: 60s;">
+<div class="cloud-shape" style="width: 80px; height: 40px; left: 0; top: 10px;"></div>
+<div class="cloud-shape" style="width: 60px; height: 35px; left: 50px; top: 0;"></div>
+<div class="cloud-shape" style="width: 70px; height: 38px; left: 90px; top: 15px;"></div>
+</div>
+<div class="cloud" style="top: 12%; animation-duration: 80s; animation-delay: -20s;">
+<div class="cloud-shape" style="width: 100px; height: 50px; left: 0; top: 5px;"></div>
+<div class="cloud-shape" style="width: 70px; height: 40px; left: 70px; top: 0;"></div>
+<div class="cloud-shape" style="width: 90px; height: 45px; left: 120px; top: 10px;"></div>
+</div>
+<div class="cloud" style="top: 5%; animation-duration: 100s; animation-delay: -50s; opacity: 0.4;">
+<div class="cloud-shape" style="width: 120px; height: 55px; left: 0; top: 0;"></div>
+<div class="cloud-shape" style="width: 80px; height: 45px; left: 90px; top: 10px;"></div>
+</div>
 <div class="hud">
 <h1><span class="btc-icon">₿</span> BEACH BAR</h1>
 <div class="price" id="price">$67,432</div>
@@ -364,7 +522,7 @@
 <span class="emoji">🌴☀️🌊</span>
 <div>Just breathe... You're on Bitcoin Beach</div>
 </div>
-<div class="beach-items">✨ 3D Beach Now Live! ✨</div>
+<div class="beach-items">✨ HIGH-EFFORT 3D Beach Experience ✨</div>
 <div class="alien-tourist alien-1">
 <span class="alien-body">👽🍹</span>
 <div class="speech">Earth sunsets hit different 🌅</div>
@@ -1028,6 +1186,30 @@
         // Show first quote immediately, then every 7 seconds
         showQuote();
         setInterval(showQuote, 7000);
+        
+        // HIGH EFFORT: Floating particle system
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                const size = 3 + Math.random() * 6;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDuration = (15 + Math.random() * 20) + 's';
+                particle.style.animationDelay = (-Math.random() * 20) + 's';
+                container.appendChild(particle);
+            }
+        }
+        createParticles();
+        
+        // HIGH EFFORT: Dynamic god rays intensity
+        const godRays = document.querySelector('.god-rays');
+        setInterval(() => {
+            const intensity = 0.4 + Math.random() * 0.3;
+            godRays.style.opacity = intensity;
+        }, 2000);
     </script>
 </body>
 </html>
