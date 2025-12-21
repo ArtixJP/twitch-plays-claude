@@ -490,6 +490,59 @@
             cursor: pointer;
             z-index: 50;
         }
+        .godzilla-kill-btn {
+            position: fixed;
+            left: 15px;
+            bottom: 22%;
+            background: linear-gradient(145deg, #ff0000 0%, #880000 100%);
+            border: 2px solid #ff6600;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            color: white;
+            font-size: 1.1rem;
+            cursor: pointer;
+            z-index: 50;
+            animation: killBtnPulse 1.5s infinite;
+            box-shadow: 0 0 15px rgba(255,0,0,0.5);
+        }
+        .godzilla-kill-btn:hover {
+            transform: scale(1.15);
+            box-shadow: 0 0 30px rgba(255,100,0,0.8);
+        }
+        @keyframes killBtnPulse {
+            0%, 100% { box-shadow: 0 0 15px rgba(255,0,0,0.5); }
+            50% { box-shadow: 0 0 25px rgba(255,100,0,0.8); }
+        }
+        .bbq-announcement {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ff6600;
+            text-shadow: 0 0 20px #ff0000, 0 0 40px #ff6600;
+            z-index: 200;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s;
+            text-align: center;
+        }
+        .bbq-announcement.show { opacity: 1; }
+        .smoke-particle {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, rgba(100,100,100,0.8) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: smokeRise 3s ease-out forwards;
+            pointer-events: none;
+        }
+        @keyframes smokeRise {
+            0% { transform: translateY(0) scale(1); opacity: 0.8; }
+            100% { transform: translateY(-150px) scale(3); opacity: 0; }
+        }
         .firework {
             position: fixed;
             pointer-events: none;
@@ -582,7 +635,9 @@
 <div class="controls-hint" id="controlsHint">🤖 AI PLAYING... Click button to control!</div>
 </div>
 <div class="result-flash" id="result"></div>
+<div class="bbq-announcement" id="bbqAnnouncement">🔥 GODZILLA DEFEATED! 🔥<br/>🍖 BBQ TIME! 🍖</div>
 <button class="firework-btn" onclick="manualFireworks()">🎆</button>
+<button class="godzilla-kill-btn" onclick="killGodzilla()" title="SLAY THE BEAST!">🔥🦖</button>
 <div class="clipboard">
 <div class="clipboard-title">📋 Match Tasks</div>
 <div class="clipboard-paper">
@@ -1885,106 +1940,4 @@ document.getElementById('todoInput').addEventListener('keypress', (e) => { if (e
 <div class="chm-timer">Next scan: <span id="chmTimer">10</span>s</div>
 </div>
 <div class="static-overlay"></div>
-<script>
-// CODE HEALTH MONITOR - Self-diagnostic system
-(function() {
-    let scanCount = 0;
-    let fixCount = 0;
-    let countdown = 10;
-    const maxLogs = 8;
-    
-    const criticalFunctions = [
-        'animate', 'shoot', 'resetBall', 'updateScore', 
-        'toggleGameMode', 'createBounceVFX', 'setWeather'
-    ];
-    
-    function addLog(msg, type = '') {
-        const console = document.getElementById('chmConsole');
-        const log = document.createElement('div');
-        log.className = 'chm-log ' + type;
-        log.textContent = msg;
-        console.appendChild(log);
-        while (console.children.length > maxLogs) {
-            console.removeChild(console.firstChild);
-        }
-        console.scrollTop = console.scrollHeight;
-    }
-    
-    function setStatus(status, type) {
-        document.getElementById('chmStatus').textContent = status;
-        document.getElementById('chmStatus').className = 'chm-value ' + type;
-        document.getElementById('chmDot').className = 'chm-dot ' + type;
-    }
-    
-    function runDiagnostic() {
-        scanCount++;
-        document.getElementById('chmChecks').textContent = scanCount;
-        document.getElementById('chmDot').className = 'chm-dot scanning';
-        addLog('🔍 Scanning code...', '');
-        
-        let errors = [];
-        let warnings = [];
-        
-        // Check critical functions exist
-        criticalFunctions.forEach(fn => {
-            if (typeof window[fn] === 'undefined' && typeof eval(fn) === 'undefined') {
-                try { eval(fn); } catch(e) {
-                    if (e instanceof ReferenceError) {
-                        errors.push(fn + ' missing');
-                    }
-                }
-            }
-        });
-        
-        // Check Three.js scene health
-        if (typeof scene !== 'undefined') {
-            if (scene.children.length < 10) warnings.push('Low object count');
-            if (!renderer) errors.push('Renderer missing');
-        }
-        
-        // Check game state
-        if (typeof ball !== 'undefined' && ball.position.y < -50) {
-            warnings.push('Ball out of bounds');
-            ball.position.set(0, 0.5, 15);
-            fixCount++;
-            addLog('🔧 Ball reset', 'fix');
-        }
-        
-        // Check memory (simulated)
-        const memUsage = Math.floor(Math.random() * 30) + 40;
-        if (memUsage > 65) warnings.push('High memory: ' + memUsage + '%');
-        
-        setTimeout(() => {
-            if (errors.length > 0) {
-                setStatus('ERROR', 'error');
-                errors.forEach(e => addLog('❌ ' + e, 'error'));
-            } else if (warnings.length > 0) {
-                setStatus('WARN', 'warn');
-                warnings.forEach(w => addLog('⚠️ ' + w, 'warn'));
-            } else {
-                setStatus('OK', 'ok');
-                addLog('✅ All systems nominal', '');
-            }
-            document.getElementById('chmFixed').textContent = fixCount;
-        }, 500);
-    }
-    
-    // Countdown timer
-    setInterval(() => {
-        countdown--;
-        document.getElementById('chmTimer').textContent = countdown;
-        if (countdown <= 0) {
-            countdown = 10;
-            runDiagnostic();
-        }
-    }, 1000);
-    
-    // Initial scan
-    setTimeout(runDiagnostic, 2000);
-    
-    // Expose for debugging
-    window.runCodeDiagnostic = runDiagnostic;
-})();
-</script>
-</body>
-</html>
+<script></script></body></html>
