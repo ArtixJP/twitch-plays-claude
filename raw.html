@@ -572,6 +572,22 @@
         const harmonicSeries = [1, 2, 3, 4, 5, 6, 7, 8]; // Overtones
         const pentatonic = [1, 9/8, 5/4, 3/2, 5/3]; // Pleasant scale
         
+        // CHOIR FORMANT FREQUENCIES - Human voice synthesis!
+        const vowelFormants = {
+            'a': [800, 1200, 2500, 3500],
+            'e': [400, 2000, 2800, 3500],
+            'i': [300, 2300, 3000, 3700],
+            'o': [500, 900, 2400, 3400],
+            'u': [350, 700, 2500, 3500]
+        };
+        const vowels = ['a', 'e', 'i', 'o', 'u'];
+        let currentVowel = 'a';
+        let choirVoices = [];
+        let choirGains = [];
+        let choirFilters = [];
+        let reverbNode = null;
+        let choirConvolver = null;
+        
         function initAudio() {
             if (audioStarted) return;
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -589,34 +605,69 @@
             compressor.connect(masterGain);
             masterGain.connect(audioContext.destination);
             
-            // Create 6 drone oscillators for rich harmonic content
-            const waveTypes = ['sine', 'triangle', 'sine', 'sawtooth', 'sine', 'triangle'];
-            for (let i = 0; i < 6; i++) {
+            // Create CHOIR VOICE SYNTHESIS - ethereal human voices!
+            // Create reverb for cathedral-like space
+            choirConvolver = audioContext.createConvolver();
+            const reverbLength = 4 * audioContext.sampleRate;
+            const reverbBuffer = audioContext.createBuffer(2, reverbLength, audioContext.sampleRate);
+            for (let ch = 0; ch < 2; ch++) {
+                const channelData = reverbBuffer.getChannelData(ch);
+                for (let i = 0; i < reverbLength; i++) {
+                    channelData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (audioContext.sampleRate * 1.5));
+                }
+            }
+            choirConvolver.buffer = reverbBuffer;
+            choirConvolver.connect(compressor);
+            
+            // Create 8 choir voices (SATB x 2)
+            const voiceTypes = ['soprano', 'soprano', 'alto', 'alto', 'tenor', 'tenor', 'bass', 'bass'];
+            const voiceBaseFreqs = [523, 494, 330, 311, 220, 196, 131, 123]; // C5, B4, E4, Eb4, A3, G3, C3, B2
+            
+            for (let i = 0; i < 8; i++) {
+                // Main voice oscillator with slight vibrato
                 const osc = audioContext.createOscillator();
                 const gain = audioContext.createGain();
                 const filter = audioContext.createBiquadFilter();
                 
-                osc.type = waveTypes[i];
-                osc.frequency.value = 65 * harmonicSeries[i]; // Base frequency with harmonics
+                // Use triangle for softer choir sound
+                osc.type = i < 4 ? 'sine' : 'triangle';
+                osc.frequency.value = voiceBaseFreqs[i];
                 
-                filter.type = 'lowpass';
-                filter.frequency.value = 800;
-                filter.Q.value = 2 + i * 0.5;
+                // Add vibrato LFO
+                const vibrato = audioContext.createOscillator();
+                const vibratoGain = audioContext.createGain();
+                vibrato.frequency.value = 4 + Math.random() * 2; // 4-6 Hz vibrato
+                vibratoGain.gain.value = voiceBaseFreqs[i] * 0.01; // 1% pitch variation
+                vibrato.connect(vibratoGain);
+                vibratoGain.connect(osc.frequency);
+                vibrato.start();
+                
+                // Formant filter for vowel sounds
+                filter.type = 'bandpass';
+                filter.frequency.value = vowelFormants['a'][i % 4];
+                filter.Q.value = 8 + Math.random() * 4;
                 
                 gain.gain.value = 0;
                 
                 osc.connect(filter);
                 filter.connect(gain);
+                // Half dry, half reverb
                 gain.connect(compressor);
+                gain.connect(choirConvolver);
                 osc.start();
                 
+                choirVoices.push(osc);
+                choirGains.push(gain);
+                choirFilters.push(filter);
+                
+                // Also keep drone arrays for compatibility
                 droneOscs.push(osc);
                 droneGains.push(gain);
                 droneFilters.push(filter);
             }
             
             audioStarted = true;
-            document.getElementById('audio-toggle').textContent = '🎵 Physics-Reactive Audio';
+            document.getElementById('audio-toggle').textContent = '🎵 Ethereal Choir Voices';
             document.getElementById('audio-toggle').classList.add('playing');
         }
         
@@ -626,106 +677,143 @@
             const now = audioContext.currentTime;
             
             if (type === 'drop') {
-                // Deep bass thump for drops
-                const kick = audioContext.createOscillator();
-                const kickGain = audioContext.createGain();
-                kick.type = 'sine';
-                kick.frequency.setValueAtTime(pitch * 2, now);
-                kick.frequency.exponentialRampToValueAtTime(pitch * 0.3, now + 0.15);
-                kickGain.gain.setValueAtTime(intensity * 0.8, now);
-                kickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
-                kick.connect(kickGain);
-                kickGain.connect(compressor);
-                kick.start(now);
-                kick.stop(now + 0.4);
+                // Deep bass choir 'OHHH' for drops - dramatic descent!
+                for (let v = 0; v < 4; v++) {
+                    const bass = audioContext.createOscillator();
+                    const bassGain = audioContext.createGain();
+                    const bassFilter = audioContext.createBiquadFilter();
+                    bass.type = 'triangle';
+                    bass.frequency.setValueAtTime(pitch * (0.5 + v * 0.1), now);
+                    bass.frequency.exponentialRampToValueAtTime(pitch * 0.25, now + 0.8);
+                    bassFilter.type = 'bandpass';
+                    bassFilter.frequency.value = 500; // 'oh' formant
+                    bassFilter.Q.value = 8;
+                    bassGain.gain.setValueAtTime(0, now);
+                    bassGain.gain.linearRampToValueAtTime(intensity * 0.2, now + 0.05);
+                    bassGain.gain.exponentialRampToValueAtTime(0.001, now + 1);
+                    bass.connect(bassFilter);
+                    bassFilter.connect(bassGain);
+                    if (choirConvolver) bassGain.connect(choirConvolver);
+                    bassGain.connect(compressor);
+                    bass.start(now);
+                    bass.stop(now + 1);
+                }
                 
-                // Sub rumble
+                // Sub bass hum
                 const sub = audioContext.createOscillator();
                 const subGain = audioContext.createGain();
                 sub.type = 'sine';
-                sub.frequency.value = 30 + intensity * 20;
-                subGain.gain.setValueAtTime(intensity * 0.5, now);
-                subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+                sub.frequency.value = 50 + intensity * 30;
+                subGain.gain.setValueAtTime(intensity * 0.3, now);
+                subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
                 sub.connect(subGain);
                 subGain.connect(masterGain);
                 sub.start(now);
-                sub.stop(now + 0.6);
+                sub.stop(now + 0.8);
             } else if (type === 'peak') {
-                // Shimmering high for peaks
-                const shimmer = audioContext.createOscillator();
-                const shimGain = audioContext.createGain();
-                const shimFilter = audioContext.createBiquadFilter();
-                shimmer.type = 'sine';
-                shimmer.frequency.setValueAtTime(pitch * 4, now);
-                shimmer.frequency.setValueAtTime(pitch * 6, now + 0.05);
-                shimmer.frequency.exponentialRampToValueAtTime(pitch * 3, now + 0.3);
-                shimFilter.type = 'highpass';
-                shimFilter.frequency.value = 2000;
-                shimGain.gain.setValueAtTime(intensity * 0.3, now);
-                shimGain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
-                shimmer.connect(shimFilter);
-                shimFilter.connect(shimGain);
-                shimGain.connect(compressor);
-                shimmer.start(now);
-                shimmer.stop(now + 0.5);
-            } else if (type === 'acceleration') {
-                // Whoosh for speed changes
-                const noise = audioContext.createBufferSource();
-                const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.3, audioContext.sampleRate);
-                const noiseData = noiseBuffer.getChannelData(0);
-                for (let i = 0; i < noiseData.length; i++) {
-                    noiseData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (audioContext.sampleRate * 0.1));
+                // Angelic soprano 'ahh' for peaks
+                for (let v = 0; v < 3; v++) {
+                    const soprano = audioContext.createOscillator();
+                    const sopGain = audioContext.createGain();
+                    const sopFilter = audioContext.createBiquadFilter();
+                    soprano.type = 'sine';
+                    soprano.frequency.setValueAtTime(pitch * 4 * (1 + v * 0.02), now);
+                    soprano.frequency.linearRampToValueAtTime(pitch * 3.5, now + 0.8);
+                    sopFilter.type = 'bandpass';
+                    sopFilter.frequency.value = 800; // 'ah' formant
+                    sopFilter.Q.value = 10;
+                    sopGain.gain.setValueAtTime(0, now);
+                    sopGain.gain.linearRampToValueAtTime(intensity * 0.15, now + 0.1);
+                    sopGain.gain.linearRampToValueAtTime(intensity * 0.1, now + 0.5);
+                    sopGain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+                    soprano.connect(sopFilter);
+                    sopFilter.connect(sopGain);
+                    if (choirConvolver) sopGain.connect(choirConvolver);
+                    sopGain.connect(compressor);
+                    soprano.start(now);
+                    soprano.stop(now + 1.2);
                 }
-                noise.buffer = noiseBuffer;
-                const noiseGain = audioContext.createGain();
-                const noiseFilter = audioContext.createBiquadFilter();
-                noiseFilter.type = 'bandpass';
-                noiseFilter.frequency.setValueAtTime(pitch * 10, now);
-                noiseFilter.frequency.exponentialRampToValueAtTime(pitch * 2, now + 0.2);
-                noiseFilter.Q.value = 5;
-                noiseGain.gain.setValueAtTime(intensity * 0.15, now);
-                noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-                noise.connect(noiseFilter);
-                noiseFilter.connect(noiseGain);
-                noiseGain.connect(compressor);
-                noise.start(now);
+            } else if (type === 'acceleration') {
+                // Breathy choir 'whoosh' with consonant attack
+                const breath = audioContext.createBufferSource();
+                const breathBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.5, audioContext.sampleRate);
+                const breathData = breathBuffer.getChannelData(0);
+                for (let i = 0; i < breathData.length; i++) {
+                    breathData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (audioContext.sampleRate * 0.2));
+                }
+                breath.buffer = breathBuffer;
+                const breathGain = audioContext.createGain();
+                const breathFilter = audioContext.createBiquadFilter();
+                breathFilter.type = 'bandpass';
+                breathFilter.frequency.setValueAtTime(2000, now); // 'sh' sound
+                breathFilter.frequency.exponentialRampToValueAtTime(800, now + 0.3);
+                breathFilter.Q.value = 3;
+                breathGain.gain.setValueAtTime(intensity * 0.1, now);
+                breathGain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+                breath.connect(breathFilter);
+                breathFilter.connect(breathGain);
+                if (choirConvolver) breathGain.connect(choirConvolver);
+                breathGain.connect(compressor);
+                breath.start(now);
+                
+                // Add accompanying 'ah' tone
+                const ahTone = audioContext.createOscillator();
+                const ahGain = audioContext.createGain();
+                ahTone.type = 'sine';
+                ahTone.frequency.value = pitch * 2;
+                ahGain.gain.setValueAtTime(0, now + 0.05);
+                ahGain.gain.linearRampToValueAtTime(intensity * 0.08, now + 0.15);
+                ahGain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+                ahTone.connect(ahGain);
+                ahGain.connect(compressor);
+                ahTone.start(now);
+                ahTone.stop(now + 0.4);
             }
         }
         
-        // Generate melodic tones based on height (pentatonic scale)
+        // Generate choir phrases based on height (melodic singing)
         function triggerMelodicNote(height, velocity, duration) {
             if (!audioContext) return;
             const now = audioContext.currentTime;
             
             // Map height to pentatonic scale
-            const normalizedHeight = Math.max(0, Math.min(1, (height + 20) / 40));
+            const normalizedHeight = Math.max(0, Math.min(1, (height + 200) / 400)); // Adjusted for VAST scale
             const scaleIndex = Math.floor(normalizedHeight * pentatonic.length);
-            const octave = Math.floor(normalizedHeight * 3) + 1;
-            const baseFreq = 130.81; // C3
+            const octave = Math.floor(normalizedHeight * 2) + 1;
+            const baseFreq = 220; // A3
             const freq = baseFreq * pentatonic[scaleIndex % pentatonic.length] * octave;
             
-            const osc = audioContext.createOscillator();
-            const gain = audioContext.createGain();
-            const filter = audioContext.createBiquadFilter();
-            
-            osc.type = velocity > 0 ? 'triangle' : 'sawtooth';
-            osc.frequency.value = freq;
-            
-            filter.type = 'lowpass';
-            filter.frequency.value = 1000 + Math.abs(velocity) * 8000;
-            filter.Q.value = 3;
-            
-            const attackTime = velocity > 0 ? 0.1 : 0.02;
-            const amplitude = 0.12 + Math.abs(velocity) * 0.3;
-            gain.gain.setValueAtTime(0, now);
-            gain.gain.linearRampToValueAtTime(amplitude, now + attackTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
-            
-            osc.connect(filter);
-            filter.connect(gain);
-            gain.connect(compressor);
-            osc.start(now);
-            osc.stop(now + duration);
+            // Create a mini choir phrase (2-3 voices)
+            const numVoices = 2 + Math.floor(Math.random() * 2);
+            for (let v = 0; v < numVoices; v++) {
+                const voice = audioContext.createOscillator();
+                const vGain = audioContext.createGain();
+                const vFilter = audioContext.createBiquadFilter();
+                
+                voice.type = 'sine';
+                // Slight detuning for richness
+                voice.frequency.value = freq * (1 + (v - 1) * 0.003);
+                
+                // Vowel formant filter
+                const vowel = velocity > 0 ? 'a' : 'o';
+                vFilter.type = 'bandpass';
+                vFilter.frequency.value = vowelFormants[vowel][v % 4];
+                vFilter.Q.value = 10;
+                
+                const attackTime = 0.15 + v * 0.05; // Staggered attacks
+                const amplitude = 0.06 + Math.abs(velocity) * 0.1;
+                vGain.gain.setValueAtTime(0, now);
+                vGain.gain.linearRampToValueAtTime(amplitude, now + attackTime);
+                vGain.gain.linearRampToValueAtTime(amplitude * 0.7, now + duration * 0.7);
+                vGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+                
+                voice.connect(vFilter);
+                vFilter.connect(vGain);
+                if (choirConvolver) vGain.connect(choirConvolver);
+                vGain.connect(compressor);
+                voice.start(now + v * 0.02);
+                voice.stop(now + duration);
+            }
         }
         
         // Main physics-to-audio update function
@@ -746,33 +834,46 @@
             const heightVariance = Math.max(...physicsState.heightHistory) - Math.min(...physicsState.heightHistory);
             
             // Normalize values
-            const normalizedHeight = Math.max(0, Math.min(1, (height + 20) / 40));
+            const normalizedHeight = Math.max(0, Math.min(1, (height + 200) / 400)); // Adjusted for VAST scale
             const normalizedSpeed = Math.min(1, avgSpeed * 5);
             const normalizedAccel = Math.min(1, Math.abs(acceleration) * 20);
             
-            // === CONTINUOUS DRONE SYSTEM ===
-            // Pitch follows height (higher = higher pitch)
-            const basePitch = 55 + normalizedHeight * 220; // A1 to A3
+            // === CHOIR VOICE SYSTEM ===
+            // Pitch follows height - choir rises and falls with the track!
+            const basePitch = 130 + normalizedHeight * 400; // C3 to ~E5 range
             
-            droneOscs.forEach((osc, i) => {
-                // Each oscillator gets a harmonic of the base pitch
-                const harmonic = pentatonic[i % pentatonic.length];
-                const targetFreq = basePitch * harmonic * (1 + i * 0.5);
-                osc.frequency.linearRampToValueAtTime(targetFreq, now + 0.1);
+            // Change vowel based on velocity direction
+            if (velocity > 0.02) currentVowel = 'a'; // Rising = open 'ah'
+            else if (velocity < -0.02) currentVowel = 'o'; // Falling = 'oh'
+            else if (normalizedSpeed > 0.5) currentVowel = 'e'; // Fast = 'eh'
+            else currentVowel = 'u'; // Slow = 'oo'
+            
+            const formants = vowelFormants[currentVowel];
+            
+            choirVoices.forEach((osc, i) => {
+                // Stagger pitches for rich chord (major/minor based on direction)
+                const chordIntervals = velocity > 0 
+                    ? [1, 1, 1.25, 1.25, 1.5, 1.5, 2, 2] // Major feel
+                    : [1, 1, 1.2, 1.2, 1.5, 1.5, 2, 2];  // Minor feel
+                const voiceOctave = i < 2 ? 2 : (i < 4 ? 1.5 : (i < 6 ? 1 : 0.5));
+                const targetFreq = basePitch * chordIntervals[i] * voiceOctave;
+                osc.frequency.linearRampToValueAtTime(targetFreq, now + 0.3); // Slower glide for choir
             });
             
-            // Volume responds to speed (faster = louder)
-            const baseVolume = 0.02 + normalizedSpeed * 0.08;
-            droneGains.forEach((gain, i) => {
-                const individualVolume = baseVolume * (1 - i * 0.1); // Higher harmonics quieter
-                gain.gain.linearRampToValueAtTime(Math.max(0, individualVolume), now + 0.05);
+            // Volume swells with speed and height changes
+            const baseVolume = 0.03 + normalizedSpeed * 0.06 + Math.abs(velocity) * 0.5;
+            choirGains.forEach((gain, i) => {
+                // Sopranos louder at height, basses louder at depth
+                const heightBias = i < 4 ? normalizedHeight : (1 - normalizedHeight);
+                const individualVolume = baseVolume * (0.5 + heightBias * 0.5) * (1 - i * 0.05);
+                gain.gain.linearRampToValueAtTime(Math.max(0, Math.min(0.15, individualVolume)), now + 0.1);
             });
             
-            // Filter opens with speed (faster = brighter)
-            const filterFreq = 400 + normalizedSpeed * 3000 + normalizedHeight * 1500;
-            droneFilters.forEach((filter, i) => {
-                filter.frequency.linearRampToValueAtTime(filterFreq * (1 + i * 0.3), now + 0.05);
-                filter.Q.linearRampToValueAtTime(2 + normalizedAccel * 8, now + 0.05);
+            // Formant filters follow vowel sounds
+            choirFilters.forEach((filter, i) => {
+                const targetFormant = formants[i % 4];
+                filter.frequency.linearRampToValueAtTime(targetFormant, now + 0.2);
+                filter.Q.linearRampToValueAtTime(6 + normalizedSpeed * 6, now + 0.1);
             });
             
             // === DROP DETECTION & IMPACT ===
@@ -936,7 +1037,7 @@
                     document.getElementById('audio-toggle').classList.remove('playing');
                 } else {
                     audioContext.resume();
-                    document.getElementById('audio-toggle').textContent = '🔊 Drop-Synced Music';
+                    document.getElementById('audio-toggle').textContent = '🔊 Ethereal Choir';
                     document.getElementById('audio-toggle').classList.add('playing');
                 }
             }
@@ -944,7 +1045,7 @@
         
         // Scene setup
         const scene = new THREE.Scene();
-        scene.fog = new THREE.Fog(0x1a1a2f, 20, 150);
+        scene.fog = new THREE.Fog(0x1a1a2f, 200, 2000); // VAST fog distance
         
         const camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 1000); // Wider FOV for immersive FPV
         const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -963,9 +1064,9 @@
         }
 
         // UNIFIED CHAOTIC TOROIDAL TRACK - One endless cosmic donut!
-        const torusCenter = new THREE.Vector3(0, 5, 0);
-        const majorRadius = 40; // Distance from center of torus to center of tube
-        const minorRadius = 15; // Radius of the tube itself
+        const torusCenter = new THREE.Vector3(0, 50, 0);
+        const majorRadius = 400; // VAST - Distance from center of torus to center of tube
+        const minorRadius = 150; // VAST - Radius of the tube itself
         
         // Helper to get chaotic torus point with price-driven chaos
         function getChaoticTorusPoint(u, v, chaos = 1) {
@@ -1001,8 +1102,8 @@
         
         // PSYCHEDELIC PARTICLE SYSTEM - Floating orbs of light!
         const psychParticles = new THREE.Group();
-        for (let i = 0; i < 100; i++) {
-            const orbGeo = new THREE.SphereGeometry(0.3 + Math.random() * 0.5, 8, 8);
+        for (let i = 0; i < 300; i++) { // MORE orbs for VAST space
+            const orbGeo = new THREE.SphereGeometry(2 + Math.random() * 5, 8, 8); // BIGGER orbs
             const orbColor = new THREE.Color().setHSL(Math.random(), 1, 0.5);
             const orbMat = new THREE.MeshBasicMaterial({ 
                 color: orbColor, 
@@ -1011,10 +1112,10 @@
             });
             const orb = new THREE.Mesh(orbGeo, orbMat);
             orb.position.set(
-                (Math.random() - 0.5) * 150,
-                (Math.random() - 0.5) * 60,
-                (Math.random() - 0.5) * 100
-            );
+                (Math.random() - 0.5) * 1500,
+                (Math.random() - 0.5) * 600,
+                (Math.random() - 0.5) * 1000
+            ); // VAST spread
             orb.userData = {
                 speed: 0.5 + Math.random() * 2,
                 offset: Math.random() * Math.PI * 2,
@@ -1084,7 +1185,7 @@
         // ROADSIDE TREES - Pine trees along the track!
         const trees = [];
         const treeColors = [0x228B22, 0x2E8B57, 0x006400, 0x32CD32, 0x90EE90];
-        for (let i = 0; i < 150; i++) {
+        for (let i = 0; i < 500; i++) { // MORE trees for VAST landscape
             const treeGroup = new THREE.Group();
             
             // Tree trunk
@@ -1117,9 +1218,9 @@
             const distance = 5 + Math.random() * 15;
             
             treeGroup.position.set(
-                trackPoint.x + (Math.random() - 0.5) * 10,
-                -15, // Ground level
-                trackPoint.z + side * distance
+                trackPoint.x + (Math.random() - 0.5) * 100,
+                -200, // VAST Ground level
+                trackPoint.z + side * distance * 10
             );
             treeGroup.scale.setScalar(0.8 + Math.random() * 0.8);
             treeGroup.rotation.y = Math.random() * Math.PI * 2;
@@ -1162,8 +1263,8 @@
         scene.add(spotLight);
 
         // Grid floor
-        const gridHelper = new THREE.GridHelper(200, 50, 0x00ff88, 0x003322);
-        gridHelper.position.y = -15;
+        const gridHelper = new THREE.GridHelper(4000, 100, 0x00ff88, 0x003322); // VAST grid
+        gridHelper.position.y = -200;
         scene.add(gridHelper);
 
         // UFOs flying around
@@ -1217,12 +1318,12 @@
             }
             
             ufoGroup.position.set(
-                (Math.random() - 0.5) * 80,
-                Math.random() * 20 + 10,
-                (Math.random() - 0.5) * 40
-            );
+                (Math.random() - 0.5) * 800,
+                Math.random() * 200 + 100,
+                (Math.random() - 0.5) * 400
+            ); // VAST UFO positions
             ufoGroup.userData = {
-                orbitRadius: 20 + Math.random() * 30,
+                orbitRadius: 200 + Math.random() * 300, // VAST orbits
                 orbitSpeed: 0.2 + Math.random() * 0.3,
                 orbitOffset: Math.random() * Math.PI * 2,
                 hoverOffset: Math.random() * Math.PI * 2
@@ -1250,23 +1351,23 @@
         const beam = new THREE.Mesh(beamGeo, beamMat);
         beam.position.y = -16.5;
         mothershipGroup.add(beam);
-        mothershipGroup.position.set(0, 45, -20);
+        mothershipGroup.position.set(0, 450, -200); // VAST mothership position
         scene.add(mothershipGroup);
 
         // Stars background
         const starsGeometry = new THREE.BufferGeometry();
         const starPositions = [];
-        for (let i = 0; i < 1000; i++) {
-            starPositions.push((Math.random() - 0.5) * 200);
-            starPositions.push((Math.random() - 0.5) * 100 + 20);
-            starPositions.push((Math.random() - 0.5) * 200);
+        for (let i = 0; i < 5000; i++) { // MORE stars for VAST space
+            starPositions.push((Math.random() - 0.5) * 2000);
+            starPositions.push((Math.random() - 0.5) * 1000 + 200);
+            starPositions.push((Math.random() - 0.5) * 2000);
         }
         starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
         const stars = new THREE.Points(starsGeometry, new THREE.PointsMaterial({ color: 0xffffff, size: 0.2 }));
         scene.add(stars);
 
         // 360 Sphere Background - VIBRANT NEBULA CHAOS
-        const sphereGeo = new THREE.SphereGeometry(500, 64, 64);
+        const sphereGeo = new THREE.SphereGeometry(5000, 64, 64); // VAST sky sphere
         sphereGeo.scale(-1, 1, 1); // Invert for inside view
         
         // Create procedural nebula texture with canvas
@@ -1372,7 +1473,7 @@
         scene.add(skySphere);
         
         // Define web center for spider web network
-        const webCenter = new THREE.Vector3(0, 5, 0);
+        const webCenter = new THREE.Vector3(0, 100, 0); // VAST web center
         
         // Add a glowing spider at the center of the web!
         const spiderGroup = new THREE.Group();
@@ -1455,8 +1556,8 @@
 
         // TOROIDAL SPIDER WEB TRACK NETWORK - COSMIC DONUT!
         // webCenter already defined above for spider
-        const torusR = 35; // Major radius (center of tube to center of torus)
-        const torusr = 12; // Minor radius (radius of the tube)
+        const torusR = 350; // VAST Major radius (center of tube to center of torus)
+        const torusr = 120; // VAST Minor radius (radius of the tube)
         const numToroidalTracks = 12; // Tracks going around the donut hole
         const numPoloidalTracks = 8; // Tracks going around the tube
         const allWebCurves = [];
@@ -1768,7 +1869,7 @@
             track2.material.emissive.setHSL((hueShift / (Math.PI * 2) + 0.1) % 1, 1, 0.3);
             
             // Pulsating fog for dreamy effect
-            scene.fog.far = 80 + Math.sin(Date.now() * 0.002) * 30;
+            scene.fog.far = 1500 + Math.sin(Date.now() * 0.002) * 500; // VAST fog
             
             // Update psychedelic overlay intensity based on speed
             const psychOverlay = document.querySelector('.psychedelic-overlay');
