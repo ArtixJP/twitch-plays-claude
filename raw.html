@@ -422,6 +422,96 @@
             scene.add(beam);
         }
 
+        // VERTICAL LOOP STRUCTURES!
+        const loopPositions = [-30, 15, 50]; // X positions for loops
+        const loopStructures = [];
+        loopPositions.forEach((loopX, loopIdx) => {
+            const loopGroup = new THREE.Group();
+            const loopRadius = 6;
+            const loopSegments = 32;
+            const loopPoints = [];
+            
+            // Create loop track points
+            for (let i = 0; i <= loopSegments; i++) {
+                const angle = (i / loopSegments) * Math.PI * 2;
+                const lx = loopX;
+                const ly = Math.sin(angle) * loopRadius + loopRadius + 2;
+                const lz = Math.cos(angle) * loopRadius;
+                loopPoints.push(new THREE.Vector3(lx, ly, lz));
+            }
+            
+            const loopCurve = new THREE.CatmullRomCurve3(loopPoints);
+            const loopTube = new THREE.TubeGeometry(loopCurve, 64, 0.2, 8, false);
+            const loopColors = [0xff4444, 0x44ff44, 0x4444ff];
+            const loopMesh = new THREE.Mesh(loopTube, new THREE.MeshPhongMaterial({
+                color: loopColors[loopIdx],
+                emissive: loopColors[loopIdx],
+                emissiveIntensity: 0.4,
+                shininess: 100
+            }));
+            loopGroup.add(loopMesh);
+            
+            // Support structure
+            const supportGeo = new THREE.CylinderGeometry(0.3, 0.4, loopRadius * 2 + 4, 8);
+            const supportMat = new THREE.MeshPhongMaterial({ color: 0x666666 });
+            const support1 = new THREE.Mesh(supportGeo, supportMat);
+            support1.position.set(loopX - 0.5, loopRadius + 2, -loopRadius - 1);
+            loopGroup.add(support1);
+            const support2 = new THREE.Mesh(supportGeo, supportMat);
+            support2.position.set(loopX + 0.5, loopRadius + 2, loopRadius + 1);
+            loopGroup.add(support2);
+            
+            scene.add(loopGroup);
+            loopStructures.push({ group: loopGroup, curve: loopCurve, x: loopX });
+        });
+
+        // ROADSIDE TREES - Pine trees along the track!
+        const trees = [];
+        const treeColors = [0x228B22, 0x2E8B57, 0x006400, 0x32CD32, 0x90EE90];
+        for (let i = 0; i < 150; i++) {
+            const treeGroup = new THREE.Group();
+            
+            // Tree trunk
+            const trunkHeight = 1 + Math.random() * 2;
+            const trunk = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.2, 0.3, trunkHeight, 8),
+                new THREE.MeshPhongMaterial({ color: 0x8B4513 })
+            );
+            trunk.position.y = trunkHeight / 2;
+            treeGroup.add(trunk);
+            
+            // Pine cone layers (3-5 layers)
+            const layers = 3 + Math.floor(Math.random() * 3);
+            const treeColor = treeColors[Math.floor(Math.random() * treeColors.length)];
+            for (let l = 0; l < layers; l++) {
+                const coneRadius = 1.5 - l * 0.25;
+                const coneHeight = 2 - l * 0.3;
+                const cone = new THREE.Mesh(
+                    new THREE.ConeGeometry(coneRadius, coneHeight, 8),
+                    new THREE.MeshPhongMaterial({ color: treeColor, emissive: treeColor, emissiveIntensity: 0.1 })
+                );
+                cone.position.y = trunkHeight + l * 1.2 + 1;
+                treeGroup.add(cone);
+            }
+            
+            // Position tree along the track
+            const trackT = Math.random();
+            const trackPoint = curve.getPoint(trackT);
+            const side = Math.random() > 0.5 ? 1 : -1;
+            const distance = 5 + Math.random() * 15;
+            
+            treeGroup.position.set(
+                trackPoint.x + (Math.random() - 0.5) * 10,
+                -15, // Ground level
+                trackPoint.z + side * distance
+            );
+            treeGroup.scale.setScalar(0.8 + Math.random() * 0.8);
+            treeGroup.rotation.y = Math.random() * Math.PI * 2;
+            
+            scene.add(treeGroup);
+            trees.push(treeGroup);
+        }
+
         // Cart (the rider)
         const cartGroup = new THREE.Group();
         const cartBody = new THREE.Mesh(
@@ -894,9 +984,21 @@
             cartGroup.position.z += 0.5;
             cartGroup.position.y += 0.5;
             
-            // Tilt based on slope
+            // Tilt based on slope with LOOPING support!
             const lookAt = position.clone().add(tangent);
             cartGroup.lookAt(lookAt);
+            
+            // Check if near a loop and add barrel roll effect
+            loopStructures.forEach(loop => {
+                const distToLoop = Math.abs(position.x - loop.x);
+                if (distToLoop < 8) {
+                    // Calculate loop progress based on distance
+                    const loopProgress = 1 - (distToLoop / 8);
+                    const loopAngle = loopProgress * Math.PI * 2 * Math.sign(position.x - loop.x + 0.01);
+                    cartGroup.rotation.x += Math.sin(loopAngle) * loopProgress * 0.5;
+                    cartGroup.rotation.z += Math.cos(loopAngle * 2) * loopProgress * 0.3;
+                }
+            });
 
             // Smooth camera follow with interpolation
             const targetCamX = position.x - tangent.x * 8;
@@ -929,7 +1031,7 @@
             priceEl.className = 'price ' + (isUp ? 'up' : 'down');
             
             // Update track indicator
-            const trackNames = ['MAIN', 'CYAN FORK', 'MAGENTA FORK'];
+            const trackNames = ['MAIN LOOP', 'CYAN SPIRAL', 'MAGENTA TWIST'];
             const trackIndicator = document.getElementById('track-indicator');
             if (isTransitioning) {
                 trackIndicator.textContent = '⚡ SWITCHING TRACKS...';
