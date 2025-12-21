@@ -575,7 +575,7 @@
 <span class="emoji">🌴☀️🌊</span>
 <div>Just breathe... You're on Bitcoin Beach</div>
 </div>
-<div class="beach-items">✨ HIGH-EFFORT 3D Beach Experience ✨</div>
+<div class="beach-items">✨ POLISHED 3D Beach Experience ✨</div>
 <div class="alien-tourist alien-1">
 <span class="alien-body">👽🍹</span>
 <div class="speech">Earth sunsets hit different 🌅</div>
@@ -1005,6 +1005,209 @@
             return coconut;
         }
         
+        // POLISHED 3D MODELS
+        
+        // 3D Bitcoin Coin with metallic shader
+        function createBitcoinCoin(x, y, z) {
+            const group = new THREE.Group();
+            const coinGeo = new THREE.CylinderGeometry(0.8, 0.8, 0.1, 32);
+            const coinMat = new THREE.MeshPhongMaterial({
+                color: 0xf7931a,
+                shininess: 150,
+                specular: 0xffd700,
+                emissive: 0x4a2800,
+                emissiveIntensity: 0.2
+            });
+            const coin = new THREE.Mesh(coinGeo, coinMat);
+            
+            // Bitcoin symbol on coin (using a ring as B approximation)
+            const symbolGeo = new THREE.TorusGeometry(0.3, 0.05, 8, 16);
+            const symbolMat = new THREE.MeshPhongMaterial({ color: 0xffffff, shininess: 200 });
+            const symbol = new THREE.Mesh(symbolGeo, symbolMat);
+            symbol.rotation.x = Math.PI / 2;
+            symbol.position.y = 0.06;
+            group.add(symbol);
+            
+            // Vertical bars for B
+            const barGeo = new THREE.BoxGeometry(0.08, 0.5, 0.02);
+            const bar1 = new THREE.Mesh(barGeo, symbolMat);
+            bar1.position.set(-0.15, 0.06, 0);
+            bar1.rotation.x = Math.PI / 2;
+            group.add(bar1);
+            
+            group.add(coin);
+            group.position.set(x, y, z);
+            group.userData = { rotationSpeed: 0.02 };
+            return group;
+        }
+        
+        // 3D Beach Chair with towel
+        function createBeachChair(x, z, color = 0x4169e1) {
+            const group = new THREE.Group();
+            
+            // Chair frame
+            const frameMat = new THREE.MeshPhongMaterial({ color: 0xdeb887 });
+            
+            // Seat
+            const seatGeo = new THREE.BoxGeometry(0.8, 0.05, 1.5);
+            const seat = new THREE.Mesh(seatGeo, frameMat);
+            seat.position.set(0, 0.4, 0);
+            seat.rotation.x = -0.2;
+            group.add(seat);
+            
+            // Back rest
+            const backGeo = new THREE.BoxGeometry(0.8, 0.05, 0.8);
+            const back = new THREE.Mesh(backGeo, frameMat);
+            back.position.set(0, 0.7, -0.5);
+            back.rotation.x = -1.0;
+            group.add(back);
+            
+            // Legs
+            const legGeo = new THREE.CylinderGeometry(0.03, 0.03, 0.5, 8);
+            const positions = [[-0.35, 0.2, 0.5], [0.35, 0.2, 0.5], [-0.35, 0.25, -0.3], [0.35, 0.25, -0.3]];
+            positions.forEach(pos => {
+                const leg = new THREE.Mesh(legGeo, frameMat);
+                leg.position.set(...pos);
+                group.add(leg);
+            });
+            
+            // Towel/fabric on seat
+            const towelGeo = new THREE.BoxGeometry(0.7, 0.02, 1.4);
+            const towelMat = new THREE.MeshPhongMaterial({ color: color });
+            const towel = new THREE.Mesh(towelGeo, towelMat);
+            towel.position.set(0, 0.45, 0);
+            towel.rotation.x = -0.2;
+            group.add(towel);
+            
+            group.position.set(x, 0, z);
+            return group;
+        }
+        
+        // 3D Sailboat
+        function createSailboat(x, z) {
+            const group = new THREE.Group();
+            
+            // Hull
+            const hullShape = new THREE.Shape();
+            hullShape.moveTo(-1.5, 0);
+            hullShape.quadraticCurveTo(-1.5, -0.5, 0, -0.6);
+            hullShape.quadraticCurveTo(1.5, -0.5, 1.5, 0);
+            hullShape.lineTo(-1.5, 0);
+            
+            const hullGeo = new THREE.ExtrudeGeometry(hullShape, { depth: 0.8, bevelEnabled: false });
+            const hullMat = new THREE.MeshPhongMaterial({ color: 0x8b4513, shininess: 30 });
+            const hull = new THREE.Mesh(hullGeo, hullMat);
+            hull.rotation.x = Math.PI / 2;
+            hull.position.z = -0.4;
+            group.add(hull);
+            
+            // Mast
+            const mastGeo = new THREE.CylinderGeometry(0.05, 0.05, 3, 8);
+            const mastMat = new THREE.MeshPhongMaterial({ color: 0xdeb887 });
+            const mast = new THREE.Mesh(mastGeo, mastMat);
+            mast.position.y = 1.5;
+            group.add(mast);
+            
+            // Sail
+            const sailShape = new THREE.Shape();
+            sailShape.moveTo(0, 0);
+            sailShape.lineTo(1.2, 0);
+            sailShape.lineTo(0, 2.5);
+            sailShape.lineTo(0, 0);
+            const sailGeo = new THREE.ShapeGeometry(sailShape);
+            const sailMat = new THREE.MeshPhongMaterial({ color: 0xffffff, side: THREE.DoubleSide });
+            const sail = new THREE.Mesh(sailGeo, sailMat);
+            sail.position.set(0.1, 0.3, 0);
+            group.add(sail);
+            
+            group.position.set(x, 0.3, z);
+            group.userData = { bobOffset: Math.random() * Math.PI * 2 };
+            return group;
+        }
+        
+        // 3D Tiki Torch with animated flame
+        function createTikiTorch(x, z) {
+            const group = new THREE.Group();
+            
+            // Bamboo pole
+            const poleGeo = new THREE.CylinderGeometry(0.08, 0.1, 2, 8);
+            const poleMat = new THREE.MeshPhongMaterial({ color: 0x8b7355 });
+            const pole = new THREE.Mesh(poleGeo, poleMat);
+            pole.position.y = 1;
+            group.add(pole);
+            
+            // Torch head
+            const headGeo = new THREE.CylinderGeometry(0.15, 0.12, 0.3, 8);
+            const headMat = new THREE.MeshPhongMaterial({ color: 0x4a3728 });
+            const head = new THREE.Mesh(headGeo, headMat);
+            head.position.y = 2.1;
+            group.add(head);
+            
+            // Flame (multiple layers for effect)
+            const flameGeo = new THREE.ConeGeometry(0.12, 0.4, 8);
+            const flameMat = new THREE.MeshBasicMaterial({ 
+                color: 0xff6600, 
+                transparent: true, 
+                opacity: 0.9 
+            });
+            const flame = new THREE.Mesh(flameGeo, flameMat);
+            flame.position.y = 2.4;
+            group.add(flame);
+            
+            const innerFlameMat = new THREE.MeshBasicMaterial({ 
+                color: 0xffff00, 
+                transparent: true, 
+                opacity: 0.8 
+            });
+            const innerFlame = new THREE.Mesh(
+                new THREE.ConeGeometry(0.06, 0.25, 8),
+                innerFlameMat
+            );
+            innerFlame.position.y = 2.35;
+            group.add(innerFlame);
+            
+            // Point light for glow
+            const light = new THREE.PointLight(0xff6600, 0.5, 5);
+            light.position.y = 2.4;
+            group.add(light);
+            
+            group.position.set(x, 0, z);
+            group.userData = { flame: flame, innerFlame: innerFlame, light: light, offset: Math.random() * Math.PI * 2 };
+            return group;
+        }
+        
+        // Add polished 3D elements
+        const bitcoinCoin = createBitcoinCoin(0, 5, -10);
+        scene.add(bitcoinCoin);
+        
+        // Beach chairs
+        const chairs = [];
+        chairs.push(createBeachChair(-8, 27, 0xff6b6b));
+        chairs.push(createBeachChair(-4, 28, 0x4ecdc4));
+        chairs.push(createBeachChair(5, 27, 0xffe66d));
+        chairs.push(createBeachChair(9, 29, 0x9b59b6));
+        chairs.forEach(chair => scene.add(chair));
+        
+        // Sailboat
+        const sailboat = createSailboat(20, -15);
+        scene.add(sailboat);
+        
+        // Tiki torches
+        const tikis = [];
+        tikis.push(createTikiTorch(-10, 24));
+        tikis.push(createTikiTorch(10, 25));
+        tikis.push(createTikiTorch(0, 23));
+        tikis.forEach(tiki => scene.add(tiki));
+        
+        // Add ambient point lights for warm glow
+        const warmLight1 = new THREE.PointLight(0xffa500, 0.3, 30);
+        warmLight1.position.set(-5, 3, 25);
+        scene.add(warmLight1);
+        
+        const warmLight2 = new THREE.PointLight(0xff6347, 0.3, 30);
+        warmLight2.position.set(5, 3, 28);
+        scene.add(warmLight2);
+        
         // Add 3D beach items to scene
         const beachItems3D = [];
         
@@ -1169,6 +1372,23 @@
                 ball.position.y = 0.4 + Math.abs(Math.sin(time * 2 + ball.userData.bounce)) * 0.15;
                 ball.rotation.x += 0.02;
                 ball.rotation.z += 0.01;
+            });
+            
+            // Animate Bitcoin coin
+            bitcoinCoin.rotation.y += bitcoinCoin.userData.rotationSpeed;
+            bitcoinCoin.position.y = 5 + Math.sin(time * 0.5) * 0.3;
+            
+            // Animate sailboat bobbing
+            sailboat.position.y = 0.3 + Math.sin(time * 0.8 + sailboat.userData.bobOffset) * 0.2;
+            sailboat.rotation.z = Math.sin(time * 0.5) * 0.05;
+            sailboat.rotation.x = Math.sin(time * 0.7) * 0.03;
+            
+            // Animate tiki torch flames
+            tikis.forEach(tiki => {
+                const flicker = 0.8 + Math.sin(time * 10 + tiki.userData.offset) * 0.2;
+                tiki.userData.flame.scale.set(flicker, 0.8 + Math.sin(time * 8) * 0.3, flicker);
+                tiki.userData.innerFlame.scale.set(flicker * 0.8, 0.7 + Math.sin(time * 12) * 0.2, flicker * 0.8);
+                tiki.userData.light.intensity = 0.4 + Math.sin(time * 6 + tiki.userData.offset) * 0.2;
             });
             
             sky.rotation.y += 0.0001;
