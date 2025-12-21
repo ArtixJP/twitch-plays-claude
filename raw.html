@@ -271,6 +271,116 @@
             border-color: rgba(0, 255, 136, 0.4);
             text-shadow: 0 0 10px #00ff88;
         }
+        
+        /* PSYCHEDELIC OVERLAY */
+        .psychedelic-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 50;
+            mix-blend-mode: overlay;
+            opacity: 0.3;
+            background: linear-gradient(45deg, 
+                rgba(255,0,0,0.3) 0%, 
+                rgba(255,127,0,0.3) 14%, 
+                rgba(255,255,0,0.3) 28%, 
+                rgba(0,255,0,0.3) 42%, 
+                rgba(0,0,255,0.3) 57%, 
+                rgba(75,0,130,0.3) 71%, 
+                rgba(148,0,211,0.3) 85%, 
+                rgba(255,0,0,0.3) 100%);
+            background-size: 400% 400%;
+            animation: psychedelic-shift 3s ease-in-out infinite;
+        }
+        
+        .chromatic-aberration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 51;
+            background: transparent;
+            box-shadow: 
+                inset 3px 0 10px rgba(255,0,0,0.1),
+                inset -3px 0 10px rgba(0,255,255,0.1);
+            animation: chromatic-pulse 2s ease-in-out infinite;
+        }
+        
+        .kaleidoscope-border {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 49;
+            border: 8px solid transparent;
+            border-image: linear-gradient(var(--psychedelic-angle, 0deg), 
+                #ff0080, #ff8c00, #40e0d0, #ff0080) 1;
+            animation: border-rotate 4s linear infinite;
+        }
+        
+        @keyframes psychedelic-shift {
+            0%, 100% { background-position: 0% 50%; filter: hue-rotate(0deg); }
+            25% { background-position: 100% 50%; filter: hue-rotate(90deg); }
+            50% { background-position: 100% 100%; filter: hue-rotate(180deg); }
+            75% { background-position: 0% 100%; filter: hue-rotate(270deg); }
+        }
+        
+        @keyframes chromatic-pulse {
+            0%, 100% { 
+                box-shadow: 
+                    inset 3px 0 15px rgba(255,0,0,0.15),
+                    inset -3px 0 15px rgba(0,255,255,0.15);
+            }
+            50% { 
+                box-shadow: 
+                    inset 6px 0 25px rgba(255,0,0,0.25),
+                    inset -6px 0 25px rgba(0,255,255,0.25);
+            }
+        }
+        
+        @keyframes border-rotate {
+            0% { border-image: linear-gradient(0deg, #ff0080, #ff8c00, #40e0d0, #ff0080) 1; }
+            25% { border-image: linear-gradient(90deg, #ff0080, #ff8c00, #40e0d0, #ff0080) 1; }
+            50% { border-image: linear-gradient(180deg, #ff0080, #ff8c00, #40e0d0, #ff0080) 1; }
+            75% { border-image: linear-gradient(270deg, #ff0080, #ff8c00, #40e0d0, #ff0080) 1; }
+            100% { border-image: linear-gradient(360deg, #ff0080, #ff8c00, #40e0d0, #ff0080) 1; }
+        }
+        
+        /* Breathing/pulsating effect on HUD */
+        .hud {
+            animation: hud-breathe 4s ease-in-out infinite;
+        }
+        
+        @keyframes hud-breathe {
+            0%, 100% { filter: hue-rotate(0deg) brightness(1); }
+            50% { filter: hue-rotate(30deg) brightness(1.2); }
+        }
+        
+        /* Rainbow text effect */
+        .price {
+            animation: rainbow-text 2s linear infinite;
+            background: linear-gradient(90deg, #ff0000, #ff8000, #ffff00, #00ff00, #00ffff, #0080ff, #8000ff, #ff0080, #ff0000);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        @keyframes rainbow-text {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+        
+        .price.up, .price.down {
+            -webkit-text-fill-color: transparent;
+        }
         .scream {
             position: absolute;
             top: 50%;
@@ -286,6 +396,9 @@
 </head>
 <body>
 <div id="canvas-container"></div>
+<div class="psychedelic-overlay"></div>
+<div class="chromatic-aberration"></div>
+<div class="kaleidoscope-border"></div>
 <div class="drummer-container">
 <div class="drummer">
 <div class="drummer-hair"></div>
@@ -708,9 +821,34 @@
         const trackMaterial = new THREE.MeshPhongMaterial({ 
             color: 0xf7931a,
             emissive: 0xf7931a,
-            emissiveIntensity: 0.3,
-            shininess: 100
+            emissiveIntensity: 0.5,
+            shininess: 150
         });
+        
+        // PSYCHEDELIC PARTICLE SYSTEM - Floating orbs of light!
+        const psychParticles = new THREE.Group();
+        for (let i = 0; i < 100; i++) {
+            const orbGeo = new THREE.SphereGeometry(0.3 + Math.random() * 0.5, 8, 8);
+            const orbColor = new THREE.Color().setHSL(Math.random(), 1, 0.5);
+            const orbMat = new THREE.MeshBasicMaterial({ 
+                color: orbColor, 
+                transparent: true, 
+                opacity: 0.6 
+            });
+            const orb = new THREE.Mesh(orbGeo, orbMat);
+            orb.position.set(
+                (Math.random() - 0.5) * 150,
+                (Math.random() - 0.5) * 60,
+                (Math.random() - 0.5) * 100
+            );
+            orb.userData = {
+                speed: 0.5 + Math.random() * 2,
+                offset: Math.random() * Math.PI * 2,
+                hue: Math.random()
+            };
+            psychParticles.add(orb);
+        }
+        scene.add(psychParticles);
         const track = new THREE.Mesh(tubeGeometry, trackMaterial);
         scene.add(track);
 
@@ -1012,8 +1150,41 @@
             }
         }
         
+        // PSYCHEDELIC NEBULA - More intense colors!
+        const psychedelicColors = ['#ff00ff90', '#00ffff80', '#ffff0070', '#ff008080', '#00ff0060', '#8000ff70', '#ff800080', '#00ff8070'];
+        for (let p = 0; p < 80; p++) {
+            const px = Math.random() * 2048;
+            const py = Math.random() * 1024;
+            const pRadius = 100 + Math.random() * 400;
+            const pColor = psychedelicColors[Math.floor(Math.random() * psychedelicColors.length)];
+            const pGrad = ctx.createRadialGradient(px, py, 0, px, py, pRadius);
+            pGrad.addColorStop(0, pColor);
+            pGrad.addColorStop(0.3, pColor.slice(0, 7) + '40');
+            pGrad.addColorStop(0.6, pColor.slice(0, 7) + '20');
+            pGrad.addColorStop(1, 'transparent');
+            ctx.fillStyle = pGrad;
+            ctx.fillRect(0, 0, 2048, 1024);
+        }
+        
+        // Add spiral patterns for extra trippy effect
+        ctx.strokeStyle = 'rgba(255, 0, 255, 0.2)';
+        ctx.lineWidth = 2;
+        for (let s = 0; s < 5; s++) {
+            ctx.beginPath();
+            const cx = Math.random() * 2048;
+            const cy = Math.random() * 1024;
+            for (let a = 0; a < Math.PI * 8; a += 0.1) {
+                const sr = a * 15;
+                const sx = cx + Math.cos(a) * sr;
+                const sy = cy + Math.sin(a) * sr;
+                if (a === 0) ctx.moveTo(sx, sy);
+                else ctx.lineTo(sx, sy);
+            }
+            ctx.stroke();
+        }
+        
         // Add some "inappropriate" fun elements - party vibes!
-        const funEmojis = ['🎉', '🔥', '💎', '🚀', '🌈', '✨', '👽', '🛸', '💰', '🎰'];
+        const funEmojis = ['🎉', '🔥', '💎', '🚀', '🌈', '✨', '👽', '🛸', '💰', '🎰', '🍄', '👁️', '🌀', '🦋'];
         ctx.font = '40px Arial';
         for (let i = 0; i < 30; i++) {
             const x = Math.random() * 2000;
@@ -1420,9 +1591,40 @@
                 rival.lookAt(rivalLook);
             });
 
-            // Rotate sky sphere slowly for trippy effect
-            skySphere.rotation.y += 0.0003;
-            skySphere.rotation.x += 0.0001;
+            // Rotate sky sphere for PSYCHEDELIC trippy effect - faster and multi-axis!
+            const psychedelicTime = Date.now() * 0.0001;
+            skySphere.rotation.y += 0.001 + Math.sin(psychedelicTime) * 0.0005;
+            skySphere.rotation.x += 0.0005 + Math.cos(psychedelicTime) * 0.0003;
+            skySphere.rotation.z += 0.0002;
+            
+            // Psychedelic color cycling on track materials
+            const hueShift = (Date.now() * 0.001) % (Math.PI * 2);
+            track.material.emissive.setHSL((hueShift / (Math.PI * 2)), 1, 0.3);
+            track2.material.emissive.setHSL((hueShift / (Math.PI * 2) + 0.1) % 1, 1, 0.3);
+            
+            // Pulsating fog for dreamy effect
+            scene.fog.far = 80 + Math.sin(Date.now() * 0.002) * 30;
+            
+            // Update psychedelic overlay intensity based on speed
+            const psychOverlay = document.querySelector('.psychedelic-overlay');
+            if (psychOverlay) {
+                const intensity = 0.2 + Math.abs(yDiff) * 3;
+                psychOverlay.style.opacity = Math.min(0.5, intensity);
+            }
+            
+            // Animate psychedelic floating orbs
+            psychParticles.children.forEach((orb, i) => {
+                const data = orb.userData;
+                const orbTime = Date.now() * 0.001;
+                orb.position.y += Math.sin(orbTime * data.speed + data.offset) * 0.02;
+                orb.position.x += Math.cos(orbTime * data.speed * 0.5 + data.offset) * 0.01;
+                // Color cycling
+                const newHue = (data.hue + orbTime * 0.1) % 1;
+                orb.material.color.setHSL(newHue, 1, 0.5);
+                // Pulsating size
+                const scale = 1 + Math.sin(orbTime * 3 + data.offset) * 0.3;
+                orb.scale.setScalar(scale);
+            });
             
             // Animate the spider at the center of the web
             if (spiderGroup) {
