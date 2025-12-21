@@ -647,6 +647,41 @@
             box-shadow: 0 0 15px rgba(145,71,255,0.3);
             animation: thunderPulse 0.5s infinite;
         }
+        .weather-timer {
+            position: fixed;
+            top: 70px;
+            right: 15px;
+            background: rgba(0,0,0,0.5);
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 0.65rem;
+            z-index: 49;
+            color: #aaa;
+            border: 1px solid #444;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .weather-timer-bar {
+            width: 60px;
+            height: 4px;
+            background: #333;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .weather-timer-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, #ffdd57, #ff6b35);
+            border-radius: 2px;
+            transition: width 0.5s linear;
+        }
+        .weather-changing {
+            animation: weatherPulse 0.5s ease;
+        }
+        @keyframes weatherPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); filter: brightness(1.3); }
+        }
         @keyframes thunderPulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.6; }
@@ -724,6 +759,7 @@
 <div id="bg-container"></div>
 <div id="weatherEffects"></div>
 <div class="weather-indicator sunny" id="weatherIndicator" onclick="cycleWeather()" title="Click to change weather">☀️ SUNNY</div>
+<div class="weather-timer" id="weatherTimer">🔄 <span id="weatherCountdown">--</span>s <div class="weather-timer-bar"><div class="weather-timer-fill" id="weatherTimerFill" style="width: 100%"></div></div></div>
 <h1>⚽ AI Penalty Shootout</h1>
 <div class="mode-indicator autoplay" id="modeIndicator">🤖 AUTOPLAY MODE</div>
 <div class="ai-status">🎮 YOU vs AI KEEPER <span class="pulse">●</span> KEEPER ROAMS FREE!<button class="mode-toggle" id="modeToggle" onclick="toggleGameMode()">🎮 TAKE CONTROL</button></div>
@@ -1817,13 +1853,52 @@
             setWeather(weatherTypes[nextIdx]);
         }
         
-        // Auto-change weather occasionally
-        setInterval(() => {
-            if (Math.random() < 0.1) { // 10% chance every 30s
-                const randomWeather = weatherTypes[Math.floor(Math.random() * weatherTypes.length)];
-                setWeather(randomWeather);
+        // Automatic weather cycling system
+        let weatherChangeTime = 15 + Math.random() * 10; // 15-25 seconds
+        let weatherTimeRemaining = weatherChangeTime;
+        
+        function getNextWeather() {
+            // Weighted random - sunny more common, thunder rare
+            const weights = { sunny: 35, rainy: 30, snowy: 20, thunder: 15 };
+            const total = Object.values(weights).reduce((a, b) => a + b, 0);
+            let rand = Math.random() * total;
+            for (const [weather, weight] of Object.entries(weights)) {
+                rand -= weight;
+                if (rand <= 0) return weather;
             }
-        }, 30000);
+            return 'sunny';
+        }
+        
+        function autoChangeWeather() {
+            const indicator = document.getElementById('weatherIndicator');
+            indicator.classList.add('weather-changing');
+            setTimeout(() => indicator.classList.remove('weather-changing'), 500);
+            
+            let nextWeather;
+            do { nextWeather = getNextWeather(); } while (nextWeather === currentWeather);
+            setWeather(nextWeather);
+            
+            // Set new random interval
+            weatherChangeTime = 15 + Math.random() * 10;
+            weatherTimeRemaining = weatherChangeTime;
+        }
+        
+        // Update weather timer every 500ms
+        setInterval(() => {
+            weatherTimeRemaining -= 0.5;
+            
+            const countdown = document.getElementById('weatherCountdown');
+            const fill = document.getElementById('weatherTimerFill');
+            
+            if (countdown && fill) {
+                countdown.textContent = Math.ceil(weatherTimeRemaining);
+                fill.style.width = (weatherTimeRemaining / weatherChangeTime * 100) + '%';
+            }
+            
+            if (weatherTimeRemaining <= 0) {
+                autoChangeWeather();
+            }
+        }, 500);
         
         // Initialize weather
         setWeather('sunny');
