@@ -169,6 +169,65 @@
             font-size: 10px;
             color: #ff6b9d;
         }
+        #food-game {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(145deg, #4a2c1a, #2d1b0e);
+            border: 3px solid #ffa726;
+            border-radius: 12px;
+            padding: 15px;
+            z-index: 100;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(255, 167, 38, 0.4);
+            min-width: 280px;
+        }
+        #food-game.active { display: block; }
+        #food-game h3 {
+            color: #ffa726;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+        #food-emoji {
+            font-size: 32px;
+            margin: 10px 0;
+            letter-spacing: 5px;
+        }
+        .food-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .food-btn {
+            background: linear-gradient(135deg, #ffa726, #f57c00);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 9px;
+            border-radius: 6px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .food-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(255, 167, 38, 0.6);
+        }
+        #food-result {
+            margin-top: 10px;
+            font-size: 10px;
+            min-height: 20px;
+        }
+        .chef-npc {
+            animation: chefBob 0.8s ease-in-out infinite;
+        }
+        @keyframes chefBob {
+            0%, 100% { transform: translateY(0) rotate(-2deg); }
+            50% { transform: translateY(-2px) rotate(2deg); }
+        }
     </style>
 </head>
 <body>
@@ -183,8 +242,9 @@
 <div id="ui">
 <div>🎮 Monsters: <span id="caught">0</span>/6</div>
 <div>🥤 Sodas: <span id="sodas-won">0</span></div>
+<div>🍽️ Dishes: <span id="food-won">0</span></div>
 </div>
-<div id="soda-score">🏪 Find the Soda Vendor!</div>
+<div id="soda-score">🏪 Vendor | 👨‍🍳 Chef</div>
 <div id="soda-game">
 <h3>🥤 SODA VENDOR 🥤</h3>
 <div>Guess the soda from emojis!</div>
@@ -192,6 +252,14 @@
 <div class="soda-options" id="soda-options"></div>
 <div id="soda-result"></div>
 <button class="soda-btn" onclick="closeSodaGame()" style="margin-top:10px;background:#666;">❌ Leave</button>
+</div>
+<div id="food-game">
+<h3>👨‍🍳 CHEF'S KITCHEN 👨‍🍳</h3>
+<div>Guess the dish from emojis!</div>
+<div id="food-emoji">🍝🍅🧀</div>
+<div class="food-options" id="food-options"></div>
+<div id="food-result"></div>
+<button class="food-btn" onclick="closeFoodGame()" style="margin-top:10px;background:#666;">❌ Leave</button>
 </div>
 <div id="battle-ui">
 <div class="monster-display">
@@ -265,6 +333,10 @@
         let vendorX = 5, vendorY = 5;
         map[vendorY][vendorX] = 'vendor';
         
+        // Add Chef NPC!
+        let chefX = 15, chefY = 10;
+        map[chefY][chefX] = 'chef';
+        
         // Soda game data
         const sodaQuizzes = [
             { emoji: '🔴⚫🍬', answer: 'Coca-Cola', options: ['Coca-Cola', 'Pepsi', 'Dr Pepper', 'Fanta'] },
@@ -281,6 +353,25 @@
         let currentQuiz = null;
         let sodasWon = 0;
         let inSodaGame = false;
+        
+        // Food quiz data
+        const foodQuizzes = [
+            { emoji: '🍝🍅🧀', answer: 'Spaghetti', options: ['Spaghetti', 'Lasagna', 'Ravioli', 'Penne'] },
+            { emoji: '🍔🥬🍟', answer: 'Burger', options: ['Burger', 'Sandwich', 'Hot Dog', 'Taco'] },
+            { emoji: '🍕🧀🍅', answer: 'Pizza', options: ['Calzone', 'Pizza', 'Flatbread', 'Focaccia'] },
+            { emoji: '🍣🐟🍚', answer: 'Sushi', options: ['Sushi', 'Sashimi', 'Poke Bowl', 'Onigiri'] },
+            { emoji: '🌮🥩🌶️', answer: 'Taco', options: ['Burrito', 'Taco', 'Quesadilla', 'Enchilada'] },
+            { emoji: '🥗🥒🍅', answer: 'Salad', options: ['Salad', 'Coleslaw', 'Gazpacho', 'Bruschetta'] },
+            { emoji: '🍜🥢🥚', answer: 'Ramen', options: ['Pho', 'Ramen', 'Udon', 'Soba'] },
+            { emoji: '🥞🍯🧈', answer: 'Pancakes', options: ['Waffles', 'Pancakes', 'French Toast', 'Crepes'] },
+            { emoji: '🍦🍫🍒', answer: 'Sundae', options: ['Milkshake', 'Sundae', 'Gelato', 'Parfait'] },
+            { emoji: '🌯🥑🍗', answer: 'Burrito', options: ['Wrap', 'Burrito', 'Fajita', 'Chimichanga'] },
+            { emoji: '🍛🍚🌶️', answer: 'Curry', options: ['Curry', 'Biryani', 'Tikka', 'Korma'] },
+            { emoji: '🥐🧈☕', answer: 'Croissant', options: ['Bagel', 'Croissant', 'Danish', 'Brioche'] }
+        ];
+        let currentFoodQuiz = null;
+        let foodWon = 0;
+        let inFoodGame = false;
         
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -304,6 +395,11 @@
                         ctx.fillRect(x * TILE, y * TILE, TILE, TILE);
                         ctx.font = '16px Arial';
                         ctx.fillText('🏪', x * TILE + 2, y * TILE + 16);
+                    } else if (map[y][x] === 'chef') {
+                        ctx.fillStyle = '#5a9b5c';
+                        ctx.fillRect(x * TILE, y * TILE, TILE, TILE);
+                        ctx.font = '16px Arial';
+                        ctx.fillText('👨‍🍳', x * TILE + 2, y * TILE + 16);
                     } else {
                         ctx.fillStyle = '#5a9b5c';
                         ctx.fillRect(x * TILE, y * TILE, TILE, TILE);
@@ -320,7 +416,7 @@
             if (inBattle) return;
             let nx = player.x + dx;
             let ny = player.y + dy;
-            if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS && map[ny][nx] !== 'tree' && map[ny][nx] !== 'vendor') {
+            if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS && map[ny][nx] !== 'tree' && map[ny][nx] !== 'vendor' && map[ny][nx] !== 'chef') {
                 player.x = nx;
                 player.y = ny;
                 draw();
@@ -331,8 +427,13 @@
                 }
                 
                 // Check if near vendor
-                if (Math.abs(nx - vendorX) <= 1 && Math.abs(ny - vendorY) <= 1 && !inSodaGame && !inBattle) {
+                if (Math.abs(nx - vendorX) <= 1 && Math.abs(ny - vendorY) <= 1 && !inSodaGame && !inBattle && !inFoodGame) {
                     openSodaGame();
+                }
+                
+                // Check if near chef
+                if (Math.abs(nx - chefX) <= 1 && Math.abs(ny - chefY) <= 1 && !inFoodGame && !inBattle && !inSodaGame) {
+                    openFoodGame();
                 }
             }
         }
@@ -494,6 +595,63 @@
             document.getElementById('soda-game').classList.remove('active');
         }
         
+        // FOOD GAME FUNCTIONS
+        function openFoodGame() {
+            inFoodGame = true;
+            currentFoodQuiz = foodQuizzes[Math.floor(Math.random() * foodQuizzes.length)];
+            document.getElementById('food-emoji').textContent = currentFoodQuiz.emoji;
+            
+            const optionsDiv = document.getElementById('food-options');
+            optionsDiv.innerHTML = '';
+            
+            let shuffled = [...currentFoodQuiz.options].sort(() => Math.random() - 0.5);
+            shuffled.forEach(opt => {
+                let btn = document.createElement('button');
+                btn.className = 'food-btn';
+                btn.textContent = opt;
+                btn.onclick = () => guessFood(opt);
+                optionsDiv.appendChild(btn);
+            });
+            
+            document.getElementById('food-result').textContent = '';
+            document.getElementById('food-game').classList.add('active');
+        }
+        
+        function guessFood(guess) {
+            const resultDiv = document.getElementById('food-result');
+            if (guess === currentFoodQuiz.answer) {
+                foodWon++;
+                document.getElementById('food-won').textContent = foodWon;
+                resultDiv.innerHTML = '🎉 DELICIOUS! +1 Dish! ATK boosted!';
+                resultDiv.style.color = '#4ade80';
+                player.monster.atk += 1;
+            } else {
+                resultDiv.innerHTML = '❌ Nope! It was ' + currentFoodQuiz.answer;
+                resultDiv.style.color = '#ff6b6b';
+            }
+            
+            setTimeout(() => {
+                currentFoodQuiz = foodQuizzes[Math.floor(Math.random() * foodQuizzes.length)];
+                document.getElementById('food-emoji').textContent = currentFoodQuiz.emoji;
+                const optionsDiv = document.getElementById('food-options');
+                optionsDiv.innerHTML = '';
+                let shuffled = [...currentFoodQuiz.options].sort(() => Math.random() - 0.5);
+                shuffled.forEach(opt => {
+                    let btn = document.createElement('button');
+                    btn.className = 'food-btn';
+                    btn.textContent = opt;
+                    btn.onclick = () => guessFood(opt);
+                    optionsDiv.appendChild(btn);
+                });
+                resultDiv.textContent = '';
+            }, 1500);
+        }
+        
+        function closeFoodGame() {
+            inFoodGame = false;
+            document.getElementById('food-game').classList.remove('active');
+        }
+        
         // AI AUTOPILOT SYSTEM
         let autoMode = true;
         let aiThinkTimer = null;
@@ -618,7 +776,7 @@
         
         // AI loop
         setInterval(() => {
-            if (autoMode && !inBattle) {
+            if (autoMode && !inBattle && !inFoodGame) {
                 aiMove();
             }
         }, 400);
