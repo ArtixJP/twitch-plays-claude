@@ -117,7 +117,7 @@
 <div class="track-indicator" id="track-indicator" style="margin-top:8px;font-size:0.7rem;color:#888;">TRACK: MAIN</div>
 </div>
 <div class="scream" id="scream">😱</div>
-<div class="audio-indicator" id="audio-toggle">🔇 Click to Start Music</div>
+<div class="audio-indicator" id="audio-toggle">🔊 Music Auto-Playing</div>
 <p class="instruction">
         Type <code>!idea your idea</code> in chat to modify this world
     </p>
@@ -217,6 +217,18 @@
                 audioContext.currentTime + 0.1
             );
         }
+        
+        // Auto-start music on page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                initAudio();
+            }, 500);
+        });
+        
+        // Also start on first user interaction as fallback
+        document.addEventListener('click', () => {
+            if (!audioStarted) initAudio();
+        }, { once: true });
         
         document.getElementById('audio-toggle').addEventListener('click', () => {
             if (!audioStarted) {
