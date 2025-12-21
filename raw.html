@@ -55,6 +55,54 @@ body { font-family: 'Courier New', monospace; overflow: hidden; background: #1a0
 .alien-tourist .alien-body { font-size: 2rem; filter: drop-shadow(0 0 10px rgba(0, 255, 136, 0.6)); }
 .alien-tourist .speech { background: rgba(0, 255, 136, 0.15); padding: 4px 8px; border-radius: 10px; font-size: 0.55rem; color: #00ff88; border: 1px solid rgba(0, 255, 136, 0.3); margin-top: 4px; }
 .alien-1 { bottom: 100px; left: 30px; }
+
+.stickman-home {
+    position: absolute; bottom: 60px; right: 40px; z-index: 130;
+    text-align: center;
+}
+.tiki-hut {
+    font-size: 2.5rem; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+    animation: hut-sway 6s ease-in-out infinite;
+}
+.hut-label {
+    font-size: 0.5rem; color: #f4d6a4; margin-top: -5px;
+    text-shadow: 0 0 5px rgba(139, 69, 19, 0.8);
+}
+@keyframes hut-sway { 0%, 100% { transform: rotate(-0.5deg); } 50% { transform: rotate(0.5deg); } }
+
+.stickman-container {
+    position: absolute; bottom: 70px; right: 120px; z-index: 135;
+    text-align: center;
+}
+.stickman {
+    font-size: 1.8rem; filter: drop-shadow(0 0 8px rgba(255, 200, 100, 0.5));
+    animation: stickman-idle 2s ease-in-out infinite;
+}
+.stickman-speech {
+    position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.9); color: #333; padding: 6px 10px;
+    border-radius: 12px; font-size: 0.6rem; white-space: nowrap;
+    border: 2px solid #ffd700; box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    animation: speech-bounce 3s ease-in-out infinite;
+}
+.stickman-speech::after {
+    content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
+    border: 6px solid transparent; border-top-color: rgba(255, 255, 255, 0.9);
+}
+.stickman-name {
+    font-size: 0.5rem; color: #ffd700; margin-top: 2px;
+    text-shadow: 0 0 5px #ff8c00;
+}
+@keyframes stickman-idle {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-3px) rotate(2deg); }
+    50% { transform: translateY(0) rotate(0deg); }
+    75% { transform: translateY(-2px) rotate(-2deg); }
+}
+@keyframes speech-bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-3px); }
+}
 @keyframes alien-chill { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-8px) rotate(2deg); } }
 </style>
 </head>
@@ -75,6 +123,15 @@ body { font-family: 'Courier New', monospace; overflow: hidden; background: #1a0
 <div class="alien-tourist alien-1">
 <span class="alien-body">👽🍹</span>
 <div class="speech">Earth sunsets hit different 🌅</div>
+</div>
+<div class="stickman-home">
+<div class="tiki-hut">🛖</div>
+<div class="hut-label">Steve's Hut</div>
+</div>
+<div class="stickman-container" id="stickman">
+<div class="stickman-speech" id="stickman-speech">Ahh, beach life! 🏖️</div>
+<div class="stickman" id="stickman-body">🧍</div>
+<div class="stickman-name">Stickman Steve</div>
 </div>
 <div class="audio-indicator" id="audio-toggle">🌊 Ocean Waves</div>
 <p class="instruction">Type <code>!idea your idea</code> in chat to modify this world</p>
@@ -207,6 +264,48 @@ function animate() {
 animate();
 
 window.onresize = () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); };
+
+// Stickman Steve - Autonomous Beach Resident
+const steveActions = [
+    { pose: '🧍', speech: 'Ahh, beach life! 🏖️' },
+    { pose: '🏃', speech: 'Morning jog time!' },
+    { pose: '🧘', speech: 'Namaste... 🧘‍♂️' },
+    { pose: '💃', speech: 'Sunset dance! 🌅' },
+    { pose: '🏄', speech: 'Surf\'s up dude!' },
+    { pose: '🧍', speech: 'Watching the waves...' },
+    { pose: '🤸', speech: 'Beach gymnastics!' },
+    { pose: '🧍', speech: 'BTC looking good! 📈' },
+    { pose: '🚶', speech: 'Strolling to my hut...' },
+    { pose: '🧍', speech: 'Chat can tell me what to do!' },
+    { pose: '🙆', speech: 'Stretching it out~' },
+    { pose: '🧍', speech: 'Life is good here 😎' }
+];
+let currentSteveAction = 0;
+let steveTask = null;
+
+function updateSteve() {
+    const body = document.getElementById('stickman-body');
+    const speech = document.getElementById('stickman-speech');
+    if (steveTask) {
+        speech.textContent = steveTask;
+        body.textContent = '🏃';
+    } else {
+        currentSteveAction = Math.floor(Math.random() * steveActions.length);
+        const action = steveActions[currentSteveAction];
+        body.textContent = action.pose;
+        speech.textContent = action.speech;
+    }
+}
+
+// Steve changes action every 4 seconds
+setInterval(updateSteve, 4000);
+
+// Global function for chat to control Steve
+window.commandSteve = function(task) {
+    steveTask = task;
+    updateSteve();
+    setTimeout(() => { steveTask = null; }, 8000);
+};
 </script>
 </body>
 </html>
