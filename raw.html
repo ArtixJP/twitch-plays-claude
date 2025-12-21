@@ -530,8 +530,6 @@
                 // Reaction mode: faster movement to intercept
                 keeper.x += (keeper.targetX - keeper.x) * 0.15;
                 
-                }
-                
                 // Check if ball reached goal line
                 if (ball.y <= goal.y + goal.height) {
                     const inGoalX = ball.x > goal.x && ball.x < goal.x + goal.width;
@@ -577,7 +575,9 @@
                     gamePhase = 'result';
                     resultTimer = 60;
                 }
-            } else if (gamePhase === 'result') {
+            }
+            
+            if (gamePhase === 'result') {
                 resultTimer--;
                 if (resultTimer <= 0) resetBall();
             }
