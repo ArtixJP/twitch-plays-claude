@@ -280,6 +280,7 @@
 <span class="goals">Goals: <span id="goals">0</span></span>
 <span class="saves">Saves: <span id="saves">0</span></span>
 <span>Shots: <span id="shots">0</span></span>
+<span style="color:#ff00ff;text-shadow:0 0 10px #ff00ff">❤️ <span id="health">3</span></span>
 </div>
 <canvas height="280" id="penalty-arena" width="400"></canvas>
 <div class="result-flash" id="result"></div>
@@ -320,6 +321,10 @@
         let ball = { x: 200, y: 230, vx: 0, vy: 0, radius: 12 };
         let keeper = { x: 200, y: 50, width: 60, height: 20, targetX: 200 };
         let aimAngle = 0;
+        let ballDodgeX = 0; // Player dodge offset
+        let keeperProjectiles = [];
+        let keeperWeaponCooldown = 0;
+        let playerHealth = 3;
         let aimSpeed = 0.03;
         let shootPower = 0;
         let powerDir = 1;
@@ -355,6 +360,8 @@
         
         function resetBall() {
             ball = { x: 200, y: 230, vx: 0, vy: 0, radius: 12 };
+            ballDodgeX = 0;
+            keeperProjectiles = [];
             gamePhase = 'aiming';
             shootPower = 0;
             keeper.targetX = 100 + Math.random() * 200;
@@ -363,6 +370,44 @@
         function aiAim() {
             aimAngle += aimSpeed;
             if (Math.random() < 0.02) aimSpeed = (Math.random() - 0.5) * 0.06;
+            
+            // Player can dodge left/right
+            ball.x = 200 + ballDodgeX;
+            
+            // Keeper fires weapon!
+            keeperWeaponCooldown--;
+            if (keeperWeaponCooldown <= 0 && Math.random() < 0.04) {
+                keeperProjectiles.push({
+                    x: keeper.x,
+                    y: keeper.y + keeper.height/2,
+                    vy: 6,
+                    width: 8,
+                    height: 20
+                });
+                keeperWeaponCooldown = 30; // Cooldown frames
+            }
+            
+            // Update projectiles
+            keeperProjectiles = keeperProjectiles.filter(p => {
+                p.y += p.vy;
+                
+                // Check hit on ball/player
+                if (p.y > ball.y - ball.radius && p.y < ball.y + ball.radius &&
+                    p.x > ball.x - ball.radius - p.width/2 && p.x < ball.x + ball.radius + p.width/2) {
+                    playerHealth--;
+                    document.getElementById('health').textContent = playerHealth;
+                    createParticles(ball.x, ball.y, '#ff00ff');
+                    if (playerHealth <= 0) {
+                        showResult('💀 DEFEATED!', false);
+                        playerHealth = 3;
+                        document.getElementById('health').textContent = playerHealth;
+                        saves += 3;
+                        document.getElementById('saves').textContent = saves;
+                    }
+                    return false;
+                }
+                return p.y < 300;
+            });
             
             // AI decides to shoot randomly
             if (Math.random() < 0.008) {
@@ -593,6 +638,34 @@
             ctx.arc(ball.x + 5, ball.y + 2, 3, 0, Math.PI * 2);
             ctx.fill();
             
+            // Draw keeper weapon (cannon)
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = '#ff00ff';
+            ctx.fillStyle = '#8B008B';
+            ctx.fillRect(keeper.x - 6, keeper.y + keeper.height/2, 12, 15);
+            ctx.fillStyle = '#ff00ff';
+            ctx.fillRect(keeper.x - 4, keeper.y + keeper.height/2 + 10, 8, 8);
+            
+            // Draw projectiles
+            keeperProjectiles.forEach(p => {
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = '#ff00ff';
+                ctx.fillStyle = '#ff00ff';
+                ctx.fillRect(p.x - p.width/2, p.y, p.width, p.height);
+                // Energy trail
+                ctx.fillStyle = 'rgba(255,0,255,0.3)';
+                ctx.fillRect(p.x - p.width/2, p.y - 15, p.width, 15);
+            });
+            ctx.shadowBlur = 0;
+            
+            // Dodge controls hint
+            if (gamePhase === 'aiming') {
+                ctx.fillStyle = 'rgba(255,255,255,0.6)';
+                ctx.font = '10px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('← A/D or Arrow Keys to Dodge →', 200, 270);
+            }
+            
             // Particles
             particles.forEach(p => {
                 ctx.globalAlpha = p.life / 30;
@@ -610,6 +683,33 @@
         }
         
         setInterval(gameLoop, 1000/30);
+        
+        // Player dodge controls
+        document.addEventListener('keydown', (e) => {
+            if (gamePhase === 'aiming' || gamePhase === 'power') {
+                if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+                    ballDodgeX = Math.max(ballDodgeX - 15, -80);
+                }
+                if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+                    ballDodgeX = Math.min(ballDodgeX + 15, 80);
+                }
+            }
+        });
+        
+        // Auto-dodge for Twitch (simulated player)
+        setInterval(() => {
+            if (gamePhase === 'aiming') {
+                // Check for incoming projectiles and dodge
+                keeperProjectiles.forEach(p => {
+                    if (p.y > 150 && p.y < 220) {
+                        if (Math.abs(p.x - ball.x) < 40) {
+                            ballDodgeX += (p.x > ball.x ? -25 : 25);
+                            ballDodgeX = Math.max(-80, Math.min(80, ballDodgeX));
+                        }
+                    }
+                });
+            }
+        }, 200);
         
         // Background footballs
         function createBgFootball() {
