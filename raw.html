@@ -61,6 +61,8 @@
         }
         .score-display {
             font-size: 1.5rem;
+            position: relative;
+            z-index: 10;
             color: #00ff88;
             text-shadow: 0 0 10px #00ff88;
             margin-bottom: 10px;
@@ -69,10 +71,33 @@
         h1 {
             font-size: 2.5rem;
             text-shadow: 0 0 20px rgba(145, 71, 255, 0.6);
+            position: relative;
+            z-index: 10;
+        }
+        .football {
+            position: fixed;
+            font-size: 2rem;
+            animation: fall linear infinite;
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        @keyframes fall {
+            0% { transform: translateY(-50px) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(720deg); }
+        }
+        #snake-arena {
+            position: relative;
+            z-index: 5;
+        }
+        .ai-status {
+            position: relative;
+            z-index: 10;
         }
     </style>
 </head>
 <body>
+<div id="football-container"></div>
 <h1>🐍 Autonomous Snake Arena</h1>
 <div class="ai-status">🤖 AI PILOT ACTIVE <span class="pulse">●</span></div>
 <div class="score-display">Score: <span id="score">0</span> | High Score: <span id="highscore">0</span></div>
@@ -238,6 +263,25 @@
         }
         
         setInterval(gameLoop, 100);
+        
+        // Football rain system ⚽
+        function createFootball() {
+            const container = document.getElementById('football-container');
+            const ball = document.createElement('div');
+            ball.className = 'football';
+            ball.textContent = '⚽';
+            ball.style.left = Math.random() * 100 + 'vw';
+            ball.style.animationDuration = (3 + Math.random() * 4) + 's';
+            ball.style.fontSize = (1.5 + Math.random() * 1.5) + 'rem';
+            container.appendChild(ball);
+            
+            setTimeout(() => ball.remove(), 7000);
+        }
+        
+        // Spawn footballs periodically
+        setInterval(createFootball, 800);
+        // Initial burst
+        for(let i = 0; i < 5; i++) setTimeout(createFootball, i * 200);
     </script>
 </body>
 </html>
