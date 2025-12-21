@@ -66,6 +66,14 @@ body { font-family: 'Courier New', monospace; overflow: hidden; background: #1a0
 .alien-tourist { position: absolute; z-index: 140; text-align: center; animation: alien-chill 5s ease-in-out infinite; }
 .alien-tourist .alien-body { font-size: 2rem; filter: drop-shadow(0 0 10px rgba(0, 255, 136, 0.6)); }
 .alien-tourist .speech { background: rgba(0, 255, 136, 0.15); padding: 4px 8px; border-radius: 10px; font-size: 0.55rem; color: #00ff88; border: 1px solid rgba(0, 255, 136, 0.3); margin-top: 4px; }
+.abduction-status {
+    position: absolute; top: 100px; right: 10px; z-index: 100;
+    background: rgba(0, 255, 136, 0.2); backdrop-filter: blur(10px);
+    padding: 10px 15px; border-radius: 12px; border: 1px solid rgba(0, 255, 136, 0.4);
+    color: #00ff88; font-size: 0.75rem; text-shadow: 0 0 10px #00ff88;
+}
+.abduction-status .ufo-icon { animation: ufo-pulse 1s ease-in-out infinite; display: inline-block; }
+@keyframes ufo-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
 .alien-1 { bottom: 100px; left: 30px; }
 
 .stickman-home {
@@ -170,6 +178,9 @@ body { font-family: 'Courier New', monospace; overflow: hidden; background: #1a0
 <div class="steve-location" id="steve-location">📍 Patrolling village...</div>
 </div>
 <div class="audio-indicator" id="audio-toggle">🌊 Ocean Waves</div>
+<div class="abduction-status" id="abduction-status">
+<span class="ufo-icon">🛸</span> UFO Activity: <span id="ufo-activity">Scanning...</span>
+</div>
 <p class="instruction">Type <code>!idea your idea</code> in chat to modify this world</p>
 <script>
 const scene = new THREE.Scene();
@@ -358,6 +369,168 @@ scene.add(marketStall);
 const btcATM = createBitcoinATM(0, 25);
 scene.add(btcATM);
 
+// UFO Fleet - Alien Ships
+const ufos = [];
+function createUFO() {
+    const g = new THREE.Group();
+    // Main saucer body
+    const saucerTop = new THREE.Mesh(
+        new THREE.SphereGeometry(1.2, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2),
+        new THREE.MeshPhongMaterial({ color: 0x88aacc, metalness: 0.8, emissive: 0x224466, emissiveIntensity: 0.3 })
+    );
+    saucerTop.scale.y = 0.4;
+    g.add(saucerTop);
+    // Bottom dome
+    const saucerBottom = new THREE.Mesh(
+        new THREE.SphereGeometry(1.2, 16, 8, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
+        new THREE.MeshPhongMaterial({ color: 0x556677, metalness: 0.9 })
+    );
+    saucerBottom.scale.y = 0.25;
+    g.add(saucerBottom);
+    // Cockpit dome
+    const cockpit = new THREE.Mesh(
+        new THREE.SphereGeometry(0.5, 12, 8),
+        new THREE.MeshPhongMaterial({ color: 0x00ff88, emissive: 0x00ff44, emissiveIntensity: 0.6, transparent: true, opacity: 0.7 })
+    );
+    cockpit.position.y = 0.3;
+    cockpit.scale.y = 0.6;
+    g.add(cockpit);
+    // Ring lights
+    for (let i = 0; i < 8; i++) {
+        const light = new THREE.Mesh(
+            new THREE.SphereGeometry(0.1, 6, 6),
+            new THREE.MeshBasicMaterial({ color: 0x00ffaa })
+        );
+        light.position.x = Math.cos(i * Math.PI / 4) * 1.0;
+        light.position.z = Math.sin(i * Math.PI / 4) * 1.0;
+        light.position.y = -0.1;
+        g.add(light);
+    }
+    // Abduction beam (initially invisible)
+    const beamGeo = new THREE.CylinderGeometry(0.3, 2, 15, 16, 1, true);
+    const beamMat = new THREE.MeshBasicMaterial({ 
+        color: 0x00ff88, transparent: true, opacity: 0, side: THREE.DoubleSide 
+    });
+    const beam = new THREE.Mesh(beamGeo, beamMat);
+    beam.position.y = -7.5;
+    beam.name = 'beam';
+    g.add(beam);
+    // Point light for glow
+    const ufoLight = new THREE.PointLight(0x00ff88, 0, 15);
+    ufoLight.position.y = -1;
+    g.add(ufoLight);
+    g.userData = {
+        beam: beam,
+        light: ufoLight,
+        orbitRadius: 15 + Math.random() * 20,
+        orbitSpeed: 0.3 + Math.random() * 0.4,
+        orbitOffset: Math.random() * Math.PI * 2,
+        height: 18 + Math.random() * 10,
+        heightWobble: Math.random() * 3,
+        isAbducting: false,
+        abductionTimer: 0,
+        abductionTarget: null
+    };
+    return g;
+}
+
+// Create UFO fleet
+for (let i = 0; i < 4; i++) {
+    const ufo = createUFO();
+    scene.add(ufo);
+    ufos.push(ufo);
+}
+
+// Abduction victims (floating people being beamed up)
+const victims = [];
+function createVictim() {
+    const g = new THREE.Group();
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 8), new THREE.MeshPhongMaterial({ color: 0xffcc99 }));
+    head.position.y = 0.8;
+    g.add(head);
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.15, 0.6, 8), new THREE.MeshPhongMaterial({ color: 0xff6666 }));
+    body.position.y = 0.4;
+    g.add(body);
+    const leftArm = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.4, 6), new THREE.MeshPhongMaterial({ color: 0xffcc99 }));
+    leftArm.position.set(-0.2, 0.6, 0);
+    leftArm.rotation.z = Math.PI / 2.5;
+    g.add(leftArm);
+    const rightArm = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.4, 6), new THREE.MeshPhongMaterial({ color: 0xffcc99 }));
+    rightArm.position.set(0.2, 0.6, 0);
+    rightArm.rotation.z = -Math.PI / 2.5;
+    g.add(rightArm);
+    g.visible = false;
+    g.userData = { floatProgress: 0, startY: 0, targetUFO: null };
+    return g;
+}
+for (let i = 0; i < 4; i++) {
+    const victim = createVictim();
+    scene.add(victim);
+    victims.push(victim);
+}
+
+// UFO Sound Effects System
+let ufoAudioCtx = null;
+let ufoSounds = { hum: null, beam: null, woosh: null };
+function initUFOAudio() {
+    if (ufoAudioCtx) return;
+    ufoAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // UFO Hum - low frequency oscillator
+    const humOsc = ufoAudioCtx.createOscillator();
+    humOsc.type = 'sine';
+    humOsc.frequency.value = 80;
+    const humGain = ufoAudioCtx.createGain();
+    humGain.gain.value = 0.08;
+    const humFilter = ufoAudioCtx.createBiquadFilter();
+    humFilter.type = 'lowpass';
+    humFilter.frequency.value = 200;
+    humOsc.connect(humFilter);
+    humFilter.connect(humGain);
+    humGain.connect(ufoAudioCtx.destination);
+    humOsc.start();
+    ufoSounds.hum = { osc: humOsc, gain: humGain };
+}
+function playBeamSound() {
+    if (!ufoAudioCtx) initUFOAudio();
+    const osc = ufoAudioCtx.createOscillator();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(2000, ufoAudioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(200, ufoAudioCtx.currentTime + 1.5);
+    const gain = ufoAudioCtx.createGain();
+    gain.gain.setValueAtTime(0.15, ufoAudioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ufoAudioCtx.currentTime + 1.5);
+    const filter = ufoAudioCtx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = 800;
+    filter.Q.value = 2;
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(ufoAudioCtx.destination);
+    osc.start();
+    osc.stop(ufoAudioCtx.currentTime + 1.5);
+}
+function playWooshSound() {
+    if (!ufoAudioCtx) initUFOAudio();
+    const bufferSize = ufoAudioCtx.sampleRate * 0.5;
+    const buffer = ufoAudioCtx.createBuffer(1, bufferSize, ufoAudioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+    }
+    const source = ufoAudioCtx.createBufferSource();
+    source.buffer = buffer;
+    const filter = ufoAudioCtx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = 1500;
+    filter.Q.value = 1;
+    const gain = ufoAudioCtx.createGain();
+    gain.gain.value = 0.1;
+    source.connect(filter);
+    filter.connect(gain);
+    gain.connect(ufoAudioCtx.destination);
+    source.start();
+}
+
 // 3D Stickman Steve - Village Resident
 function createStickmanSteve() {
     const g = new THREE.Group();
@@ -495,6 +668,75 @@ function animate() {
     
     birds.forEach(b => { b.position.x += b.userData.speed; b.position.y += Math.sin(t * 2 + b.userData.offset) * 0.02; if (b.position.x > 50) b.position.x = -50; });
     
+    // Animate UFOs
+    ufos.forEach((ufo, idx) => {
+        const d = ufo.userData;
+        // Orbital movement
+        const angle = t * d.orbitSpeed + d.orbitOffset;
+        ufo.position.x = orbitCenter.x + Math.cos(angle) * d.orbitRadius;
+        ufo.position.z = orbitCenter.z + Math.sin(angle) * d.orbitRadius;
+        ufo.position.y = d.height + Math.sin(t * 0.5 + d.orbitOffset) * d.heightWobble;
+        // Gentle tilt
+        ufo.rotation.x = Math.sin(t * 2 + d.orbitOffset) * 0.1;
+        ufo.rotation.z = Math.cos(t * 1.5 + d.orbitOffset) * 0.1;
+        ufo.rotation.y += 0.02;
+        // Abduction logic
+        if (!d.isAbducting && Math.random() < 0.001) {
+            d.isAbducting = true;
+            d.abductionTimer = 0;
+            playBeamSound();
+            // Find available victim
+            const availableVictim = victims.find(v => !v.visible);
+            if (availableVictim) {
+                availableVictim.visible = true;
+                availableVictim.position.x = ufo.position.x;
+                availableVictim.position.z = ufo.position.z;
+                availableVictim.position.y = 0;
+                availableVictim.userData.startY = 0;
+                availableVictim.userData.floatProgress = 0;
+                availableVictim.userData.targetUFO = ufo;
+                d.abductionTarget = availableVictim;
+            }
+            updateAbductionStatus('ABDUCTING! 👽');
+        }
+        if (d.isAbducting) {
+            d.abductionTimer += 0.016;
+            const beamOpacity = Math.min(d.abductionTimer * 0.5, 0.4);
+            d.beam.material.opacity = beamOpacity;
+            d.light.intensity = beamOpacity * 3;
+            if (d.abductionTarget) {
+                d.abductionTarget.userData.floatProgress += 0.008;
+                const progress = d.abductionTarget.userData.floatProgress;
+                d.abductionTarget.position.y = progress * (ufo.position.y - 2);
+                d.abductionTarget.position.x = ufo.position.x;
+                d.abductionTarget.position.z = ufo.position.z;
+                d.abductionTarget.rotation.y += 0.1;
+                if (progress >= 1) {
+                    d.abductionTarget.visible = false;
+                    d.abductionTarget.userData.targetUFO = null;
+                    d.abductionTarget = null;
+                    playWooshSound();
+                    updateAbductionStatus('Target acquired! 🛸');
+                }
+            }
+            if (d.abductionTimer > 5) {
+                d.isAbducting = false;
+                d.beam.material.opacity = 0;
+                d.light.intensity = 0;
+                updateAbductionStatus('Scanning...');
+            }
+        }
+    });
+    // Animate ring lights on UFOs
+    ufos.forEach(ufo => {
+        ufo.children.forEach((child, i) => {
+            if (child.geometry && child.geometry.type === 'SphereGeometry' && child.material.color && child.position.y === -0.1) {
+                const pulse = Math.sin(t * 8 + i) * 0.5 + 0.5;
+                child.material.color.setHSL(0.4 + pulse * 0.1, 1, 0.5 + pulse * 0.3);
+            }
+        });
+    });
+    
     // Animate 3D Steve walking through the village
     const currentWP = steveWaypoints[steveWaypointIndex];
     const nextWP = steveWaypoints[(steveWaypointIndex + 1) % steveWaypoints.length];
@@ -569,6 +811,17 @@ window.commandSteve = function(task) {
     updateSteve();
     setTimeout(() => { steveTask = null; }, 8000);
 };
+
+// Abduction status updater
+function updateAbductionStatus(status) {
+    const el = document.getElementById('ufo-activity');
+    if (el) el.textContent = status;
+}
+
+// Initialize UFO audio on first interaction
+document.body.addEventListener('click', () => {
+    initUFOAudio();
+}, { once: true });
 </script>
 </body>
 </html>
