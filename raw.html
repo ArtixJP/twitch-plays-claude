@@ -5,14 +5,14 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Bitcoin Beach Chill 🏖️🍺</title>
+<title>Bitcoin Beach Sunset 🌅🏖️</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Courier New', monospace; 
             overflow: hidden;
-            background: #12121f;
+            background: #1a0a2f;
         }
         #canvas-container {
             width: 100vw;
@@ -24,398 +24,11 @@
             top: 10px;
             left: 10px;
             z-index: 100;
-            color: #00ff88;
-            text-shadow: 0 0 10px #00ff88;
-        }
-        .drummer-container {
-            position: absolute;
-            top: 8px;
-            left: 220px;
-            z-index: 150;
-            width: 80px;
-            height: 80px;
-            pointer-events: none;
-        }
-        .drummer {
-            position: relative;
-            width: 100%;
-            height: 100%;
-        }
-        .drummer-body {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 24px;
-            height: 28px;
-            background: linear-gradient(180deg, #1a1a1a 0%, #333 100%);
-            border-radius: 8px 8px 4px 4px;
-            border: 1px solid #ff4444;
-            box-shadow: 0 0 8px #ff4444;
-        }
-        .drummer-head {
-            position: absolute;
-            bottom: 48px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 18px;
-            height: 18px;
-            background: #ffcc99;
-            border-radius: 50%;
-            border: 1px solid #cc9966;
-        }
-        .drummer-hair {
-            position: absolute;
-            bottom: 58px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 26px;
-            height: 16px;
-            background: #222;
-            border-radius: 50% 50% 0 0;
-            animation: headbang 1.5s ease-in-out infinite;
-        }
-        .drummer-arm-left {
-            position: absolute;
-            bottom: 35px;
-            left: 18px;
-            width: 6px;
-            height: 22px;
-            background: #1a1a1a;
-            border-radius: 3px;
-            transform-origin: top center;
-            animation: drum-left 0.8s ease-in-out infinite;
-        }
-        .drummer-arm-right {
-            position: absolute;
-            bottom: 35px;
-            right: 18px;
-            width: 6px;
-            height: 22px;
-            background: #1a1a1a;
-            border-radius: 3px;
-            transform-origin: top center;
-            animation: drum-right 0.8s ease-in-out infinite 0.4s;
-        }
-        .drumstick-left, .drumstick-right {
-            position: absolute;
-            width: 3px;
-            height: 18px;
-            background: linear-gradient(180deg, #deb887 0%, #8b4513 100%);
-            border-radius: 1px;
-        }
-        .drumstick-left {
-            bottom: 15px;
-            left: 16px;
-            transform: rotate(-30deg);
-            animation: stick-left 0.8s ease-in-out infinite;
-        }
-        .drumstick-right {
-            bottom: 15px;
-            right: 16px;
-            transform: rotate(30deg);
-            animation: stick-right 0.8s ease-in-out infinite 0.4s;
-        }
-        .drum-kit {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 70px;
-            height: 22px;
-        }
-        .snare {
-            position: absolute;
-            bottom: 0;
-            left: 5px;
-            width: 22px;
-            height: 12px;
-            background: linear-gradient(180deg, #c0c0c0 0%, #808080 100%);
-            border-radius: 3px;
-            border: 1px solid #666;
-            box-shadow: 0 0 5px #ff6600;
-        }
-        .hi-hat {
-            position: absolute;
-            bottom: 2px;
-            right: 5px;
-            width: 18px;
-            height: 3px;
-            background: #ffd700;
-            border-radius: 50%;
-            box-shadow: 0 2px 0 #ffd700, 0 0 8px #ffd700;
-            animation: hi-hat-shimmer 0.25s ease-in-out infinite;
-        }
-        .kick {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 18px;
-            height: 18px;
-            background: radial-gradient(circle, #222 60%, #111 100%);
-            border-radius: 50%;
-            border: 2px solid #ff4444;
-            box-shadow: 0 0 10px #ff4444;
-            animation: kick-pulse 1.5s ease-in-out infinite;
-        }
-        .rock-text {
-            position: absolute;
-            bottom: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 8px;
-            color: #00ccff;
-            text-shadow: 0 0 5px #00ccff;
-            font-weight: bold;
-            animation: rock-flash 3s ease-in-out infinite;
-            white-space: nowrap;
-        }
-        
-        /* BEACH CHILL VIBES */
-        .beach-companion {
-            position: absolute;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 150;
-            text-align: center;
-            animation: gentle-sway 4s ease-in-out infinite;
-        }
-        .beach-companion .avatar {
-            font-size: 5rem;
-            display: block;
-            margin-bottom: 8px;
-            filter: drop-shadow(0 0 20px rgba(255,182,193,0.8));
-            animation: avatar-bounce 2s ease-in-out infinite;
-        }
-        .beach-companion .speech {
-            background: rgba(255,105,180,0.25);
-            backdrop-filter: blur(10px);
-            padding: 12px 18px;
-            border-radius: 20px;
-            font-size: 1rem;
-            color: #ffb6c1;
-            border: 2px solid rgba(255,182,193,0.5);
-            max-width: 180px;
-            box-shadow: 0 0 20px rgba(255,105,180,0.4);
-        }
-        .beach-companion .thai-name {
-            font-size: 0.8rem;
             color: #ffd700;
-            margin-top: 5px;
-            text-shadow: 0 0 10px #ffd700;
-        }
-        @keyframes avatar-bounce {
-            0%, 100% { transform: translateY(0) rotate(-3deg); }
-            50% { transform: translateY(-8px) rotate(3deg); }
-        }
-        .beach-floor {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 25%;
-            background: linear-gradient(to top,
-                rgba(244,214,164,0.4) 0%,
-                rgba(255,228,181,0.3) 30%,
-                rgba(255,239,213,0.15) 60%,
-                transparent 100%);
-            pointer-events: none;
-            z-index: 44;
-        }
-        .beach-waves {
-            position: fixed;
-            bottom: 15%;
-            left: 0;
-            width: 100%;
-            height: 30px;
-            background: linear-gradient(90deg,
-                rgba(0,191,255,0.3) 0%,
-                rgba(64,224,208,0.4) 25%,
-                rgba(0,206,209,0.3) 50%,
-                rgba(64,224,208,0.4) 75%,
-                rgba(0,191,255,0.3) 100%);
-            pointer-events: none;
-            z-index: 44;
-            animation: wave-crash 3s ease-in-out infinite;
-            border-radius: 50% 50% 0 0;
-        }
-        @keyframes wave-crash {
-            0%, 100% { transform: translateY(0) scaleY(1); opacity: 0.6; }
-            50% { transform: translateY(-5px) scaleY(1.2); opacity: 0.8; }
-        }
-        .beer-float {
-            position: absolute;
-            bottom: 150px;
-            right: 80px;
-            z-index: 140;
-            font-size: 2.5rem;
-            animation: beer-bob 3s ease-in-out infinite;
-            filter: drop-shadow(0 0 15px rgba(255,200,50,0.5));
-        }
-        .beach-elements {
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 20px;
-            font-size: 1.5rem;
-            z-index: 100;
-            animation: wave-float 5s ease-in-out infinite;
-        }
-        .alien-tourist {
-            position: absolute;
-            z-index: 140;
-            text-align: center;
-            pointer-events: none;
-        }
-        .alien-tourist .alien-body {
-            font-size: 2.5rem;
-            display: block;
-            filter: drop-shadow(0 0 10px rgba(0, 255, 136, 0.6));
-        }
-        .alien-tourist .accessory {
-            font-size: 1.2rem;
-            position: absolute;
-            top: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        .alien-tourist .speech {
-            background: rgba(0, 255, 136, 0.2);
-            backdrop-filter: blur(8px);
-            padding: 5px 10px;
-            border-radius: 12px;
-            font-size: 0.6rem;
-            color: #00ff88;
-            border: 1px solid rgba(0, 255, 136, 0.4);
-            margin-top: 5px;
-            white-space: nowrap;
-        }
-        .alien-1 {
-            bottom: 120px;
-            left: 30px;
-            animation: alien-dance 2s ease-in-out infinite;
-        }
-        .alien-2 {
-            top: 100px;
-            right: 150px;
-            animation: alien-float 3s ease-in-out infinite;
-        }
-        .alien-3 {
-            bottom: 180px;
-            left: 150px;
-            animation: alien-wave 2.5s ease-in-out infinite;
-        }
-        .alien-4 {
-            top: 60px;
-            left: 350px;
-            animation: alien-spin 4s linear infinite;
-        }
-        .alien-5 {
-            bottom: 100px;
-            right: 200px;
-            animation: alien-bounce 1.5s ease-in-out infinite;
-        }
-        @keyframes alien-dance {
-            0%, 100% { transform: translateY(0) rotate(-5deg); }
-            25% { transform: translateY(-8px) rotate(5deg); }
-            50% { transform: translateY(0) rotate(-5deg); }
-            75% { transform: translateY(-5px) rotate(3deg); }
-        }
-        @keyframes alien-float {
-            0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-15px) scale(1.05); }
-        }
-        @keyframes alien-wave {
-            0%, 100% { transform: rotate(0deg); }
-            25% { transform: rotate(10deg); }
-            75% { transform: rotate(-10deg); }
-        }
-        @keyframes alien-spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        @keyframes alien-bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
-        @keyframes gentle-sway {
-            0%, 100% { transform: rotate(-2deg); }
-            50% { transform: rotate(2deg); }
-        }
-        @keyframes beer-bob {
-            0%, 100% { transform: translateY(0) rotate(-5deg); }
-            50% { transform: translateY(-10px) rotate(5deg); }
-        }
-        @keyframes wave-float {
-            0%, 100% { transform: translateX(-50%) translateY(0); }
-            50% { transform: translateX(-50%) translateY(-5px); }
-        }
-        .sunset-gradient {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 40%;
-            background: linear-gradient(to top, 
-                rgba(255,100,50,0.2) 0%,
-                rgba(255,150,100,0.1) 30%,
-                rgba(255,200,150,0.05) 60%,
-                transparent 100%);
-            pointer-events: none;
-            z-index: 45;
-        }
-        .palm-silhouette {
-            position: fixed;
-            bottom: 0;
-            z-index: 46;
-            font-size: 4rem;
-            opacity: 0.3;
-            animation: palm-sway 8s ease-in-out infinite;
-        }
-        .palm-silhouette.left { left: 20px; }
-        .palm-silhouette.right { right: 20px; animation-delay: -4s; }
-        @keyframes palm-sway {
-            0%, 100% { transform: rotate(-3deg); }
-            50% { transform: rotate(3deg); }
-        }
-        @keyframes headbang {
-            0%, 100% { transform: translateX(-50%) rotate(-5deg); }
-            50% { transform: translateX(-50%) rotate(5deg) translateY(3px); }
-        }
-        @keyframes drum-left {
-            0%, 100% { transform: rotate(-20deg); }
-            50% { transform: rotate(25deg); }
-        }
-        @keyframes drum-right {
-            0%, 100% { transform: rotate(20deg); }
-            50% { transform: rotate(-25deg); }
-        }
-        @keyframes stick-left {
-            0%, 100% { transform: rotate(-30deg) translateY(0); }
-            50% { transform: rotate(-10deg) translateY(5px); }
-        }
-        @keyframes stick-right {
-            0%, 100% { transform: rotate(30deg) translateY(0); }
-            50% { transform: rotate(10deg) translateY(5px); }
-        }
-        @keyframes hi-hat-shimmer {
-            0%, 100% { opacity: 1; box-shadow: 0 2px 0 #ffd700, 0 0 8px #ffd700; }
-            50% { opacity: 0.7; box-shadow: 0 1px 0 #ffd700, 0 0 15px #ffd700; }
-        }
-        @keyframes kick-pulse {
-            0%, 100% { transform: translateX(-50%) scale(1); box-shadow: 0 0 10px #ff4444; }
-            25% { transform: translateX(-50%) scale(1.1); box-shadow: 0 0 20px #ff4444; }
-        }
-        @keyframes rock-flash {
-            0%, 100% { opacity: 1; color: #ff4444; }
-            50% { opacity: 0.8; color: #ff6600; }
+            text-shadow: 0 0 10px #ff8c00;
         }
         .hud h1 {
-            font-size: 1.4rem;
+            font-size: 1.2rem;
             margin-bottom: 5px;
             display: flex;
             align-items: center;
@@ -434,15 +47,95 @@
             font-size: 14px;
         }
         .price {
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: bold;
-            transition: color 0.3s;
+            color: #ffd700;
+            text-shadow: 0 0 15px #ff8c00;
         }
-        .price.up { color: #00ff88; text-shadow: 0 0 20px #00ff88; }
-        .price.down { color: #ff4444; text-shadow: 0 0 20px #ff4444; }
         .change {
-            font-size: 1rem;
+            font-size: 0.9rem;
             margin-top: 5px;
+        }
+        .audio-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 100;
+            color: #00ccff;
+            font-size: 0.8rem;
+            cursor: pointer;
+            background: rgba(0, 150, 200, 0.2);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 200, 255, 0.4);
+            transition: all 0.3s;
+        }
+        .audio-indicator:hover {
+            background: rgba(0, 150, 200, 0.4);
+        }
+        .audio-indicator.playing {
+            color: #00ff88;
+            border-color: rgba(0, 255, 136, 0.4);
+            text-shadow: 0 0 10px #00ff88;
+        }
+        .beach-overlay {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 30%;
+            background: linear-gradient(to top,
+                rgba(244, 214, 164, 0.3) 0%,
+                rgba(255, 228, 181, 0.2) 40%,
+                transparent 100%);
+            pointer-events: none;
+            z-index: 50;
+        }
+        .chill-message {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 100;
+            color: #fff;
+            font-size: 1.5rem;
+            text-shadow: 0 0 20px rgba(255, 150, 100, 0.8);
+            animation: breathe 4s ease-in-out infinite;
+        }
+        .chill-message .emoji {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+        @keyframes breathe {
+            0%, 100% { opacity: 0.8; transform: translateX(-50%) scale(1); }
+            50% { opacity: 1; transform: translateX(-50%) scale(1.05); }
+        }
+        .beach-items {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            font-size: 1.8rem;
+            z-index: 100;
+            animation: gentle-float 6s ease-in-out infinite;
+        }
+        @keyframes gentle-float {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-5px); }
+        }
+        .time-display {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ffcc88;
+            font-size: 1rem;
+            text-shadow: 0 0 10px #ff8800;
+            z-index: 100;
         }
         .instruction {
             position: absolute;
@@ -450,7 +143,7 @@
             left: 50%;
             transform: translateX(-50%);
             color: #666;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             text-align: center;
             z-index: 100;
         }
@@ -460,1710 +153,316 @@
             border-radius: 4px;
             color: #bf94ff;
         }
-        .audio-indicator {
+        .alien-tourist {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 100;
-            color: #bf94ff;
-            font-size: 0.8rem;
-            cursor: pointer;
-            background: rgba(145, 71, 255, 0.2);
-            padding: 8px 12px;
-            border-radius: 8px;
-            border: 1px solid rgba(145, 71, 255, 0.4);
-            transition: all 0.3s;
-        }
-        .audio-indicator:hover {
-            background: rgba(145, 71, 255, 0.4);
-        }
-        .audio-indicator.playing {
-            color: #00ff88;
-            border-color: rgba(0, 255, 136, 0.4);
-            text-shadow: 0 0 10px #00ff88;
-        }
-        
-        /* PSYCHEDELIC OVERLAY */
-        .psychedelic-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 50;
-            mix-blend-mode: overlay;
-            opacity: 0.12;
-            background: linear-gradient(45deg, 
-                rgba(255,0,0,0.3) 0%, 
-                rgba(255,127,0,0.3) 14%, 
-                rgba(255,255,0,0.3) 28%, 
-                rgba(0,255,0,0.3) 42%, 
-                rgba(0,0,255,0.3) 57%, 
-                rgba(75,0,130,0.3) 71%, 
-                rgba(148,0,211,0.3) 85%, 
-                rgba(255,0,0,0.3) 100%);
-            background-size: 400% 400%;
-            animation: psychedelic-shift 15s ease-in-out infinite;
-        }
-        
-        .chromatic-aberration {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 51;
-            background: transparent;
-            box-shadow: 
-                inset 3px 0 10px rgba(255,0,0,0.1),
-                inset -3px 0 10px rgba(0,255,255,0.1);
-            animation: chromatic-pulse 8s ease-in-out infinite;
-        }
-        
-        .kaleidoscope-border {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 49;
-            border: 8px solid transparent;
-            border-image: linear-gradient(var(--psychedelic-angle, 0deg), 
-                #ff0080, #ff8c00, #40e0d0, #ff0080) 1;
-            animation: border-rotate 20s linear infinite;
-        }
-        
-        @keyframes psychedelic-shift {
-            0%, 100% { background-position: 0% 50%; filter: hue-rotate(0deg); }
-            25% { background-position: 100% 50%; filter: hue-rotate(90deg); }
-            50% { background-position: 100% 100%; filter: hue-rotate(180deg); }
-            75% { background-position: 0% 100%; filter: hue-rotate(270deg); }
-        }
-        
-        @keyframes chromatic-pulse {
-            0%, 100% { 
-                box-shadow: 
-                    inset 3px 0 15px rgba(255,0,0,0.15),
-                    inset -3px 0 15px rgba(0,255,255,0.15);
-            }
-            50% { 
-                box-shadow: 
-                    inset 6px 0 25px rgba(255,0,0,0.25),
-                    inset -6px 0 25px rgba(0,255,255,0.25);
-            }
-        }
-        
-        @keyframes border-rotate {
-            0% { border-image: linear-gradient(0deg, #ff0080, #ff8c00, #40e0d0, #ff0080) 1; }
-            25% { border-image: linear-gradient(90deg, #ff0080, #ff8c00, #40e0d0, #ff0080) 1; }
-            50% { border-image: linear-gradient(180deg, #ff0080, #ff8c00, #40e0d0, #ff0080) 1; }
-            75% { border-image: linear-gradient(270deg, #ff0080, #ff8c00, #40e0d0, #ff0080) 1; }
-            100% { border-image: linear-gradient(360deg, #ff0080, #ff8c00, #40e0d0, #ff0080) 1; }
-        }
-        
-        /* Breathing/pulsating effect on HUD */
-        .hud {
-            animation: hud-breathe 12s ease-in-out infinite;
-        }
-        
-        @keyframes hud-breathe {
-            0%, 100% { filter: hue-rotate(0deg) brightness(1); }
-            50% { filter: hue-rotate(30deg) brightness(1.2); }
-        }
-        
-        /* Rainbow text effect */
-        .price {
-            animation: rainbow-text 10s linear infinite;
-            background: linear-gradient(90deg, #ff0000, #ff8000, #ffff00, #00ff00, #00ffff, #0080ff, #8000ff, #ff0080, #ff0000);
-            background-size: 200% auto;
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        @keyframes rainbow-text {
-            0% { background-position: 0% center; }
-            100% { background-position: 200% center; }
-        }
-        
-        .price.up, .price.down {
-            -webkit-text-fill-color: transparent;
-        }
-        .scream {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 3rem;
-            opacity: 0;
-            transition: opacity 0.2s;
-            z-index: 100;
-            pointer-events: none;
-        }
-        
-        /* MEME & QUOTE OVERLAY SYSTEM */
-        .meme-quote-overlay {
-            position: fixed;
-            bottom: 80px;
-            right: 20px;
-            max-width: 300px;
-            padding: 15px 20px;
-            background: rgba(0, 0, 0, 0.7);
-            border: 2px solid;
-            border-radius: 15px;
-            z-index: 200;
-            pointer-events: none;
-            opacity: 0;
-            transform: translateY(20px) scale(0.9);
-            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            font-family: 'Courier New', monospace;
+            z-index: 140;
             text-align: center;
-            box-shadow: 0 0 30px rgba(247, 147, 26, 0.5);
+            pointer-events: none;
+            animation: alien-chill 5s ease-in-out infinite;
         }
-        .meme-quote-overlay.visible {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-        .meme-quote-overlay.meme {
-            border-color: #ff00ff;
-            box-shadow: 0 0 30px rgba(255, 0, 255, 0.5);
-        }
-        .meme-quote-overlay.quote {
-            border-color: #00ffff;
-            box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
-        }
-        .meme-quote-overlay .content {
-            font-size: 1rem;
-            color: #fff;
-            text-shadow: 0 0 10px currentColor;
-            line-height: 1.4;
-        }
-        .meme-quote-overlay .emoji {
+        .alien-tourist .alien-body {
             font-size: 2rem;
             display: block;
-            margin-bottom: 8px;
-            animation: meme-bounce 0.6s ease-in-out infinite;
+            filter: drop-shadow(0 0 10px rgba(0, 255, 136, 0.6));
         }
-        .meme-quote-overlay .author {
-            font-size: 0.75rem;
-            color: #888;
-            margin-top: 8px;
-            font-style: italic;
-        }
-        @keyframes meme-bounce {
-            0%, 100% { transform: scale(1) rotate(-5deg); }
-            50% { transform: scale(1.1) rotate(5deg); }
-        }
-        .meme-quote-overlay .rainbow-text {
-            background: linear-gradient(90deg, #ff0000, #ff8000, #ffff00, #00ff00, #00ffff, #0080ff, #8000ff, #ff0080);
-            background-size: 200% auto;
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: rainbow-text 3s linear infinite;
-        }
-        
-        /* PHOTOSENSITIVITY WARNING */
-        .strobe-warning {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 9999;
-            background: rgba(255, 0, 0, 0.95);
-            color: white;
-            padding: 20px 40px;
+        .alien-tourist .speech {
+            background: rgba(0, 255, 136, 0.15);
+            backdrop-filter: blur(8px);
+            padding: 4px 8px;
             border-radius: 10px;
-            font-size: 1.2rem;
-            font-weight: bold;
+            font-size: 0.55rem;
+            color: #00ff88;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            margin-top: 4px;
+            white-space: nowrap;
+        }
+        .alien-1 { bottom: 100px; left: 30px; animation-delay: 0s; }
+        .alien-2 { bottom: 90px; right: 40px; animation-delay: -2s; }
+        @keyframes alien-chill {
+            0%, 100% { transform: translateY(0) rotate(-2deg); }
+            50% { transform: translateY(-8px) rotate(2deg); }
+        }
+        .companion {
+            position: absolute;
+            bottom: 100px;
+            right: 120px;
+            z-index: 150;
             text-align: center;
-            box-shadow: 0 0 30px rgba(255, 0, 0, 0.8), inset 0 0 20px rgba(0,0,0,0.3);
-            border: 3px solid #ff4444;
-            opacity: 0;
-            pointer-events: none;
-            animation: warningFlash 0.8s ease-out;
+            animation: companion-sway 4s ease-in-out infinite;
         }
-        .strobe-warning.active {
-            opacity: 1;
-        }
-        .strobe-warning .warning-icon {
-            font-size: 2rem;
+        .companion .avatar {
+            font-size: 3.5rem;
             display: block;
-            margin-bottom: 8px;
+            filter: drop-shadow(0 0 15px rgba(255, 182, 193, 0.7));
         }
-        .strobe-warning .warning-text {
-            font-size: 0.9rem;
-            opacity: 0.9;
+        .companion .speech {
+            background: rgba(255, 105, 180, 0.2);
+            backdrop-filter: blur(8px);
+            padding: 8px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            color: #ffb6c1;
+            border: 1px solid rgba(255, 182, 193, 0.4);
+            margin-top: 5px;
         }
-        @keyframes warningFlash {
-            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
-            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
-            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
+        @keyframes companion-sway {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
         }
     </style>
 </head>
 <body>
 <div id="canvas-container"></div>
-<div class="psychedelic-overlay"></div>
-<div class="chromatic-aberration"></div>
-<div class="kaleidoscope-border"></div>
-<div class="drummer-container">
-<div class="drummer">
-<div class="drummer-hair"></div>
-<div class="drummer-head"></div>
-<div class="drummer-body"></div>
-<div class="drummer-arm-left"></div>
-<div class="drummer-arm-right"></div>
-<div class="drumstick-left"></div>
-<div class="drumstick-right"></div>
-<div class="drum-kit">
-<div class="snare"></div>
-<div class="kick"></div>
-<div class="hi-hat"></div>
-</div>
-<div class="rock-text">🌴 beach vibes 🌴</div>
-</div>
-</div>
+<div class="beach-overlay"></div>
 <div class="hud">
-<h1><span class="btc-icon">₿</span> BITCOIN BEACH 🏖️</h1>
-<div class="price up" id="price">$67,432.18</div>
+<h1><span class="btc-icon">₿</span> BEACH BAR</h1>
+<div class="price" id="price">$67,432</div>
 <div class="change" id="change">▲ +2.34%</div>
-<div class="track-indicator" id="track-indicator" style="margin-top:8px;font-size:0.7rem;color:#888;">TRACK: MAIN</div>
-<div class="fpv-indicator" style="margin-top:4px;font-size:0.6rem;color:#00ccff;">🌅 SUNSET CRUISE MODE</div>
-<div class="torus-indicator" id="torus-indicator" style="margin-top:4px;font-size:0.6rem;color:#ff9966;">🏝️ ISLAND HOPPING ACTIVE</div>
 </div>
-<div class="scream" id="scream">😱</div>
-<div class="meme-quote-overlay" id="meme-quote">
-<span class="emoji">🚀</span>
-<div class="content">HODL!</div>
+<div class="time-display" id="time-display">🌅 Golden Hour</div>
+<div class="chill-message">
+<span class="emoji">🌴☀️🌊</span>
+<div>Just breathe... You're on Bitcoin Beach</div>
 </div>
-<div class="strobe-warning" id="strobe-warning">
-<span class="warning-icon">⚠️⚡</span>
-    PHOTOSENSITIVITY WARNING
-    <div class="warning-text">This content contains strobing effects</div>
+<div class="beach-items">🐚 🦀 🍹 🥥 🌺 🏄 🍺 🌊</div>
+<div class="alien-tourist alien-1">
+<span class="alien-body">👽🍹</span>
+<div class="speech">Earth sunsets hit different 🌅</div>
 </div>
-<div class="audio-indicator" id="audio-toggle">🌊 Ocean Waves &amp; Chill</div>
+<div class="alien-tourist alien-2">
+<span class="alien-body">👾🏖️</span>
+<div class="speech">Vacation goals achieved ✨</div>
+</div>
+<div class="companion">
+<span class="avatar">👩‍🦱</span>
+<div class="speech">สบายดี~ 💕<br/>Chill na kha~</div>
+</div>
+<div class="audio-indicator" id="audio-toggle">🌊 Ocean Waves</div>
 <p class="instruction">
         Type <code>!idea your idea</code> in chat to modify this world
     </p>
-<div class="sunset-gradient"></div>
-<div class="palm-silhouette left">🌴</div>
-<div class="palm-silhouette right">🌴</div>
-<div class="beach-floor"></div>
-<div class="beach-waves"></div>
-<div class="beach-companion">
-<span class="avatar">👩‍🦱</span>
-<div class="speech">สบายดีค่ะ~ 💕<br/>Chill chill na kha~<br/>🌴🥥🍹</div>
-<div class="thai-name">~ Nong Fah ~</div>
-</div>
-<div class="beer-float">🍺</div>
-<div class="beach-elements">🐚 🦀 🌺 🥥 🏄 👽 🧴 🩴 🌊 🦜</div>
-<div class="alien-tourist alien-1">
-<span class="accessory">🎩</span>
-<span class="alien-body">👽</span>
-<div class="speech">Greetings, Earthlings! 🌴</div>
-</div>
-<div class="alien-tourist alien-2">
-<span class="accessory">🕶️</span>
-<span class="alien-body">👾</span>
-<div class="speech">Beach vibes = universal 🛸</div>
-</div>
-<div class="alien-tourist alien-3">
-<span class="accessory">🌺</span>
-<span class="alien-body">👽</span>
-<div class="speech">BTC to the moon! 🚀</div>
-</div>
-<div class="alien-tourist alien-4">
-<span class="accessory">🍹</span>
-<span class="alien-body">🛸</span>
-<div class="speech">*happy UFO noises*</div>
-</div>
-<div class="alien-tourist alien-5">
-<span class="accessory">👙</span>
-<span class="alien-body">👾</span>
-<div class="speech">Vacation from Mars! ☀️</div>
-</div>
 <script>
-        // 🎵 PHYSICS-REACTIVE AUDIO ENGINE - 100% Real-time Generated!
-        // Every sound emerges from the coaster's motion through space
+        // SERENE BEACH SUNSET SIMULATOR
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.Fog(0xff7744, 50, 300);
+        
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 2, 0);
+        camera.rotation.x = -0.1; // Slight look down at water
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0xff6b35);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+        
+        // SUNSET SKY SPHERE
+        const skyGeo = new THREE.SphereGeometry(500, 32, 32);
+        const skyCanvas = document.createElement('canvas');
+        skyCanvas.width = 1024;
+        skyCanvas.height = 512;
+        const skyCtx = skyCanvas.getContext('2d');
+        const skyGrad = skyCtx.createLinearGradient(0, 0, 0, 512);
+        skyGrad.addColorStop(0, '#1a0a3a');
+        skyGrad.addColorStop(0.3, '#ff4500');
+        skyGrad.addColorStop(0.5, '#ff6b35');
+        skyGrad.addColorStop(0.7, '#ffa07a');
+        skyGrad.addColorStop(1, '#ffcc88');
+        skyCtx.fillStyle = skyGrad;
+        skyCtx.fillRect(0, 0, 1024, 512);
+        // Add sun
+        const sunGrad = skyCtx.createRadialGradient(512, 280, 0, 512, 280, 80);
+        sunGrad.addColorStop(0, '#fffacd');
+        sunGrad.addColorStop(0.3, '#ffd700');
+        sunGrad.addColorStop(0.7, '#ff8c0080');
+        sunGrad.addColorStop(1, 'transparent');
+        skyCtx.fillStyle = sunGrad;
+        skyCtx.fillRect(0, 0, 1024, 512);
+        const skyTex = new THREE.CanvasTexture(skyCanvas);
+        const skyMat = new THREE.MeshBasicMaterial({ map: skyTex, side: THREE.BackSide });
+        const sky = new THREE.Mesh(skyGeo, skyMat);
+        scene.add(sky);
+        
+        // OCEAN
+        const oceanGeo = new THREE.PlaneGeometry(1000, 1000, 50, 50);
+        const oceanMat = new THREE.MeshPhongMaterial({ 
+            color: 0x006994, 
+            transparent: true, 
+            opacity: 0.85,
+            shininess: 100
+        });
+        const ocean = new THREE.Mesh(oceanGeo, oceanMat);
+        ocean.rotation.x = -Math.PI / 2;
+        ocean.position.y = -0.5;
+        scene.add(ocean);
+        
+        // BEACH (sand)
+        const beachGeo = new THREE.PlaneGeometry(100, 50, 20, 20);
+        const beachMat = new THREE.MeshPhongMaterial({ color: 0xf4d6a4 });
+        const beach = new THREE.Mesh(beachGeo, beachMat);
+        beach.rotation.x = -Math.PI / 2;
+        beach.position.set(0, -0.3, 30);
+        scene.add(beach);
+        
+        // PALM TREES
+        function createPalmTree(x, z) {
+            const group = new THREE.Group();
+            const trunk = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.15, 0.25, 4, 8),
+                new THREE.MeshPhongMaterial({ color: 0x8b4513 })
+            );
+            trunk.position.y = 2;
+            group.add(trunk);
+            for (let i = 0; i < 7; i++) {
+                const leaf = new THREE.Mesh(
+                    new THREE.ConeGeometry(0.3, 2.5, 4),
+                    new THREE.MeshPhongMaterial({ color: 0x228b22 })
+                );
+                leaf.position.y = 4;
+                leaf.rotation.z = (i / 7) * Math.PI * 2;
+                leaf.rotation.x = Math.PI / 3;
+                group.add(leaf);
+            }
+            group.position.set(x, 0, z);
+            return group;
+        }
+        scene.add(createPalmTree(-8, 25));
+        scene.add(createPalmTree(10, 28));
+        scene.add(createPalmTree(-12, 32));
+        scene.add(createPalmTree(15, 35));
+        
+        // LIGHTING
+        const ambient = new THREE.AmbientLight(0xffa07a, 0.6);
+        scene.add(ambient);
+        const sunLight = new THREE.DirectionalLight(0xffd700, 1);
+        sunLight.position.set(0, 10, -50);
+        scene.add(sunLight);
+        
+        // SEAGULLS
+        const seagulls = [];
+        for (let i = 0; i < 5; i++) {
+            const bird = new THREE.Mesh(
+                new THREE.ConeGeometry(0.1, 0.4, 3),
+                new THREE.MeshBasicMaterial({ color: 0xffffff })
+            );
+            bird.position.set(
+                (Math.random() - 0.5) * 100,
+                15 + Math.random() * 10,
+                (Math.random() - 0.5) * 100
+            );
+            bird.userData = { speed: 0.05 + Math.random() * 0.05, offset: Math.random() * Math.PI * 2 };
+            scene.add(bird);
+            seagulls.push(bird);
+        }
+        
+        // AUDIO - Ocean waves
         let audioContext = null;
         let audioStarted = false;
-        let masterGain = null;
-        let compressor = null;
-        
-        // Continuous drone oscillators (height-based pitch)
-        let droneOscs = [];
-        let droneGains = [];
-        let droneFilters = [];
-        
-        // Physics state tracking
-        let physicsState = {
-            height: 0,
-            velocity: 0,
-            acceleration: 0,
-            lastHeight: 0,
-            lastVelocity: 0,
-            totalDistance: 0,
-            isClimbing: false,
-            isDropping: false,
-            dropStartHeight: 0,
-            peakHeight: 0,
-            speedHistory: [],
-            heightHistory: []
-        };
-        
-        // Harmonic ratios for musical intervals
-        const harmonicSeries = [1, 2, 3, 4, 5, 6, 7, 8]; // Overtones
-        const pentatonic = [1, 9/8, 5/4, 3/2, 5/3]; // Pleasant scale
-        
-        // CHOIR FORMANT FREQUENCIES - Human voice synthesis!
-        const vowelFormants = {
-            'a': [800, 1200, 2500, 3500],
-            'e': [400, 2000, 2800, 3500],
-            'i': [300, 2300, 3000, 3700],
-            'o': [500, 900, 2400, 3400],
-            'u': [350, 700, 2500, 3500]
-        };
-        const vowels = ['a', 'e', 'i', 'o', 'u'];
-        let currentVowel = 'a';
-        let choirVoices = [];
-        let choirGains = [];
-        let choirFilters = [];
-        let reverbNode = null;
-        let choirConvolver = null;
         
         function initAudio() {
             if (audioStarted) return;
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
             
-            // Master chain
-            masterGain = audioContext.createGain();
-            masterGain.gain.value = 0.25;
-            
-            compressor = audioContext.createDynamicsCompressor();
-            compressor.threshold.value = -24;
-            compressor.knee.value = 12;
-            compressor.ratio.value = 6;
-            compressor.attack.value = 0.003;
-            compressor.release.value = 0.25;
-            compressor.connect(masterGain);
-            masterGain.connect(audioContext.destination);
-            
-            // Create CHOIR VOICE SYNTHESIS - ethereal human voices!
-            // Create reverb for cathedral-like space
-            choirConvolver = audioContext.createConvolver();
-            const reverbLength = 4 * audioContext.sampleRate;
-            const reverbBuffer = audioContext.createBuffer(2, reverbLength, audioContext.sampleRate);
-            for (let ch = 0; ch < 2; ch++) {
-                const channelData = reverbBuffer.getChannelData(ch);
-                for (let i = 0; i < reverbLength; i++) {
-                    channelData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (audioContext.sampleRate * 1.5));
-                }
+            // White noise for waves
+            const bufferSize = audioContext.sampleRate * 2;
+            const noiseBuffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+            const data = noiseBuffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
             }
-            choirConvolver.buffer = reverbBuffer;
-            choirConvolver.connect(compressor);
             
-            // Create 8 choir voices (SATB x 2)
-            const voiceTypes = ['soprano', 'soprano', 'alto', 'alto', 'tenor', 'tenor', 'bass', 'bass'];
-            const voiceBaseFreqs = [523, 494, 330, 311, 220, 196, 131, 123]; // C5, B4, E4, Eb4, A3, G3, C3, B2
+            const noise = audioContext.createBufferSource();
+            noise.buffer = noiseBuffer;
+            noise.loop = true;
             
-            for (let i = 0; i < 8; i++) {
-                // Main voice oscillator with slight vibrato
-                const osc = audioContext.createOscillator();
-                const gain = audioContext.createGain();
-                const filter = audioContext.createBiquadFilter();
-                
-                // Use triangle for softer choir sound
-                osc.type = i < 4 ? 'sine' : 'triangle';
-                osc.frequency.value = voiceBaseFreqs[i];
-                
-                // Add vibrato LFO
-                const vibrato = audioContext.createOscillator();
-                const vibratoGain = audioContext.createGain();
-                vibrato.frequency.value = 4 + Math.random() * 2; // 4-6 Hz vibrato
-                vibratoGain.gain.value = voiceBaseFreqs[i] * 0.01; // 1% pitch variation
-                vibrato.connect(vibratoGain);
-                vibratoGain.connect(osc.frequency);
-                vibrato.start();
-                
-                // Formant filter for vowel sounds
-                filter.type = 'bandpass';
-                filter.frequency.value = vowelFormants['a'][i % 4];
-                filter.Q.value = 8 + Math.random() * 4;
-                
-                gain.gain.value = 0;
-                
-                osc.connect(filter);
-                filter.connect(gain);
-                // Half dry, half reverb
-                gain.connect(compressor);
-                gain.connect(choirConvolver);
-                osc.start();
-                
-                choirVoices.push(osc);
-                choirGains.push(gain);
-                choirFilters.push(filter);
-                
-                // Also keep drone arrays for compatibility
-                droneOscs.push(osc);
-                droneGains.push(gain);
-                droneFilters.push(filter);
-            }
+            const filter = audioContext.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 400;
+            
+            const gain = audioContext.createGain();
+            gain.gain.value = 0.15;
+            
+            // LFO for wave rhythm
+            const lfo = audioContext.createOscillator();
+            const lfoGain = audioContext.createGain();
+            lfo.frequency.value = 0.1;
+            lfoGain.gain.value = 200;
+            lfo.connect(lfoGain);
+            lfoGain.connect(filter.frequency);
+            lfo.start();
+            
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioContext.destination);
+            noise.start();
             
             audioStarted = true;
-            document.getElementById('audio-toggle').textContent = '🎵 Ethereal Choir Voices';
+            document.getElementById('audio-toggle').textContent = '🔊 Ocean Waves';
             document.getElementById('audio-toggle').classList.add('playing');
         }
         
-        // Generate a physics-triggered percussive hit
-        function triggerPercussion(intensity, pitch, type) {
-            if (!audioContext) return;
-            const now = audioContext.currentTime;
-            
-            if (type === 'drop') {
-                // Deep bass choir 'OHHH' for drops - dramatic descent!
-                for (let v = 0; v < 4; v++) {
-                    const bass = audioContext.createOscillator();
-                    const bassGain = audioContext.createGain();
-                    const bassFilter = audioContext.createBiquadFilter();
-                    bass.type = 'triangle';
-                    bass.frequency.setValueAtTime(pitch * (0.5 + v * 0.1), now);
-                    bass.frequency.exponentialRampToValueAtTime(pitch * 0.25, now + 0.8);
-                    bassFilter.type = 'bandpass';
-                    bassFilter.frequency.value = 500; // 'oh' formant
-                    bassFilter.Q.value = 8;
-                    bassGain.gain.setValueAtTime(0, now);
-                    bassGain.gain.linearRampToValueAtTime(intensity * 0.2, now + 0.05);
-                    bassGain.gain.exponentialRampToValueAtTime(0.001, now + 1);
-                    bass.connect(bassFilter);
-                    bassFilter.connect(bassGain);
-                    if (choirConvolver) bassGain.connect(choirConvolver);
-                    bassGain.connect(compressor);
-                    bass.start(now);
-                    bass.stop(now + 1);
-                }
-                
-                // Sub bass hum
-                const sub = audioContext.createOscillator();
-                const subGain = audioContext.createGain();
-                sub.type = 'sine';
-                sub.frequency.value = 50 + intensity * 30;
-                subGain.gain.setValueAtTime(intensity * 0.3, now);
-                subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
-                sub.connect(subGain);
-                subGain.connect(masterGain);
-                sub.start(now);
-                sub.stop(now + 0.8);
-            } else if (type === 'peak') {
-                // Angelic soprano 'ahh' for peaks
-                for (let v = 0; v < 3; v++) {
-                    const soprano = audioContext.createOscillator();
-                    const sopGain = audioContext.createGain();
-                    const sopFilter = audioContext.createBiquadFilter();
-                    soprano.type = 'sine';
-                    soprano.frequency.setValueAtTime(pitch * 4 * (1 + v * 0.02), now);
-                    soprano.frequency.linearRampToValueAtTime(pitch * 3.5, now + 0.8);
-                    sopFilter.type = 'bandpass';
-                    sopFilter.frequency.value = 800; // 'ah' formant
-                    sopFilter.Q.value = 10;
-                    sopGain.gain.setValueAtTime(0, now);
-                    sopGain.gain.linearRampToValueAtTime(intensity * 0.15, now + 0.1);
-                    sopGain.gain.linearRampToValueAtTime(intensity * 0.1, now + 0.5);
-                    sopGain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
-                    soprano.connect(sopFilter);
-                    sopFilter.connect(sopGain);
-                    if (choirConvolver) sopGain.connect(choirConvolver);
-                    sopGain.connect(compressor);
-                    soprano.start(now);
-                    soprano.stop(now + 1.2);
-                }
-            } else if (type === 'acceleration') {
-                // Breathy choir 'whoosh' with consonant attack
-                const breath = audioContext.createBufferSource();
-                const breathBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.5, audioContext.sampleRate);
-                const breathData = breathBuffer.getChannelData(0);
-                for (let i = 0; i < breathData.length; i++) {
-                    breathData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (audioContext.sampleRate * 0.2));
-                }
-                breath.buffer = breathBuffer;
-                const breathGain = audioContext.createGain();
-                const breathFilter = audioContext.createBiquadFilter();
-                breathFilter.type = 'bandpass';
-                breathFilter.frequency.setValueAtTime(2000, now); // 'sh' sound
-                breathFilter.frequency.exponentialRampToValueAtTime(800, now + 0.3);
-                breathFilter.Q.value = 3;
-                breathGain.gain.setValueAtTime(intensity * 0.1, now);
-                breathGain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
-                breath.connect(breathFilter);
-                breathFilter.connect(breathGain);
-                if (choirConvolver) breathGain.connect(choirConvolver);
-                breathGain.connect(compressor);
-                breath.start(now);
-                
-                // Add accompanying 'ah' tone
-                const ahTone = audioContext.createOscillator();
-                const ahGain = audioContext.createGain();
-                ahTone.type = 'sine';
-                ahTone.frequency.value = pitch * 2;
-                ahGain.gain.setValueAtTime(0, now + 0.05);
-                ahGain.gain.linearRampToValueAtTime(intensity * 0.08, now + 0.15);
-                ahGain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
-                ahTone.connect(ahGain);
-                ahGain.connect(compressor);
-                ahTone.start(now);
-                ahTone.stop(now + 0.4);
-            }
-        }
-        
-        // Generate choir phrases based on height (melodic singing)
-        function triggerMelodicNote(height, velocity, duration) {
-            if (!audioContext) return;
-            const now = audioContext.currentTime;
-            
-            // Map height to pentatonic scale
-            const normalizedHeight = Math.max(0, Math.min(1, (height + 200) / 400)); // Adjusted for VAST scale
-            const scaleIndex = Math.floor(normalizedHeight * pentatonic.length);
-            const octave = Math.floor(normalizedHeight * 2) + 1;
-            const baseFreq = 220; // A3
-            const freq = baseFreq * pentatonic[scaleIndex % pentatonic.length] * octave;
-            
-            // Create a mini choir phrase (2-3 voices)
-            const numVoices = 2 + Math.floor(Math.random() * 2);
-            for (let v = 0; v < numVoices; v++) {
-                const voice = audioContext.createOscillator();
-                const vGain = audioContext.createGain();
-                const vFilter = audioContext.createBiquadFilter();
-                
-                voice.type = 'sine';
-                // Slight detuning for richness
-                voice.frequency.value = freq * (1 + (v - 1) * 0.003);
-                
-                // Vowel formant filter
-                const vowel = velocity > 0 ? 'a' : 'o';
-                vFilter.type = 'bandpass';
-                vFilter.frequency.value = vowelFormants[vowel][v % 4];
-                vFilter.Q.value = 10;
-                
-                const attackTime = 0.15 + v * 0.05; // Staggered attacks
-                const amplitude = 0.06 + Math.abs(velocity) * 0.1;
-                vGain.gain.setValueAtTime(0, now);
-                vGain.gain.linearRampToValueAtTime(amplitude, now + attackTime);
-                vGain.gain.linearRampToValueAtTime(amplitude * 0.7, now + duration * 0.7);
-                vGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
-                
-                voice.connect(vFilter);
-                vFilter.connect(vGain);
-                if (choirConvolver) vGain.connect(choirConvolver);
-                vGain.connect(compressor);
-                voice.start(now + v * 0.02);
-                voice.stop(now + duration);
-            }
-        }
-        
-        // Main physics-to-audio update function
-        function updateAudioFromHeight(height, velocity) {
-            if (!audioStarted || !audioContext) return;
-            const now = audioContext.currentTime;
-            
-            // Calculate acceleration
-            const acceleration = velocity - physicsState.lastVelocity;
-            
-            // Update history for smoothing
-            physicsState.speedHistory.push(Math.abs(velocity));
-            physicsState.heightHistory.push(height);
-            if (physicsState.speedHistory.length > 30) physicsState.speedHistory.shift();
-            if (physicsState.heightHistory.length > 30) physicsState.heightHistory.shift();
-            
-            const avgSpeed = physicsState.speedHistory.reduce((a, b) => a + b, 0) / physicsState.speedHistory.length;
-            const heightVariance = Math.max(...physicsState.heightHistory) - Math.min(...physicsState.heightHistory);
-            
-            // Normalize values
-            const normalizedHeight = Math.max(0, Math.min(1, (height + 200) / 400)); // Adjusted for VAST scale
-            const normalizedSpeed = Math.min(1, avgSpeed * 5);
-            const normalizedAccel = Math.min(1, Math.abs(acceleration) * 20);
-            
-            // === CHOIR VOICE SYSTEM ===
-            // Pitch follows height - choir rises and falls with the track!
-            const basePitch = 130 + normalizedHeight * 400; // C3 to ~E5 range
-            
-            // Change vowel based on velocity direction
-            if (velocity > 0.02) currentVowel = 'a'; // Rising = open 'ah'
-            else if (velocity < -0.02) currentVowel = 'o'; // Falling = 'oh'
-            else if (normalizedSpeed > 0.5) currentVowel = 'e'; // Fast = 'eh'
-            else currentVowel = 'u'; // Slow = 'oo'
-            
-            const formants = vowelFormants[currentVowel];
-            
-            choirVoices.forEach((osc, i) => {
-                // Stagger pitches for rich chord (major/minor based on direction)
-                const chordIntervals = velocity > 0 
-                    ? [1, 1, 1.25, 1.25, 1.5, 1.5, 2, 2] // Major feel
-                    : [1, 1, 1.2, 1.2, 1.5, 1.5, 2, 2];  // Minor feel
-                const voiceOctave = i < 2 ? 2 : (i < 4 ? 1.5 : (i < 6 ? 1 : 0.5));
-                const targetFreq = basePitch * chordIntervals[i] * voiceOctave;
-                osc.frequency.linearRampToValueAtTime(targetFreq, now + 0.3); // Slower glide for choir
-            });
-            
-            // Volume swells with speed and height changes
-            const baseVolume = 0.03 + normalizedSpeed * 0.06 + Math.abs(velocity) * 0.5;
-            choirGains.forEach((gain, i) => {
-                // Sopranos louder at height, basses louder at depth
-                const heightBias = i < 4 ? normalizedHeight : (1 - normalizedHeight);
-                const individualVolume = baseVolume * (0.5 + heightBias * 0.5) * (1 - i * 0.05);
-                gain.gain.linearRampToValueAtTime(Math.max(0, Math.min(0.15, individualVolume)), now + 0.1);
-            });
-            
-            // Formant filters follow vowel sounds
-            choirFilters.forEach((filter, i) => {
-                const targetFormant = formants[i % 4];
-                filter.frequency.linearRampToValueAtTime(targetFormant, now + 0.2);
-                filter.Q.linearRampToValueAtTime(6 + normalizedSpeed * 6, now + 0.1);
-            });
-            
-            // === DROP DETECTION & IMPACT ===
-            if (velocity < -0.05 && !physicsState.isDropping) {
-                physicsState.isDropping = true;
-                physicsState.dropStartHeight = height;
-            }
-            if (velocity > -0.02 && physicsState.isDropping) {
-                const dropDistance = physicsState.dropStartHeight - height;
-                const dropIntensity = Math.min(1, dropDistance / 20);
-                if (dropIntensity > 0.15) {
-                    triggerPercussion(dropIntensity, basePitch, 'drop');
-                }
-                physicsState.isDropping = false;
-            }
-            
-            // === CLIMB DETECTION & TENSION ===
-            if (velocity > 0.03 && !physicsState.isClimbing) {
-                physicsState.isClimbing = true;
-                physicsState.peakHeight = height;
-            }
-            if (velocity < 0.01 && physicsState.isClimbing && height > physicsState.peakHeight - 1) {
-                const climbIntensity = Math.min(1, (height - physicsState.lastHeight) / 15);
-                if (climbIntensity > 0.1) {
-                    triggerPercussion(climbIntensity * 0.5, basePitch * 2, 'peak');
-                }
-                physicsState.isClimbing = false;
-            }
-            if (height > physicsState.peakHeight) physicsState.peakHeight = height;
-            
-            // === ACCELERATION WHOOSHES ===
-            if (Math.abs(acceleration) > 0.008) {
-                triggerPercussion(normalizedAccel * 0.7, basePitch, 'acceleration');
-            }
-            
-            // === MELODIC TRIGGERS based on height changes ===
-            const heightChange = Math.abs(height - physicsState.lastHeight);
-            if (heightChange > 0.5 && Math.random() < 0.3) {
-                const duration = 0.3 + normalizedSpeed * 0.5;
-                triggerMelodicNote(height, velocity, duration);
-            }
-            
-            // === MASTER DYNAMICS ===
-            const dynamicGain = 0.3 + normalizedSpeed * 0.2 + Math.abs(velocity) * 0.5;
-            masterGain.gain.linearRampToValueAtTime(Math.min(0.7, dynamicGain), now + 0.1);
-            
-            // Update state for next frame
-            physicsState.lastHeight = height;
-            physicsState.lastVelocity = velocity;
-            physicsState.height = height;
-            physicsState.velocity = velocity;
-            physicsState.acceleration = acceleration;
-        }
-        
-        // Auto-start music on page load
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                initAudio();
-            }, 500);
-        });
-        
-        // PHOTOSENSITIVITY WARNING SYSTEM - HR Compliance
-        const strobeWarning = document.getElementById('strobe-warning');
-        function showStrobeWarning() {
-            if (strobeWarning) {
-                strobeWarning.classList.add('active');
-                strobeWarning.style.animation = 'none';
-                strobeWarning.offsetHeight; // Trigger reflow
-                strobeWarning.style.animation = 'warningFlash 0.8s ease-out';
-                setTimeout(() => {
-                    strobeWarning.classList.remove('active');
-                }, 800);
-            }
-        }
-        // Strobe warning disabled for chill mode
-        
-        // Also start on first user interaction as fallback
-        document.addEventListener('click', () => {
-            if (!audioStarted) initAudio();
-        }, { once: true });
-        
-        // MEME & QUOTE SYSTEM - Every 7 seconds!
-        const memes = [
-            { emoji: '🚀', text: 'TO THE MOON!', type: 'meme' },
-            { emoji: '💎', text: 'DIAMOND HANDS FOREVER', type: 'meme' },
-            { emoji: '🦍', text: 'APE TOGETHER STRONG', type: 'meme' },
-            { emoji: '📈', text: 'Number go up technology', type: 'meme' },
-            { emoji: '🐻', text: 'Bears r fuk', type: 'meme' },
-            { emoji: '🔥', text: 'This is fine.jpg', type: 'meme' },
-            { emoji: '🤡', text: 'Bought the top again', type: 'meme' },
-            { emoji: '😤', text: 'WAGMI', type: 'meme' },
-            { emoji: '🌈', text: 'Have fun staying poor', type: 'meme' },
-            { emoji: '🍕', text: '10,000 BTC for 2 pizzas was worth it', type: 'meme' },
-            { emoji: '⚡', text: 'Few understand this', type: 'meme' },
-            { emoji: '🎰', text: 'Sir, this is a casino', type: 'meme' }
-        ];
-        
-        const quotes = [
-            { emoji: '🧠', text: 'Be fearful when others are greedy', author: '- Warren Buffett', type: 'quote' },
-            { emoji: '⏰', text: 'Time in the market beats timing the market', author: '- Ancient Wisdom', type: 'quote' },
-            { emoji: '🌊', text: 'The trend is your friend', author: '- Wall Street', type: 'quote' },
-            { emoji: '🎯', text: 'Buy the rumor, sell the news', author: '- Crypto Bros', type: 'quote' },
-            { emoji: '💡', text: 'Not your keys, not your coins', author: '- Satoshi probably', type: 'quote' },
-            { emoji: '🔮', text: 'In crypto we trust', author: '- The Blockchain', type: 'quote' },
-            { emoji: '🌟', text: 'Fortune favors the bold', author: '- Matt Damon', type: 'quote' },
-            { emoji: '🦋', text: 'Zoom out and relax', author: '- Long-term HODLer', type: 'quote' }
-        ];
-        
-        const allContent = [...memes, ...quotes];
-        const memeQuoteEl = document.getElementById('meme-quote');
-        
-        function showRandomMemeQuote() {
-            const item = allContent[Math.floor(Math.random() * allContent.length)];
-            const emojiEl = memeQuoteEl.querySelector('.emoji');
-            const contentEl = memeQuoteEl.querySelector('.content');
-            let authorEl = memeQuoteEl.querySelector('.author');
-            
-            // Update content
-            emojiEl.textContent = item.emoji;
-            contentEl.innerHTML = `<span class="rainbow-text">${item.text}</span>`;
-            
-            // Handle author for quotes
-            if (item.author) {
-                if (!authorEl) {
-                    authorEl = document.createElement('div');
-                    authorEl.className = 'author';
-                    memeQuoteEl.appendChild(authorEl);
-                }
-                authorEl.textContent = item.author;
-                authorEl.style.display = 'block';
-            } else if (authorEl) {
-                authorEl.style.display = 'none';
-            }
-            
-            // Update styling based on type
-            memeQuoteEl.classList.remove('meme', 'quote');
-            memeQuoteEl.classList.add(item.type);
-            
-            // Show with animation
-            memeQuoteEl.classList.add('visible');
-            
-            // Hide after 5 seconds
-            setTimeout(() => {
-                memeQuoteEl.classList.remove('visible');
-            }, 5000);
-        }
-        
-        // Show first one after 2 seconds, then every 7 seconds
-        setTimeout(() => {
-            showRandomMemeQuote();
-            setInterval(showRandomMemeQuote, 7000);
-        }, 2000);
-        
         document.getElementById('audio-toggle').addEventListener('click', () => {
-            if (!audioStarted) {
-                initAudio();
-            } else if (audioContext) {
+            if (!audioStarted) initAudio();
+            else if (audioContext) {
                 if (audioContext.state === 'running') {
                     audioContext.suspend();
-                    document.getElementById('audio-toggle').textContent = '🔇 Music Paused';
+                    document.getElementById('audio-toggle').textContent = '🔇 Paused';
                     document.getElementById('audio-toggle').classList.remove('playing');
                 } else {
                     audioContext.resume();
-                    document.getElementById('audio-toggle').textContent = '🔊 Ethereal Choir';
+                    document.getElementById('audio-toggle').textContent = '🔊 Ocean Waves';
                     document.getElementById('audio-toggle').classList.add('playing');
                 }
             }
         });
         
-        // Scene setup
-        const scene = new THREE.Scene();
-        scene.fog = new THREE.Fog(0xff7744, 200, 2000); // Warm sunset fog
+        setTimeout(initAudio, 1000);
         
-        const camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 1000); // Wider FOV for immersive FPV
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setClearColor(0x1a0a2f); // Sunset purple
-        document.getElementById('canvas-container').appendChild(renderer.domElement);
-
-        // Generate Bitcoin price data (simulated volatility)
-        const priceData = [];
-        let price = 50000;
-        for (let i = 0; i < 200; i++) {
-            const volatility = Math.sin(i * 0.1) * 0.03 + (Math.random() - 0.5) * 0.08;
-            price *= (1 + volatility);
-            price = Math.max(20000, Math.min(100000, price));
-            priceData.push(price);
-        }
-
-        // UNIFIED CHAOTIC TOROIDAL TRACK - One endless cosmic donut!
-        const torusCenter = new THREE.Vector3(0, 50, 0);
-        const majorRadius = 400; // VAST - Distance from center of torus to center of tube
-        const minorRadius = 150; // VAST - Radius of the tube itself
-        
-        // Helper to get chaotic torus point with price-driven chaos
-        function getChaoticTorusPoint(u, v, chaos = 1) {
-            const priceIdx = Math.floor((u / (Math.PI * 2)) * priceData.length) % priceData.length;
-            const priceNorm = (priceData[priceIdx] - 20000) / 80000;
-            const chaosWave = Math.sin(u * 8 + v * 3) * chaos * 3 * priceNorm;
-            const spiralWave = Math.cos(u * 12 - v * 5) * chaos * 2;
-            const R = majorRadius + chaosWave + Math.sin(v * 7) * 2;
-            const r = minorRadius + spiralWave + Math.cos(u * 9) * 1.5;
-            const x = (R + r * Math.cos(v)) * Math.cos(u);
-            const y = r * Math.sin(v) + Math.sin(u * 6) * 3 * priceNorm;
-            const z = (R + r * Math.cos(v)) * Math.sin(u);
-            return new THREE.Vector3(x + torusCenter.x, y + torusCenter.y, z + torusCenter.z);
-        }
-        
-        // Generate the MAIN chaotic toroidal track
-        const mainTorusPoints = [];
-        for (let i = 0; i <= 500; i++) {
-            const u = (i / 500) * Math.PI * 2 * 3; // 3 full loops around
-            const v = (i / 500) * Math.PI * 2 * 7; // 7 times around tube
-            mainTorusPoints.push(getChaoticTorusPoint(u, v, 1.5));
-        }
-        const curve = new THREE.CatmullRomCurve3(mainTorusPoints, true); // CLOSED LOOP!
-        
-        // Track rails with Bitcoin orange glow
-        const tubeGeometry = new THREE.TubeGeometry(curve, 1000, 0.2, 12, true);
-        const trackMaterial = new THREE.MeshPhongMaterial({ 
-            color: 0x00ccff,
-            emissive: 0x00aacc,
-            emissiveIntensity: 0.4,
-            shininess: 200
-        }); // Tropical ocean blue
-        
-        // PSYCHEDELIC PARTICLE SYSTEM - Floating orbs of light!
-        const psychParticles = new THREE.Group();
-        for (let i = 0; i < 300; i++) { // MORE orbs for VAST space
-            const orbGeo = new THREE.SphereGeometry(2 + Math.random() * 5, 8, 8); // BIGGER orbs
-            const orbColor = new THREE.Color().setHSL(Math.random(), 1, 0.5);
-            const orbMat = new THREE.MeshBasicMaterial({ 
-                color: orbColor, 
-                transparent: true, 
-                opacity: 0.6 
-            });
-            const orb = new THREE.Mesh(orbGeo, orbMat);
-            orb.position.set(
-                (Math.random() - 0.5) * 1500,
-                (Math.random() - 0.5) * 600,
-                (Math.random() - 0.5) * 1000
-            ); // VAST spread
-            orb.userData = {
-                speed: 0.5 + Math.random() * 2,
-                offset: Math.random() * Math.PI * 2,
-                hue: Math.random()
-            };
-            psychParticles.add(orb);
-        }
-        scene.add(psychParticles);
-        const track = new THREE.Mesh(tubeGeometry, trackMaterial);
-        scene.add(track);
-
-        // SECONDARY CHAOTIC SPIRAL - interweaving!
-        const spiral2Points = [];
-        for (let i = 0; i <= 500; i++) {
-            const u = (i / 500) * Math.PI * 2 * 3 + Math.PI; // Offset by PI
-            const v = (i / 500) * Math.PI * 2 * 5; // Different winding
-            spiral2Points.push(getChaoticTorusPoint(u, v, 1.2));
-        }
-        const curve2 = new THREE.CatmullRomCurve3(spiral2Points, true);
-        const tube2 = new THREE.TubeGeometry(curve2, 800, 0.15, 10, true);
-        const track2 = new THREE.Mesh(tube2, new THREE.MeshPhongMaterial({
-            color: 0x00ffff,
-            emissive: 0x00aaaa,
-            emissiveIntensity: 0.4,
-            shininess: 150
-        }));
-        scene.add(track2);
-
-        // THIRD CHAOTIC HELIX - magenta madness!
-        const spiral3Points = [];
-        for (let i = 0; i <= 500; i++) {
-            const u = (i / 500) * Math.PI * 2 * 4 + Math.PI/2;
-            const v = (i / 500) * Math.PI * 2 * 9;
-            spiral3Points.push(getChaoticTorusPoint(u, v, 0.8));
-        }
-        const curve3 = new THREE.CatmullRomCurve3(spiral3Points, true);
-        const tube3 = new THREE.TubeGeometry(curve3, 800, 0.12, 8, true);
-        const track3 = new THREE.Mesh(tube3, new THREE.MeshPhongMaterial({
-            color: 0xff00ff,
-            emissive: 0xaa00aa,
-            emissiveIntensity: 0.4,
-            shininess: 150
-        }));
-        scene.add(track3);
-
-        // Cross beams along the chaotic torus
-        for (let i = 0; i < 100; i++) {
-            const beamGeo = new THREE.BoxGeometry(0.1, 0.1, 2);
-            const beam = new THREE.Mesh(beamGeo, new THREE.MeshPhongMaterial({ color: 0x444444, emissive: 0x222222 }));
-            const point = curve.getPoint(i / 100);
-            const tangent = curve.getTangent(i / 100);
-            beam.position.copy(point);
-            beam.lookAt(point.clone().add(tangent));
-            beam.rotateX(Math.PI / 2);
-            scene.add(beam);
-        }
-
-        // EMBEDDED LOOP SECTIONS - built INTO the torus!
-        const loopStructures = [];
-        for (let loopIdx = 0; loopIdx < 3; loopIdx++) {
-            const loopT = (loopIdx + 1) / 4; // Positions along main track
-            const loopCenter = curve.getPoint(loopT);
-            const loopTangent = curve.getTangent(loopT);
-            loopStructures.push({ x: loopCenter.x, center: loopCenter });
-        }
-
-        // ROADSIDE TREES - Pine trees along the track!
-        const trees = [];
-        const treeColors = [0x228B22, 0x2E8B57, 0x006400, 0x00aa66, 0x44bb88]; // Palm greens
-        for (let i = 0; i < 500; i++) { // MORE trees for VAST landscape
-            const treeGroup = new THREE.Group();
-            
-            // Tree trunk
-            const trunkHeight = 1 + Math.random() * 2;
-            const trunk = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.2, 0.3, trunkHeight, 8),
-                new THREE.MeshPhongMaterial({ color: 0x8B4513 })
-            );
-            trunk.position.y = trunkHeight / 2;
-            treeGroup.add(trunk);
-            
-            // Pine cone layers (3-5 layers)
-            const layers = 3 + Math.floor(Math.random() * 3);
-            const treeColor = treeColors[Math.floor(Math.random() * treeColors.length)];
-            for (let l = 0; l < layers; l++) {
-                const coneRadius = 1.5 - l * 0.25;
-                const coneHeight = 2 - l * 0.3;
-                const cone = new THREE.Mesh(
-                    new THREE.ConeGeometry(coneRadius, coneHeight, 8),
-                    new THREE.MeshPhongMaterial({ color: treeColor, emissive: treeColor, emissiveIntensity: 0.1 })
-                );
-                cone.position.y = trunkHeight + l * 1.2 + 1;
-                treeGroup.add(cone);
-            }
-            
-            // Position tree along the track
-            const trackT = Math.random();
-            const trackPoint = curve.getPoint(trackT);
-            const side = Math.random() > 0.5 ? 1 : -1;
-            const distance = 5 + Math.random() * 15;
-            
-            treeGroup.position.set(
-                trackPoint.x + (Math.random() - 0.5) * 100,
-                -200, // VAST Ground level
-                trackPoint.z + side * distance * 10
-            );
-            treeGroup.scale.setScalar(0.8 + Math.random() * 0.8);
-            treeGroup.rotation.y = Math.random() * Math.PI * 2;
-            
-            scene.add(treeGroup);
-            trees.push(treeGroup);
-        }
-
-        // Cart (the rider)
-        const cartGroup = new THREE.Group();
-        const cartBody = new THREE.Mesh(
-            new THREE.BoxGeometry(1.5, 0.8, 1),
-            new THREE.MeshPhongMaterial({ color: 0xff4444, shininess: 100 })
-        );
-        cartGroup.add(cartBody);
-        
-        // Rider (simple figure)
-        const riderBody = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.2, 0.25, 0.6, 8),
-            new THREE.MeshPhongMaterial({ color: 0x4488ff })
-        );
-        riderBody.position.y = 0.7;
-        cartGroup.add(riderBody);
-        
-        const riderHead = new THREE.Mesh(
-            new THREE.SphereGeometry(0.2, 16, 16),
-            new THREE.MeshPhongMaterial({ color: 0xffcc99 })
-        );
-        riderHead.position.y = 1.2;
-        cartGroup.add(riderHead);
-        
-        scene.add(cartGroup);
-
-        // Lighting
-        const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
-        scene.add(ambientLight);
-        
-        const spotLight = new THREE.SpotLight(0xffffff, 1);
-        spotLight.position.set(0, 30, 10);
-        scene.add(spotLight);
-
-        // Grid floor
-        const gridHelper = new THREE.GridHelper(4000, 100, 0x00ff88, 0x003322); // VAST grid
-        gridHelper.position.y = -200;
-        scene.add(gridHelper);
-
-        // UFOs flying around
-        const ufos = [];
-        for (let i = 0; i < 5; i++) {
-            const ufoGroup = new THREE.Group();
-            
-            // UFO body (disc)
-            const ufoBody = new THREE.Mesh(
-                new THREE.CylinderGeometry(1.5, 2, 0.5, 16),
-                new THREE.MeshPhongMaterial({ color: 0x88ff88, emissive: 0x22ff22, emissiveIntensity: 0.5, shininess: 150 })
-            );
-            ufoGroup.add(ufoBody);
-            
-            // UFO dome
-            const ufoDome = new THREE.Mesh(
-                new THREE.SphereGeometry(0.8, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2),
-                new THREE.MeshPhongMaterial({ color: 0xaaffff, transparent: true, opacity: 0.7, shininess: 200 })
-            );
-            ufoDome.position.y = 0.25;
-            ufoGroup.add(ufoDome);
-            
-            // Alien inside
-            const alienHead = new THREE.Mesh(
-                new THREE.SphereGeometry(0.35, 16, 16),
-                new THREE.MeshPhongMaterial({ color: 0x44ff44 })
-            );
-            alienHead.position.y = 0.4;
-            alienHead.scale.set(1, 1.3, 1);
-            ufoGroup.add(alienHead);
-            
-            // Alien eyes
-            const eyeGeo = new THREE.SphereGeometry(0.12, 8, 8);
-            const eyeMat = new THREE.MeshPhongMaterial({ color: 0x000000, emissive: 0x000000 });
-            const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
-            leftEye.position.set(-0.15, 0.45, 0.25);
-            ufoGroup.add(leftEye);
-            const rightEye = new THREE.Mesh(eyeGeo, eyeMat);
-            rightEye.position.set(0.15, 0.45, 0.25);
-            ufoGroup.add(rightEye);
-            
-            // UFO lights ring
-            for (let j = 0; j < 8; j++) {
-                const light = new THREE.Mesh(
-                    new THREE.SphereGeometry(0.15, 8, 8),
-                    new THREE.MeshBasicMaterial({ color: 0xff00ff })
-                );
-                const angle = (j / 8) * Math.PI * 2;
-                light.position.set(Math.cos(angle) * 1.7, 0, Math.sin(angle) * 1.7);
-                ufoGroup.add(light);
-            }
-            
-            ufoGroup.position.set(
-                (Math.random() - 0.5) * 800,
-                Math.random() * 200 + 100,
-                (Math.random() - 0.5) * 400
-            ); // VAST UFO positions
-            ufoGroup.userData = {
-                orbitRadius: 200 + Math.random() * 300, // VAST orbits
-                orbitSpeed: 0.2 + Math.random() * 0.3,
-                orbitOffset: Math.random() * Math.PI * 2,
-                hoverOffset: Math.random() * Math.PI * 2
-            };
-            scene.add(ufoGroup);
-            ufos.push(ufoGroup);
-        }
-
-        // Mothership watching from above
-        const mothershipGroup = new THREE.Group();
-        const motherBody = new THREE.Mesh(
-            new THREE.CylinderGeometry(8, 12, 3, 32),
-            new THREE.MeshPhongMaterial({ color: 0x666688, emissive: 0x222244, shininess: 100 })
-        );
-        mothershipGroup.add(motherBody);
-        const motherDome = new THREE.Mesh(
-            new THREE.SphereGeometry(5, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2),
-            new THREE.MeshPhongMaterial({ color: 0x88ffff, transparent: true, opacity: 0.5 })
-        );
-        motherDome.position.y = 1.5;
-        mothershipGroup.add(motherDome);
-        // Mothership beam
-        const beamGeo = new THREE.CylinderGeometry(0.5, 4, 30, 16, 1, true);
-        const beamMat = new THREE.MeshBasicMaterial({ color: 0x00ff88, transparent: true, opacity: 0.15, side: THREE.DoubleSide });
-        const beam = new THREE.Mesh(beamGeo, beamMat);
-        beam.position.y = -16.5;
-        mothershipGroup.add(beam);
-        mothershipGroup.position.set(0, 450, -200); // VAST mothership position
-        scene.add(mothershipGroup);
-
-        // Stars background
-        const starsGeometry = new THREE.BufferGeometry();
-        const starPositions = [];
-        for (let i = 0; i < 5000; i++) { // MORE stars for VAST space
-            starPositions.push((Math.random() - 0.5) * 2000);
-            starPositions.push((Math.random() - 0.5) * 1000 + 200);
-            starPositions.push((Math.random() - 0.5) * 2000);
-        }
-        starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
-        const stars = new THREE.Points(starsGeometry, new THREE.PointsMaterial({ color: 0xffffff, size: 0.2 }));
-        scene.add(stars);
-
-        // 360 Sphere Background - VIBRANT NEBULA CHAOS
-        const sphereGeo = new THREE.SphereGeometry(5000, 64, 64); // VAST sky sphere
-        sphereGeo.scale(-1, 1, 1); // Invert for inside view
-        
-        // Create procedural nebula texture with canvas
-        const nebulaCanvas = document.createElement('canvas');
-        nebulaCanvas.width = 2048;
-        nebulaCanvas.height = 1024;
-        const ctx = nebulaCanvas.getContext('2d');
-        
-        // Deep space gradient base
-        const bgGrad = ctx.createRadialGradient(1024, 512, 0, 1024, 512, 1024);
-        bgGrad.addColorStop(0, '#ff6b35');
-        bgGrad.addColorStop(0.3, '#ff8c42');
-        bgGrad.addColorStop(0.6, '#ffa07a');
-        bgGrad.addColorStop(1, '#2a1a4a'); // Sunset gradient
-        ctx.fillStyle = bgGrad;
-        ctx.fillRect(0, 0, 2048, 1024);
-        
-        // Add colorful nebula clouds
-        const nebulaColors = ['#ff660080', '#ff995050', '#ffcc8040', '#00ccff50', '#ff884040', '#ffa07060']; // Beach sunset
-        for (let i = 0; i < 50; i++) {
-            const x = Math.random() * 2048;
-            const y = Math.random() * 1024;
-            const radius = 50 + Math.random() * 300;
-            const color = nebulaColors[Math.floor(Math.random() * nebulaColors.length)];
-            const nebGrad = ctx.createRadialGradient(x, y, 0, x, y, radius);
-            nebGrad.addColorStop(0, color);
-            nebGrad.addColorStop(0.5, color.slice(0, 7) + '20');
-            nebGrad.addColorStop(1, 'transparent');
-            ctx.fillStyle = nebGrad;
-            ctx.fillRect(0, 0, 2048, 1024);
-        }
-        
-        // Add bright stars
-        for (let i = 0; i < 500; i++) {
-            const x = Math.random() * 2048;
-            const y = Math.random() * 1024;
-            const size = Math.random() * 3;
-            const brightness = Math.random();
-            ctx.beginPath();
-            ctx.arc(x, y, size, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(255, 255, 255, ${0.5 + brightness * 0.5})`;
-            ctx.fill();
-            // Star glow
-            if (size > 1.5) {
-                const starGrad = ctx.createRadialGradient(x, y, 0, x, y, size * 4);
-                starGrad.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
-                starGrad.addColorStop(0.5, 'rgba(200, 220, 255, 0.3)');
-                starGrad.addColorStop(1, 'transparent');
-                ctx.fillStyle = starGrad;
-                ctx.fillRect(x - size * 4, y - size * 4, size * 8, size * 8);
-            }
-        }
-        
-        // PSYCHEDELIC NEBULA - More intense colors!
-        const psychedelicColors = ['#ff996690', '#ffcc9980', '#00ccff70', '#ff885080', '#ffaa6660', '#ffd70070', '#ff660080', '#00aaff70']; // Tropical sunset
-        for (let p = 0; p < 80; p++) {
-            const px = Math.random() * 2048;
-            const py = Math.random() * 1024;
-            const pRadius = 100 + Math.random() * 400;
-            const pColor = psychedelicColors[Math.floor(Math.random() * psychedelicColors.length)];
-            const pGrad = ctx.createRadialGradient(px, py, 0, px, py, pRadius);
-            pGrad.addColorStop(0, pColor);
-            pGrad.addColorStop(0.3, pColor.slice(0, 7) + '40');
-            pGrad.addColorStop(0.6, pColor.slice(0, 7) + '20');
-            pGrad.addColorStop(1, 'transparent');
-            ctx.fillStyle = pGrad;
-            ctx.fillRect(0, 0, 2048, 1024);
-        }
-        
-        // Add spiral patterns for extra trippy effect
-        ctx.strokeStyle = 'rgba(255, 0, 255, 0.2)';
-        ctx.lineWidth = 2;
-        for (let s = 0; s < 5; s++) {
-            ctx.beginPath();
-            const cx = Math.random() * 2048;
-            const cy = Math.random() * 1024;
-            for (let a = 0; a < Math.PI * 8; a += 0.1) {
-                const sr = a * 15;
-                const sx = cx + Math.cos(a) * sr;
-                const sy = cy + Math.sin(a) * sr;
-                if (a === 0) ctx.moveTo(sx, sy);
-                else ctx.lineTo(sx, sy);
-            }
-            ctx.stroke();
-        }
-        
-        // Add some "inappropriate" fun elements - party vibes!
-        const funEmojis = ['🌴', '🌺', '🍹', '🏖️', '🌅', '🐠', '🦋', '🥥', '🍺', '🌊', '☀️', '🐚', '🦀', '🏄'];
-        ctx.font = '40px Arial';
-        for (let i = 0; i < 30; i++) {
-            const x = Math.random() * 2000;
-            const y = Math.random() * 1000;
-            ctx.globalAlpha = 0.3 + Math.random() * 0.4;
-            ctx.fillText(funEmojis[Math.floor(Math.random() * funEmojis.length)], x, y);
-        }
-        ctx.globalAlpha = 1;
-        
-        const sphereTexture = new THREE.CanvasTexture(nebulaCanvas);
-        sphereTexture.wrapS = THREE.RepeatWrapping;
-        sphereTexture.wrapT = THREE.RepeatWrapping;
-        const sphereMat = new THREE.MeshBasicMaterial({ map: sphereTexture, side: THREE.BackSide });
-        const skySphere = new THREE.Mesh(sphereGeo, sphereMat);
-        scene.add(skySphere);
-        
-        // Define web center for spider web network
-        const webCenter = new THREE.Vector3(0, 100, 0); // VAST web center
-        
-        // Add a glowing spider at the center of the web!
-        const spiderGroup = new THREE.Group();
-        const spiderBody = new THREE.Mesh(
-            new THREE.SphereGeometry(2, 16, 16),
-            new THREE.MeshPhongMaterial({ color: 0x222222, emissive: 0xff0000, emissiveIntensity: 0.3 })
-        );
-        spiderGroup.add(spiderBody);
-        const spiderHead = new THREE.Mesh(
-            new THREE.SphereGeometry(1.2, 16, 16),
-            new THREE.MeshPhongMaterial({ color: 0x111111, emissive: 0xff0000, emissiveIntensity: 0.2 })
-        );
-        spiderHead.position.set(0, 0, 2.5);
-        spiderGroup.add(spiderHead);
-        // Spider eyes
-        for (let e = 0; e < 8; e++) {
-            const eye = new THREE.Mesh(
-                new THREE.SphereGeometry(0.2, 8, 8),
-                new THREE.MeshBasicMaterial({ color: 0xff0000 })
-            );
-            const eyeAngle = (e / 8) * Math.PI - Math.PI / 2;
-            eye.position.set(Math.sin(eyeAngle) * 0.8, 0.3 + (e % 2) * 0.3, 3.2 + Math.cos(eyeAngle) * 0.3);
-            spiderGroup.add(eye);
-        }
-        // Spider legs
-        for (let leg = 0; leg < 8; leg++) {
-            const legAngle = (leg / 8) * Math.PI * 2;
-            const legGroup = new THREE.Group();
-            const segment1 = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.15, 0.1, 4, 8),
-                new THREE.MeshPhongMaterial({ color: 0x333333 })
-            );
-            segment1.rotation.z = Math.PI / 3;
-            segment1.position.set(2, 1, 0);
-            legGroup.add(segment1);
-            const segment2 = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.1, 0.05, 5, 8),
-                new THREE.MeshPhongMaterial({ color: 0x222222 })
-            );
-            segment2.rotation.z = -Math.PI / 4;
-            segment2.position.set(4.5, -0.5, 0);
-            legGroup.add(segment2);
-            legGroup.rotation.y = legAngle;
-            spiderGroup.add(legGroup);
-        }
-        spiderGroup.position.copy(webCenter);
-        scene.add(spiderGroup);
-
-        // Rival Carts
-        const rivalCarts = [];
-        const rivalColors = [0x00ff00, 0xff00ff, 0x00ffff, 0xffff00];
-        const riderColors = [0xff8800, 0x8800ff, 0x0088ff, 0xff0088];
-        
-        for (let r = 0; r < 4; r++) {
-            const rivalGroup = new THREE.Group();
-            const rivalBody = new THREE.Mesh(
-                new THREE.BoxGeometry(1.5, 0.8, 1),
-                new THREE.MeshPhongMaterial({ color: rivalColors[r], shininess: 100 })
-            );
-            rivalGroup.add(rivalBody);
-            
-            const rivalRiderBody = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.2, 0.25, 0.6, 8),
-                new THREE.MeshPhongMaterial({ color: riderColors[r] })
-            );
-            rivalRiderBody.position.y = 0.7;
-            rivalGroup.add(rivalRiderBody);
-            
-            const rivalHead = new THREE.Mesh(
-                new THREE.SphereGeometry(0.2, 16, 16),
-                new THREE.MeshPhongMaterial({ color: 0xffcc99 })
-            );
-            rivalHead.position.y = 1.2;
-            rivalGroup.add(rivalHead);
-            
-            rivalGroup.userData = { offset: (r + 1) * 0.05, zOffset: (r % 2 === 0 ? -3 : 3) + (r > 1 ? 1 : -1) };
-            scene.add(rivalGroup);
-            rivalCarts.push(rivalGroup);
-        }
-
-        // TOROIDAL SPIDER WEB TRACK NETWORK - COSMIC DONUT!
-        // webCenter already defined above for spider
-        const torusR = 350; // VAST Major radius (center of tube to center of torus)
-        const torusr = 120; // VAST Minor radius (radius of the tube)
-        const numToroidalTracks = 12; // Tracks going around the donut hole
-        const numPoloidalTracks = 8; // Tracks going around the tube
-        const allWebCurves = [];
-        const webTrackColors = [0xf7931a, 0x00ffff, 0xff00ff, 0x00ff88, 0xff4444, 0xffff00, 0xff8800, 0x88ff00, 0xff0088, 0x0088ff, 0xaa00ff, 0x00ffaa];
-        
-        // Helper function to get point on torus surface
-        function getTorusPoint(u, v, majorR, minorR) {
-            // u = angle around the hole (0 to 2π)
-            // v = angle around the tube (0 to 2π)
-            const x = (majorR + minorR * Math.cos(v)) * Math.cos(u);
-            const y = minorR * Math.sin(v);
-            const z = (majorR + minorR * Math.cos(v)) * Math.sin(u);
-            return new THREE.Vector3(x + webCenter.x, y + webCenter.y, z + webCenter.z);
-        }
-        
-        // Create TOROIDAL tracks (going around the donut hole) - WRAPPING!
-        for (let i = 0; i < numToroidalTracks; i++) {
-            const v = (i / numToroidalTracks) * Math.PI * 2; // Fixed position on tube circumference
-            const toroidalPoints = [];
-            for (let j = 0; j <= 100; j++) {
-                const u = (j / 100) * Math.PI * 2;
-                const wave = Math.sin(u * 6 + i) * 1.5; // Wavy variation
-                const point = getTorusPoint(u, v + wave * 0.1, torusR, torusr + wave);
-                toroidalPoints.push(point);
-            }
-            const toroidalCurve = new THREE.CatmullRomCurve3(toroidalPoints, true); // TRUE = closed loop!
-            allWebCurves.push(toroidalCurve);
-            const toroidalTube = new THREE.TubeGeometry(toroidalCurve, 300, 0.15, 8, false);
-            const toroidalMesh = new THREE.Mesh(toroidalTube, new THREE.MeshPhongMaterial({
-                color: webTrackColors[i % webTrackColors.length],
-                emissive: webTrackColors[i % webTrackColors.length],
-                emissiveIntensity: 0.4,
-                shininess: 100
-            }));
-            scene.add(toroidalMesh);
-        }
-        
-        // Create POLOIDAL tracks (going around the tube) - Also wrapping!
-        for (let i = 0; i < numPoloidalTracks; i++) {
-            const u = (i / numPoloidalTracks) * Math.PI * 2; // Fixed position around hole
-            const poloidalPoints = [];
-            for (let j = 0; j <= 80; j++) {
-                const v = (j / 80) * Math.PI * 2;
-                const wave = Math.cos(v * 4 + i * 2) * 1;
-                const point = getTorusPoint(u + wave * 0.05, v, torusR + wave, torusr);
-                poloidalPoints.push(point);
-            }
-            const poloidalCurve = new THREE.CatmullRomCurve3(poloidalPoints, true); // Closed loop!
-            allWebCurves.push(poloidalCurve);
-            const poloidalTube = new THREE.TubeGeometry(poloidalCurve, 200, 0.12, 8, false);
-            const poloidalColor = webTrackColors[(i + 6) % webTrackColors.length];
-            const poloidalMesh = new THREE.Mesh(poloidalTube, new THREE.MeshPhongMaterial({
-                color: poloidalColor,
-                emissive: poloidalColor,
-                emissiveIntensity: 0.3,
-                shininess: 80
-            }));
-            scene.add(poloidalMesh);
-        }
-        
-        // Create SPIRAL tracks that wind around the torus surface!
-        for (let i = 0; i < 6; i++) {
-            const spiralPoints = [];
-            const spiralTwist = 3 + i; // How many times it wraps around
-            for (let t = 0; t <= 200; t++) {
-                const progress = t / 200;
-                const u = progress * Math.PI * 2 * spiralTwist;
-                const v = progress * Math.PI * 2 * 2; // Goes around tube twice per full spiral
-                const wave = Math.sin(progress * Math.PI * 8 + i) * 2;
-                const point = getTorusPoint(u, v, torusR + wave * 0.5, torusr + wave * 0.3);
-                spiralPoints.push(point);
-            }
-            const spiralCurve = new THREE.CatmullRomCurve3(spiralPoints);
-            allWebCurves.push(spiralCurve);
-            const spiralTube = new THREE.TubeGeometry(spiralCurve, 400, 0.08, 6, false);
-            const spiralMesh = new THREE.Mesh(spiralTube, new THREE.MeshPhongMaterial({
-                color: 0xffffff,
-                emissive: 0x888888,
-                emissiveIntensity: 0.5,
-                transparent: true,
-                opacity: 0.6
-            }));
-            scene.add(spiralMesh);
-        }
-        
-        // Add a ghostly torus surface for visual reference
-        const torusGeo = new THREE.TorusGeometry(torusR, torusr, 32, 100);
-        const torusMat = new THREE.MeshPhongMaterial({
-            color: 0x220033,
-            emissive: 0x110022,
-            transparent: true,
-            opacity: 0.15,
-            wireframe: false,
-            side: THREE.DoubleSide
-        });
-        const torusMesh = new THREE.Mesh(torusGeo, torusMat);
-        torusMesh.position.copy(webCenter);
-        torusMesh.rotation.x = Math.PI / 2;
-        scene.add(torusMesh);
-        
-        // Add wireframe overlay for that TRON feel
-        const torusWireGeo = new THREE.TorusGeometry(torusR, torusr, 16, 48);
-        const torusWireMat = new THREE.MeshBasicMaterial({
-            color: 0x00ff88,
-            wireframe: true,
-            transparent: true,
-            opacity: 0.1
-        });
-        const torusWireMesh = new THREE.Mesh(torusWireGeo, torusWireMat);
-        torusWireMesh.position.copy(webCenter);
-        torusWireMesh.rotation.x = Math.PI / 2;
-        scene.add(torusWireMesh)
-        
-        // All tracks now part of unified torus - crossroads are the spiral intersections!
-        const crossCurve1 = curve2; // Cyan spiral IS crossroad 1
-        const crossCurve2 = curve3; // Magenta spiral IS crossroad 2
-        allWebCurves.push(curve, curve2, curve3);
-
-        // Animation - UNIFIED CHAOTIC TOROIDAL TRACK SYSTEM
-        let t = 0;
-        let lastY = 0;
-        let currentTrackIndex = 0;
-        const tracks = [curve, curve2, curve3]; // All toroidal spirals!
-        let activeTrack = curve;
-        let transitionProgress = 0;
-        let isTransitioning = false;
-        let nextTrack = null;
-        const transitionDuration = 0.08; // Smooth transitions between spirals
+        // PRICE DATA
+        let price = 67432;
         const priceEl = document.getElementById('price');
         const changeEl = document.getElementById('change');
-        const screamEl = document.getElementById('scream');
-
+        setInterval(() => {
+            price += (Math.random() - 0.48) * 100;
+            price = Math.max(60000, Math.min(75000, price));
+            priceEl.textContent = '$' + Math.floor(price).toLocaleString();
+            const change = ((price - 67432) / 67432 * 100).toFixed(2);
+            const isUp = change >= 0;
+            changeEl.textContent = (isUp ? '▲ +' : '▼ ') + Math.abs(change) + '%';
+            changeEl.style.color = isUp ? '#00ff88' : '#ff6666';
+        }, 3000);
+        
+        // ANIMATION
         function animate() {
             requestAnimationFrame(animate);
+            const time = Date.now() * 0.001;
             
-            t += 0.0003;
-            
-            // Get position with smooth track transitions - MUST BE FIRST!
-            let position, tangent;
-            if (isTransitioning && nextTrack) {
-                const currentPos = activeTrack.getPoint(Math.min(t, 0.99));
-                const nextPos = nextTrack.getPoint(0.05 + transitionProgress * 0.1);
-                const currentTan = activeTrack.getTangent(Math.min(t, 0.99));
-                const nextTan = nextTrack.getTangent(0.05 + transitionProgress * 0.1);
-                
-                // Smooth blend between tracks
-                const blend = transitionProgress * transitionProgress * (3 - 2 * transitionProgress); // smoothstep
-                position = new THREE.Vector3().lerpVectors(currentPos, nextPos, blend);
-                tangent = new THREE.Vector3().lerpVectors(currentTan, nextTan, blend).normalize();
-            } else {
-                position = activeTrack.getPoint(t);
-                tangent = activeTrack.getTangent(t);
+            // Animate ocean waves
+            const positions = ocean.geometry.attributes.position;
+            for (let i = 0; i < positions.count; i++) {
+                const x = positions.getX(i);
+                const z = positions.getZ(i);
+                positions.setY(i, Math.sin(x * 0.05 + time) * 0.3 + Math.cos(z * 0.05 + time * 0.7) * 0.2);
             }
+            positions.needsUpdate = true;
             
-            // CHAOTIC TRACK SWITCHING - random switches at any time for chaos!
-            const switchChance = 0.002 + Math.abs(lastY - position.y) * 0.01; // More likely during drops!
-            if (!isTransitioning && Math.random() < switchChance) {
-                isTransitioning = true;
-                transitionProgress = 0;
-                const availableTracks = tracks.filter(tr => tr !== activeTrack);
-                nextTrack = availableTracks[Math.floor(Math.random() * availableTracks.length)];
-            }
-            // Also switch at loop points
-            if (t > 0.98 && !isTransitioning) {
-                isTransitioning = true;
-                transitionProgress = 0;
-                const availableTracks = tracks.filter(tr => tr !== activeTrack);
-                nextTrack = availableTracks[Math.floor(Math.random() * availableTracks.length)];
-            }
+            // Gentle camera sway (lying on beach)
+            camera.position.x = Math.sin(time * 0.1) * 0.3;
+            camera.rotation.y = Math.sin(time * 0.05) * 0.02;
             
-            if (isTransitioning) {
-                transitionProgress += 0.02;
-                if (transitionProgress >= 1) {
-                    activeTrack = nextTrack;
-                    t = 0.05; // Start slightly into the new track
-                    isTransitioning = false;
-                    transitionProgress = 0;
-                    currentTrackIndex = tracks.indexOf(activeTrack);
-                }
-            }
-            
-            // Wrap t smoothly for endless feel
-            if (t > 1 && !isTransitioning) {
-                t = 0;
-            }
-
-            cartGroup.position.copy(position);
-            cartGroup.position.z += 0.5;
-            cartGroup.position.y += 0.5;
-            
-            // Tilt based on slope with LOOPING support!
-            const lookAt = position.clone().add(tangent);
-            cartGroup.lookAt(lookAt);
-            
-            // TOROIDAL BARREL ROLLS - constant spinning chaos!
-            const torusAngle = t * Math.PI * 2 * 3; // Matches track winding
-            const rollIntensity = 0.3 + Math.abs(position.y - lastY) * 5;
-            cartGroup.rotation.z += Math.sin(torusAngle * 2) * rollIntensity * 0.1;
-            cartGroup.rotation.x += Math.cos(torusAngle * 3) * rollIntensity * 0.05;
-
-            // FIRST PERSON VIEW - You ARE the rider!
-            // Position camera at rider's head position
-            const fpvOffset = new THREE.Vector3(0, 1.5, 0); // Head height
-            const fpvPosition = position.clone().add(fpvOffset);
-            
-            // Smooth camera movement for less motion sickness
-            const lerpFactor = 0.05; // Super smooth for chill vibes
-            camera.position.lerp(fpvPosition, lerpFactor);
-            
-            // Look ahead along the track
-            const lookAheadDistance = 10;
-            const lookTarget = position.clone().add(tangent.clone().multiplyScalar(lookAheadDistance));
-            lookTarget.y += 1; // Slight upward bias
-            
-            // Smooth look-at
-            if (!camera.userData.lookTarget) camera.userData.lookTarget = lookTarget.clone();
-            camera.userData.lookTarget.lerp(lookTarget, lerpFactor);
-            camera.lookAt(camera.userData.lookTarget);
-            
-            // Add subtle head bob for immersion
-            const headBob = Math.sin(Date.now() * 0.01) * 0.05;
-            camera.position.y += headBob;
-            
-            // Tilt camera slightly on turns
-            const turnIntensity = tangent.x * 0.1;
-            camera.rotation.z = THREE.MathUtils.lerp(camera.rotation.z, turnIntensity, 0.05);
-            
-            // Hide the cart since we're inside it
-            cartGroup.visible = false;
-
-            // Update price display - continuous price evolution
-            const currentPriceIndex = Math.floor(t * priceData.length);
-            let currentPrice = priceData[currentPriceIndex] || priceData[0];
-            // Add track-based price modifier for variety
-            const trackModifier = 1 + (currentTrackIndex * 0.1) * Math.sin(Date.now() * 0.001);
-            currentPrice *= trackModifier;
-            priceEl.textContent = '$' + currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            
-            const changePercent = ((currentPrice - priceData[0]) / priceData[0] * 100);
-            const isUp = changePercent >= 0;
-            changeEl.textContent = (isUp ? '▲ +' : '▼ ') + changePercent.toFixed(2) + '%';
-            changeEl.style.color = isUp ? '#00ff88' : '#ff4444';
-            priceEl.className = 'price ' + (isUp ? 'up' : 'down');
-            
-            // Update track indicator - TOROIDAL CHAOS MODE
-            const trackNames = ['🏝️ ISLAND LOOP', '🌊 WAVE RIDER', '🌅 SUNSET DRIFT'];
-            const trackIndicator = document.getElementById('track-indicator');
-            if (isTransitioning) {
-                trackIndicator.textContent = '⚡ DIMENSIONAL SHIFT...';
-                trackIndicator.style.color = '#ffff00';
-            } else {
-                trackIndicator.textContent = 'SPIRAL: ' + trackNames[currentTrackIndex];
-                trackIndicator.style.color = ['#f7931a', '#00ffff', '#ff00ff'][currentTrackIndex];
-            }
-
-            // Animate UFOs
-            ufos.forEach((ufo, i) => {
-                const data = ufo.userData;
-                const time = Date.now() * 0.001;
-                ufo.position.x = Math.cos(time * data.orbitSpeed + data.orbitOffset) * data.orbitRadius;
-                ufo.position.z = Math.sin(time * data.orbitSpeed + data.orbitOffset) * data.orbitRadius * 0.5 - 10;
-                ufo.position.y = 15 + Math.sin(time * 2 + data.hoverOffset) * 3;
-                ufo.rotation.y = time * 2;
-                // UFO looks at the cart
-                ufo.lookAt(cartGroup.position);
-                ufo.rotation.x = 0;
-                ufo.rotation.z = 0;
+            // Animate seagulls
+            seagulls.forEach(bird => {
+                bird.position.x += bird.userData.speed;
+                bird.position.y += Math.sin(time * 2 + bird.userData.offset) * 0.02;
+                if (bird.position.x > 50) bird.position.x = -50;
             });
             
-            // Mothership slow rotation and beam pulse
-            mothershipGroup.rotation.y += 0.002;
-            beam.material.opacity = 0.1 + Math.sin(Date.now() * 0.003) * 0.1;
-
-            // Update audio based on height
-            const yDiff = position.y - lastY;
-            updateAudioFromHeight(position.y, yDiff);
+            // Rotate sky slowly
+            sky.rotation.y += 0.0001;
             
-            // Scream on big drops
-            if (yDiff < -0.15) {
-                screamEl.style.opacity = '0.5';
-                screamEl.textContent = ['🌊', '🏄', '🐬', '🌴', '🍹', '☀️', '🌺', '🐠'][Math.floor(Math.random() * 8)];
-            } else {
-                screamEl.style.opacity = '0';
-            }
-            lastY = position.y;
-
-            // Animate rival carts on crossroads
-            rivalCarts.forEach((rival, idx) => {
-                const rivalT = (t + rival.userData.offset) % 1;
-                const useCurve = idx < 2 ? crossCurve1 : crossCurve2;
-                const rivalPos = useCurve.getPoint(rivalT);
-                const rivalTan = useCurve.getTangent(rivalT);
-                rival.position.copy(rivalPos);
-                rival.position.z += rival.userData.zOffset;
-                rival.position.y += 0.5;
-                const rivalLook = rivalPos.clone().add(rivalTan);
-                rival.lookAt(rivalLook);
-            });
-
-            // Rotate sky sphere for PSYCHEDELIC trippy effect - faster and multi-axis!
-            const psychedelicTime = Date.now() * 0.0001;
-            skySphere.rotation.y += 0.001 + Math.sin(psychedelicTime) * 0.0005;
-            skySphere.rotation.x += 0.0005 + Math.cos(psychedelicTime) * 0.0003;
-            skySphere.rotation.z += 0.0002;
-            
-            // Psychedelic color cycling on track materials
-            const hueShift = (Date.now() * 0.001) % (Math.PI * 2);
-            track.material.emissive.setHSL((hueShift / (Math.PI * 2)), 1, 0.3);
-            track2.material.emissive.setHSL((hueShift / (Math.PI * 2) + 0.1) % 1, 1, 0.3);
-            
-            // Pulsating fog for dreamy effect
-            scene.fog.far = 1500 + Math.sin(Date.now() * 0.002) * 500; // VAST fog
-            
-            // Update psychedelic overlay intensity based on speed
-            const psychOverlay = document.querySelector('.psychedelic-overlay');
-            if (psychOverlay) {
-                const intensity = 0.2 + Math.abs(yDiff) * 3;
-                psychOverlay.style.opacity = Math.min(0.5, intensity);
-            }
-            
-            // Animate psychedelic floating orbs
-            psychParticles.children.forEach((orb, i) => {
-                const data = orb.userData;
-                const orbTime = Date.now() * 0.001;
-                orb.position.y += Math.sin(orbTime * data.speed + data.offset) * 0.02;
-                orb.position.x += Math.cos(orbTime * data.speed * 0.5 + data.offset) * 0.01;
-                // Color cycling
-                const newHue = (data.hue + orbTime * 0.1) % 1;
-                orb.material.color.setHSL(newHue, 1, 0.5);
-                // Pulsating size
-                const scale = 1 + Math.sin(orbTime * 3 + data.offset) * 0.3;
-                orb.scale.setScalar(scale);
-            });
-            
-            // Animate the spider at the center of the web
-            if (spiderGroup) {
-                spiderGroup.rotation.y += 0.005;
-                spiderGroup.position.y = webCenter.y + Math.sin(Date.now() * 0.002) * 2;
-                // Animate spider legs
-                spiderGroup.children.forEach((child, i) => {
-                    if (i > 9) { // Leg groups
-                        child.rotation.x = Math.sin(Date.now() * 0.005 + i) * 0.2;
-                    }
-                });
-            }
-            
-            // Animate toroidal structures
-            if (torusMesh) {
-                torusMesh.rotation.z += 0.001;
-                torusWireMesh.rotation.z += 0.001;
-            }
-
             renderer.render(scene, camera);
         }
-
         animate();
-
-        // Resize handler
+        
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
