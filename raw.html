@@ -627,6 +627,7 @@
 <span class="saves">Saves: <span id="saves">0</span></span>
 <span>Shots: <span id="shots">0</span></span>
 <span style="color:#ff6b35;">🦖 Monsters: 2</span>
+<span style="color:#00aaff;">🚁 ELON: <span id="elonStatus">INCOMING</span></span>
 <span style="color:#00ffff;">🎯 PINBALL: <span id="pinballScore">0</span></span>
 <span style="color:#ff00ff;">x<span id="comboMultiplier">1</span></span>
 </div>
@@ -1398,6 +1399,309 @@ trexGroup.userData = { type: 'trex', targetX: 30, targetZ: 10, eatCooldown: 0 };
 scene.add(trexGroup);
 monsters.push(trexGroup);
 
+// ELON MUSK HELICOPTER SYSTEM
+const helicopterGroup = new THREE.Group();
+
+// Helicopter body
+const heliBody = new THREE.Mesh(
+    new THREE.BoxGeometry(3, 1.5, 6),
+    new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.8 })
+);
+heliBody.position.y = 1;
+helicopterGroup.add(heliBody);
+
+// Helicopter cockpit
+const heliCockpit = new THREE.Mesh(
+    new THREE.SphereGeometry(1.2, 16, 16),
+    new THREE.MeshStandardMaterial({ color: 0x88ccff, transparent: true, opacity: 0.7 })
+);
+heliCockpit.scale.set(1.2, 0.8, 1);
+heliCockpit.position.set(0, 1.2, 2);
+helicopterGroup.add(heliCockpit);
+
+// Main rotor
+const rotorGroup = new THREE.Group();
+for (let i = 0; i < 4; i++) {
+    const blade = new THREE.Mesh(
+        new THREE.BoxGeometry(8, 0.1, 0.5),
+        new THREE.MeshStandardMaterial({ color: 0x222222 })
+    );
+    blade.rotation.y = (i / 4) * Math.PI * 2;
+    rotorGroup.add(blade);
+}
+rotorGroup.position.y = 2.2;
+helicopterGroup.add(rotorGroup);
+
+// Tail
+const heliTail = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.3, 0.5, 5, 8),
+    new THREE.MeshStandardMaterial({ color: 0x333333 })
+);
+heliTail.rotation.x = Math.PI / 2;
+heliTail.position.set(0, 1, -4);
+helicopterGroup.add(heliTail);
+
+// Tail rotor
+const tailRotor = new THREE.Group();
+for (let i = 0; i < 2; i++) {
+    const tBlade = new THREE.Mesh(
+        new THREE.BoxGeometry(2, 0.1, 0.3),
+        new THREE.MeshStandardMaterial({ color: 0x222222 })
+    );
+    tBlade.rotation.y = (i / 2) * Math.PI;
+    tailRotor.add(tBlade);
+}
+tailRotor.position.set(0.8, 1, -6);
+tailRotor.rotation.z = Math.PI / 2;
+helicopterGroup.add(tailRotor);
+
+// TESLA logo on side
+const teslaLogo = new THREE.Mesh(
+    new THREE.PlaneGeometry(1.5, 1.5),
+    new THREE.MeshBasicMaterial({ color: 0xff0000 })
+);
+teslaLogo.position.set(1.51, 1, 0);
+teslaLogo.rotation.y = Math.PI / 2;
+helicopterGroup.add(teslaLogo);
+
+helicopterGroup.position.set(100, 80, -50);
+helicopterGroup.visible = false;
+scene.add(helicopterGroup);
+
+// ELON MUSK CHARACTER
+const elonGroup = new THREE.Group();
+
+// Elon body (black suit)
+const elonBody = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.4, 0.5, 1.8, 8),
+    new THREE.MeshStandardMaterial({ color: 0x111111 })
+);
+elonBody.position.y = 0.9;
+elonGroup.add(elonBody);
+
+// Elon head
+const elonHead = new THREE.Mesh(
+    new THREE.SphereGeometry(0.35, 16, 16),
+    new THREE.MeshStandardMaterial({ color: 0xffdbac })
+);
+elonHead.position.y = 2;
+elonGroup.add(elonHead);
+
+// Elon hair (dark brown)
+const elonHair = new THREE.Mesh(
+    new THREE.SphereGeometry(0.32, 12, 12),
+    new THREE.MeshStandardMaterial({ color: 0x3d2314 })
+);
+elonHair.position.set(0, 2.15, -0.05);
+elonHair.scale.set(1.1, 0.6, 1);
+elonGroup.add(elonHair);
+
+// Elon arms (fighting pose)
+const elonArmL = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.12, 0.1, 0.8, 6),
+    new THREE.MeshStandardMaterial({ color: 0x111111 })
+);
+elonArmL.position.set(-0.5, 1.4, 0.3);
+elonArmL.rotation.x = -0.8;
+elonGroup.add(elonArmL);
+
+const elonArmR = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.12, 0.1, 0.8, 6),
+    new THREE.MeshStandardMaterial({ color: 0x111111 })
+);
+elonArmR.position.set(0.5, 1.4, 0.3);
+elonArmR.rotation.x = -0.8;
+elonGroup.add(elonArmR);
+
+// Elon fists (flesh colored)
+const elonFistL = new THREE.Mesh(
+    new THREE.SphereGeometry(0.15, 8, 8),
+    new THREE.MeshStandardMaterial({ color: 0xffdbac })
+);
+elonFistL.position.set(-0.5, 1.2, 0.7);
+elonGroup.add(elonFistL);
+
+const elonFistR = new THREE.Mesh(
+    new THREE.SphereGeometry(0.15, 8, 8),
+    new THREE.MeshStandardMaterial({ color: 0xffdbac })
+);
+elonFistR.position.set(0.5, 1.2, 0.7);
+elonGroup.add(elonFistR);
+
+// Elon legs
+const elonLegL = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.12, 0.1, 1, 6),
+    new THREE.MeshStandardMaterial({ color: 0x111111 })
+);
+elonLegL.position.set(-0.2, 0.3, 0);
+elonGroup.add(elonLegL);
+
+const elonLegR = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.12, 0.1, 1, 6),
+    new THREE.MeshStandardMaterial({ color: 0x111111 })
+);
+elonLegR.position.set(0.2, 0.3, 0);
+elonGroup.add(elonLegR);
+
+elonGroup.position.set(0, -100, 0);
+elonGroup.visible = false;
+elonGroup.userData = { 
+    state: 'idle', 
+    fightTimer: 0, 
+    punchSide: 'left',
+    combatX: 0,
+    combatZ: 0
+};
+scene.add(elonGroup);
+
+// Helicopter arrival system
+let helicopterState = 'waiting';
+let helicopterTimer = 0;
+let elonFightDuration = 0;
+
+function spawnHelicopter() {
+    helicopterGroup.visible = true;
+    helicopterGroup.position.set(120, 60, -80);
+    helicopterState = 'arriving';
+    showMonsterAction('🚁 HELICOPTER INCOMING!');
+}
+
+function updateHelicopter() {
+    // Rotor spin
+    if (helicopterGroup.visible) {
+        rotorGroup.rotation.y += 0.5;
+        tailRotor.rotation.x += 0.8;
+    }
+    
+    if (helicopterState === 'arriving') {
+        // Fly toward Godzilla
+        const targetX = godzillaGroup.position.x + 15;
+        const targetZ = godzillaGroup.position.z + 10;
+        const targetY = 25;
+        
+        helicopterGroup.position.x += (targetX - helicopterGroup.position.x) * 0.02;
+        helicopterGroup.position.y += (targetY - helicopterGroup.position.y) * 0.02;
+        helicopterGroup.position.z += (targetZ - helicopterGroup.position.z) * 0.02;
+        
+        // Face movement direction
+        helicopterGroup.rotation.y = Math.atan2(
+            targetX - helicopterGroup.position.x,
+            targetZ - helicopterGroup.position.z
+        );
+        
+        // Check if arrived
+        const dist = Math.sqrt(
+            Math.pow(helicopterGroup.position.x - targetX, 2) +
+            Math.pow(helicopterGroup.position.z - targetZ, 2)
+        );
+        if (dist < 5) {
+            helicopterState = 'dropping';
+            showMonsterAction('🦸 ELON MUSK JUMPS OUT!');
+            // Position Elon below helicopter
+            elonGroup.position.set(
+                helicopterGroup.position.x,
+                helicopterGroup.position.y - 3,
+                helicopterGroup.position.z
+            );
+            elonGroup.visible = true;
+            elonGroup.userData.state = 'falling';
+        }
+    } else if (helicopterState === 'dropping') {
+        // Elon falls
+        if (elonGroup.userData.state === 'falling') {
+            elonGroup.position.y -= 0.8;
+            elonGroup.rotation.y += 0.1;
+            
+            if (elonGroup.position.y <= 2) {
+                elonGroup.position.y = 0;
+                elonGroup.userData.state = 'fighting';
+                elonGroup.userData.combatX = godzillaGroup.position.x;
+                elonGroup.userData.combatZ = godzillaGroup.position.z + 8;
+                elonFightDuration = 300; // 5 seconds of fighting
+                showMonsterAction('👊 ELON VS GODZILLA!');
+                createBounceVFX(elonGroup.position.x, 1, elonGroup.position.z, 0xffdd00);
+            }
+        }
+        
+        // Helicopter leaves
+        helicopterGroup.position.x += 1.5;
+        helicopterGroup.position.y += 0.3;
+        if (helicopterGroup.position.x > 150) {
+            helicopterGroup.visible = false;
+            helicopterState = 'fighting';
+        }
+    } else if (helicopterState === 'fighting') {
+        if (elonGroup.userData.state === 'fighting' && elonFightDuration > 0) {
+            elonFightDuration--;
+            
+            // Move toward Godzilla
+            elonGroup.position.x += (elonGroup.userData.combatX - elonGroup.position.x) * 0.1;
+            elonGroup.position.z += (elonGroup.userData.combatZ - elonGroup.position.z) * 0.1;
+            
+            // Face Godzilla
+            elonGroup.rotation.y = Math.atan2(
+                godzillaGroup.position.x - elonGroup.position.x,
+                godzillaGroup.position.z - elonGroup.position.z
+            );
+            
+            // PUNCH ANIMATION!
+            elonGroup.userData.fightTimer++;
+            if (elonGroup.userData.fightTimer % 20 === 0) {
+                // Alternate punches
+                elonGroup.userData.punchSide = elonGroup.userData.punchSide === 'left' ? 'right' : 'left';
+                
+                // Create punch VFX
+                const punchX = godzillaGroup.position.x + (Math.random() - 0.5) * 4;
+                const punchY = 8 + Math.random() * 6;
+                const punchZ = godzillaGroup.position.z + 3;
+                createBounceVFX(punchX, punchY, punchZ, 0xff0000);
+                
+                // Punch text
+                if (Math.random() < 0.3) {
+                    const punchTexts = ['💥 POW!', '👊 WHAM!', '⚡ ZAP!', '💫 BOOM!', '🔥 CRITICAL!'];
+                    showMonsterAction(punchTexts[Math.floor(Math.random() * punchTexts.length)]);
+                }
+            }
+            
+            // Jumping attack motion
+            elonGroup.position.y = Math.abs(Math.sin(elonGroup.userData.fightTimer * 0.2)) * 3;
+            
+            // Godzilla reacts - slight stagger
+            if (elonGroup.userData.fightTimer % 30 === 0) {
+                godzillaGroup.position.x += (Math.random() - 0.5) * 2;
+                godzillaGroup.rotation.y += (Math.random() - 0.5) * 0.2;
+            }
+            
+        } else if (elonFightDuration <= 0 && elonGroup.visible) {
+            // Fight over - Elon retreats dramatically
+            showMonsterAction('🚀 ELON RETREATS TO MARS!');
+            elonGroup.userData.state = 'retreating';
+            helicopterState = 'waiting';
+        }
+        
+        if (elonGroup.userData.state === 'retreating') {
+            elonGroup.position.y += 0.5;
+            elonGroup.rotation.y += 0.2;
+            if (elonGroup.position.y > 80) {
+                elonGroup.visible = false;
+                elonGroup.userData.state = 'idle';
+            }
+        }
+    }
+}
+
+// Spawn helicopter every 15 seconds
+setInterval(() => {
+    if (helicopterState === 'waiting' && !elonGroup.visible) {
+        spawnHelicopter();
+    }
+}, 15000);
+
+// Initial spawn after 5 seconds
+setTimeout(() => {
+    if (helicopterState === 'waiting') spawnHelicopter();
+}, 5000);
+
 // Monster eating VFX
 function monsterEat(monster, targetPos) {
     createBounceVFX(targetPos.x, targetPos.y + 1, targetPos.z, 0xff0000);
@@ -1816,6 +2120,9 @@ function animate() {
     
     // Update bounce particles
     updateBounceParticles();
+    
+    // Update helicopter and Elon
+    updateHelicopter();
     
     renderer.render(scene, camera);
 }
