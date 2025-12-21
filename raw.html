@@ -364,7 +364,7 @@
 <span class="emoji">🌴☀️🌊</span>
 <div>Just breathe... You're on Bitcoin Beach</div>
 </div>
-<div class="beach-items">🐚 🦀 🍹 🥥 🌺 🏄 🍺 🌊</div>
+<div class="beach-items">✨ 3D Beach Now Live! ✨</div>
 <div class="alien-tourist alien-1">
 <span class="alien-body">👽🍹</span>
 <div class="speech">Earth sunsets hit different 🌅</div>
@@ -652,6 +652,175 @@
         scene.add(createPalmTree(-12, 32));
         scene.add(createPalmTree(15, 35));
         
+        // 3D Beach Items - Real World Experience!
+        function createSeashell(x, z, scale = 1) {
+            const group = new THREE.Group();
+            const shellGeo = new THREE.TorusGeometry(0.3 * scale, 0.15 * scale, 8, 16, Math.PI * 1.5);
+            const shellMat = new THREE.MeshPhongMaterial({ 
+                color: 0xffe4c4, 
+                shininess: 80,
+                specular: 0xffffff
+            });
+            const shell = new THREE.Mesh(shellGeo, shellMat);
+            shell.rotation.x = Math.PI / 2;
+            group.add(shell);
+            group.position.set(x, 0.1, z);
+            return group;
+        }
+        
+        function createCrab(x, z) {
+            const group = new THREE.Group();
+            const bodyGeo = new THREE.SphereGeometry(0.25, 8, 6);
+            const bodyMat = new THREE.MeshPhongMaterial({ color: 0xff4500 });
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.scale.set(1.3, 0.6, 1);
+            group.add(body);
+            
+            // Eyes
+            for (let i = -1; i <= 1; i += 2) {
+                const eyeStalk = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.03, 0.03, 0.15, 6),
+                    new THREE.MeshPhongMaterial({ color: 0xff4500 })
+                );
+                eyeStalk.position.set(i * 0.12, 0.15, 0.1);
+                group.add(eyeStalk);
+                
+                const eye = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.05, 8, 8),
+                    new THREE.MeshPhongMaterial({ color: 0x000000 })
+                );
+                eye.position.set(i * 0.12, 0.22, 0.1);
+                group.add(eye);
+            }
+            
+            // Claws
+            for (let i = -1; i <= 1; i += 2) {
+                const claw = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.12, 8, 8),
+                    new THREE.MeshPhongMaterial({ color: 0xff6347 })
+                );
+                claw.scale.set(1.5, 0.8, 0.6);
+                claw.position.set(i * 0.4, 0, 0.1);
+                group.add(claw);
+            }
+            
+            group.position.set(x, 0.15, z);
+            group.userData = { wobble: Math.random() * Math.PI * 2 };
+            return group;
+        }
+        
+        function createBeachBall(x, z) {
+            const geo = new THREE.SphereGeometry(0.4, 16, 16);
+            const canvas = document.createElement('canvas');
+            canvas.width = 64;
+            canvas.height = 64;
+            const ctx = canvas.getContext('2d');
+            const colors = ['#ff0000', '#ffffff', '#0066ff', '#ffff00', '#00ff00', '#ff00ff'];
+            for (let i = 0; i < 6; i++) {
+                ctx.fillStyle = colors[i];
+                ctx.beginPath();
+                ctx.moveTo(32, 32);
+                ctx.arc(32, 32, 32, (i / 6) * Math.PI * 2, ((i + 1) / 6) * Math.PI * 2);
+                ctx.fill();
+            }
+            const tex = new THREE.CanvasTexture(canvas);
+            const mat = new THREE.MeshPhongMaterial({ map: tex, shininess: 100 });
+            const ball = new THREE.Mesh(geo, mat);
+            ball.position.set(x, 0.4, z);
+            ball.userData = { bounce: Math.random() * Math.PI * 2 };
+            return ball;
+        }
+        
+        function createUmbrella(x, z, color = 0xff6b6b) {
+            const group = new THREE.Group();
+            const poleGeo = new THREE.CylinderGeometry(0.05, 0.05, 3, 8);
+            const poleMat = new THREE.MeshPhongMaterial({ color: 0x8b4513 });
+            const pole = new THREE.Mesh(poleGeo, poleMat);
+            pole.position.y = 1.5;
+            group.add(pole);
+            
+            const canopyGeo = new THREE.ConeGeometry(1.5, 0.8, 8, 1, true);
+            const canopyMat = new THREE.MeshPhongMaterial({ color: color, side: THREE.DoubleSide });
+            const canopy = new THREE.Mesh(canopyGeo, canopyMat);
+            canopy.position.y = 2.8;
+            canopy.rotation.x = Math.PI;
+            group.add(canopy);
+            
+            group.position.set(x, 0, z);
+            return group;
+        }
+        
+        function createSurfboard(x, z, rotation = 0) {
+            const group = new THREE.Group();
+            const boardGeo = new THREE.BoxGeometry(0.6, 0.08, 2.5);
+            const boardMat = new THREE.MeshPhongMaterial({ 
+                color: 0x00bfff,
+                shininess: 100 
+            });
+            const board = new THREE.Mesh(boardGeo, boardMat);
+            
+            // Add stripe
+            const stripeGeo = new THREE.BoxGeometry(0.62, 0.085, 0.3);
+            const stripeMat = new THREE.MeshPhongMaterial({ color: 0xffd700 });
+            const stripe = new THREE.Mesh(stripeGeo, stripeMat);
+            stripe.position.z = 0.5;
+            group.add(stripe);
+            
+            group.add(board);
+            group.position.set(x, 0.15, z);
+            group.rotation.y = rotation;
+            group.rotation.x = 0.1;
+            return group;
+        }
+        
+        function createCoconut(x, z) {
+            const geo = new THREE.SphereGeometry(0.2, 12, 12);
+            const mat = new THREE.MeshPhongMaterial({ color: 0x8b4513, roughness: 0.9 });
+            const coconut = new THREE.Mesh(geo, mat);
+            coconut.position.set(x, 0.2, z);
+            return coconut;
+        }
+        
+        // Add 3D beach items to scene
+        const beachItems3D = [];
+        
+        // Seashells scattered on beach
+        for (let i = 0; i < 8; i++) {
+            const shell = createSeashell(-15 + Math.random() * 30, 26 + Math.random() * 10, 0.5 + Math.random() * 0.5);
+            shell.rotation.y = Math.random() * Math.PI * 2;
+            scene.add(shell);
+        }
+        
+        // Crabs
+        const crabs = [];
+        for (let i = 0; i < 3; i++) {
+            const crab = createCrab(-10 + i * 10, 27 + Math.random() * 5);
+            scene.add(crab);
+            crabs.push(crab);
+        }
+        
+        // Beach balls
+        const beachBalls = [];
+        const ball1 = createBeachBall(-5, 28);
+        const ball2 = createBeachBall(8, 30);
+        scene.add(ball1);
+        scene.add(ball2);
+        beachBalls.push(ball1, ball2);
+        
+        // Umbrellas
+        scene.add(createUmbrella(-6, 26, 0xff6b6b));
+        scene.add(createUmbrella(4, 27, 0x4ecdc4));
+        scene.add(createUmbrella(12, 29, 0xffe66d));
+        
+        // Surfboards
+        scene.add(createSurfboard(-3, 25, 0.3));
+        scene.add(createSurfboard(6, 26, -0.2));
+        
+        // Coconuts
+        for (let i = 0; i < 5; i++) {
+            scene.add(createCoconut(-12 + Math.random() * 24, 28 + Math.random() * 6));
+        }
+        
         const ambient = new THREE.AmbientLight(0xffa07a, 0.6);
         scene.add(ambient);
         const sunLight = new THREE.DirectionalLight(0xffd700, 1);
@@ -764,6 +933,18 @@
                 bird.position.x += bird.userData.speed;
                 bird.position.y += Math.sin(time * 2 + bird.userData.offset) * 0.02;
                 if (bird.position.x > 50) bird.position.x = -50;
+            });
+            
+            // Animate 3D beach items
+            crabs.forEach(crab => {
+                crab.rotation.y = Math.sin(time * 2 + crab.userData.wobble) * 0.3;
+                crab.position.x += Math.sin(time + crab.userData.wobble) * 0.002;
+            });
+            
+            beachBalls.forEach(ball => {
+                ball.position.y = 0.4 + Math.abs(Math.sin(time * 2 + ball.userData.bounce)) * 0.15;
+                ball.rotation.x += 0.02;
+                ball.rotation.z += 0.01;
             });
             
             sky.rotation.y += 0.0001;
