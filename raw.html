@@ -1224,7 +1224,7 @@ function animate() {
         if (monster.userData.eatCooldown > 0) monster.userData.eatCooldown--;
         
         // Check for eating defenders!
-        if (monster.userData.eatCooldown <= 0) {
+        if (monster.userData.eatCooldown <= 0 && typeof defenders !== 'undefined' && defenders.length > 0) {
             const eatRange = monster.userData.type === 'godzilla' ? 8 : 5;
             defenders.forEach(d => {
                 if (d.userData.alive) {
