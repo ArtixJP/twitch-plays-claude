@@ -150,6 +150,94 @@
             0%, 100% { opacity: 0.3; transform: scale(1); }
             50% { opacity: 1; transform: scale(1.2); }
         }
+        .glitched {
+            animation: glitch 0.3s ease-in-out infinite;
+            color: #ff4444;
+            text-shadow: 0 0 30px rgba(255, 0, 0, 0.8);
+        }
+        @keyframes glitch {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-3px, 3px); }
+            40% { transform: translate(3px, -3px); }
+            60% { transform: translate(-2px, -2px); }
+            80% { transform: translate(2px, 2px); }
+        }
+        .crater {
+            position: absolute;
+            font-size: 8rem;
+            bottom: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: pulse-crater 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 40px rgba(255, 100, 0, 0.6));
+            z-index: 3;
+        }
+        @keyframes pulse-crater {
+            0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.8; }
+            50% { transform: translateX(-50%) scale(1.1); opacity: 1; }
+        }
+        .debris {
+            position: absolute;
+            font-size: 2rem;
+            animation: scatter 4s ease-out infinite;
+            z-index: 8;
+        }
+        .debris-1 { top: 40%; left: 20%; animation-delay: 0s; }
+        .debris-2 { top: 50%; left: 70%; animation-delay: 0.5s; }
+        .debris-3 { top: 35%; left: 45%; animation-delay: 1s; }
+        @keyframes scatter {
+            0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+            100% { transform: translate(var(--dx, 50px), var(--dy, -100px)) rotate(360deg); opacity: 0.3; }
+        }
+        .ghost {
+            opacity: 0.5;
+            filter: drop-shadow(0 0 20px rgba(200, 200, 255, 0.8)) grayscale(50%);
+        }
+        .shattered {
+            animation: shatter 1s ease-in-out infinite;
+        }
+        @keyframes shatter {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(15deg) scale(0.9); }
+            75% { transform: rotate(-15deg) scale(1.1); }
+        }
+        .evacuating {
+            animation: run-away 3s linear infinite !important;
+        }
+        @keyframes run-away {
+            0% { left: 50%; opacity: 1; }
+            100% { left: 110%; opacity: 0; }
+        }
+        .impact {
+            animation: explode 0.5s ease-out infinite !important;
+            bottom: 25% !important;
+            left: 50% !important;
+            top: auto !important;
+            right: auto !important;
+        }
+        @keyframes explode {
+            0%, 100% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.3); filter: brightness(1.5); }
+        }
+        .ruins {
+            background: rgba(100, 50, 50, 0.3);
+            border: 1px dashed rgba(255, 100, 100, 0.5);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .flickering {
+            animation: flicker 0.8s ease-in-out infinite;
+            color: #ff6666;
+        }
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
+        .small-text {
+            font-size: 0.9rem;
+            color: #888;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -163,14 +251,19 @@
 <div class="star" style="width: 3px; height: 3px; top: 70%; left: 35%; animation-delay: 1.2s;"></div>
 </div>
 <div class="helmet" style="top: 28%; left: -12%;"></div>
-<div class="space-dog">🐕</div>
-<div class="coca-cola">🥤</div>
-<div class="space-cop" title="Space Patrol">👮</div>
-<div class="meteor" title="Incoming!">☄️</div>
-<h1>Hello World!</h1>
-<p class="instruction">
-        Type <code>!idea &lt;your idea&gt;</code> in the Twitch chat to add to this page.<br/>
-        Example: <code>!idea Add a space cat floating in the background</code>
+<div class="space-dog ghost" title="R.I.P. Space Dog">👻🐕</div>
+<div class="coca-cola shattered">🥤💔</div>
+<div class="space-cop evacuating" title="EVACUATE!">👮🏃💨</div>
+<div class="meteor impact" title="IT HIT!">💥☄️🔥</div>
+<h1 class="glitched">💥 IMPACT 💥</h1>
+<div class="crater">🕳️</div>
+<div class="debris debris-1">🔩</div>
+<div class="debris debris-2">⚙️</div>
+<div class="debris debris-3">🪨</div>
+<p class="instruction ruins">
+<span class="flickering">...signal lost...</span><br/>
+        Type <code>!idea &lt;your idea&gt;</code> to rebuild from the ashes<br/>
+<span class="small-text">The old world is gone. What rises next?</span>
 </p>
 </body>
 </html>
