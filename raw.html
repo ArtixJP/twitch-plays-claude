@@ -535,6 +535,141 @@
             0%, 100% { opacity: 0.5; transform: translateX(-50%) scale(1); }
             50% { opacity: 1; transform: translateX(-50%) scale(1.1); }
         }
+        
+        /* ROCKET LAUNCH SYSTEM */
+        .launch-button {
+            position: fixed;
+            bottom: 60px;
+            right: 20px;
+            z-index: 300;
+            background: linear-gradient(135deg, #ff4500, #ff6b35);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(255, 69, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.3);
+            animation: rocket-btn-pulse 2s ease-in-out infinite;
+            transition: all 0.3s;
+        }
+        .launch-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 30px rgba(255, 69, 0, 0.7);
+        }
+        .launch-button.launched {
+            background: linear-gradient(135deg, #4a4a4a, #2a2a2a);
+            animation: none;
+            pointer-events: none;
+        }
+        @keyframes rocket-btn-pulse {
+            0%, 100% { box-shadow: 0 4px 20px rgba(255, 69, 0, 0.5); }
+            50% { box-shadow: 0 4px 40px rgba(255, 69, 0, 0.9), 0 0 60px rgba(255, 100, 0, 0.4); }
+        }
+        
+        .space-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, #0a0015 0%, #000008 100%);
+            z-index: 250;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 3s ease-in-out;
+        }
+        .space-overlay.active {
+            opacity: 1;
+        }
+        
+        .galaxy-destination {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            z-index: 260;
+            text-align: center;
+            opacity: 0;
+            transition: all 2s ease-out;
+        }
+        .galaxy-destination.visible {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        .galaxy-name {
+            font-size: 3rem;
+            color: #00ffff;
+            text-shadow: 0 0 30px #00ffff, 0 0 60px #0088ff;
+            margin-bottom: 20px;
+            animation: galaxy-glow 2s ease-in-out infinite;
+        }
+        .galaxy-desc {
+            font-size: 1.2rem;
+            color: #aaddff;
+            max-width: 400px;
+            line-height: 1.6;
+        }
+        @keyframes galaxy-glow {
+            0%, 100% { text-shadow: 0 0 30px #00ffff, 0 0 60px #0088ff; }
+            50% { text-shadow: 0 0 50px #00ffff, 0 0 100px #0088ff, 0 0 150px #00ffff; }
+        }
+        
+        .stars-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 255;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 2s;
+        }
+        .stars-container.active {
+            opacity: 1;
+        }
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle-star 2s ease-in-out infinite;
+        }
+        @keyframes twinkle-star {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
+        }
+        
+        .nebula {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(40px);
+            z-index: 253;
+            opacity: 0;
+            transition: opacity 3s;
+        }
+        .nebula.active {
+            opacity: 0.6;
+        }
+        
+        .journey-status {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 280;
+            color: #00ffff;
+            font-size: 1.2rem;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 1s;
+            text-shadow: 0 0 20px #00ffff;
+        }
+        .journey-status.active {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -661,6 +796,18 @@
 <div class="name-tag">YOU</div>
 </div>
 <div class="audio-indicator" id="audio-toggle">🌊 Ocean Waves</div>
+
+<button class="launch-button" id="launch-btn">🚀 LAUNCH TO GALAXY</button>
+<div class="space-overlay" id="space-overlay"></div>
+<div class="stars-container" id="stars-container"></div>
+<div class="nebula" id="nebula1" style="width: 300px; height: 200px; background: radial-gradient(ellipse, #ff00ff55, transparent); top: 20%; left: 10%;"></div>
+<div class="nebula" id="nebula2" style="width: 400px; height: 300px; background: radial-gradient(ellipse, #00ffff44, transparent); top: 60%; right: 5%;"></div>
+<div class="nebula" id="nebula3" style="width: 250px; height: 250px; background: radial-gradient(ellipse, #ffaa0033, transparent); top: 30%; right: 30%;"></div>
+<div class="galaxy-destination" id="galaxy-dest">
+<div class="galaxy-name">🌌 ANDROMEDA GALAXY 🌌</div>
+<div class="galaxy-desc">Welcome, traveler! You've journeyed 2.537 million light-years from Bitcoin Beach. The aliens here have been expecting you. 👽✨</div>
+</div>
+<div class="journey-status" id="journey-status"></div>
 <p class="instruction">
         Type <code>!idea your idea</code> in chat to modify this world
     </p>
@@ -1496,6 +1643,289 @@
             const intensity = 0.4 + Math.random() * 0.3;
             godRays.style.opacity = intensity;
         }, 2000);
+        
+        // ROCKET LAUNCH SYSTEM
+        let rocketLaunched = false;
+        let rocket = null;
+        let rocketTrail = [];
+        
+        // Create 3D Rocket
+        function createRocket() {
+            const group = new THREE.Group();
+            
+            // Main body
+            const bodyGeo = new THREE.CylinderGeometry(0.3, 0.4, 2.5, 16);
+            const bodyMat = new THREE.MeshPhongMaterial({ 
+                color: 0xeeeeee, 
+                shininess: 100,
+                specular: 0x444444
+            });
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            group.add(body);
+            
+            // Nose cone
+            const noseGeo = new THREE.ConeGeometry(0.3, 0.8, 16);
+            const noseMat = new THREE.MeshPhongMaterial({ color: 0xff4500, shininess: 80 });
+            const nose = new THREE.Mesh(noseGeo, noseMat);
+            nose.position.y = 1.65;
+            group.add(nose);
+            
+            // Fins
+            const finGeo = new THREE.BoxGeometry(0.1, 0.8, 0.5);
+            const finMat = new THREE.MeshPhongMaterial({ color: 0xff4500 });
+            for (let i = 0; i < 4; i++) {
+                const fin = new THREE.Mesh(finGeo, finMat);
+                fin.position.y = -1;
+                fin.position.x = Math.cos(i * Math.PI / 2) * 0.35;
+                fin.position.z = Math.sin(i * Math.PI / 2) * 0.35;
+                fin.rotation.y = i * Math.PI / 2;
+                group.add(fin);
+            }
+            
+            // Engine glow
+            const engineGeo = new THREE.CylinderGeometry(0.25, 0.15, 0.3, 16);
+            const engineMat = new THREE.MeshBasicMaterial({ color: 0x333333 });
+            const engine = new THREE.Mesh(engineGeo, engineMat);
+            engine.position.y = -1.4;
+            group.add(engine);
+            
+            // Flame
+            const flameGeo = new THREE.ConeGeometry(0.2, 1.5, 16);
+            const flameMat = new THREE.MeshBasicMaterial({ 
+                color: 0xff6600, 
+                transparent: true, 
+                opacity: 0.9 
+            });
+            const flame = new THREE.Mesh(flameGeo, flameMat);
+            flame.position.y = -2.2;
+            flame.rotation.x = Math.PI;
+            flame.visible = false;
+            group.add(flame);
+            
+            const innerFlame = new THREE.Mesh(
+                new THREE.ConeGeometry(0.1, 1, 16),
+                new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.8 })
+            );
+            innerFlame.position.y = -2;
+            innerFlame.rotation.x = Math.PI;
+            innerFlame.visible = false;
+            group.add(innerFlame);
+            
+            // Point light for engine glow
+            const engineLight = new THREE.PointLight(0xff4400, 0, 10);
+            engineLight.position.y = -1.5;
+            group.add(engineLight);
+            
+            // Window
+            const windowGeo = new THREE.CircleGeometry(0.12, 16);
+            const windowMat = new THREE.MeshBasicMaterial({ color: 0x00aaff });
+            const window1 = new THREE.Mesh(windowGeo, windowMat);
+            window1.position.set(0.31, 0.5, 0);
+            window1.rotation.y = Math.PI / 2;
+            group.add(window1);
+            
+            // Bitcoin logo on side
+            const btcGeo = new THREE.CircleGeometry(0.15, 16);
+            const btcMat = new THREE.MeshBasicMaterial({ color: 0xf7931a });
+            const btcLogo = new THREE.Mesh(btcGeo, btcMat);
+            btcLogo.position.set(0.31, -0.2, 0);
+            btcLogo.rotation.y = Math.PI / 2;
+            group.add(btcLogo);
+            
+            group.userData = { 
+                flame: flame, 
+                innerFlame: innerFlame, 
+                engineLight: engineLight,
+                velocity: 0,
+                phase: 'idle' // idle, launching, space, arriving
+            };
+            
+            return group;
+        }
+        
+        // Create rocket on beach
+        rocket = createRocket();
+        rocket.position.set(0, 1.5, 20);
+        rocket.scale.set(1.5, 1.5, 1.5);
+        scene.add(rocket);
+        
+        // Create stars for space
+        function createSpaceStars() {
+            const container = document.getElementById('stars-container');
+            for (let i = 0; i < 200; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = 1 + Math.random() * 3;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 2 + 's';
+                container.appendChild(star);
+            }
+        }
+        createSpaceStars();
+        
+        // Launch sequence
+        const launchBtn = document.getElementById('launch-btn');
+        const spaceOverlay = document.getElementById('space-overlay');
+        const starsContainer = document.getElementById('stars-container');
+        const galaxyDest = document.getElementById('galaxy-dest');
+        const journeyStatus = document.getElementById('journey-status');
+        const nebulas = [document.getElementById('nebula1'), document.getElementById('nebula2'), document.getElementById('nebula3')];
+        
+        const journeyMessages = [
+            '🚀 Ignition sequence started...',
+            '🔥 Engines at full thrust!',
+            '🌍 Leaving Earth\'s atmosphere...',
+            '🌙 Passing the Moon...',
+            '⭐ Entering deep space...',
+            '💫 Warp drive engaged!',
+            '🌌 Approaching Andromeda...',
+            '✨ Welcome to your new home!'
+        ];
+        
+        let launchTime = 0;
+        let originalCameraPos = { x: 0, y: 2, z: 0 };
+        
+        launchBtn.addEventListener('click', () => {
+            if (rocketLaunched) return;
+            rocketLaunched = true;
+            launchBtn.classList.add('launched');
+            launchBtn.textContent = '🚀 LAUNCHING...';
+            
+            // Start launch sequence
+            rocket.userData.phase = 'launching';
+            rocket.userData.flame.visible = true;
+            rocket.userData.innerFlame.visible = true;
+            rocket.userData.engineLight.intensity = 2;
+            
+            launchTime = Date.now();
+            
+            // Journey status updates
+            let msgIndex = 0;
+            journeyStatus.classList.add('active');
+            journeyStatus.textContent = journeyMessages[0];
+            
+            const msgInterval = setInterval(() => {
+                msgIndex++;
+                if (msgIndex < journeyMessages.length) {
+                    journeyStatus.textContent = journeyMessages[msgIndex];
+                } else {
+                    clearInterval(msgInterval);
+                }
+            }, 3000);
+            
+            // Transition to space
+            setTimeout(() => {
+                spaceOverlay.classList.add('active');
+                starsContainer.classList.add('active');
+                nebulas.forEach(n => n.classList.add('active'));
+            }, 5000);
+            
+            // Show galaxy destination
+            setTimeout(() => {
+                galaxyDest.classList.add('visible');
+                launchBtn.textContent = '🌌 ARRIVED!';
+            }, 20000);
+        });
+        
+        // Enhanced animation loop with rocket physics
+        const originalAnimate = animate;
+        function animateWithRocket() {
+            requestAnimationFrame(animateWithRocket);
+            const time = Date.now() * 0.001;
+            
+            // Update ocean shader
+            ocean.material.uniforms.uTime.value = time;
+            ocean.material.uniforms.uWaveHeight.value = 0.6 + Math.sin(time * 0.1) * 0.2;
+            
+            // Rocket animation
+            if (rocket && rocketLaunched) {
+                const elapsed = (Date.now() - launchTime) / 1000;
+                
+                if (elapsed < 3) {
+                    // Rumble phase
+                    rocket.position.x = Math.sin(time * 50) * 0.02;
+                    rocket.position.z = 20 + Math.cos(time * 50) * 0.02;
+                    rocket.userData.velocity = 0.01;
+                } else if (elapsed < 15) {
+                    // Ascending phase
+                    rocket.userData.velocity = Math.min(rocket.userData.velocity + 0.005, 0.8);
+                    rocket.position.y += rocket.userData.velocity;
+                    rocket.position.z -= rocket.userData.velocity * 0.3;
+                    
+                    // Camera follows
+                    camera.position.y = Math.min(rocket.position.y - 3, 50);
+                    camera.position.z = rocket.position.z + 10;
+                    camera.lookAt(rocket.position);
+                } else if (elapsed < 25) {
+                    // Space travel phase
+                    rocket.userData.velocity = 2;
+                    rocket.position.y += rocket.userData.velocity;
+                    rocket.rotation.x = -0.2;
+                    
+                    camera.position.y = rocket.position.y - 5;
+                    camera.position.z = rocket.position.z + 15;
+                    camera.lookAt(rocket.position);
+                } else {
+                    // Arrival phase - slow down
+                    rocket.userData.velocity = Math.max(rocket.userData.velocity - 0.02, 0.1);
+                    rocket.position.y += rocket.userData.velocity;
+                    rocket.rotation.z = Math.sin(time) * 0.1;
+                }
+                
+                // Flame animation
+                const flicker = 0.7 + Math.sin(time * 15) * 0.3;
+                rocket.userData.flame.scale.set(flicker, 1 + Math.sin(time * 10) * 0.3, flicker);
+                rocket.userData.innerFlame.scale.set(flicker * 0.7, 0.8 + Math.sin(time * 12) * 0.2, flicker * 0.7);
+                rocket.userData.engineLight.intensity = 1.5 + Math.sin(time * 8) * 0.5;
+            } else {
+                // Normal beach camera
+                camera.position.x = Math.sin(time * 0.1) * 0.3;
+                camera.rotation.y = Math.sin(time * 0.05) * 0.02;
+            }
+            
+            // Seagulls
+            seagulls.forEach(bird => {
+                bird.position.x += bird.userData.speed;
+                bird.position.y += Math.sin(time * 2 + bird.userData.offset) * 0.02;
+                if (bird.position.x > 50) bird.position.x = -50;
+            });
+            
+            // Beach items
+            crabs.forEach(crab => {
+                crab.rotation.y = Math.sin(time * 2 + crab.userData.wobble) * 0.3;
+                crab.position.x += Math.sin(time + crab.userData.wobble) * 0.002;
+            });
+            
+            beachBalls.forEach(ball => {
+                ball.position.y = 0.4 + Math.abs(Math.sin(time * 2 + ball.userData.bounce)) * 0.15;
+                ball.rotation.x += 0.02;
+                ball.rotation.z += 0.01;
+            });
+            
+            bitcoinCoin.rotation.y += bitcoinCoin.userData.rotationSpeed;
+            bitcoinCoin.position.y = 5 + Math.sin(time * 0.5) * 0.3;
+            
+            sailboat.position.y = 0.3 + Math.sin(time * 0.8 + sailboat.userData.bobOffset) * 0.2;
+            sailboat.rotation.z = Math.sin(time * 0.5) * 0.05;
+            sailboat.rotation.x = Math.sin(time * 0.7) * 0.03;
+            
+            tikis.forEach(tiki => {
+                const flicker = 0.8 + Math.sin(time * 10 + tiki.userData.offset) * 0.2;
+                tiki.userData.flame.scale.set(flicker, 0.8 + Math.sin(time * 8) * 0.3, flicker);
+                tiki.userData.innerFlame.scale.set(flicker * 0.8, 0.7 + Math.sin(time * 12) * 0.2, flicker * 0.8);
+                tiki.userData.light.intensity = 0.4 + Math.sin(time * 6 + tiki.userData.offset) * 0.2;
+            });
+            
+            sky.rotation.y += 0.0001;
+            
+            renderer.render(scene, camera);
+        }
+        
+        // Replace the animation loop
+        animateWithRocket();
     </script>
 </body>
 </html>
