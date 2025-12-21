@@ -5,404 +5,405 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Twitch Othello Arena</title>
+<title>Hunger Games Simulator</title>
 <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { 
-            font-family: system-ui, sans-serif; 
-            display: flex; 
-            flex-direction: column;
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
-            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #0d1117 100%);
-            color: white;
-            padding: 10px;
-        }
-        h1 { 
-            font-size: 1.8rem; 
-            text-align: center; 
-            margin-bottom: 8px;
-            background: linear-gradient(90deg, #00d4aa, #7c3aed);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 30px rgba(0,212,170,0.3);
-        }
-        .game-container {
-            display: flex;
-            gap: 15px;
-            align-items: flex-start;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        .board-wrapper {
-            background: linear-gradient(145deg, #1e3a1e, #0d1f0d);
-            padding: 8px;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
-        }
-        .board {
-            display: grid;
-            grid-template-columns: repeat(8, 40px);
-            grid-template-rows: repeat(8, 40px);
-            gap: 2px;
-            background: #0a0a0a;
-            padding: 2px;
-            border-radius: 4px;
-        }
-        .cell {
-            background: linear-gradient(145deg, #2d5a2d, #1a3d1a);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            border-radius: 2px;
-        }
-        .cell:hover { background: linear-gradient(145deg, #3d7a3d, #2a5d2a); }
-        .cell.valid-move { box-shadow: inset 0 0 15px rgba(0,255,136,0.4); }
-        .piece {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            box-shadow: 0 3px 8px rgba(0,0,0,0.4);
-        }
-        .piece.black {
-            background: radial-gradient(circle at 30% 30%, #4a4a4a, #0a0a0a);
-        }
-        .piece.white {
-            background: radial-gradient(circle at 30% 30%, #ffffff, #c0c0c0);
-        }
-        .piece.flip {
-            animation: flip 0.5s ease-in-out;
-        }
-        @keyframes flip {
-            0% { transform: rotateY(0deg); }
-            50% { transform: rotateY(90deg); }
-            100% { transform: rotateY(0deg); }
-        }
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            width: 180px;
-        }
-        .panel {
-            background: rgba(255,255,255,0.05);
-            border-radius: 10px;
-            padding: 12px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        .panel h3 {
-            font-size: 0.85rem;
-            color: #00d4aa;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .score-display {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-        }
-        .score-item {
-            text-align: center;
-        }
-        .score-item .disc {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            margin: 0 auto 5px;
-        }
-        .score-item .disc.black { background: radial-gradient(circle at 30% 30%, #4a4a4a, #0a0a0a); }
-        .score-item .disc.white { background: radial-gradient(circle at 30% 30%, #ffffff, #c0c0c0); }
-        .score-item .count { font-size: 1.5rem; font-weight: bold; }
-        .turn-indicator {
-            text-align: center;
-            padding: 8px;
-            background: rgba(124, 58, 237, 0.2);
-            border-radius: 6px;
-            font-size: 0.9rem;
-        }
-        .turn-indicator.black-turn { border-left: 3px solid #333; }
-        .turn-indicator.white-turn { border-left: 3px solid #fff; }
-        input, button {
-            width: 100%;
-            padding: 8px;
-            border-radius: 6px;
-            border: 1px solid rgba(255,255,255,0.2);
-            background: rgba(0,0,0,0.3);
-            color: white;
-            font-size: 0.85rem;
-            margin-bottom: 6px;
-        }
-        button {
-            cursor: pointer;
-            background: linear-gradient(135deg, #7c3aed, #5b21b6);
-            border: none;
-            transition: all 0.2s;
-        }
-        button:hover { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(124,58,237,0.4); }
-        button.secondary { background: linear-gradient(135deg, #374151, #1f2937); }
-        .saves-list {
-            max-height: 80px;
-            overflow-y: auto;
-            font-size: 0.75rem;
-        }
-        .save-item {
-            padding: 4px 6px;
-            background: rgba(0,0,0,0.2);
-            margin-bottom: 4px;
-            border-radius: 4px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-        }
-        .save-item:hover { background: rgba(124,58,237,0.3); }
-        .login-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.9);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-        }
-        .login-box {
-            background: linear-gradient(145deg, #1a1a3e, #0f0f23);
-            padding: 25px;
-            border-radius: 15px;
-            text-align: center;
-            border: 1px solid rgba(124,58,237,0.3);
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-        }
-        .login-box h2 { margin-bottom: 15px; color: #00d4aa; }
-        .hidden { display: none !important; }
-        .status { font-size: 0.75rem; color: #888; text-align: center; margin-top: 5px; }
-    </style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+        font-family: 'Courier New', monospace; 
+        display: flex; 
+        flex-direction: column;
+        justify-content: flex-start; 
+        align-items: center; 
+        min-height: 100vh; 
+        background: linear-gradient(180deg, #1a0a0a 0%, #2d1810 50%, #0d0d0d 100%);
+        color: #e0c090;
+        padding: 8px;
+        overflow-x: hidden;
+    }
+    h1 { 
+        font-size: 1.4rem; 
+        text-align: center; 
+        margin-bottom: 5px;
+        background: linear-gradient(90deg, #ff6b35, #ffd700, #ff6b35);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        animation: flicker 2s infinite;
+    }
+    @keyframes flicker {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.8; }
+    }
+    .subtitle { font-size: 0.7rem; color: #888; margin-bottom: 8px; letter-spacing: 2px; }
+    .game-container {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        justify-content: center;
+        max-width: 800px;
+    }
+    .arena-wrapper {
+        background: linear-gradient(145deg, #1a1a1a, #0a0505);
+        padding: 6px;
+        border-radius: 8px;
+        box-shadow: 0 0 30px rgba(255,100,50,0.2), inset 0 0 20px rgba(0,0,0,0.8);
+        border: 2px solid #3d2010;
+    }
+    .arena {
+        display: grid;
+        grid-template-columns: repeat(8, 38px);
+        grid-template-rows: repeat(8, 38px);
+        gap: 1px;
+        background: #0a0a0a;
+        padding: 1px;
+        border-radius: 3px;
+    }
+    .cell {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.2rem;
+        transition: all 0.3s;
+        border-radius: 2px;
+        position: relative;
+    }
+    .cell.forest { background: linear-gradient(145deg, #1a3d1a, #0d2010); }
+    .cell.water { background: linear-gradient(145deg, #1a2d4d, #0d1525); }
+    .cell.mountain { background: linear-gradient(145deg, #3d3d3d, #1a1a1a); }
+    .cell.cornucopia { background: linear-gradient(145deg, #4d3d1a, #2d2510); box-shadow: inset 0 0 10px rgba(255,215,0,0.3); }
+    .cell.fire { background: linear-gradient(145deg, #4d1a1a, #2d0d0d); animation: burn 1s infinite; }
+    @keyframes burn { 0%, 100% { box-shadow: inset 0 0 10px rgba(255,100,0,0.5); } 50% { box-shadow: inset 0 0 20px rgba(255,50,0,0.8); } }
+    .tribute {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 0.7rem;
+        font-weight: bold;
+        color: white;
+        text-shadow: 0 1px 2px black;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    .tribute:hover { transform: scale(1.2); z-index: 10; }
+    .tribute.dead { opacity: 0.3; filter: grayscale(1); }
+    .sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: 200px;
+    }
+    .panel {
+        background: rgba(30,20,10,0.8);
+        border-radius: 8px;
+        padding: 10px;
+        border: 1px solid #3d2010;
+    }
+    .panel h3 {
+        font-size: 0.75rem;
+        color: #ffd700;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-bottom: 1px solid #3d2010;
+        padding-bottom: 4px;
+    }
+    .tribute-list {
+        max-height: 120px;
+        overflow-y: auto;
+        font-size: 0.65rem;
+    }
+    .tribute-entry {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 3px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .tribute-entry.dead { opacity: 0.4; text-decoration: line-through; }
+    .tribute-mini {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        font-size: 0.5rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .event-log {
+        max-height: 100px;
+        overflow-y: auto;
+        font-size: 0.6rem;
+        color: #aaa;
+    }
+    .event-log p {
+        padding: 2px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .event-log .death { color: #ff4444; }
+    .event-log .sponsor { color: #44ff44; }
+    .event-log .fight { color: #ffaa44; }
+    button {
+        width: 100%;
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #5d3d10;
+        background: linear-gradient(135deg, #4d2d10, #2d1a08);
+        color: #ffd700;
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 5px;
+    }
+    button:hover { background: linear-gradient(135deg, #6d4d20, #4d2d10); box-shadow: 0 0 15px rgba(255,100,50,0.3); }
+    .day-counter {
+        text-align: center;
+        font-size: 1rem;
+        color: #ffd700;
+        padding: 5px;
+        background: rgba(0,0,0,0.3);
+        border-radius: 5px;
+        margin-bottom: 5px;
+    }
+    .cannon { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem; opacity: 0; pointer-events: none; }
+    .cannon.boom { animation: cannon 1s forwards; }
+    @keyframes cannon { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); } 30% { opacity: 1; transform: translate(-50%, -50%) scale(1.5); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(2); } }
+    .status-bar { font-size: 0.65rem; color: #888; text-align: center; margin-top: 5px; }
+</style>
 </head>
 <body>
-<div class="login-overlay" id="loginOverlay">
-<div class="login-box">
-<h2>🎮 Othello Arena</h2>
-<input id="username" maxlength="12" placeholder="Username" type="text"/>
-<input id="password" maxlength="20" placeholder="Password (4+ chars)" type="password"/>
-<button onclick="login()">Enter Game</button>
-<p class="status">Your saves are tied to your username+password</p>
-</div>
-</div>
-<h1>🎮 Othello Arena</h1>
+<h1>🔥 Hunger Games 🔥</h1>
+<p class="subtitle">May the odds be ever in your favor</p>
 <div class="game-container">
-<div class="board-wrapper">
-<div class="board" id="board"></div>
+<div class="arena-wrapper">
+<div class="arena" id="arena"></div>
 </div>
 <div class="sidebar">
+<div class="day-counter">Day <span id="dayNum">1</span> - <span id="timeOfDay">Bloodbath</span></div>
+<button onclick="simulateEvent()">⚔️ Simulate Event</button>
+<button onclick="simulateDay()">🌅 Simulate Full Day</button>
+<button onclick="newGame()">🔄 New Games</button>
 <div class="panel">
-<h3>Score</h3>
-<div class="score-display">
-<div class="score-item"><div class="disc black"></div><div class="count" id="blackScore">2</div></div>
-<div class="score-item"><div class="disc white"></div><div class="count" id="whiteScore">2</div></div>
-</div>
-</div>
-<div class="turn-indicator black-turn" id="turnIndicator">⚫ Black's Turn</div>
-<div class="panel">
-<h3>Player: <span id="playerName">Guest</span></h3>
-<button onclick="saveGame()">💾 Save Game</button>
-<button class="secondary" onclick="newGame()">🔄 New Game</button>
-<button class="secondary" onclick="logout()">🚪 Logout</button>
+<h3>Tributes Remaining: <span id="remaining">24</span></h3>
+<div class="tribute-list" id="tributeList"></div>
 </div>
 <div class="panel">
-<h3>Saved Games</h3>
-<div class="saves-list" id="savesList"></div>
+<h3>📜 Event Log</h3>
+<div class="event-log" id="eventLog"></div>
 </div>
 </div>
 </div>
+<div class="cannon" id="cannon">💀</div>
 <script>
-        let board = [];
-        let currentPlayer = 'black';
-        let currentUser = null;
-        let userHash = null;
+const districts = [
+    { name: 'District 1', color: '#c9a227' },
+    { name: 'District 2', color: '#8b8b8b' },
+    { name: 'District 3', color: '#d4a574' },
+    { name: 'District 4', color: '#4a90d9' },
+    { name: 'District 5', color: '#f5a623' },
+    { name: 'District 6', color: '#7b68ee' },
+    { name: 'District 7', color: '#228b22' },
+    { name: 'District 8', color: '#ff69b4' },
+    { name: 'District 9', color: '#daa520' },
+    { name: 'District 10', color: '#8b4513' },
+    { name: 'District 11', color: '#2e8b57' },
+    { name: 'District 12', color: '#4a4a4a' }
+];
 
-        const directions = [
-            [-1,-1],[-1,0],[-1,1],
-            [0,-1],        [0,1],
-            [1,-1], [1,0], [1,1]
-        ];
+const names = ['Katniss','Peeta','Cato','Clove','Glimmer','Marvel','Foxface','Thresh','Rue','Finnick','Johanna','Haymitch','Cashmere','Gloss','Brutus','Enobaria','Wiress','Beetee','Mags','Annie','Chaff','Seeder','Cecelia','Woof'];
 
-        function hashCode(str) {
-            let hash = 0;
-            for (let i = 0; i < str.length; i++) {
-                hash = ((hash << 5) - hash) + str.charCodeAt(i);
-                hash |= 0;
+let tributes = [];
+let day = 1;
+let timeOfDay = 'Bloodbath';
+let arenaGrid = [];
+
+const terrainTypes = ['forest','forest','forest','water','mountain','cornucopia','forest','forest'];
+const events = [
+    { type: 'fight', text: '{a} and {b} fight. {winner} kills {loser}.', fatal: true },
+    { type: 'fight', text: '{a} ambushes {b} and claims victory.', fatal: true },
+    { type: 'sponsor', text: '{a} receives a gift from sponsors.', fatal: false },
+    { type: 'neutral', text: '{a} finds fresh water.', fatal: false },
+    { type: 'neutral', text: '{a} sets up camp for the night.', fatal: false },
+    { type: 'neutral', text: '{a} and {b} form an alliance.', fatal: false },
+    { type: 'fire', text: 'The Gamemakers start a fire. {a} is caught in the flames.', fatal: true },
+    { type: 'neutral', text: '{a} hunts for food.', fatal: false },
+    { type: 'fight', text: '{a} strangles {b} with rope.', fatal: true },
+    { type: 'neutral', text: '{a} hides in the trees.', fatal: false },
+];
+
+function initGame() {
+    tributes = [];
+    for (let i = 0; i < 24; i++) {
+        const district = districts[Math.floor(i / 2)];
+        tributes.push({
+            id: i,
+            name: names[i] || `Tribute ${i+1}`,
+            district: district.name,
+            color: district.color,
+            alive: true,
+            x: Math.floor(Math.random() * 8),
+            y: Math.floor(Math.random() * 8),
+            kills: 0
+        });
+    }
+    day = 1;
+    timeOfDay = 'Bloodbath';
+    initArena();
+    renderArena();
+    renderTributeList();
+    document.getElementById('eventLog').innerHTML = '<p>Let the 74th Hunger Games begin!</p>';
+    updateStats();
+}
+
+function initArena() {
+    arenaGrid = [];
+    for (let y = 0; y < 8; y++) {
+        arenaGrid[y] = [];
+        for (let x = 0; x < 8; x++) {
+            if (x >= 3 && x <= 4 && y >= 3 && y <= 4) {
+                arenaGrid[y][x] = 'cornucopia';
+            } else {
+                arenaGrid[y][x] = terrainTypes[Math.floor(Math.random() * terrainTypes.length)];
             }
-            return hash.toString(36);
         }
+    }
+}
 
-        function login() {
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value;
-            if (username.length < 1 || password.length < 4) {
-                alert('Username required, password min 4 characters');
-                return;
-            }
-            currentUser = username;
-            userHash = hashCode(username + ':' + password);
-            document.getElementById('playerName').textContent = username;
-            document.getElementById('loginOverlay').classList.add('hidden');
-            loadSavesList();
-            initBoard();
-        }
-
-        function logout() {
-            currentUser = null;
-            userHash = null;
-            document.getElementById('loginOverlay').classList.remove('hidden');
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
-        }
-
-        function initBoard() {
-            board = Array(8).fill(null).map(() => Array(8).fill(null));
-            board[3][3] = 'white'; board[3][4] = 'black';
-            board[4][3] = 'black'; board[4][4] = 'white';
-            currentPlayer = 'black';
-            renderBoard();
-        }
-
-        function renderBoard() {
-            const boardEl = document.getElementById('board');
-            boardEl.innerHTML = '';
-            const validMoves = getValidMoves(currentPlayer);
-            
-            for (let r = 0; r < 8; r++) {
-                for (let c = 0; c < 8; c++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'cell';
-                    if (validMoves.some(m => m[0] === r && m[1] === c)) {
-                        cell.classList.add('valid-move');
-                    }
-                    cell.onclick = () => makeMove(r, c);
-                    if (board[r][c]) {
-                        const piece = document.createElement('div');
-                        piece.className = `piece ${board[r][c]}`;
-                        cell.appendChild(piece);
-                    }
-                    boardEl.appendChild(cell);
+function renderArena() {
+    const arena = document.getElementById('arena');
+    arena.innerHTML = '';
+    for (let y = 0; y < 8; y++) {
+        for (let x = 0; x < 8; x++) {
+            const cell = document.createElement('div');
+            cell.className = `cell ${arenaGrid[y][x]}`;
+            const tributesHere = tributes.filter(t => t.alive && t.x === x && t.y === y);
+            if (tributesHere.length > 0) {
+                const t = tributesHere[0];
+                const tribute = document.createElement('div');
+                tribute.className = 'tribute';
+                tribute.style.background = t.color;
+                tribute.textContent = t.name.charAt(0);
+                tribute.title = `${t.name} (${t.district})`;
+                if (tributesHere.length > 1) {
+                    tribute.textContent = tributesHere.length;
+                    tribute.title = tributesHere.map(tt => tt.name).join(', ');
                 }
+                cell.appendChild(tribute);
             }
-            updateScore();
-            updateTurnIndicator();
+            arena.appendChild(cell);
         }
+    }
+}
 
-        function getValidMoves(player) {
-            const moves = [];
-            for (let r = 0; r < 8; r++) {
-                for (let c = 0; c < 8; c++) {
-                    if (!board[r][c] && wouldFlip(r, c, player).length > 0) {
-                        moves.push([r, c]);
-                    }
-                }
-            }
-            return moves;
-        }
+function renderTributeList() {
+    const list = document.getElementById('tributeList');
+    list.innerHTML = tributes.map(t => `
+        <div class="tribute-entry ${t.alive ? '' : 'dead'}">
+            <div class="tribute-mini" style="background:${t.color}">${t.name.charAt(0)}</div>
+            <span>${t.name}</span>
+        </div>
+    `).join('');
+}
 
-        function wouldFlip(r, c, player) {
-            const opponent = player === 'black' ? 'white' : 'black';
-            const toFlip = [];
-            for (const [dr, dc] of directions) {
-                const line = [];
-                let nr = r + dr, nc = c + dc;
-                while (nr >= 0 && nr < 8 && nc >= 0 && nc < 8 && board[nr][nc] === opponent) {
-                    line.push([nr, nc]);
-                    nr += dr; nc += dc;
-                }
-                if (line.length > 0 && nr >= 0 && nr < 8 && nc >= 0 && nc < 8 && board[nr][nc] === player) {
-                    toFlip.push(...line);
-                }
-            }
-            return toFlip;
-        }
+function updateStats() {
+    document.getElementById('remaining').textContent = tributes.filter(t => t.alive).length;
+    document.getElementById('dayNum').textContent = day;
+    document.getElementById('timeOfDay').textContent = timeOfDay;
+}
 
-        function makeMove(r, c) {
-            const flips = wouldFlip(r, c, currentPlayer);
-            if (board[r][c] || flips.length === 0) return;
-            
-            board[r][c] = currentPlayer;
-            flips.forEach(([fr, fc]) => { board[fr][fc] = currentPlayer; });
-            
-            currentPlayer = currentPlayer === 'black' ? 'white' : 'black';
-            if (getValidMoves(currentPlayer).length === 0) {
-                currentPlayer = currentPlayer === 'black' ? 'white' : 'black';
-                if (getValidMoves(currentPlayer).length === 0) {
-                    renderBoard();
-                    setTimeout(endGame, 100);
-                    return;
-                }
-            }
-            renderBoard();
+function simulateEvent() {
+    const alive = tributes.filter(t => t.alive);
+    if (alive.length <= 1) {
+        endGame();
+        return;
+    }
+    
+    const event = events[Math.floor(Math.random() * events.length)];
+    const a = alive[Math.floor(Math.random() * alive.length)];
+    let b = alive.filter(t => t.id !== a.id)[Math.floor(Math.random() * (alive.length - 1))];
+    
+    let text = event.text.replace('{a}', `<strong>${a.name}</strong>`);
+    if (b) text = text.replace('{b}', `<strong>${b.name}</strong>`);
+    
+    if (event.fatal && b) {
+        const winner = Math.random() > 0.5 ? a : b;
+        const loser = winner === a ? b : a;
+        text = text.replace('{winner}', `<strong>${winner.name}</strong>`).replace('{loser}', `<strong>${loser.name}</strong>`);
+        loser.alive = false;
+        winner.kills++;
+        showCannon();
+        logEvent(text, 'death');
+    } else if (event.fatal && event.type === 'fire') {
+        a.alive = false;
+        showCannon();
+        logEvent(text, 'death');
+    } else {
+        logEvent(text, event.type === 'sponsor' ? 'sponsor' : '');
+    }
+    
+    // Move tributes
+    alive.forEach(t => {
+        if (t.alive && Math.random() > 0.5) {
+            t.x = Math.max(0, Math.min(7, t.x + Math.floor(Math.random() * 3) - 1));
+            t.y = Math.max(0, Math.min(7, t.y + Math.floor(Math.random() * 3) - 1));
         }
+    });
+    
+    renderArena();
+    renderTributeList();
+    updateStats();
+    
+    if (tributes.filter(t => t.alive).length <= 1) {
+        endGame();
+    }
+}
 
-        function updateScore() {
-            let black = 0, white = 0;
-            board.forEach(row => row.forEach(cell => {
-                if (cell === 'black') black++;
-                if (cell === 'white') white++;
-            }));
-            document.getElementById('blackScore').textContent = black;
-            document.getElementById('whiteScore').textContent = white;
-        }
+function simulateDay() {
+    const eventsPerDay = 3 + Math.floor(Math.random() * 4);
+    for (let i = 0; i < eventsPerDay; i++) {
+        setTimeout(() => simulateEvent(), i * 500);
+    }
+    setTimeout(() => {
+        day++;
+        timeOfDay = ['Dawn', 'Day', 'Dusk', 'Night'][Math.floor(Math.random() * 4)];
+        updateStats();
+    }, eventsPerDay * 500);
+}
 
-        function updateTurnIndicator() {
-            const el = document.getElementById('turnIndicator');
-            el.className = `turn-indicator ${currentPlayer}-turn`;
-            el.textContent = currentPlayer === 'black' ? "⚫ Black's Turn" : "⚪ White's Turn";
-        }
+function showCannon() {
+    const cannon = document.getElementById('cannon');
+    cannon.classList.remove('boom');
+    void cannon.offsetWidth;
+    cannon.classList.add('boom');
+}
 
-        function endGame() {
-            const black = parseInt(document.getElementById('blackScore').textContent);
-            const white = parseInt(document.getElementById('whiteScore').textContent);
-            const winner = black > white ? 'Black' : white > black ? 'White' : 'Nobody';
-            alert(`Game Over! ${winner} wins! (${black}-${white})`);
-        }
+function logEvent(text, type = '') {
+    const log = document.getElementById('eventLog');
+    log.innerHTML = `<p class="${type}">${text}</p>` + log.innerHTML;
+}
 
-        function saveGame() {
-            if (!userHash) return;
-            const saves = JSON.parse(localStorage.getItem('othello_' + userHash) || '[]');
-            const saveData = {
-                id: Date.now(),
-                date: new Date().toLocaleDateString(),
-                board: JSON.stringify(board),
-                player: currentPlayer
-            };
-            saves.unshift(saveData);
-            if (saves.length > 5) saves.pop();
-            localStorage.setItem('othello_' + userHash, JSON.stringify(saves));
-            loadSavesList();
-        }
+function endGame() {
+    const winner = tributes.find(t => t.alive);
+    if (winner) {
+        logEvent(`🏆 ${winner.name} from ${winner.district} is the VICTOR! (${winner.kills} kills)`, 'sponsor');
+        alert(`${winner.name} from ${winner.district} wins the Hunger Games!`);
+    } else {
+        logEvent('No survivors. The Capitol is displeased.', 'death');
+    }
+}
 
-        function loadSavesList() {
-            if (!userHash) return;
-            const saves = JSON.parse(localStorage.getItem('othello_' + userHash) || '[]');
-            const list = document.getElementById('savesList');
-            list.innerHTML = saves.length ? saves.map((s, i) => 
-                `<div class="save-item" onclick="loadGame(${i})"><span>Save ${i+1}</span><span>${s.date}</span></div>`
-            ).join('') : '<p style="color:#666;font-size:0.7rem">No saves yet</p>';
-        }
+function newGame() {
+    if (confirm('Start new Hunger Games?')) initGame();
+}
 
-        function loadGame(index) {
-            if (!userHash) return;
-            const saves = JSON.parse(localStorage.getItem('othello_' + userHash) || '[]');
-            if (saves[index]) {
-                board = JSON.parse(saves[index].board);
-                currentPlayer = saves[index].player;
-                renderBoard();
-            }
-        }
-
-        function newGame() {
-            if (confirm('Start a new game?')) initBoard();
-        }
-    </script>
+initGame();
+</script>
 </body>
 </html>
