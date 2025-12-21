@@ -424,6 +424,16 @@
             color: white;
             animation: snowFall 4s linear forwards;
         }
+        .falling-burger {
+            position: absolute;
+            font-size: 24px;
+            animation: burgerFall 3s linear forwards;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        }
+        @keyframes burgerFall {
+            0% { transform: translateY(-30px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0.5; }
+        }
         @keyframes snowFall {
             0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
             100% { transform: translateY(100vh) rotate(360deg); opacity: 0.3; }
@@ -477,6 +487,7 @@
 </div>
 <ul class="todo-list" id="todoList">
 <li class="todo-item"><input class="todo-check" onchange="toggleTodo(this)" type="checkbox"/><span>Score 3D goal</span><button class="todo-delete" onclick="deleteTodo(this)">×</button></li>
+<li class="todo-item"><input class="todo-check" onchange="toggleTodo(this)" type="checkbox"/><span>Catch a burger 🍔</span><button class="todo-delete" onclick="deleteTodo(this)">×</button></li>
 </ul>
 </div>
 </div>
@@ -943,6 +954,19 @@ function setWeather(weather) {
             document.getElementById('weatherEffects').appendChild(flake);
             setTimeout(() => flake.remove(), 4000);
         }, 100);
+    }
+    
+    // Burgers always fall regardless of weather!
+    if (!window.burgerInterval) {
+        window.burgerInterval = setInterval(() => {
+            const burger = document.createElement('div');
+            burger.className = 'falling-burger';
+            burger.textContent = '🍔';
+            burger.style.left = Math.random() * 100 + '%';
+            burger.style.animationDuration = (2 + Math.random() * 2) + 's';
+            document.getElementById('weatherEffects').appendChild(burger);
+            setTimeout(() => burger.remove(), 4000);
+        }, 800);
     }
 }
 
