@@ -83,26 +83,14 @@ body { font-family: 'Courier New', monospace; overflow: hidden; background: #1a0
 @keyframes hut-sway { 0%, 100% { transform: rotate(-0.5deg); } 50% { transform: rotate(0.5deg); } }
 
 .stickman-container {
-    position: absolute; bottom: 70px; right: 120px; z-index: 135;
-    text-align: center;
-    animation: steve-patrol 20s ease-in-out infinite;
+    position: absolute; bottom: 70px; right: 20px; z-index: 135;
+    text-align: center; background: rgba(20, 10, 40, 0.6); backdrop-filter: blur(10px);
+    padding: 10px 15px; border-radius: 15px; border: 1px solid rgba(255, 200, 100, 0.3);
 }
-@keyframes steve-patrol {
-    0% { right: 120px; bottom: 70px; transform: scaleX(1); }
-    10% { right: 200px; bottom: 80px; transform: scaleX(-1); }
-    20% { right: 350px; bottom: 90px; transform: scaleX(-1); }
-    30% { right: 500px; bottom: 100px; transform: scaleX(-1); }
-    35% { right: 550px; bottom: 95px; transform: scaleX(-1); }
-    40% { right: 500px; bottom: 100px; transform: scaleX(1); }
-    50% { right: 350px; bottom: 85px; transform: scaleX(1); }
-    60% { right: 200px; bottom: 75px; transform: scaleX(1); }
-    70% { right: 120px; bottom: 70px; transform: scaleX(1); }
-    75% { right: 80px; bottom: 65px; transform: scaleX(1); }
-    80% { right: 50px; bottom: 60px; transform: scaleX(1); }
-    85% { right: 80px; bottom: 65px; transform: scaleX(-1); }
-    90% { right: 100px; bottom: 68px; transform: scaleX(-1); }
-    100% { right: 120px; bottom: 70px; transform: scaleX(1); }
+.steve-location {
+    font-size: 0.5rem; color: #88ccff; margin-top: 4px;
 }
+
 .stickman {
     font-size: 1.8rem; filter: drop-shadow(0 0 8px rgba(255, 200, 100, 0.5));
     animation: steve-walk 0.4s ease-in-out infinite;
@@ -176,10 +164,10 @@ body { font-family: 'Courier New', monospace; overflow: hidden; background: #1a0
 <div class="hut-label">Steve's Hut</div>
 </div>
 <div class="stickman-container" id="stickman">
-<div class="stickman-speech" id="stickman-speech">Patrolling the beach! 🚶</div>
-<div class="stickman" id="stickman-body">🚶</div>
-<div class="stickman-name">Stickman Steve</div>
-<div class="stickman-footprints">👣 👣 👣</div>
+<div class="stickman-speech" id="stickman-speech">Living my best beach life! 🏖️</div>
+<div class="stickman" id="stickman-body">🏠</div>
+<div class="stickman-name">Steve Status</div>
+<div class="steve-location" id="steve-location">📍 Patrolling village...</div>
 </div>
 <div class="audio-indicator" id="audio-toggle">🌊 Ocean Waves</div>
 <p class="instruction">Type <code>!idea your idea</code> in chat to modify this world</p>
@@ -365,6 +353,52 @@ scene.add(marketStall);
 const btcATM = createBitcoinATM(0, 25);
 scene.add(btcATM);
 
+// 3D Stickman Steve - Village Resident
+function createStickmanSteve() {
+    const g = new THREE.Group();
+    // Head
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.25, 8, 8), new THREE.MeshPhongMaterial({ color: 0xffcc99 }));
+    head.position.y = 1.7; g.add(head);
+    // Body
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 0.7, 8), new THREE.MeshPhongMaterial({ color: 0x4488ff }));
+    body.position.y = 1.2; g.add(body);
+    // Arms
+    const leftArm = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.5, 6), new THREE.MeshPhongMaterial({ color: 0xffcc99 }));
+    leftArm.position.set(-0.25, 1.3, 0); leftArm.rotation.z = Math.PI / 4; g.add(leftArm);
+    const rightArm = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.5, 6), new THREE.MeshPhongMaterial({ color: 0xffcc99 }));
+    rightArm.position.set(0.25, 1.3, 0); rightArm.rotation.z = -Math.PI / 4; g.add(rightArm);
+    // Legs
+    const leftLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.6, 6), new THREE.MeshPhongMaterial({ color: 0x333366 }));
+    leftLeg.position.set(-0.1, 0.55, 0); g.add(leftLeg);
+    const rightLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.6, 6), new THREE.MeshPhongMaterial({ color: 0x333366 }));
+    rightLeg.position.set(0.1, 0.55, 0); g.add(rightLeg);
+    // Hat (beach style)
+    const hat = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.35, 0.1, 12), new THREE.MeshPhongMaterial({ color: 0xf4d6a4 }));
+    hat.position.y = 1.95; g.add(hat);
+    const hatTop = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.2, 0.15, 12), new THREE.MeshPhongMaterial({ color: 0xf4d6a4 }));
+    hatTop.position.y = 2.05; g.add(hatTop);
+    // Name tag floating above
+    g.userData = { leftLeg, rightLeg, leftArm, rightArm };
+    return g;
+}
+
+const steve3D = createStickmanSteve();
+steve3D.position.set(8, 0, 26);
+scene.add(steve3D);
+
+// Steve's patrol waypoints around the village
+const steveWaypoints = [
+    { x: 8, z: 26 },   // Near surf shop
+    { x: 2, z: 28 },   // Market stall
+    { x: -5, z: 26 },  // Tiki bar
+    { x: -2, z: 32 },  // Cottage
+    { x: 0, z: 25 },   // BTC ATM
+    { x: 6, z: 24 },   // Back to surf shop
+];
+let steveWaypointIndex = 0;
+let steveLerpProgress = 0;
+const steveMoveSpeed = 0.008;
+
 // Palm trees
 function createPalm(x, z) {
     const g = new THREE.Group();
@@ -451,6 +485,26 @@ function animate() {
     camera.lookAt(orbitCenter.x, 1, orbitCenter.z);
     
     birds.forEach(b => { b.position.x += b.userData.speed; b.position.y += Math.sin(t * 2 + b.userData.offset) * 0.02; if (b.position.x > 50) b.position.x = -50; });
+    
+    // Animate 3D Steve walking through the village
+    const currentWP = steveWaypoints[steveWaypointIndex];
+    const nextWP = steveWaypoints[(steveWaypointIndex + 1) % steveWaypoints.length];
+    steveLerpProgress += steveMoveSpeed;
+    if (steveLerpProgress >= 1) {
+        steveLerpProgress = 0;
+        steveWaypointIndex = (steveWaypointIndex + 1) % steveWaypoints.length;
+    }
+    steve3D.position.x = currentWP.x + (nextWP.x - currentWP.x) * steveLerpProgress;
+    steve3D.position.z = currentWP.z + (nextWP.z - currentWP.z) * steveLerpProgress;
+    // Face direction of movement
+    steve3D.rotation.y = Math.atan2(nextWP.x - currentWP.x, nextWP.z - currentWP.z);
+    // Walking animation
+    const walkCycle = t * 8;
+    steve3D.userData.leftLeg.rotation.x = Math.sin(walkCycle) * 0.5;
+    steve3D.userData.rightLeg.rotation.x = Math.sin(walkCycle + Math.PI) * 0.5;
+    steve3D.userData.leftArm.rotation.x = Math.sin(walkCycle + Math.PI) * 0.3;
+    steve3D.userData.rightArm.rotation.x = Math.sin(walkCycle) * 0.3;
+    steve3D.position.y = Math.abs(Math.sin(walkCycle)) * 0.05;
     sky.rotation.y += 0.0001;
     renderer.render(scene, camera);
 }
@@ -492,6 +546,13 @@ function updateSteve() {
 
 // Steve changes action every 4 seconds
 setInterval(updateSteve, 4000);
+
+// Update Steve's location indicator
+const locationNames = ['Surf Shop 🏄', 'Market Stall 🛒', 'Tiki Bar 🍹', 'Cottage 🏠', 'BTC ATM ₿', 'Beach Walk 🏖️'];
+setInterval(() => {
+    const locEl = document.getElementById('steve-location');
+    if (locEl) locEl.textContent = '📍 ' + locationNames[steveWaypointIndex];
+}, 1000);
 
 // Global function for chat to control Steve
 window.commandSteve = function(task) {
