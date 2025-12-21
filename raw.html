@@ -753,10 +753,67 @@
             0% { transform: translateY(-50px) scale(1.5); opacity: 1; }
             100% { transform: translateY(0) scale(1); opacity: 0; }
         }
+        .frog {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2.5rem;
+            z-index: 40;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+        }
+        .frog:hover {
+            transform: translateX(-50%) scale(1.2);
+        }
+        .frog.jumping {
+            animation: frogJump 0.8s ease-in-out infinite;
+        }
+        .frog.excited {
+            animation: frogExcited 0.4s ease-in-out infinite;
+        }
+        @keyframes frogJump {
+            0%, 100% { transform: translateX(-50%) translateY(0) rotate(0deg); }
+            25% { transform: translateX(calc(-50% + 30px)) translateY(-40px) rotate(10deg); }
+            50% { transform: translateX(calc(-50% - 20px)) translateY(0) rotate(0deg); }
+            75% { transform: translateX(calc(-50% - 40px)) translateY(-30px) rotate(-10deg); }
+        }
+        @keyframes frogExcited {
+            0%, 100% { transform: translateX(-50%) translateY(0) scale(1); }
+            50% { transform: translateX(-50%) translateY(-15px) scale(1.1); }
+        }
+        .frog-speech {
+            position: fixed;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,200,100,0.9);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            z-index: 41;
+            opacity: 0;
+            transition: opacity 0.3s;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+        .frog-speech.show {
+            opacity: 1;
+            animation: speechBob 1s ease-in-out infinite;
+        }
+        @keyframes speechBob {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-5px); }
+        }
     </style>
 </head>
 <body>
 <div id="bg-container"></div>
+<div class="frog" id="frog" onclick="frogSpeak()" title="Click the frog!">🐸</div>
+<div class="frog-speech" id="frogSpeech">Ribbit!</div>
 <div id="weatherEffects"></div>
 <div class="weather-indicator sunny" id="weatherIndicator" onclick="cycleWeather()" title="Click to change weather">☀️ SUNNY</div>
 <div class="weather-timer" id="weatherTimer">🔄 <span id="weatherCountdown">--</span>s <div class="weather-timer-bar"><div class="weather-timer-fill" id="weatherTimerFill" style="width: 100%"></div></div></div>
@@ -1904,6 +1961,57 @@
         setWeather('sunny');
         
         window.cycleWeather = cycleWeather;
+        
+        // Frog behavior system
+        const frogSpeech = [
+            'Ribbit!', 'RAIN! 💚', 'Hop hop!', 'Croak!', 'Splish splash!',
+            'I love rain!', '🌧️ Yay!', 'Wet is best!', 'Froggy time!', 'Ribbit ribbit!'
+        ];
+        let frogSpeaking = false;
+        
+        function updateFrogBehavior() {
+            const frog = document.getElementById('frog');
+            if (!frog) return;
+            
+            if (currentWeather === 'rainy' || currentWeather === 'thunder') {
+                frog.classList.add('jumping');
+                frog.classList.remove('excited');
+                // Random happy ribbits during rain
+                if (Math.random() < 0.02 && !frogSpeaking) {
+                    frogSpeak();
+                }
+            } else if (currentWeather === 'snowy') {
+                frog.classList.remove('jumping');
+                frog.classList.add('excited');
+            } else {
+                frog.classList.remove('jumping');
+                frog.classList.remove('excited');
+            }
+        }
+        
+        function frogSpeak() {
+            if (frogSpeaking) return;
+            frogSpeaking = true;
+            
+            const speech = document.getElementById('frogSpeech');
+            const isRaining = currentWeather === 'rainy' || currentWeather === 'thunder';
+            const messages = isRaining ? 
+                ['RAIN! 💚', 'I love rain!', '🌧️ Yay!', 'Wet is best!', 'Splish splash!'] :
+                ['Ribbit!', 'Croak!', 'Hop hop!', '*blink*', 'Waiting for rain...'];
+            
+            speech.textContent = messages[Math.floor(Math.random() * messages.length)];
+            speech.classList.add('show');
+            
+            setTimeout(() => {
+                speech.classList.remove('show');
+                frogSpeaking = false;
+            }, 2000);
+        }
+        
+        window.frogSpeak = frogSpeak;
+        
+        // Update frog behavior every 500ms
+        setInterval(updateFrogBehavior, 500);
         
         // Track goals and saves for auto-intel reveal
         let prevGoals = 0;
