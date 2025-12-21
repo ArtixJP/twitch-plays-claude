@@ -816,10 +816,10 @@ const buildingData = [];
 // Generate RANDOM chaotic pinball bumpers!
 function randomRange(min, max) { return min + Math.random() * (max - min); }
 
-// Inner chaos zone - tight pinball action!
+// Inner chaos zone - pushed back from arena!
 for (let i = 0; i < 15; i++) {
     const angle = Math.random() * Math.PI * 2;
-    const radius = 20 + Math.random() * 30;
+    const radius = 120 + Math.random() * 30;
     buildingData.push({
         x: Math.cos(angle) * radius + (Math.random() - 0.5) * 20,
         z: Math.sin(angle) * radius - 30 + (Math.random() - 0.5) * 20,
@@ -832,11 +832,13 @@ for (let i = 0; i < 15; i++) {
     });
 }
 
-// Mid-range bumper field
+// Mid-range bumper field - pushed further out
 for (let i = 0; i < 20; i++) {
+    const midAngle = Math.random() * Math.PI * 2;
+    const midRadius = 130 + Math.random() * 50;
     buildingData.push({
-        x: (Math.random() - 0.5) * 150,
-        z: (Math.random() - 0.5) * 120 - 20,
+        x: Math.cos(midAngle) * midRadius,
+        z: Math.sin(midAngle) * midRadius - 20,
         w: 6 + Math.random() * 12,
         h: 20 + Math.random() * 40,
         d: 6 + Math.random() * 12,
@@ -861,11 +863,11 @@ for (let i = 0; i < 12; i++) {
     });
 }
 
-// SPECIAL BONUS TOWERS - high value targets!
+// SPECIAL BONUS TOWERS - pushed back from arena!
 const bonusTowers = [
-    { x: 0, z: -80, w: 8, h: 60, d: 8, color: 0xffdd00, isBumper: true, points: 1000 },
-    { x: -50, z: 30, w: 6, h: 45, d: 6, color: 0xff00ff, isBumper: true, points: 500 },
-    { x: 50, z: 30, w: 6, h: 45, d: 6, color: 0x00ffff, isBumper: true, points: 500 },
+    { x: 0, z: -150, w: 8, h: 60, d: 8, color: 0xffdd00, isBumper: true, points: 1000 },
+    { x: -120, z: 80, w: 6, h: 45, d: 6, color: 0xff00ff, isBumper: true, points: 500 },
+    { x: 120, z: 80, w: 6, h: 45, d: 6, color: 0x00ffff, isBumper: true, points: 500 },
 ];
 buildingData.push(...bonusTowers);
 
