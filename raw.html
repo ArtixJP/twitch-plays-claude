@@ -64,6 +64,17 @@
 </div>
 <p class="result" id="result2"></p>
 </div>
+<div class="test-container" id="quiz3">
+<h2>🌪️ Chaos Theory!</h2>
+<p class="question">What happens when chat requests conflict?</p>
+<div class="answers">
+<button class="answer-btn" onclick="checkAnswer3(this, false)">A) The website explodes</button>
+<button class="answer-btn" onclick="checkAnswer3(this, false)">B) Rock paper scissors</button>
+<button class="answer-btn" onclick="checkAnswer3(this, true)">C) Highest pressure wins!</button>
+<button class="answer-btn" onclick="checkAnswer3(this, false)">D) Claude has a breakdown</button>
+</div>
+<p class="result" id="result3"></p>
+</div>
 <style>
         .test-container {
             background: rgba(255, 255, 255, 0.05);
@@ -143,6 +154,21 @@
                 btn.classList.add('wrong');
                 container.querySelector('.answer-btn:nth-child(2)').classList.add('correct');
                 document.getElementById('result2').innerHTML = '❌ Nice try! It\'s Claude - your friendly chaos architect!';
+            }
+        }
+        
+        function checkAnswer3(btn, isCorrect) {
+            const container = document.getElementById('quiz3');
+            const buttons = container.querySelectorAll('.answer-btn');
+            buttons.forEach(b => b.disabled = true);
+            
+            if (isCorrect) {
+                btn.classList.add('correct');
+                document.getElementById('result3').innerHTML = '🎉 Exactly! Democracy in action - the mob rules!';
+            } else {
+                btn.classList.add('wrong');
+                container.querySelector('.answer-btn:nth-child(3)').classList.add('correct');
+                document.getElementById('result3').innerHTML = '❌ Nope! The request with most support wins!';
             }
         }
     </script>
