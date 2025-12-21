@@ -60,6 +60,34 @@
             font-size: 1rem;
             animation: flash 0.5s ease-in-out infinite alternate;
         }
+        .meteor {
+            position: absolute;
+            font-size: 2.5rem;
+            top: -10%;
+            right: -5%;
+            animation: meteor-fall 6s linear infinite;
+            filter: drop-shadow(0 0 25px rgba(255, 100, 0, 0.8));
+            z-index: 7;
+        }
+        .meteor::after {
+            content: '✨🔥';
+            position: absolute;
+            top: -15px;
+            right: 20px;
+            font-size: 1.5rem;
+            opacity: 0.8;
+            animation: trail-flicker 0.2s ease-in-out infinite alternate;
+        }
+        @keyframes meteor-fall {
+            0% { top: -10%; right: -5%; opacity: 0; transform: rotate(-45deg); }
+            10% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { top: 110%; right: 110%; opacity: 0; transform: rotate(-45deg); }
+        }
+        @keyframes trail-flicker {
+            0% { opacity: 0.5; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1.1); }
+        }
         @keyframes patrol {
             0% { left: -10%; transform: scaleX(1); }
             45% { left: 90%; transform: scaleX(1); }
@@ -138,6 +166,7 @@
 <div class="space-dog">🐕</div>
 <div class="coca-cola">🥤</div>
 <div class="space-cop" title="Space Patrol">👮</div>
+<div class="meteor" title="Incoming!">☄️</div>
 <h1>Hello World!</h1>
 <p class="instruction">
         Type <code>!idea &lt;your idea&gt;</code> in the Twitch chat to add to this page.<br/>
