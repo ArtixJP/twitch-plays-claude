@@ -92,6 +92,7 @@
 <h1><span class="btc-icon">₿</span> BITCOIN COASTER</h1>
 <div class="price up" id="price">$67,432.18</div>
 <div class="change" id="change">▲ +2.34%</div>
+<div class="track-indicator" id="track-indicator" style="margin-top:8px;font-size:0.7rem;color:#888;">TRACK: MAIN</div>
 </div>
 <div class="scream" id="scream">😱</div>
 <p class="instruction">
@@ -361,9 +362,16 @@
         }));
         scene.add(crossTrack2);
 
-        // Animation
+        // Animation - Endless Track System
         let t = 0;
         let lastY = 0;
+        let currentTrackIndex = 0;
+        const tracks = [curve, crossCurve1, crossCurve2];
+        let activeTrack = curve;
+        let transitionProgress = 0;
+        let isTransitioning = false;
+        let nextTrack = null;
+        const transitionDuration = 0.05; // How long the blend takes
         const priceEl = document.getElementById('price');
         const changeEl = document.getElementById('change');
         const screamEl = document.getElementById('scream');
@@ -372,10 +380,48 @@
             requestAnimationFrame(animate);
             
             t += 0.001;
-            if (t > 1) t = 0;
+            
+            // Endless track logic - switch tracks at crossroads
+            if (t > 0.95 && !isTransitioning) {
+                isTransitioning = true;
+                transitionProgress = 0;
+                // Pick a random next track (different from current)
+                const availableTracks = tracks.filter(tr => tr !== activeTrack);
+                nextTrack = availableTracks[Math.floor(Math.random() * availableTracks.length)];
+            }
+            
+            if (isTransitioning) {
+                transitionProgress += 0.02;
+                if (transitionProgress >= 1) {
+                    activeTrack = nextTrack;
+                    t = 0.05; // Start slightly into the new track
+                    isTransitioning = false;
+                    transitionProgress = 0;
+                    currentTrackIndex = tracks.indexOf(activeTrack);
+                }
+            }
+            
+            // Wrap t smoothly for endless feel
+            if (t > 1 && !isTransitioning) {
+                t = 0;
+            }
 
-            const position = curve.getPoint(t);
-            const tangent = curve.getTangent(t);
+            // Get position with smooth track transitions
+            let position, tangent;
+            if (isTransitioning && nextTrack) {
+                const currentPos = activeTrack.getPoint(Math.min(t, 0.99));
+                const nextPos = nextTrack.getPoint(0.05 + transitionProgress * 0.1);
+                const currentTan = activeTrack.getTangent(Math.min(t, 0.99));
+                const nextTan = nextTrack.getTangent(0.05 + transitionProgress * 0.1);
+                
+                // Smooth blend between tracks
+                const blend = transitionProgress * transitionProgress * (3 - 2 * transitionProgress); // smoothstep
+                position = new THREE.Vector3().lerpVectors(currentPos, nextPos, blend);
+                tangent = new THREE.Vector3().lerpVectors(currentTan, nextTan, blend).normalize();
+            } else {
+                position = activeTrack.getPoint(t);
+                tangent = activeTrack.getTangent(t);
+            }
             
             cartGroup.position.copy(position);
             cartGroup.position.z += 0.5;
@@ -401,9 +447,12 @@
             camera.userData.lookTarget.lerp(targetLook, lerpFactor * 2);
             camera.lookAt(camera.userData.lookTarget);
 
-            // Update price display
+            // Update price display - continuous price evolution
             const currentPriceIndex = Math.floor(t * priceData.length);
-            const currentPrice = priceData[currentPriceIndex] || priceData[0];
+            let currentPrice = priceData[currentPriceIndex] || priceData[0];
+            // Add track-based price modifier for variety
+            const trackModifier = 1 + (currentTrackIndex * 0.1) * Math.sin(Date.now() * 0.001);
+            currentPrice *= trackModifier;
             priceEl.textContent = '$' + currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             
             const changePercent = ((currentPrice - priceData[0]) / priceData[0] * 100);
@@ -411,6 +460,17 @@
             changeEl.textContent = (isUp ? '▲ +' : '▼ ') + changePercent.toFixed(2) + '%';
             changeEl.style.color = isUp ? '#00ff88' : '#ff4444';
             priceEl.className = 'price ' + (isUp ? 'up' : 'down');
+            
+            // Update track indicator
+            const trackNames = ['MAIN', 'CYAN FORK', 'MAGENTA FORK'];
+            const trackIndicator = document.getElementById('track-indicator');
+            if (isTransitioning) {
+                trackIndicator.textContent = '⚡ SWITCHING TRACKS...';
+                trackIndicator.style.color = '#ffff00';
+            } else {
+                trackIndicator.textContent = 'TRACK: ' + trackNames[currentTrackIndex];
+                trackIndicator.style.color = [0x00ff88, 0x00ffff, 0xff00ff][currentTrackIndex] ? '#' + [0x00ff88, 0x00ffff, 0xff00ff][currentTrackIndex].toString(16).padStart(6, '0') : '#888';
+            }
 
             // Animate UFOs
             ufos.forEach((ufo, i) => {
@@ -434,7 +494,7 @@
             const yDiff = position.y - lastY;
             if (yDiff < -0.15) {
                 screamEl.style.opacity = '1';
-                screamEl.textContent = ['😱', '🎢', '📉', '💀', '👽', '🛸'][Math.floor(Math.random() * 6)];
+                screamEl.textContent = ['😱', '🎢', '📉', '💀', '👽', '🛸', '∞', '🔀'][Math.floor(Math.random() * 8)];
             } else {
                 screamEl.style.opacity = '0';
             }
