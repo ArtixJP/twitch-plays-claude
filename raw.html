@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Twitch plays Claude - Minecraft Clone</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: system-ui, sans-serif; 
+            overflow: hidden;
+            background: #87CEEB;
+        }
+        #game-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        #crosshair {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            pointer-events: none;
+            z-index: 100;
+        }
+        #crosshair::before, #crosshair::after {
+            content: '';
+            position: absolute;
+            background: white;
+            mix-blend-mode: difference;
+        }
+        #crosshair::before {
+            width: 2px;
+            height: 20px;
+            left: 9px;
+        }
+        #crosshair::after {
+            width: 20px;
+            height: 2px;
+            top: 9px;
+        }
+        #ui {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            padding: 10px 20px;
+            border-radius: 8px;
+            color: white;
+            font-size: 12px;
+            z-index: 100;
+            text-align: center;
+        }
+        #virtual-joystick {
+            position: fixed;
+            bottom: 100px;
+            left: 30px;
+            width: 100px;
+            height: 100px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            border: 3px solid rgba(255,255,255,0.4);
+            z-index: 150;
+        }
+        #joystick-knob {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.6);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            cursor: grab;
+        }
+        #action-buttons {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 150;
+        }
+        .action-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 3px solid rgba(255,255,255,0.5);
+            background: rgba(0,0,0,0.4);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        .action-btn:hover { background: rgba(100,100,100,0.6); }
+        #camera-hint {
+            position: fixed;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            padding: 8px 15px;
+            border-radius: 5px;
+            color: #4ade80;
+            font-size: 12px;
+            z-index: 100;
+        }
+        #instructions {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            z-index: 100;
+            text-align: center;
+        }
+        #instructions.hidden { display: none; }
+        #start-btn {
+            background: #4ade80;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 5px;
+            color: black;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        #start-btn:hover { background: #22c55e; }
+        #hotbar {
+            position: fixed;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 4px;
+            z-index: 100;
+        }
+        .hotbar-slot {
+            width: 40px;
+            height: 40px;
+            background: rgba(0,0,0,0.6);
+            border: 2px solid #555;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: white;
+        }
+        .hotbar-slot.selected { border-color: white; }
+    </style>
+</head>
+<body>
+<div id="game-container"></div>
+<div id="crosshair"></div>
+<div id="instructions">
+<strong>🎮 Minecraft Clone</strong><br/>
+        🕹️ Use joystick (left) to move | Buttons (right) for actions<br/>
+        Right-click drag OR Shift+click drag to look around<br/>
+        1-5 keys: Select block type<br/>
+<button id="start-btn">Click to Play!</button>
+</div>
+<div id="hotbar">
+<div class="hotbar-slot selected" style="background: linear-gradient(#8B4513, #654321);">Dirt</div>
+<div class="hotbar-slot" style="background: linear-gradient(#7CFC00, #228B22);">Grass</div>
+<div class="hotbar-slot" style="background: linear-gradient(#808080, #505050);">Stone</div>
+<div class="hotbar-slot" style="background: linear-gradient(#DEB887, #8B7355);">Wood</div>
+<div class="hotbar-slot" style="background: linear-gradient(#87CEEB, #4169E1);">Glass</div>
+</div>
+<div id="virtual-joystick"><div id="joystick-knob"></div></div>
+<div id="action-buttons">
+<button class="action-btn" id="btn-up" title="Jump">↑</button>
+<button class="action-btn" id="btn-break" title="Break Block">⛏</button>
+<button class="action-btn" id="btn-place" title="Place Block">🧱</button>
+<button class="action-btn" id="btn-down" title="Descend">↓</button>
+</div>
+<div id="camera-hint">🖱️ Click &amp; drag on the 3D view to look around!</div>
+<div id="mario-badge" style="position:fixed;top:100px;right:20px;background:linear-gradient(135deg,#E52521,#049CD8);padding:8px 15px;border-radius:20px;color:white;font-weight:bold;font-size:12px;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,0.3);animation:marioFloat 2s ease-in-out infinite;">🍄 Mario is here!</div>
+<div id="balloon-badge" style="position:fixed;top:100px;left:20px;background:linear-gradient(135deg,#FF6B6B,#FFE66D);padding:8px 15px;border-radius:20px;color:#333;font-weight:bold;font-size:12px;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,0.3);animation:balloonFloat 3s ease-in-out infinite;">🎈 Balloon floating!</div>
+<style>
+@keyframes balloonFloat {
+    0%, 100% { transform: translateY(0) rotate(-2deg); }
+    50% { transform: translateY(-8px) rotate(2deg); }
+}
+</style>
+<style>
+        @keyframes marioFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+    </style>
+<div id="ui">Type <code style="background: rgba(145, 71, 255, 0.3); padding: 2px 6px; border-radius: 3px;">!idea</code> in Twitch chat to modify this world!</div>
+<script>
+        const CHUNK_SIZE = 16;
+        const WORLD_HEIGHT = 20;
+        const BLOCK_TYPES = {
+            dirt: 0x8B4513,
+            grass: 0x228B22,
+            stone: 0x808080,
+            wood: 0xDEB887,
+            glass: 0x87CEEB
+        };
+        const blockNames = ['dirt', 'grass', 'stone', 'wood', 'glass'];
+        let selectedBlock = 0;
+
+        let scene, camera, renderer;
+        let blocks = new Map();
+        let velocity = new THREE.Vector3();
+        let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
+        let canJump = true, isFlying = false;
+        let pitch = 0, yaw = 0;
+        let isLocked = false;
+
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x87CEEB);
+            scene.fog = new THREE.Fog(0x87CEEB, 30, 80);
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(8, 25, 8);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            document.getElementById('game-container').appendChild(renderer.domElement);
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(50, 100, 50);
+            directionalLight.castShadow = true;
+            scene.add(directionalLight);
+
+            generateTerrain();
+            createMario();
+            createBalloon();
+            setupControls();
+            animate();
+        }
+
+        // Mario NPC made of voxels
+        let marioGroup;
+        let marioY = 12;
+        let marioBounce = 0;
+        let marioDirection = 1;
+        let marioX = 8;
+        let marioZ = 8;
+
+        // Flying balloon
+        let balloonGroup;
+        let balloonTime = 0;
+        let balloonBaseX = 10;
+        let balloonBaseZ = 10;
+
+        function createMario() {
+            marioGroup = new THREE.Group();
+            
+            // Mario colors
+            const red = 0xE52521;
+            const blue = 0x049CD8;
+            const skin = 0xFBB382;
+            const brown = 0x6B3E08;
+            const black = 0x1C1C1C;
+            
+            // Simple 3D pixel Mario (8x12x3 voxels)
+            const marioVoxels = [
+                // Hat (red)
+                {x:0,y:11,z:0,c:red},{x:1,y:11,z:0,c:red},{x:2,y:11,z:0,c:red},{x:3,y:11,z:0,c:red},{x:4,y:11,z:0,c:red},
+                {x:-1,y:10,z:0,c:red},{x:0,y:10,z:0,c:red},{x:1,y:10,z:0,c:red},{x:2,y:10,z:0,c:red},{x:3,y:10,z:0,c:red},{x:4,y:10,z:0,c:red},{x:5,y:10,z:0,c:red},
+                // Face (skin)
+                {x:0,y:9,z:0,c:skin},{x:1,y:9,z:0,c:skin},{x:2,y:9,z:0,c:skin},{x:3,y:9,z:0,c:skin},{x:4,y:9,z:0,c:skin},
+                {x:0,y:8,z:0,c:skin},{x:1,y:8,z:0,c:black},{x:2,y:8,z:0,c:skin},{x:3,y:8,z:0,c:black},{x:4,y:8,z:0,c:skin},
+                {x:0,y:7,z:0,c:skin},{x:1,y:7,z:0,c:skin},{x:2,y:7,z:0,c:brown},{x:3,y:7,z:0,c:skin},{x:4,y:7,z:0,c:skin},
+                // Body (red shirt)
+                {x:0,y:6,z:0,c:red},{x:1,y:6,z:0,c:red},{x:2,y:6,z:0,c:red},{x:3,y:6,z:0,c:red},{x:4,y:6,z:0,c:red},
+                {x:-1,y:5,z:0,c:skin},{x:0,y:5,z:0,c:red},{x:1,y:5,z:0,c:red},{x:2,y:5,z:0,c:red},{x:3,y:5,z:0,c:red},{x:4,y:5,z:0,c:red},{x:5,y:5,z:0,c:skin},
+                {x:0,y:4,z:0,c:red},{x:1,y:4,z:0,c:red},{x:2,y:4,z:0,c:red},{x:3,y:4,z:0,c:red},{x:4,y:4,z:0,c:red},
+                // Overalls (blue)
+                {x:0,y:3,z:0,c:blue},{x:1,y:3,z:0,c:blue},{x:2,y:3,z:0,c:blue},{x:3,y:3,z:0,c:blue},{x:4,y:3,z:0,c:blue},
+                {x:0,y:2,z:0,c:blue},{x:1,y:2,z:0,c:blue},{x:2,y:2,z:0,c:blue},{x:3,y:2,z:0,c:blue},{x:4,y:2,z:0,c:blue},
+                // Legs (blue)
+                {x:0,y:1,z:0,c:blue},{x:1,y:1,z:0,c:blue},{x:3,y:1,z:0,c:blue},{x:4,y:1,z:0,c:blue},
+                // Shoes (brown)
+                {x:0,y:0,z:0,c:brown},{x:1,y:0,z:0,c:brown},{x:3,y:0,z:0,c:brown},{x:4,y:0,z:0,c:brown},
+            ];
+            
+            const scale = 0.15;
+            marioVoxels.forEach(v => {
+                const geo = new THREE.BoxGeometry(scale, scale, scale);
+                const mat = new THREE.MeshLambertMaterial({ color: v.c });
+                const cube = new THREE.Mesh(geo, mat);
+                cube.position.set(v.x * scale, v.y * scale, v.z * scale);
+                marioGroup.add(cube);
+            });
+            
+            marioGroup.position.set(marioX, marioY, marioZ);
+            scene.add(marioGroup);
+        }
+
+        function createBalloon() {
+            balloonGroup = new THREE.Group();
+            
+            // Balloon colors - vibrant hot air balloon
+            const red = 0xFF6B6B;
+            const yellow = 0xFFE66D;
+            const orange = 0xFFA94D;
+            const basket = 0x8B4513;
+            const rope = 0x654321;
+            
+            const scale = 0.2;
+            
+            // Balloon envelope (the round part) - layered colors
+            const balloonVoxels = [
+                // Top of balloon (red)
+                {x:1,y:12,z:0,c:red},{x:2,y:12,z:0,c:red},
+                {x:0,y:11,z:0,c:red},{x:1,y:11,z:0,c:red},{x:2,y:11,z:0,c:red},{x:3,y:11,z:0,c:red},
+                // Upper middle (orange)
+                {x:-1,y:10,z:0,c:orange},{x:0,y:10,z:0,c:orange},{x:1,y:10,z:0,c:orange},{x:2,y:10,z:0,c:orange},{x:3,y:10,z:0,c:orange},{x:4,y:10,z:0,c:orange},
+                {x:-1,y:9,z:0,c:orange},{x:0,y:9,z:0,c:yellow},{x:1,y:9,z:0,c:yellow},{x:2,y:9,z:0,c:yellow},{x:3,y:9,z:0,c:yellow},{x:4,y:9,z:0,c:orange},
+                // Middle (yellow)
+                {x:-1,y:8,z:0,c:yellow},{x:0,y:8,z:0,c:yellow},{x:1,y:8,z:0,c:yellow},{x:2,y:8,z:0,c:yellow},{x:3,y:8,z:0,c:yellow},{x:4,y:8,z:0,c:yellow},
+                {x:0,y:7,z:0,c:orange},{x:1,y:7,z:0,c:orange},{x:2,y:7,z:0,c:orange},{x:3,y:7,z:0,c:orange},
+                // Bottom of envelope
+                {x:1,y:6,z:0,c:red},{x:2,y:6,z:0,c:red},
+                // Ropes
+                {x:1,y:5,z:0,c:rope},{x:2,y:5,z:0,c:rope},
+                {x:1,y:4,z:0,c:rope},{x:2,y:4,z:0,c:rope},
+                // Basket
+                {x:0,y:3,z:0,c:basket},{x:1,y:3,z:0,c:basket},{x:2,y:3,z:0,c:basket},{x:3,y:3,z:0,c:basket},
+                {x:0,y:2,z:0,c:basket},{x:1,y:2,z:0,c:basket},{x:2,y:2,z:0,c:basket},{x:3,y:2,z:0,c:basket},
+                // Depth layer
+                {x:1,y:11,z:1,c:red},{x:2,y:11,z:1,c:red},
+                {x:0,y:10,z:1,c:orange},{x:1,y:10,z:1,c:orange},{x:2,y:10,z:1,c:orange},{x:3,y:10,z:1,c:orange},
+                {x:0,y:9,z:1,c:yellow},{x:1,y:9,z:1,c:yellow},{x:2,y:9,z:1,c:yellow},{x:3,y:9,z:1,c:yellow},
+                {x:0,y:8,z:1,c:yellow},{x:1,y:8,z:1,c:yellow},{x:2,y:8,z:1,c:yellow},{x:3,y:8,z:1,c:yellow},
+            ];
+            
+            balloonVoxels.forEach(v => {
+                const geo = new THREE.BoxGeometry(scale, scale, scale);
+                const mat = new THREE.MeshLambertMaterial({ color: v.c });
+                const cube = new THREE.Mesh(geo, mat);
+                cube.position.set(v.x * scale, v.y * scale, v.z * scale);
+                cube.castShadow = true;
+                balloonGroup.add(cube);
+            });
+            
+            balloonGroup.position.set(balloonBaseX, 18, balloonBaseZ);
+            scene.add(balloonGroup);
+        }
+
+        function updateBalloon() {
+            if (!balloonGroup) return;
+            
+            balloonTime += 0.02;
+            
+            // Gentle floating motion
+            const floatY = Math.sin(balloonTime) * 1.5;
+            const driftX = Math.sin(balloonTime * 0.3) * 3;
+            const driftZ = Math.cos(balloonTime * 0.4) * 3;
+            
+            // Float in front of camera direction but at a distance
+            balloonGroup.position.set(
+                balloonBaseX + driftX,
+                18 + floatY,
+                balloonBaseZ + driftZ
+            );
+            
+            // Gentle rotation
+            balloonGroup.rotation.y = Math.sin(balloonTime * 0.5) * 0.2;
+        }
+
+        function updateMario() {
+            if (!marioGroup) return;
+            
+            // Bouncing animation
+            marioBounce += 0.1;
+            const bounceHeight = Math.abs(Math.sin(marioBounce)) * 0.5;
+            
+            // Walking
+            marioX += 0.02 * marioDirection;
+            if (marioX > 14 || marioX < 2) marioDirection *= -1;
+            
+            // Find ground height
+            let groundY = 0;
+            for (let y = 20; y >= 0; y--) {
+                const key = `${Math.floor(marioX)},${y},${Math.floor(marioZ)}`;
+                if (blocks.has(key)) {
+                    groundY = y + 1;
+                    break;
+                }
+            }
+            
+            marioGroup.position.set(marioX, groundY + bounceHeight + 0.5, marioZ);
+            marioGroup.rotation.y = marioDirection > 0 ? 0 : Math.PI;
+        }
+
+        function generateTerrain() {
+            for (let x = 0; x < CHUNK_SIZE; x++) {
+                for (let z = 0; z < CHUNK_SIZE; z++) {
+                    const height = Math.floor(Math.sin(x * 0.3) * 2 + Math.cos(z * 0.3) * 2 + 5);
+                    for (let y = 0; y <= height; y++) {
+                        let color;
+                        if (y === height) color = 0x228B22; // grass
+                        else if (y > height - 3) color = 0x8B4513; // dirt
+                        else color = 0x808080; // stone
+                        addBlock(x, y, z, color);
+                    }
+                }
+            }
+        }
+
+        function addBlock(x, y, z, color) {
+            const key = `${x},${y},${z}`;
+            if (blocks.has(key)) return;
+
+            const geometry = new THREE.BoxGeometry(1, 1, 1);
+            const material = new THREE.MeshLambertMaterial({ 
+                color: color,
+                transparent: color === 0x87CEEB,
+                opacity: color === 0x87CEEB ? 0.5 : 1
+            });
+            const cube = new THREE.Mesh(geometry, material);
+            cube.position.set(x, y, z);
+            cube.castShadow = true;
+            cube.receiveShadow = true;
+            scene.add(cube);
+            blocks.set(key, { mesh: cube, color: color });
+        }
+
+        function removeBlock(x, y, z) {
+            const key = `${x},${y},${z}`;
+            if (blocks.has(key)) {
+                scene.remove(blocks.get(key).mesh);
+                blocks.delete(key);
+            }
+        }
+
+        function setupControls() {
+            // Start game without pointer lock
+            document.getElementById('start-btn').addEventListener('click', () => {
+                isLocked = true;
+                document.getElementById('instructions').classList.add('hidden');
+            });
+
+            // Click-and-drag camera control (works in sandboxed iframes)
+            let isDragging = false;
+            let lastMouseX = 0, lastMouseY = 0;
+
+            renderer.domElement.addEventListener('mousedown', (e) => {
+                if (e.button === 1 || (e.button === 0 && e.shiftKey)) { // Middle click or Shift+Left
+                    isDragging = true;
+                    lastMouseX = e.clientX;
+                    lastMouseY = e.clientY;
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const deltaX = e.clientX - lastMouseX;
+                const deltaY = e.clientY - lastMouseY;
+                yaw -= deltaX * 0.005;
+                pitch -= deltaY * 0.005;
+                pitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, pitch));
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+            });
+
+            // Also allow right-click drag for camera
+            renderer.domElement.addEventListener('contextmenu', (e) => e.preventDefault());
+            renderer.domElement.addEventListener('mousedown', (e) => {
+                if (e.button === 2) {
+                    isDragging = true;
+                    lastMouseX = e.clientX;
+                    lastMouseY = e.clientY;
+                }
+            });
+
+            document.addEventListener('keydown', (e) => {
+                switch(e.code) {
+                    case 'KeyW': moveForward = true; break;
+                    case 'KeyS': moveBackward = true; break;
+                    case 'KeyA': moveLeft = true; break;
+                    case 'KeyD': moveRight = true; break;
+                    case 'Space': velocity.y = 0.15; break;
+                    case 'ShiftLeft': velocity.y = -0.1; break;
+                    case 'Digit1': case 'Digit2': case 'Digit3': case 'Digit4': case 'Digit5':
+                        selectedBlock = parseInt(e.code.slice(-1)) - 1;
+                        updateHotbar();
+                        break;
+                }
+            });
+
+            document.addEventListener('keyup', (e) => {
+                switch(e.code) {
+                    case 'KeyW': moveForward = false; break;
+                    case 'KeyS': moveBackward = false; break;
+                    case 'KeyA': moveLeft = false; break;
+                    case 'KeyD': moveRight = false; break;
+                }
+            });
+
+            document.addEventListener('mousedown', (e) => {
+                if (!isLocked) return;
+                const raycaster = new THREE.Raycaster();
+                raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+                const meshes = Array.from(blocks.values()).map(b => b.mesh);
+                const intersects = raycaster.intersectObjects(meshes);
+
+                if (intersects.length > 0) {
+                    const hit = intersects[0];
+                    const pos = hit.object.position;
+                    if (e.button === 0) { // Left click - break
+                        removeBlock(pos.x, pos.y, pos.z);
+                    } else if (e.button === 2) { // Right click - place
+                        const normal = hit.face.normal;
+                        const newPos = pos.clone().add(normal);
+                        addBlock(newPos.x, newPos.y, newPos.z, BLOCK_TYPES[blockNames[selectedBlock]]);
+                    }
+                }
+            });
+
+            // Virtual joystick controls
+            const joystick = document.getElementById('virtual-joystick');
+            const knob = document.getElementById('joystick-knob');
+            let joystickActive = false;
+            let joystickCenter = { x: 0, y: 0 };
+
+            joystick.addEventListener('mousedown', (e) => {
+                joystickActive = true;
+                const rect = joystick.getBoundingClientRect();
+                joystickCenter = { x: rect.left + 50, y: rect.top + 50 };
+            });
+
+            document.addEventListener('mouseup', () => {
+                joystickActive = false;
+                knob.style.transform = 'translate(-50%, -50%)';
+                moveForward = moveBackward = moveLeft = moveRight = false;
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!joystickActive) return;
+                let dx = e.clientX - joystickCenter.x;
+                let dy = e.clientY - joystickCenter.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                const maxDist = 40;
+                if (dist > maxDist) {
+                    dx = dx / dist * maxDist;
+                    dy = dy / dist * maxDist;
+                }
+                knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+                moveForward = dy < -10;
+                moveBackward = dy > 10;
+                moveLeft = dx < -10;
+                moveRight = dx > 10;
+            });
+
+            // Action buttons
+            document.getElementById('btn-up').addEventListener('mousedown', () => velocity.y = 0.15);
+            document.getElementById('btn-down').addEventListener('mousedown', () => velocity.y = -0.1);
+            document.getElementById('btn-break').addEventListener('click', () => {
+                const raycaster = new THREE.Raycaster();
+                raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+                const meshes = Array.from(blocks.values()).map(b => b.mesh);
+                const intersects = raycaster.intersectObjects(meshes);
+                if (intersects.length > 0) {
+                    const pos = intersects[0].object.position;
+                    removeBlock(pos.x, pos.y, pos.z);
+                }
+            });
+            document.getElementById('btn-place').addEventListener('click', () => {
+                const raycaster = new THREE.Raycaster();
+                raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+                const meshes = Array.from(blocks.values()).map(b => b.mesh);
+                const intersects = raycaster.intersectObjects(meshes);
+                if (intersects.length > 0) {
+                    const hit = intersects[0];
+                    const normal = hit.face.normal;
+                    const newPos = hit.object.position.clone().add(normal);
+                    addBlock(newPos.x, newPos.y, newPos.z, BLOCK_TYPES[blockNames[selectedBlock]]);
+                }
+            });
+        }
+
+        function updateHotbar() {
+            document.querySelectorAll('.hotbar-slot').forEach((slot, i) => {
+                slot.classList.toggle('selected', i === selectedBlock);
+            });
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (isLocked) {
+                const speed = 0.12;
+                const direction = new THREE.Vector3();
+                
+                if (moveForward) direction.z -= 1;
+                if (moveBackward) direction.z += 1;
+                if (moveLeft) direction.x -= 1;
+                if (moveRight) direction.x += 1;
+                
+                direction.normalize();
+                direction.applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
+                
+                camera.position.add(direction.multiplyScalar(speed));
+                camera.position.y += velocity.y;
+                velocity.y *= 0.95;
+
+                camera.rotation.order = 'YXZ';
+                camera.rotation.y = yaw;
+                camera.rotation.x = pitch;
+            }
+
+            updateMario();
+            updateBalloon();
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        init();
+    </script>
+</body>
+</html>
