@@ -607,16 +607,17 @@
 <span>Shots: <span id="shots">0</span></span>
 <span style="color:#ff6b35;">🦖 Monsters: 2</span>
 <span style="color:#00ff00;">🦸 ELON: <span id="elonStatus">💵 FLAMETHROWER!</span></span>
+<span style="color:#00ffff;">🦖 GODZILLA: <span id="godzillaStatus">STANDBY</span></span>
 <span style="color:#00ffff;">🎯 PINBALL: <span id="pinballScore">0</span></span>
 <span style="color:#ff00ff;">x<span id="comboMultiplier">1</span></span>
 </div>
 <div id="game-container">
-<div class="three-d-badge" onclick="toggleElonPOV()" style="cursor:pointer;background:linear-gradient(145deg, #ff6600, #ff0000);" title="Click to toggle ELON POV">🦸 ELON POV: ON</div>
+<div class="three-d-badge" onclick="cyclePlayerMode()" style="cursor:pointer;background:linear-gradient(145deg, #ff6600, #ff0000);" title="Click to cycle: ELON → GODZILLA → SPECTATOR">🦸 ELON MODE</div>
 <div class="hipoly-badge">✨ HI-POLY MODELS v2.0</div>
 <div style="position:fixed;top:100px;left:10px;background:linear-gradient(145deg,rgba(255,0,102,0.9),rgba(0,255,136,0.9));color:white;font-weight:bold;font-size:0.6rem;padding:6px 12px;border-radius:15px;z-index:100;animation:badgePulse 1s infinite;">🎰 BOUNCE = POINTS!</div>
 <div class="power-bar-container" id="powerBar"><div class="power-bar-fill" id="powerFill" style="height: 0%"></div></div>
 <div class="aim-indicator"><div class="aim-marker" id="aimMarker" style="left: 50%"></div></div>
-<div class="controls-hint" id="controlsHint">🦸 WASD to MOVE ELON • AUTO-HUNTING MONSTERS WITH 💵 FLAMETHROWER!</div>
+<div class="controls-hint" id="controlsHint">🦸 WASD to MOVE • SPACE to ATTACK • Click badge to switch: ELON ↔ GODZILLA!</div>
 </div>
 <div class="result-flash" id="result"></div>
 <button class="firework-btn" onclick="manualFireworks()">🎆</button>
@@ -2129,8 +2130,10 @@ function animate() {
         }
     });
     
-    // MONSTER AI - Roaming and EATING!
+    // MONSTER AI - Roaming and EATING! (Skip if player controlled)
     monsters.forEach(monster => {
+        // Skip AI for player-controlled Godzilla
+        if (monster.userData.type === 'godzilla' && godzillaPlayerControlled) return;
         // Random roaming
         if (Math.random() < 0.01) {
             monster.userData.targetX = (Math.random() - 0.5) * 50;
@@ -2202,6 +2205,9 @@ function animate() {
     
     // Update player-controlled Elon
     updateElonPlayer();
+    
+    // Update player-controlled Godzilla
+    updateGodzillaPlayer();
     
     // ELON POV Camera - follows Elon!
     if (elonPOVMode && elonGroup.visible) {
@@ -2372,13 +2378,194 @@ function manualFireworks() {
 }
 window.manualFireworks = manualFireworks;
 
-// ELON POV Toggle
-function toggleElonPOV() {
-    elonPOVMode = !elonPOVMode;
+// PLAYER MODE SYSTEM - Elon, Godzilla, or Spectator!
+let playerMode = 'elon'; // 'elon', 'godzilla', 'spectator'
+let godzillaPlayerControlled = false;
+let godzillaMoveX = 0, godzillaMoveZ = 0;
+let atomicBreathActive = false;
+let atomicBreathParticles = [];
+
+function cyclePlayerMode() {
+    const modes = ['elon', 'godzilla', 'spectator'];
+    const idx = modes.indexOf(playerMode);
+    playerMode = modes[(idx + 1) % modes.length];
+    
     const badge = document.querySelector('.three-d-badge');
-    badge.textContent = elonPOVMode ? '🦸 ELON POV: ON' : '🎲 SPECTATOR';
-    badge.style.background = elonPOVMode ? 'linear-gradient(145deg, #ff6600, #ff0000)' : 'linear-gradient(145deg, #9147ff, #00ffff)';
-    document.getElementById('elonStatus').textContent = elonPOVMode ? 'FIGHTING!' : 'WATCHING';
+    const hint = document.getElementById('controlsHint');
+    
+    if (playerMode === 'elon') {
+        badge.textContent = '🦸 ELON MODE';
+        badge.style.background = 'linear-gradient(145deg, #ff6600, #ff0000)';
+        document.getElementById('elonStatus').textContent = 'FIGHTING!';
+        document.getElementById('godzillaStatus').textContent = 'STANDBY';
+        elonPOVMode = true;
+        godzillaPlayerControlled = false;
+        hint.textContent = '🦸 WASD to MOVE ELON • SPACE for MONEY FLAMETHROWER!';
+    } else if (playerMode === 'godzilla') {
+        badge.textContent = '🦖 GODZILLA MODE';
+        badge.style.background = 'linear-gradient(145deg, #00ffff, #0066ff)';
+        document.getElementById('elonStatus').textContent = 'STANDBY';
+        document.getElementById('godzillaStatus').textContent = '☢️ ATOMIC!';
+        elonPOVMode = false;
+        godzillaPlayerControlled = true;
+        hint.textContent = '🦖 WASD to STOMP • SPACE for ATOMIC BREATH! DESTROY THE CITY!';
+    } else {
+        badge.textContent = '🎲 SPECTATOR';
+        badge.style.background = 'linear-gradient(145deg, #9147ff, #00ffff)';
+        document.getElementById('elonStatus').textContent = 'WATCHING';
+        document.getElementById('godzillaStatus').textContent = 'AI MODE';
+        elonPOVMode = false;
+        godzillaPlayerControlled = false;
+        hint.textContent = '👁️ WATCHING THE CHAOS... Click badge to take control!';
+    }
+}
+window.cyclePlayerMode = cyclePlayerMode;
+
+// Godzilla player controls
+document.addEventListener('keydown', (e) => {
+    if (playerMode !== 'godzilla') return;
+    if (e.key === 'w' || e.key === 'W' || e.key === 'ArrowUp') godzillaMoveZ = -1;
+    if (e.key === 's' || e.key === 'S' || e.key === 'ArrowDown') godzillaMoveZ = 1;
+    if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') godzillaMoveX = -1;
+    if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') godzillaMoveX = 1;
+    if (e.key === ' ') atomicBreathActive = true;
+});
+
+document.addEventListener('keyup', (e) => {
+    if (e.key === 'w' || e.key === 'W' || e.key === 'ArrowUp') godzillaMoveZ = 0;
+    if (e.key === 's' || e.key === 'S' || e.key === 'ArrowDown') godzillaMoveZ = 0;
+    if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') godzillaMoveX = 0;
+    if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') godzillaMoveX = 0;
+    if (e.key === ' ') atomicBreathActive = false;
+});
+
+function spawnAtomicBreath(startX, startY, startZ, dirX, dirZ) {
+    for (let i = 0; i < 5; i++) {
+        const particle = new THREE.Mesh(
+            new THREE.SphereGeometry(0.5 + Math.random() * 0.5, 8, 8),
+            new THREE.MeshBasicMaterial({ 
+                color: Math.random() > 0.5 ? 0x00ffff : 0x0088ff, 
+                transparent: true, 
+                opacity: 1 
+            })
+        );
+        particle.position.set(
+            startX + dirX * (2 + Math.random() * 3),
+            startY + (Math.random() - 0.5) * 2,
+            startZ + dirZ * (2 + Math.random() * 3)
+        );
+        particle.userData = {
+            vx: dirX * 1.5 + (Math.random() - 0.5) * 0.5,
+            vy: (Math.random() - 0.5) * 0.3,
+            vz: dirZ * 1.5 + (Math.random() - 0.5) * 0.5,
+            life: 2.0
+        };
+        scene.add(particle);
+        atomicBreathParticles.push(particle);
+    }
+}
+
+function updateAtomicBreathParticles() {
+    atomicBreathParticles = atomicBreathParticles.filter(p => {
+        p.position.x += p.userData.vx;
+        p.position.y += p.userData.vy;
+        p.position.z += p.userData.vz;
+        p.userData.life -= 0.04;
+        p.material.opacity = p.userData.life * 0.8;
+        p.scale.setScalar(1 + (2 - p.userData.life) * 0.5);
+        if (p.userData.life <= 0) {
+            scene.remove(p);
+            return false;
+        }
+        return true;
+    });
+}
+
+function updateGodzillaPlayer() {
+    if (!godzillaPlayerControlled) return;
+    const godzilla = monsters.find(m => m.userData.type === 'godzilla');
+    if (!godzilla) return;
+    
+    // Player movement
+    const moveSpeed = 0.8;
+    godzilla.position.x += godzillaMoveX * moveSpeed;
+    godzilla.position.z += godzillaMoveZ * moveSpeed;
+    
+    // Face movement direction
+    if (godzillaMoveX !== 0 || godzillaMoveZ !== 0) {
+        godzilla.rotation.y = Math.atan2(godzillaMoveX, -godzillaMoveZ);
+        // Stomping animation
+        godzilla.position.y = Math.abs(Math.sin(Date.now() * 0.015)) * 1.5;
+        
+        // Screen shake on stomp - DISABLED for smooth experience
+    } else {
+        godzilla.position.y = Math.sin(Date.now() * 0.003) * 0.3;
+    }
+    
+    // ATOMIC BREATH!
+    if (atomicBreathActive) {
+        const dirX = Math.sin(godzilla.rotation.y);
+        const dirZ = -Math.cos(godzilla.rotation.y);
+        spawnAtomicBreath(
+            godzilla.position.x + dirX * 5,
+            15,
+            godzilla.position.z + dirZ * 5,
+            dirX, dirZ
+        );
+        
+        // Damage buildings in breath path!
+        buildings.forEach(bldg => {
+            const b = bldg.userData.bounds;
+            const breathX = godzilla.position.x + dirX * 20;
+            const breathZ = godzilla.position.z + dirZ * 20;
+            const dist = Math.sqrt(Math.pow(b.x - breathX, 2) + Math.pow(b.z - breathZ, 2));
+            if (dist < 15 && Math.random() < 0.1) {
+                createBounceVFX(b.x, b.h/2, b.z, 0x00ffff);
+                addPinballPoints(b.points * 2, b.x, b.h/2, b.z);
+            }
+        });
+        
+        // Hit T-Rex!
+        const trex = monsters.find(m => m.userData.type === 'trex');
+        if (trex) {
+            const breathX = godzilla.position.x + dirX * 15;
+            const breathZ = godzilla.position.z + dirZ * 15;
+            const dist = Math.sqrt(Math.pow(trex.position.x - breathX, 2) + Math.pow(trex.position.z - breathZ, 2));
+            if (dist < 10 && Math.random() < 0.05) {
+                createBounceVFX(trex.position.x, 8, trex.position.z, 0x00ffff);
+                addPinballPoints(500, trex.position.x, 8, trex.position.z);
+                trex.position.x += (trex.position.x - godzilla.position.x) * 0.2;
+                trex.position.z += (trex.position.z - godzilla.position.z) * 0.2;
+                if (Math.random() < 0.2) showMonsterAction('☢️ ATOMIC HIT!');
+            }
+        }
+    }
+    
+    // Clamp to city bounds
+    godzilla.position.x = Math.max(-150, Math.min(150, godzilla.position.x));
+    godzilla.position.z = Math.max(-150, Math.min(150, godzilla.position.z));
+    
+    // Godzilla POV camera
+    const godzillaDir = godzilla.rotation.y;
+    const targetCamX = godzilla.position.x - Math.sin(godzillaDir) * 25;
+    const targetCamY = godzilla.position.y + 30;
+    const targetCamZ = godzilla.position.z + Math.cos(godzillaDir) * 25;
+    
+    const smoothFactor = 0.008;
+    camera.position.x += (targetCamX - camera.position.x) * smoothFactor;
+    camera.position.y += (targetCamY - camera.position.y) * smoothFactor;
+    camera.position.z += (targetCamZ - camera.position.z) * smoothFactor;
+    
+    const lookX = godzilla.position.x + Math.sin(godzillaDir) * 10;
+    const lookZ = godzilla.position.z - Math.cos(godzillaDir) * 10;
+    camera.lookAt(lookX, godzilla.position.y + 10, lookZ);
+    
+    updateAtomicBreathParticles();
+}
+
+// Legacy toggle
+function toggleElonPOV() {
+    cyclePlayerMode();
 }
 window.toggleElonPOV = toggleElonPOV;
 
