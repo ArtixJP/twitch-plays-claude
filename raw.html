@@ -385,6 +385,57 @@
             color: #1a1a2e;
             box-shadow: 0 0 30px rgba(255,71,87,0.6);
         }
+        .firework-btn {
+            position: fixed;
+            left: 15px;
+            bottom: 15%;
+            background: linear-gradient(145deg, #ff6b35 0%, #ff4757 100%);
+            border: 2px solid #ffdd57;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(255,107,53,0.5), 0 0 40px rgba(255,221,87,0.3);
+            z-index: 50;
+            transition: all 0.3s;
+            animation: fireworkBtnPulse 2s infinite;
+        }
+        .firework-btn:hover {
+            transform: scale(1.15);
+            box-shadow: 0 0 30px rgba(255,107,53,0.8), 0 0 60px rgba(255,221,87,0.5);
+        }
+        .firework-btn:active {
+            transform: scale(0.95);
+        }
+        @keyframes fireworkBtnPulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(255,107,53,0.5), 0 0 40px rgba(255,221,87,0.3); }
+            50% { box-shadow: 0 0 30px rgba(255,107,53,0.7), 0 0 50px rgba(255,221,87,0.5); }
+        }
+        .firework-counter {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #00ff88;
+            color: #1a1a2e;
+            font-size: 0.7rem;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-family: monospace;
+        }
+        .sparkle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 201;
+            font-size: 1.5rem;
+            animation: sparkleFloat 1s ease-out forwards;
+        }
+        @keyframes sparkleFloat {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-50px) scale(0); opacity: 0; }
+        }
         .intel-btn.flash {
             animation: intelFlash 0.5s ease;
         }
@@ -459,6 +510,7 @@
 <div class="tv-static"></div>
 </div>
 <button class="intel-btn" id="intelBtn" onclick="revealIntel()">🔓 LEAK<br/>MATCH INTEL</button>
+<button class="firework-btn" id="fireworkBtn" onclick="manualFireworks()" title="Launch Fireworks!">🎆<span class="firework-counter" id="fireworkCount">∞</span></button>
 <div class="intel-popup" id="intelPopup">
 <div id="intelText">Click to reveal secrets...</div>
 <div class="intel-stamp">LEAKED</div>
@@ -1264,12 +1316,47 @@
         
         function celebrateGoal() {
             // Launch multiple fireworks
-            for (let i = 0; i < 5; i++) {
+            for (let i = 0; i < 8; i++) {
                 setTimeout(() => {
                     const x = 100 + Math.random() * (window.innerWidth - 200);
                     const y = window.innerHeight * 0.7 + Math.random() * 100;
                     launchFirework(x, y);
-                }, i * 200);
+                }, i * 150);
+            }
+            // Add sparkles
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => createSparkle(), i * 100);
+            }
+        }
+        
+        function createSparkle() {
+            const sparkle = document.createElement('div');
+            sparkle.className = 'sparkle';
+            sparkle.textContent = ['✨', '⭐', '💫', '🌟'][Math.floor(Math.random() * 4)];
+            sparkle.style.left = Math.random() * window.innerWidth + 'px';
+            sparkle.style.top = Math.random() * window.innerHeight * 0.7 + 'px';
+            document.body.appendChild(sparkle);
+            setTimeout(() => sparkle.remove(), 1000);
+        }
+        
+        function manualFireworks() {
+            const btn = document.getElementById('fireworkBtn');
+            btn.style.transform = 'scale(0.9)';
+            setTimeout(() => btn.style.transform = '', 100);
+            
+            // Launch a burst of fireworks from random positions
+            const burstCount = 3 + Math.floor(Math.random() * 4);
+            for (let i = 0; i < burstCount; i++) {
+                setTimeout(() => {
+                    const x = 100 + Math.random() * (window.innerWidth - 200);
+                    const y = window.innerHeight * 0.6 + Math.random() * 150;
+                    launchFirework(x, y);
+                }, i * 100);
+            }
+            
+            // Add some sparkles too
+            for (let i = 0; i < 8; i++) {
+                setTimeout(() => createSparkle(), i * 80);
             }
         }
         
