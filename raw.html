@@ -242,20 +242,18 @@
         Type <code>!idea your idea</code> in chat to modify this world
     </p>
 <script>
-        // SERENE BEACH SUNSET SIMULATOR
         const scene = new THREE.Scene();
         scene.fog = new THREE.Fog(0xff7744, 50, 300);
         
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         camera.position.set(0, 2, 0);
-        camera.rotation.x = -0.1; // Slight look down at water
+        camera.rotation.x = -0.1;
         
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setClearColor(0xff6b35);
         document.getElementById('canvas-container').appendChild(renderer.domElement);
         
-        // SUNSET SKY SPHERE
         const skyGeo = new THREE.SphereGeometry(500, 32, 32);
         const skyCanvas = document.createElement('canvas');
         skyCanvas.width = 1024;
@@ -269,7 +267,6 @@
         skyGrad.addColorStop(1, '#ffcc88');
         skyCtx.fillStyle = skyGrad;
         skyCtx.fillRect(0, 0, 1024, 512);
-        // Add sun
         const sunGrad = skyCtx.createRadialGradient(512, 280, 0, 512, 280, 80);
         sunGrad.addColorStop(0, '#fffacd');
         sunGrad.addColorStop(0.3, '#ffd700');
@@ -282,7 +279,6 @@
         const sky = new THREE.Mesh(skyGeo, skyMat);
         scene.add(sky);
         
-        // OCEAN
         const oceanGeo = new THREE.PlaneGeometry(1000, 1000, 50, 50);
         const oceanMat = new THREE.MeshPhongMaterial({ 
             color: 0x006994, 
@@ -295,7 +291,6 @@
         ocean.position.y = -0.5;
         scene.add(ocean);
         
-        // BEACH (sand)
         const beachGeo = new THREE.PlaneGeometry(100, 50, 20, 20);
         const beachMat = new THREE.MeshPhongMaterial({ color: 0xf4d6a4 });
         const beach = new THREE.Mesh(beachGeo, beachMat);
@@ -303,7 +298,6 @@
         beach.position.set(0, -0.3, 30);
         scene.add(beach);
         
-        // PALM TREES
         function createPalmTree(x, z) {
             const group = new THREE.Group();
             const trunk = new THREE.Mesh(
@@ -330,14 +324,12 @@
         scene.add(createPalmTree(-12, 32));
         scene.add(createPalmTree(15, 35));
         
-        // LIGHTING
         const ambient = new THREE.AmbientLight(0xffa07a, 0.6);
         scene.add(ambient);
         const sunLight = new THREE.DirectionalLight(0xffd700, 1);
         sunLight.position.set(0, 10, -50);
         scene.add(sunLight);
         
-        // SEAGULLS
         const seagulls = [];
         for (let i = 0; i < 5; i++) {
             const bird = new THREE.Mesh(
@@ -354,7 +346,6 @@
             seagulls.push(bird);
         }
         
-        // AUDIO - Ocean waves
         let audioContext = null;
         let audioStarted = false;
         
@@ -362,7 +353,6 @@
             if (audioStarted) return;
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
             
-            // White noise for waves
             const bufferSize = audioContext.sampleRate * 2;
             const noiseBuffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
             const data = noiseBuffer.getChannelData(0);
@@ -381,7 +371,6 @@
             const gain = audioContext.createGain();
             gain.gain.value = 0.15;
             
-            // LFO for wave rhythm
             const lfo = audioContext.createOscillator();
             const lfoGain = audioContext.createGain();
             lfo.frequency.value = 0.1;
@@ -417,7 +406,6 @@
         
         setTimeout(initAudio, 1000);
         
-        // PRICE DATA
         let price = 67432;
         const priceEl = document.getElementById('price');
         const changeEl = document.getElementById('change');
@@ -431,12 +419,10 @@
             changeEl.style.color = isUp ? '#00ff88' : '#ff6666';
         }, 3000);
         
-        // ANIMATION
         function animate() {
             requestAnimationFrame(animate);
             const time = Date.now() * 0.001;
             
-            // Animate ocean waves
             const positions = ocean.geometry.attributes.position;
             for (let i = 0; i < positions.count; i++) {
                 const x = positions.getX(i);
@@ -445,18 +431,15 @@
             }
             positions.needsUpdate = true;
             
-            // Gentle camera sway (lying on beach)
             camera.position.x = Math.sin(time * 0.1) * 0.3;
             camera.rotation.y = Math.sin(time * 0.05) * 0.02;
             
-            // Animate seagulls
             seagulls.forEach(bird => {
                 bird.position.x += bird.userData.speed;
                 bird.position.y += Math.sin(time * 2 + bird.userData.offset) * 0.02;
                 if (bird.position.x > 50) bird.position.x = -50;
             });
             
-            // Rotate sky slowly
             sky.rotation.y += 0.0001;
             
             renderer.render(scene, camera);
