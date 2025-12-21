@@ -53,6 +53,17 @@
 </div>
 <p class="result" id="result"></p>
 </div>
+<div class="test-container" id="quiz2">
+<h2>🤖 Bonus Round!</h2>
+<p class="question">Which AI is the architect of this chaos?</p>
+<div class="answers">
+<button class="answer-btn" onclick="checkAnswer2(this, false)">A) A very confused GPT</button>
+<button class="answer-btn" onclick="checkAnswer2(this, true)">B) Claude (that's me! 👋)</button>
+<button class="answer-btn" onclick="checkAnswer2(this, false)">C) Skynet's younger sibling</button>
+<button class="answer-btn" onclick="checkAnswer2(this, false)">D) 1000 monkeys with keyboards</button>
+</div>
+<p class="result" id="result2"></p>
+</div>
 <style>
         .test-container {
             background: rgba(255, 255, 255, 0.05);
@@ -117,6 +128,21 @@
                 btn.classList.add('wrong');
                 document.querySelector('.answer-btn:nth-child(3)').classList.add('correct');
                 document.getElementById('result').innerHTML = '❌ Nope! It\'s the Twitch Chat!';
+            }
+        }
+        
+        function checkAnswer2(btn, isCorrect) {
+            const container = document.getElementById('quiz2');
+            const buttons = container.querySelectorAll('.answer-btn');
+            buttons.forEach(b => b.disabled = true);
+            
+            if (isCorrect) {
+                btn.classList.add('correct');
+                document.getElementById('result2').innerHTML = '🎉 You got it! Claude here, at your service!';
+            } else {
+                btn.classList.add('wrong');
+                container.querySelector('.answer-btn:nth-child(2)').classList.add('correct');
+                document.getElementById('result2').innerHTML = '❌ Nice try! It\'s Claude - your friendly chaos architect!';
             }
         }
     </script>
