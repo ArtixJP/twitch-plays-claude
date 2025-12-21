@@ -393,6 +393,68 @@
             pointer-events: none;
         }
         
+        /* MEME & QUOTE OVERLAY SYSTEM */
+        .meme-quote-overlay {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            max-width: 300px;
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid;
+            border-radius: 15px;
+            z-index: 200;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(20px) scale(0.9);
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(247, 147, 26, 0.5);
+        }
+        .meme-quote-overlay.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        .meme-quote-overlay.meme {
+            border-color: #ff00ff;
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.5);
+        }
+        .meme-quote-overlay.quote {
+            border-color: #00ffff;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+        }
+        .meme-quote-overlay .content {
+            font-size: 1rem;
+            color: #fff;
+            text-shadow: 0 0 10px currentColor;
+            line-height: 1.4;
+        }
+        .meme-quote-overlay .emoji {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 8px;
+            animation: meme-bounce 0.6s ease-in-out infinite;
+        }
+        .meme-quote-overlay .author {
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 8px;
+            font-style: italic;
+        }
+        @keyframes meme-bounce {
+            0%, 100% { transform: scale(1) rotate(-5deg); }
+            50% { transform: scale(1.1) rotate(5deg); }
+        }
+        .meme-quote-overlay .rainbow-text {
+            background: linear-gradient(90deg, #ff0000, #ff8000, #ffff00, #00ff00, #00ffff, #0080ff, #8000ff, #ff0080);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: rainbow-text 3s linear infinite;
+        }
+        
         /* PHOTOSENSITIVITY WARNING */
         .strobe-warning {
             position: fixed;
@@ -464,6 +526,10 @@
 <div class="torus-indicator" id="torus-indicator" style="margin-top:4px;font-size:0.6rem;color:#bf94ff;">🍩 TOROIDAL TOPOLOGY ACTIVE</div>
 </div>
 <div class="scream" id="scream">😱</div>
+<div class="meme-quote-overlay" id="meme-quote">
+<span class="emoji">🚀</span>
+<div class="content">HODL!</div>
+</div>
 <div class="strobe-warning" id="strobe-warning">
 <span class="warning-icon">⚠️⚡</span>
     PHOTOSENSITIVITY WARNING
@@ -787,6 +853,78 @@
         document.addEventListener('click', () => {
             if (!audioStarted) initAudio();
         }, { once: true });
+        
+        // MEME & QUOTE SYSTEM - Every 7 seconds!
+        const memes = [
+            { emoji: '🚀', text: 'TO THE MOON!', type: 'meme' },
+            { emoji: '💎', text: 'DIAMOND HANDS FOREVER', type: 'meme' },
+            { emoji: '🦍', text: 'APE TOGETHER STRONG', type: 'meme' },
+            { emoji: '📈', text: 'Number go up technology', type: 'meme' },
+            { emoji: '🐻', text: 'Bears r fuk', type: 'meme' },
+            { emoji: '🔥', text: 'This is fine.jpg', type: 'meme' },
+            { emoji: '🤡', text: 'Bought the top again', type: 'meme' },
+            { emoji: '😤', text: 'WAGMI', type: 'meme' },
+            { emoji: '🌈', text: 'Have fun staying poor', type: 'meme' },
+            { emoji: '🍕', text: '10,000 BTC for 2 pizzas was worth it', type: 'meme' },
+            { emoji: '⚡', text: 'Few understand this', type: 'meme' },
+            { emoji: '🎰', text: 'Sir, this is a casino', type: 'meme' }
+        ];
+        
+        const quotes = [
+            { emoji: '🧠', text: 'Be fearful when others are greedy', author: '- Warren Buffett', type: 'quote' },
+            { emoji: '⏰', text: 'Time in the market beats timing the market', author: '- Ancient Wisdom', type: 'quote' },
+            { emoji: '🌊', text: 'The trend is your friend', author: '- Wall Street', type: 'quote' },
+            { emoji: '🎯', text: 'Buy the rumor, sell the news', author: '- Crypto Bros', type: 'quote' },
+            { emoji: '💡', text: 'Not your keys, not your coins', author: '- Satoshi probably', type: 'quote' },
+            { emoji: '🔮', text: 'In crypto we trust', author: '- The Blockchain', type: 'quote' },
+            { emoji: '🌟', text: 'Fortune favors the bold', author: '- Matt Damon', type: 'quote' },
+            { emoji: '🦋', text: 'Zoom out and relax', author: '- Long-term HODLer', type: 'quote' }
+        ];
+        
+        const allContent = [...memes, ...quotes];
+        const memeQuoteEl = document.getElementById('meme-quote');
+        
+        function showRandomMemeQuote() {
+            const item = allContent[Math.floor(Math.random() * allContent.length)];
+            const emojiEl = memeQuoteEl.querySelector('.emoji');
+            const contentEl = memeQuoteEl.querySelector('.content');
+            let authorEl = memeQuoteEl.querySelector('.author');
+            
+            // Update content
+            emojiEl.textContent = item.emoji;
+            contentEl.innerHTML = `<span class="rainbow-text">${item.text}</span>`;
+            
+            // Handle author for quotes
+            if (item.author) {
+                if (!authorEl) {
+                    authorEl = document.createElement('div');
+                    authorEl.className = 'author';
+                    memeQuoteEl.appendChild(authorEl);
+                }
+                authorEl.textContent = item.author;
+                authorEl.style.display = 'block';
+            } else if (authorEl) {
+                authorEl.style.display = 'none';
+            }
+            
+            // Update styling based on type
+            memeQuoteEl.classList.remove('meme', 'quote');
+            memeQuoteEl.classList.add(item.type);
+            
+            // Show with animation
+            memeQuoteEl.classList.add('visible');
+            
+            // Hide after 5 seconds
+            setTimeout(() => {
+                memeQuoteEl.classList.remove('visible');
+            }, 5000);
+        }
+        
+        // Show first one after 2 seconds, then every 7 seconds
+        setTimeout(() => {
+            showRandomMemeQuote();
+            setInterval(showRandomMemeQuote, 7000);
+        }, 2000);
         
         document.getElementById('audio-toggle').addEventListener('click', () => {
             if (!audioStarted) {
