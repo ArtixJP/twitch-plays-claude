@@ -775,7 +775,7 @@
         
         function createCoconut(x, z) {
             const geo = new THREE.SphereGeometry(0.2, 12, 12);
-            const mat = new THREE.MeshPhongMaterial({ color: 0x8b4513, roughness: 0.9 });
+            const mat = new THREE.MeshPhongMaterial({ color: 0x8b4513, shininess: 10 });
             const coconut = new THREE.Mesh(geo, mat);
             coconut.position.set(x, 0.2, z);
             return coconut;
