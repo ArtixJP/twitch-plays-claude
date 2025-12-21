@@ -459,6 +459,9 @@
         let ballDodgeX = 0; // Player dodge offset
         let keeperProjectiles = [];
         let keeperWeaponCooldown = 0;
+        let playerProjectiles = [];
+        let playerWeaponCooldown = 0;
+        let defenderRespawnTimers = [];
         let playerHealth = 3;
         let aimSpeed = 0.03;
         let shootPower = 0;
@@ -466,9 +469,9 @@
         let resultTimer = 0;
         let particles = [];
         let defenders = [
-            { x: 150, y: 150, vx: 0.5, radius: 15 },
-            { x: 250, y: 130, vx: -0.4, radius: 15 },
-            { x: 200, y: 170, vx: 0.3, radius: 12 }
+            { x: 150, y: 150, vx: 0.5, radius: 15, alive: true, spawnX: 150, spawnY: 150 },
+            { x: 250, y: 130, vx: -0.4, radius: 15, alive: true, spawnX: 250, spawnY: 130 },
+            { x: 200, y: 170, vx: 0.3, radius: 12, alive: true, spawnX: 200, spawnY: 170 }
         ];
         
         // Goal dimensions
@@ -610,16 +613,18 @@
                 
                 // Check defender collision
                 defenders.forEach(d => {
-                    const dx = ball.x - d.x;
-                    const dy = ball.y - d.y;
-                    const dist = Math.sqrt(dx*dx + dy*dy);
-                    if (dist < ball.radius + d.radius) {
-                        saves++;
-                        document.getElementById('saves').textContent = saves;
-                        createParticles(ball.x, ball.y, '#ff6b35');
-                        showResult('🛡️ BLOCKED!', false);
-                        gamePhase = 'result';
-                        resultTimer = 60;
+                    if (d.alive) {
+                        const dx = ball.x - d.x;
+                        const dy = ball.y - d.y;
+                        const dist = Math.sqrt(dx*dx + dy*dy);
+                        if (dist < ball.radius + d.radius) {
+                            saves++;
+                            document.getElementById('saves').textContent = saves;
+                            createParticles(ball.x, ball.y, '#ff6b35');
+                            showResult('🛡️ BLOCKED!', false);
+                            gamePhase = 'result';
+                            resultTimer = 60;
+                        }
                     }
                 });
                 
@@ -640,8 +645,48 @@
             
             // Update defenders (slow patrol)
             defenders.forEach(d => {
-                d.x += d.vx;
-                if (d.x < 80 || d.x > 320) d.vx *= -1;
+                if (d.alive) {
+                    d.x += d.vx;
+                    if (d.x < 80 || d.x > 320) d.vx *= -1;
+                }
+            });
+            
+            // Player weapon cooldown
+            if (playerWeaponCooldown > 0) playerWeaponCooldown--;
+            
+            // Update player projectiles
+            playerProjectiles = playerProjectiles.filter(p => {
+                p.y += p.vy;
+                
+                // Check hit on defenders
+                for (let d of defenders) {
+                    if (d.alive) {
+                        const dx = p.x - d.x;
+                        const dy = p.y - d.y;
+                        const dist = Math.sqrt(dx*dx + dy*dy);
+                        if (dist < d.radius + 5) {
+                            d.alive = false;
+                            createParticles(d.x, d.y, '#00ffff');
+                            // Set respawn timer (5 seconds = 150 frames at 30fps)
+                            defenderRespawnTimers.push({ defender: d, timer: 150 });
+                            return false;
+                        }
+                    }
+                }
+                return p.y > 0;
+            });
+            
+            // Process defender respawn timers
+            defenderRespawnTimers = defenderRespawnTimers.filter(r => {
+                r.timer--;
+                if (r.timer <= 0) {
+                    r.defender.alive = true;
+                    r.defender.x = r.defender.spawnX;
+                    r.defender.y = r.defender.spawnY;
+                    createParticles(r.defender.x, r.defender.y, '#ff6b35');
+                    return false;
+                }
+                return true;
             });
             
             // Update particles
@@ -708,24 +753,61 @@
             
             // Draw defenders (slow-moving enemies)
             defenders.forEach(d => {
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = '#ff6b35';
-                ctx.fillStyle = '#ff6b35';
+                if (d.alive) {
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = '#ff6b35';
+                    ctx.fillStyle = '#ff6b35';
+                    ctx.beginPath();
+                    ctx.arc(d.x, d.y, d.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    // Defender body
+                    ctx.shadowBlur = 0;
+                    ctx.fillStyle = '#2d3436';
+                    ctx.beginPath();
+                    ctx.arc(d.x, d.y - 5, 8, 0, Math.PI * 2);
+                    ctx.fill();
+                    // Jersey number
+                    ctx.fillStyle = 'white';
+                    ctx.font = 'bold 10px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('⛔', d.x, d.y + 4);
+                }
+            });
+            
+            // Draw respawn indicators
+            defenderRespawnTimers.forEach(r => {
+                const d = r.defender;
+                ctx.globalAlpha = 0.3 + Math.sin(Date.now() / 100) * 0.2;
+                ctx.strokeStyle = '#ff6b35';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
                 ctx.beginPath();
-                ctx.arc(d.x, d.y, d.radius, 0, Math.PI * 2);
-                ctx.fill();
-                // Defender body
-                ctx.shadowBlur = 0;
-                ctx.fillStyle = '#2d3436';
-                ctx.beginPath();
-                ctx.arc(d.x, d.y - 5, 8, 0, Math.PI * 2);
-                ctx.fill();
-                // Jersey number
-                ctx.fillStyle = 'white';
+                ctx.arc(d.spawnX, d.spawnY, d.radius + 5, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                // Timer text
+                ctx.fillStyle = '#ffdd57';
                 ctx.font = 'bold 10px sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('⛔', d.x, d.y + 4);
+                ctx.fillText(Math.ceil(r.timer / 30) + 's', d.spawnX, d.spawnY + 4);
+                ctx.globalAlpha = 1;
             });
+            
+            // Draw player projectiles
+            playerProjectiles.forEach(p => {
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = '#00ffff';
+                ctx.fillStyle = '#00ffff';
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
+                ctx.fill();
+                // Energy trail
+                ctx.fillStyle = 'rgba(0,255,255,0.3)';
+                ctx.beginPath();
+                ctx.arc(p.x, p.y + 10, 4, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ctx.shadowBlur = 0;
             
             // Aim indicator
             if (gamePhase === 'aiming' || gamePhase === 'power') {
@@ -800,7 +882,13 @@
                 ctx.fillStyle = 'rgba(255,255,255,0.9)';
                 ctx.font = 'bold 11px sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('⬅️ A/D to AIM • SPACE to CHARGE ➡️', 200, 270);
+                ctx.fillText('⬅️ A/D to AIM • SPACE to CHARGE • F to FIRE ➡️', 200, 270);
+                
+                // Draw player weapon indicator
+                const weaponReady = playerWeaponCooldown <= 0;
+                ctx.fillStyle = weaponReady ? '#00ffff' : '#666';
+                ctx.font = 'bold 10px sans-serif';
+                ctx.fillText(weaponReady ? '🔫 READY' : '🔫 ' + Math.ceil(playerWeaponCooldown/30) + 's', 50, 260);
             }
             if (gamePhase === 'power') {
                 ctx.fillStyle = '#ffdd57';
@@ -846,6 +934,16 @@
                     gamePhase = 'power';
                     shootPower = 0;
                     powerDir = 1;
+                }
+                // Fire player weapon
+                if ((e.key === 'f' || e.key === 'F') && playerWeaponCooldown <= 0) {
+                    playerProjectiles.push({
+                        x: ball.x,
+                        y: ball.y - ball.radius,
+                        vy: -12
+                    });
+                    playerWeaponCooldown = 20; // Cooldown frames
+                    createParticles(ball.x, ball.y - ball.radius, '#00ffff');
                 }
             }
         });
