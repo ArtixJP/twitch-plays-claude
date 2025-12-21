@@ -696,6 +696,10 @@ const defaultCamPos = { x: 0, y: 15, z: 45 };
 const fpvOffset = { x: 0, y: 4, z: 12 }; // Behind and above ball - wider view for city
 const elonCamOffset = { x: 0, y: 3, z: 8 }; // Behind Elon for action view
 
+// Smooth camera shake system
+let cameraShake = { x: 0, y: 0 };
+const shakeDecay = 0.92; // Smooth decay factor
+
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(width, height);
 renderer.shadowMap.enabled = true;
@@ -2258,9 +2262,9 @@ function animate() {
                     ballVelocity.y = Math.max(ballVelocity.y, 0.4);
                 }
                 
-                // Screen shake effect
-                camera.position.x += (Math.random() - 0.5) * 0.5;
-                camera.position.y += (Math.random() - 0.5) * 0.3;
+                // Gentle camera nudge (smoothed)
+                cameraShake.x += (Math.random() - 0.5) * 0.15;
+                cameraShake.y += (Math.random() - 0.5) * 0.1;
             }
         });
         
@@ -2422,9 +2426,9 @@ function animate() {
             if (monster.userData.roarCooldown <= 0 && Math.random() < 0.002) {
                 monster.userData.roarCooldown = 500;
                 showMonsterAction('🦖 ROOOOAAARRR!!!');
-                // Screen shake
-                camera.position.x += (Math.random() - 0.5) * 2;
-                camera.position.y += (Math.random() - 0.5) * 1;
+                // Gentle roar shake (smoothed)
+                cameraShake.x += (Math.random() - 0.5) * 0.5;
+                cameraShake.y += (Math.random() - 0.5) * 0.3;
                 // Godzilla atomic breath glow
                 monster.children.forEach(c => {
                     if (c.material && c.material.emissive) {
@@ -2447,9 +2451,11 @@ function animate() {
         const targetCamY = elonGroup.position.y + elonCamOffset.y;
         const targetCamZ = elonGroup.position.z + Math.cos(elonDir) * elonCamOffset.z;
         
-        camera.position.x += (targetCamX - camera.position.x) * 0.1;
-        camera.position.y += (targetCamY - camera.position.y) * 0.1;
-        camera.position.z += (targetCamZ - camera.position.z) * 0.1;
+        // Smooth interpolation with time-based damping
+        const smoothFactor = 0.04;
+        camera.position.x += (targetCamX - camera.position.x) * smoothFactor + cameraShake.x;
+        camera.position.y += (targetCamY - camera.position.y) * smoothFactor + cameraShake.y;
+        camera.position.z += (targetCamZ - camera.position.z) * smoothFactor;
         
         // Look at Elon and slightly ahead
         const lookX = elonGroup.position.x + Math.sin(elonDir) * 5;
@@ -2461,17 +2467,21 @@ function animate() {
         const targetCamY = Math.max(2, ball.position.y + fpvOffset.y);
         const targetCamZ = ball.position.z + fpvOffset.z;
         
-        camera.position.x += (targetCamX - camera.position.x) * 0.15;
-        camera.position.y += (targetCamY - camera.position.y) * 0.1;
-        camera.position.z += (targetCamZ - camera.position.z) * 0.15;
+        // Ultra-smooth ball following with gentle shake
+        const ballSmoothFactor = 0.06;
+        camera.position.x += (targetCamX - camera.position.x) * ballSmoothFactor + cameraShake.x;
+        camera.position.y += (targetCamY - camera.position.y) * 0.05 + cameraShake.y;
+        camera.position.z += (targetCamZ - camera.position.z) * ballSmoothFactor;
         
         // Look ahead of the ball toward the goal
         camera.lookAt(ball.position.x * 0.5, ball.position.y * 0.5 + 1, ball.position.z - 10);
     } else {
         // Return to default view smoothly
-        camera.position.x += (defaultCamPos.x + Math.sin(Date.now() * 0.0005) * 0.5 - camera.position.x) * 0.05;
-        camera.position.y += (defaultCamPos.y - camera.position.y) * 0.05;
-        camera.position.z += (defaultCamPos.z - camera.position.z) * 0.05;
+        // Silky smooth default camera with subtle breathing
+        const defaultSmoothFactor = 0.03;
+        camera.position.x += (defaultCamPos.x + Math.sin(Date.now() * 0.0003) * 0.3 - camera.position.x) * defaultSmoothFactor + cameraShake.x;
+        camera.position.y += (defaultCamPos.y - camera.position.y) * defaultSmoothFactor + cameraShake.y;
+        camera.position.z += (defaultCamPos.z - camera.position.z) * defaultSmoothFactor;
         camera.lookAt(0, 2, 0);
     }
     
@@ -2487,6 +2497,10 @@ function animate() {
     
     // Update helicopter and Elon
     updateHelicopter();
+    
+    // Decay camera shake smoothly
+    cameraShake.x *= shakeDecay;
+    cameraShake.y *= shakeDecay;
     
     renderer.render(scene, camera);
 }
