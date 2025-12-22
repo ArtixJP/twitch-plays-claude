@@ -376,10 +376,11 @@
             }
         }
 
-        // Player setup
+        // Player setup - Calculate ground height at spawn
+        const spawnHeight = Math.floor(noise(0, 0)) + 5 + 2; // +2 for player eye level above surface
         const player = {
             x: 0,
-            y: 15,
+            y: spawnHeight,
             z: 0,
             yaw: 0,
             pitch: 0,
@@ -427,11 +428,13 @@
             requestAnimationFrame(animate);
 
             if (autoMode) {
-                // Auto-explore: fly around the world
+                // Auto-explore: walk/fly around the world, staying closer to terrain
                 autoTime += 0.005;
                 player.x = Math.sin(autoTime) * 30;
                 player.z = Math.cos(autoTime) * 30;
-                player.y = 20 + Math.sin(autoTime * 2) * 5;
+                // Calculate terrain height at current position for ground-following
+                const terrainY = Math.floor(noise(player.x, player.z)) + 5;
+                player.y = terrainY + 3 + Math.sin(autoTime * 2) * 2;
                 player.yaw = autoTime + Math.PI;
                 player.pitch = -0.2 + Math.sin(autoTime * 3) * 0.1;
             } else {
