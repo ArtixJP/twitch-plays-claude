@@ -414,6 +414,38 @@
             `).join('');
             
             showScreen('resultsScreen');
+            
+            // Auto-restart in continuous mode
+            if (autoPlayEnabled) {
+                setTimeout(() => {
+                    restartAutoPlay();
+                }, 5000);
+            }
+        }
+        
+        let currentRound = 1;
+        
+        function restartAutoPlay() {
+            currentRound++;
+            const roundNum = document.getElementById('roundNum');
+            if (roundNum) roundNum.textContent = currentRound;
+            
+            // Reset scores but keep players
+            gameState.players.forEach(p => p.score = 0);
+            // Shuffle in some new players for variety
+            if (Math.random() > 0.5 && gameState.players.length > 2) {
+                gameState.players.splice(2, 1); // Remove one random player
+            }
+            if (gameState.players.length < 5) {
+                gameState.players.push(generatePlayer());
+            }
+            updatePlayersGrid();
+            
+            // Start new game
+            gameState.questions = shuffleArray([...questionBank]).slice(0, 10);
+            gameState.currentQuestion = 0;
+            showScreen('gameScreen');
+            showQuestion();
         }
         
         // Create snowflakes
@@ -432,6 +464,11 @@
         }
         createSnowflakes();
         
+        // Start continuous self-play mode automatically!
+        setTimeout(() => {
+            autoPlayMode();
+        }, 1000);
+        
         // Auto-Play Mode
         let autoPlayEnabled = false;
         
@@ -448,8 +485,15 @@
         function showAutoPlayIndicator() {
             const indicator = document.createElement('div');
             indicator.id = 'autoPlayBadge';
-            indicator.innerHTML = '🤖 AUTO-PLAY MODE';
+            indicator.innerHTML = '🤖 CONTINUOUS SELF-PLAY MODE 🔄';
             indicator.style.cssText = 'position:fixed;top:10px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#9c27b0,#673ab7);padding:8px 20px;border-radius:20px;font-weight:bold;z-index:1000;animation:pulse 1s infinite;box-shadow:0 0 20px rgba(156,39,176,0.6);';
+            
+            // Add round counter
+            const roundCounter = document.createElement('div');
+            roundCounter.id = 'roundCounter';
+            roundCounter.innerHTML = '🎮 Round: <span id="roundNum">1</span>';
+            roundCounter.style.cssText = 'position:fixed;top:45px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.5);padding:5px 15px;border-radius:15px;font-size:0.9rem;z-index:1000;';
+            document.body.appendChild(roundCounter);
             document.body.appendChild(indicator);
         }
         
