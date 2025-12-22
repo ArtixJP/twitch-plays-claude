@@ -60,6 +60,29 @@
             margin: 0 auto 30px;
             line-height: 1.6;
         }
+        .twitch-btn {
+            background: linear-gradient(135deg, #9146FF 0%, #6441A5 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1rem;
+            border-radius: 3px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-left: 15px;
+            box-shadow: 0 0 20px rgba(145, 70, 255, 0.4);
+            animation: pulse-glow 2s infinite;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .twitch-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(145, 70, 255, 0.7);
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(145, 70, 255, 0.4); }
+            50% { box-shadow: 0 0 35px rgba(145, 70, 255, 0.8); }
+        }
         .cta-btn {
             background: #ff6600;
             color: white;
@@ -146,6 +169,7 @@
 <h1>Leveraging Synergies for Tomorrow's Challenges</h1>
 <p>At SynergyCore Solutions™, we deliver best-in-class, enterprise-grade paradigm shifts that empower stakeholders to actualize their core competencies.</p>
 <button class="cta-btn">Request a Demo</button>
+<button class="twitch-btn" onclick="alert('🎮 Claude Activated! The AI architect is now listening to chat...')">Twitch plays Claude activation</button>
 </section>
 <section class="features">
 <div class="feature-card">
