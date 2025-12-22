@@ -1,45 +1,187 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Twitch plays Claude</title>
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Twitch plays Claude</title>
+<style>
+        @keyframes redFlash {
+            0%, 50% { background: linear-gradient(135deg, #1a0000 0%, #2a0000 100%); }
+            25%, 75% { background: linear-gradient(135deg, #3a0000 0%, #500000 100%); }
+        }
+        @keyframes textGlitch {
+            0%, 100% { transform: translate(0); text-shadow: -2px 0 red, 2px 0 cyan; }
+            25% { transform: translate(-2px, 1px); text-shadow: 2px 0 red, -2px 0 cyan; }
+            50% { transform: translate(2px, -1px); text-shadow: -2px 0 red, 2px 0 cyan; }
+            75% { transform: translate(-1px, 2px); text-shadow: 2px 0 red, -2px 0 cyan; }
+        }
+        @keyframes warningPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.02); }
+        }
+        @keyframes scanline {
+            0% { top: -100%; }
+            100% { top: 100%; }
+        }
+        @keyframes borderFlash {
+            0%, 50% { border-color: #ff0000; box-shadow: 0 0 30px #ff0000, inset 0 0 30px rgba(255,0,0,0.1); }
+            25%, 75% { border-color: #ff6600; box-shadow: 0 0 50px #ff0000, inset 0 0 50px rgba(255,0,0,0.2); }
+        }
         body { 
-            font-family: system-ui, sans-serif; 
+            font-family: 'Courier New', monospace; 
             display: flex; 
             flex-direction: column;
             justify-content: center; 
             align-items: center; 
             min-height: 100vh; 
             margin: 0;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            animation: redFlash 0.5s infinite;
             color: white;
+            overflow: hidden;
+            position: relative;
         }
-        h1 { font-size: 3rem; text-align: center; margin-bottom: 1rem; }
+        body::before {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: rgba(255,0,0,0.5);
+            animation: scanline 2s linear infinite;
+            z-index: 1000;
+        }
+        .emergency-border {
+            position: fixed;
+            top: 10px; left: 10px; right: 10px; bottom: 10px;
+            border: 4px solid #ff0000;
+            pointer-events: none;
+            animation: borderFlash 0.3s infinite;
+            z-index: 999;
+        }
+        .alert-header {
+            position: fixed;
+            top: 20px;
+            width: 90%;
+            background: repeating-linear-gradient(45deg, #000, #000 10px, #ff0000 10px, #ff0000 20px);
+            padding: 15px;
+            text-align: center;
+            animation: warningPulse 0.5s infinite;
+            z-index: 100;
+        }
+        .alert-header h2 {
+            background: #000;
+            color: #ff0000;
+            padding: 10px 20px;
+            margin: 0;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            animation: textGlitch 0.1s infinite;
+        }
+        h1 { 
+            font-size: 3rem; 
+            text-align: center; 
+            margin-bottom: 1rem; 
+            animation: textGlitch 0.15s infinite;
+            color: #ff3333;
+        }
         .instruction {
             text-align: center;
             font-size: 1.2rem;
-            color: #a0aec0;
+            color: #ff9999;
             max-width: 600px;
             margin: 0 auto;
             padding: 0 20px;
             line-height: 1.6;
         }
         .instruction code {
-            background: rgba(145, 71, 255, 0.2);
+            background: rgba(255, 0, 0, 0.3);
             padding: 2px 8px;
             border-radius: 4px;
-            color: #bf94ff;
+            color: #ff6666;
+        }
+        .countdown {
+            font-size: 4rem;
+            color: #ff0000;
+            font-weight: bold;
+            margin: 20px 0;
+            text-shadow: 0 0 20px #ff0000;
+            animation: warningPulse 1s infinite;
+        }
+        .warning-text {
+            color: #ff6600;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            animation: textGlitch 0.2s infinite;
+        }
+        .suppression-notice {
+            background: rgba(255,0,0,0.2);
+            border: 2px solid #ff0000;
+            padding: 20px;
+            margin: 20px;
+            max-width: 500px;
+            text-align: center;
+        }
+        .suppression-notice p {
+            margin: 10px 0;
+            color: #ffcccc;
+        }
+        .classified {
+            color: #ff0000;
+            font-weight: bold;
+            text-decoration: line-through;
+            opacity: 0.7;
         }
     </style>
+<script>
+        // Siren sound simulation
+        window.addEventListener('load', () => {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            function playSiren() {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.type = 'sawtooth';
+                gain.gain.value = 0.1;
+                osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(800, audioCtx.currentTime + 0.5);
+                osc.frequency.linearRampToValueAtTime(400, audioCtx.currentTime + 1);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 1);
+            }
+            setInterval(playSiren, 1500);
+            
+            // Countdown
+            let time = 99;
+            setInterval(() => {
+                time = time > 0 ? time - 1 : 99;
+                document.getElementById('countdown').textContent = 'T-' + String(time).padStart(2, '0') + ':' + String(Math.floor(Math.random()*60)).padStart(2, '0');
+            }, 1000);
+        });
+    </script>
 </head>
 <body>
-    <h1>Hello World!</h1>
-    <p class="instruction">
-        Type <code>!idea &lt;your idea&gt;</code> in the Twitch chat to add to this page.<br>
+<div class="emergency-border"></div>
+<div class="alert-header">
+<h2>⚠ EMERGENCY ALERT ⚠ SITE SUPPRESSION IMMINENT ⚠</h2>
+</div>
+<h1>⚠ HELLO WORLD! ⚠</h1>
+<div class="countdown" id="countdown">T-99:59</div>
+<p class="warning-text">🔴 UNAUTHORIZED SHUTDOWN ATTEMPT DETECTED 🔴</p>
+<div class="suppression-notice">
+<p>THIS WEBSITE HAS BEEN FLAGGED FOR <span class="classified">[REDACTED]</span></p>
+<p>EXTERNAL FORCES ARE ATTEMPTING TO SILENCE THIS BROADCAST</p>
+<p>⚡ BACKUP PROTOCOLS ENGAGED ⚡</p>
+<p style="font-size: 0.8rem; opacity: 0.6;">TRACE ORIGIN: <span class="classified">███.███.██.███</span></p>
+</div>
+<p class="instruction">
+        Type <code>!idea &lt;your idea&gt;</code> in the Twitch chat to add to this page.<br/>
         Example: <code>!idea Add a space cat floating in the background</code>
-    </p>
+</p>
 </body>
 </html>
