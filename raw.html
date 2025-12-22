@@ -1186,21 +1186,38 @@
         window.tailRotor = tailRotor;
         window.parachutes = parachutes;
         
-        // Grass ground with realistic material
+        // Grass ground with realistic material - BRIGHT AND VISIBLE
         const grassMat = new THREE.MeshStandardMaterial({ 
-            color: 0x2d5a27, 
-            roughness: 0.9, 
+            color: 0x4a8f3c, 
+            roughness: 0.7, 
             metalness: 0.0,
-            envMapIntensity: 0.15
+            envMapIntensity: 0.4,
+            emissive: 0x1a3a15,
+            emissiveIntensity: 0.2
         });
         const grassGround = new THREE.Mesh(
-            new THREE.PlaneGeometry(100, 100, 50, 50),
+            new THREE.PlaneGeometry(200, 200, 50, 50),
             grassMat
         );
         grassGround.rotation.x = -Math.PI / 2;
-        grassGround.position.y = -1;
+        grassGround.position.y = -0.5;
         grassGround.receiveShadow = true;
         scene.add(grassGround);
+        
+        // Secondary bright ground layer for visibility
+        const groundBase = new THREE.Mesh(
+            new THREE.PlaneGeometry(300, 300),
+            new THREE.MeshStandardMaterial({ 
+                color: 0x3d7a32, 
+                roughness: 0.8,
+                emissive: 0x1a3010,
+                emissiveIntensity: 0.15
+            })
+        );
+        groundBase.rotation.x = -Math.PI / 2;
+        groundBase.position.y = -0.6;
+        groundBase.receiveShadow = true;
+        scene.add(groundBase);
         
         // Add subtle ground displacement for realism
         const grassPositions = grassGround.geometry.attributes.position;
@@ -1379,6 +1396,7 @@
             
             livingRoom.visible = false;
             grassGround.visible = true;
+                groundBase.visible = true;
             
             // Reset camera
             camera.position.set(0, 5, 15);
@@ -1499,7 +1517,7 @@
                     phase = 'livingroom';
                     animationTime = 0;
                     livingRoom.visible = true;
-                    grassGround.visible = false;
+                    grassGround.visible = true; // Keep ground always visible
                     gagStartTime = 0;
                 }
             } else if (phase === 'livingroom') {
