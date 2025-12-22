@@ -337,7 +337,7 @@ const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'hi
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0xff6b35);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.2;
+renderer.toneMappingExposure = 0.85;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -973,10 +973,10 @@ function createPalm(x, z) {
 scene.add(createPalm(-8, 25)); scene.add(createPalm(10, 28)); scene.add(createPalm(-12, 32));
 
 // Enhanced Cinematic Lighting System
-scene.add(new THREE.AmbientLight(0xffa07a, 0.5));
+scene.add(new THREE.AmbientLight(0xffa07a, 0.35));
 
 // Main Sun Light with shadows
-const sunLight = new THREE.DirectionalLight(0xffd700, 2.0);
+const sunLight = new THREE.DirectionalLight(0xffd700, 1.2);
 sunLight.position.set(-30, 40, -50);
 sunLight.castShadow = true;
 sunLight.shadow.mapSize.width = 2048;
@@ -991,17 +991,17 @@ sunLight.shadow.bias = -0.0001;
 scene.add(sunLight);
 
 // Warm fill light from opposite side
-const fillLight = new THREE.DirectionalLight(0xff7744, 0.8);
+const fillLight = new THREE.DirectionalLight(0xff7744, 0.5);
 fillLight.position.set(30, 20, 40);
 scene.add(fillLight);
 
 // Rim light for dramatic silhouettes
-const rimLight = new THREE.DirectionalLight(0xff4400, 0.6);
+const rimLight = new THREE.DirectionalLight(0xff4400, 0.35);
 rimLight.position.set(0, 5, -40);
 scene.add(rimLight);
 
 // Village warm point lights
-const villageLight = new THREE.PointLight(0xffaa44, 1.5, 60);
+const villageLight = new THREE.PointLight(0xffaa44, 0.8, 60);
 villageLight.position.set(0, 8, 28);
 scene.add(villageLight);
 
@@ -1015,7 +1015,7 @@ torch2.position.set(-7, 3, 26);
 scene.add(torch2);
 
 // Lighthouse beacon
-const lighthouseBeacon = new THREE.PointLight(0xffffaa, 2.0, 40);
+const lighthouseBeacon = new THREE.PointLight(0xffffaa, 1.0, 40);
 lighthouseBeacon.position.set(12, 8, 30);
 scene.add(lighthouseBeacon);
 
@@ -1177,9 +1177,9 @@ try {
     
     const bloomPass = new THREE.UnrealBloomPass(
         new THREE.Vector2(window.innerWidth, window.innerHeight),
-        0.8,  // strength
-        0.4,  // radius
-        0.7   // threshold
+        0.35,  // strength - reduced to prevent white-out
+        0.3,  // radius
+        0.85   // threshold - higher to only bloom brightest areas
     );
     composer.addPass(bloomPass);
 } catch(e) {
