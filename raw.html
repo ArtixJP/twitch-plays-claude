@@ -139,6 +139,27 @@ body { font-family: 'Courier New', monospace; overflow: hidden; background: #1a0
 .stickman-container:hover .stickman {
     animation: steve-walk 0.3s ease-in-out infinite;
 }
+.villager-roster {
+    position: absolute; bottom: 70px; left: 10px; z-index: 130;
+    background: rgba(20, 10, 40, 0.7); backdrop-filter: blur(10px);
+    padding: 10px 12px; border-radius: 12px;
+    border: 1px solid rgba(255, 200, 100, 0.3);
+    font-size: 0.55rem;
+}
+.roster-title {
+    color: #ffd700; font-weight: bold; margin-bottom: 6px;
+    text-shadow: 0 0 8px #ff8c00; font-size: 0.65rem;
+}
+.roster-item {
+    color: #fff; margin: 3px 0; padding: 3px 6px; border-radius: 6px;
+    display: flex; justify-content: space-between; gap: 8px;
+}
+.roster-item span { opacity: 0.7; font-style: italic; }
+.roster-item.maria { background: rgba(255, 107, 107, 0.3); }
+.roster-item.jake { background: rgba(255, 221, 68, 0.3); }
+.roster-item.luna { background: rgba(153, 102, 204, 0.3); }
+.roster-item.max { background: rgba(255, 68, 68, 0.3); }
+.roster-item.zara { background: rgba(247, 147, 26, 0.3); }
 @keyframes speech-bounce {
     0%, 100% { transform: translateX(-50%) translateY(0); }
     50% { transform: translateX(-50%) translateY(-3px); }
@@ -176,6 +197,14 @@ body { font-family: 'Courier New', monospace; overflow: hidden; background: #1a0
 <div class="stickman" id="stickman-body">🏠</div>
 <div class="stickman-name">Steve Status</div>
 <div class="steve-location" id="steve-location">📍 Patrolling village...</div>
+</div>
+<div class="villager-roster">
+<div class="roster-title">🏘️ Village Residents</div>
+<div class="roster-item maria">🍹 Maria <span>Bartender</span></div>
+<div class="roster-item jake">🏄 Jake <span>Surf Instructor</span></div>
+<div class="roster-item luna">🛒 Luna <span>Market Vendor</span></div>
+<div class="roster-item max">🏊 Max <span>Lifeguard</span></div>
+<div class="roster-item zara">₿ Zara <span>BTC Evangelist</span></div>
 </div>
 <div class="audio-indicator" id="audio-toggle">🌊 Ocean Waves</div>
 <div class="abduction-status" id="abduction-status">
@@ -564,6 +593,87 @@ const steve3D = createStickmanSteve();
 steve3D.position.set(8, 0, 26);
 scene.add(steve3D);
 
+// Create other villagers with different roles
+function createVillager(color, hatColor, role) {
+    const g = new THREE.Group();
+    // Head
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.25, 8, 8), new THREE.MeshPhongMaterial({ color: 0xffcc99 }));
+    head.position.y = 1.7; g.add(head);
+    // Body with role-specific color
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 0.7, 8), new THREE.MeshPhongMaterial({ color: color }));
+    body.position.y = 1.2; g.add(body);
+    // Arms
+    const leftArm = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.5, 6), new THREE.MeshPhongMaterial({ color: 0xffcc99 }));
+    leftArm.position.set(-0.25, 1.3, 0); leftArm.rotation.z = Math.PI / 4; g.add(leftArm);
+    const rightArm = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.5, 6), new THREE.MeshPhongMaterial({ color: 0xffcc99 }));
+    rightArm.position.set(0.25, 1.3, 0); rightArm.rotation.z = -Math.PI / 4; g.add(rightArm);
+    // Legs
+    const leftLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.6, 6), new THREE.MeshPhongMaterial({ color: 0x333366 }));
+    leftLeg.position.set(-0.1, 0.55, 0); g.add(leftLeg);
+    const rightLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.6, 6), new THREE.MeshPhongMaterial({ color: 0x333366 }));
+    rightLeg.position.set(0.1, 0.55, 0); g.add(rightLeg);
+    // Role-specific hat
+    const hat = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.35, 0.1, 12), new THREE.MeshPhongMaterial({ color: hatColor }));
+    hat.position.y = 1.95; g.add(hat);
+    const hatTop = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.2, 0.15, 12), new THREE.MeshPhongMaterial({ color: hatColor }));
+    hatTop.position.y = 2.05; g.add(hatTop);
+    g.userData = { leftLeg, rightLeg, leftArm, rightArm, role };
+    return g;
+}
+
+// Maria - Tiki Bar Bartender (Red apron)
+const maria = createVillager(0xff6b6b, 0xd2691e, 'bartender');
+maria.position.set(-5, 0, 26);
+scene.add(maria);
+const mariaWaypoints = [
+    { x: -5, z: 26 }, { x: -4, z: 27 }, { x: -6, z: 26 }, { x: -5, z: 25 }
+];
+let mariaWPIndex = 0, mariaLerp = 0;
+
+// Jake - Surf Instructor (Yellow shirt)
+const jake = createVillager(0xffdd44, 0x00aaff, 'surfer');
+jake.position.set(6, 0, 24);
+scene.add(jake);
+const jakeWaypoints = [
+    { x: 6, z: 24 }, { x: 8, z: 22 }, { x: 4, z: 20 }, { x: 6, z: 22 }
+];
+let jakeWPIndex = 0, jakeLerp = 0;
+
+// Luna - Market Vendor (Purple dress)
+const luna = createVillager(0x9966cc, 0xff69b4, 'vendor');
+luna.position.set(2, 0, 28);
+scene.add(luna);
+const lunaWaypoints = [
+    { x: 2, z: 28 }, { x: 3, z: 29 }, { x: 1, z: 28 }, { x: 2, z: 27 }
+];
+let lunaWPIndex = 0, lunaLerp = 0;
+
+// Max - Lifeguard (Red shorts)
+const max = createVillager(0xff4444, 0xffffff, 'lifeguard');
+max.position.set(0, 0, 20);
+scene.add(max);
+const maxWaypoints = [
+    { x: 0, z: 20 }, { x: 5, z: 18 }, { x: -5, z: 18 }, { x: 0, z: 22 }
+];
+let maxWPIndex = 0, maxLerp = 0;
+
+// Zara - Bitcoin Evangelist (Orange BTC shirt)
+const zara = createVillager(0xf7931a, 0xf7931a, 'btc_evangelist');
+zara.position.set(0, 0, 25);
+scene.add(zara);
+const zaraWaypoints = [
+    { x: 0, z: 25 }, { x: -2, z: 32 }, { x: 6, z: 24 }, { x: 2, z: 28 }
+];
+let zaraWPIndex = 0, zaraLerp = 0;
+
+const allVillagers = [
+    { model: maria, waypoints: mariaWaypoints, wpIndex: () => mariaWPIndex, setWpIndex: (v) => mariaWPIndex = v, lerp: () => mariaLerp, setLerp: (v) => mariaLerp = v, speed: 0.006 },
+    { model: jake, waypoints: jakeWaypoints, wpIndex: () => jakeWPIndex, setWpIndex: (v) => jakeWPIndex = v, lerp: () => jakeLerp, setLerp: (v) => jakeLerp = v, speed: 0.01 },
+    { model: luna, waypoints: lunaWaypoints, wpIndex: () => lunaWPIndex, setWpIndex: (v) => lunaWPIndex = v, lerp: () => lunaLerp, setLerp: (v) => lunaLerp = v, speed: 0.005 },
+    { model: max, waypoints: maxWaypoints, wpIndex: () => maxWPIndex, setWpIndex: (v) => maxWPIndex = v, lerp: () => maxLerp, setLerp: (v) => maxLerp = v, speed: 0.012 },
+    { model: zara, waypoints: zaraWaypoints, wpIndex: () => zaraWPIndex, setWpIndex: (v) => zaraWPIndex = v, lerp: () => zaraLerp, setLerp: (v) => zaraLerp = v, speed: 0.007 }
+];
+
 // Steve's patrol waypoints around the village
 const steveWaypoints = [
     { x: 8, z: 26 },   // Near surf shop
@@ -756,6 +866,27 @@ function animate() {
     steve3D.userData.leftArm.rotation.x = Math.sin(walkCycle + Math.PI) * 0.3;
     steve3D.userData.rightArm.rotation.x = Math.sin(walkCycle) * 0.3;
     steve3D.position.y = Math.abs(Math.sin(walkCycle)) * 0.05;
+    
+    // Animate all other villagers
+    allVillagers.forEach((v, vi) => {
+        const currentWP = v.waypoints[v.wpIndex()];
+        const nextWP = v.waypoints[(v.wpIndex() + 1) % v.waypoints.length];
+        let lerp = v.lerp() + v.speed;
+        if (lerp >= 1) {
+            lerp = 0;
+            v.setWpIndex((v.wpIndex() + 1) % v.waypoints.length);
+        }
+        v.setLerp(lerp);
+        v.model.position.x = currentWP.x + (nextWP.x - currentWP.x) * lerp;
+        v.model.position.z = currentWP.z + (nextWP.z - currentWP.z) * lerp;
+        v.model.rotation.y = Math.atan2(nextWP.x - currentWP.x, nextWP.z - currentWP.z);
+        const vWalk = t * 8 + vi;
+        v.model.userData.leftLeg.rotation.x = Math.sin(vWalk) * 0.5;
+        v.model.userData.rightLeg.rotation.x = Math.sin(vWalk + Math.PI) * 0.5;
+        v.model.userData.leftArm.rotation.x = Math.sin(vWalk + Math.PI) * 0.3;
+        v.model.userData.rightArm.rotation.x = Math.sin(vWalk) * 0.3;
+        v.model.position.y = Math.abs(Math.sin(vWalk)) * 0.05;
+    });
     sky.rotation.y += 0.0001;
     renderer.render(scene, camera);
 }
