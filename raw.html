@@ -135,7 +135,7 @@
 <div class="particle" style="left: 90%; animation-delay: 15s;"></div>
 <div class="void">
 <div class="cursor"></div>
-<span class="whisper">click to summon orbs</span>
+<span class="whisper">click to summon orbs ♪</span>
 </div>
 <canvas id="physics-canvas"></canvas>
 <div class="ball-counter">ORBS: <span id="ball-count">0</span></div>
@@ -151,9 +151,96 @@
     let ballCount = 0;
     let gravityReversed = false;
     
+    // Audio Context for sound effects
+    let audioCtx = null;
+    let ambientOsc = null;
+    let ambientGain = null;
+    
+    function initAudio() {
+        if (audioCtx) return;
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // Ambient cosmic hum
+        ambientOsc = audioCtx.createOscillator();
+        ambientGain = audioCtx.createGain();
+        const ambientFilter = audioCtx.createBiquadFilter();
+        
+        ambientOsc.type = 'sine';
+        ambientOsc.frequency.setValueAtTime(55, audioCtx.currentTime);
+        ambientFilter.type = 'lowpass';
+        ambientFilter.frequency.setValueAtTime(200, audioCtx.currentTime);
+        ambientGain.gain.setValueAtTime(0.03, audioCtx.currentTime);
+        
+        ambientOsc.connect(ambientFilter);
+        ambientFilter.connect(ambientGain);
+        ambientGain.connect(audioCtx.destination);
+        ambientOsc.start();
+        
+        // Subtle frequency modulation for cosmic feel
+        setInterval(() => {
+            if (ambientOsc && audioCtx) {
+                ambientOsc.frequency.setTargetAtTime(50 + Math.random() * 20, audioCtx.currentTime, 2);
+            }
+        }, 3000);
+    }
+    
+    function playOrbSound(hue) {
+        if (!audioCtx) return;
+        
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        const filter = audioCtx.createBiquadFilter();
+        
+        // Map hue to frequency for varied tones
+        const baseFreq = 200 + (hue / 360) * 400;
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(baseFreq, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.5, audioCtx.currentTime + 0.3);
+        
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(1500, audioCtx.currentTime);
+        
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+        
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        osc.start(audioCtx.currentTime);
+        osc.stop(audioCtx.currentTime + 0.4);
+    }
+    
+    function playGravityToggle(reversed) {
+        if (!audioCtx) return;
+        
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        
+        osc.type = 'triangle';
+        if (reversed) {
+            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.2);
+        } else {
+            osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.2);
+        }
+        
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+        
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        osc.start(audioCtx.currentTime);
+        osc.stop(audioCtx.currentTime + 0.3);
+    }
+    
     document.getElementById('gravity-toggle').addEventListener('click', (e) => {
         e.stopPropagation();
+        initAudio();
         gravityReversed = !gravityReversed;
+        playGravityToggle(gravityReversed);
         const btn = document.getElementById('gravity-toggle');
         btn.classList.toggle('reversed');
         btn.innerHTML = gravityReversed ? 
@@ -224,9 +311,13 @@
     }
     
     document.addEventListener('click', (e) => {
+        initAudio();
         for (let i = 0; i < 5; i++) {
-            balls.push(new Ball(e.clientX, e.clientY));
+            const ball = new Ball(e.clientX, e.clientY);
+            balls.push(ball);
             ballCount++;
+            // Stagger sounds slightly for richness
+            setTimeout(() => playOrbSound(ball.hue), i * 30);
         }
         document.getElementById('ball-count').textContent = ballCount;
     });
