@@ -1327,15 +1327,45 @@
 <li><a href="#">UPLOAD</a></li>
 </ul>
 </nav>
-<section class="hero-matrix">
-<h1>⟨ WELCOME TO THE BAKERY ⟩<br/>🥐 CROISSANT PROTOCOL 🍰</h1>
-<p>&gt; INITIALIZING BAKING PROTOCOL...<br/>&gt; PIVOT COMPLETE: Tech → Pastries<br/>&gt; THREE BAKERS IN TRENCHCOAT DETECTED<br/>&gt; BUTTER LEVELS: MAXIMUM FLAKY</p>
-<div>
-<button class="pixel-btn">[ PREHEAT OVEN ]</button>
-<button class="pixel-btn twitch">📺 GO LIVE</button>
+<section class="hero-compact">
+<span class="compact-status">🥐 CROISSANT PROTOCOL ACTIVE • BUTTER: 82% • LAYERS: 27 • STATUS: FLAKY 🍰</span>
+<div class="compact-buttons">
+<button class="pixel-btn small">[ PREHEAT ]</button>
+<button class="pixel-btn twitch small">📺 LIVE</button>
 </div>
 </section>
-
+<style>
+.hero-compact {
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    background: linear-gradient(90deg, rgba(45, 31, 61, 0.8) 0%, rgba(26, 21, 37, 0.9) 50%, rgba(45, 31, 61, 0.8) 100%);
+    border-bottom: 2px solid var(--twitch-purple);
+    border-top: 2px solid var(--matrix-green);
+}
+.compact-status {
+    font-family: 'VT323', monospace;
+    font-size: 1.1rem;
+    color: var(--matrix-green);
+    text-shadow: 0 0 10px var(--matrix-green);
+    animation: status-scroll 20s linear infinite;
+}
+.compact-buttons {
+    display: flex;
+    gap: 10px;
+}
+.pixel-btn.small {
+    font-size: 0.5rem;
+    padding: 8px 12px;
+}
+@keyframes status-scroll {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+</style>
 <section class="twitch-plays-section">
 <div class="tpc-container">
 <div class="tpc-glitch-border"></div>
