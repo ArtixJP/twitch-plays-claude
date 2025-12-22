@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Simpsons 3D Opening</title>
+<title>Rick and Morty 3D Portal Opening</title>
 <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { overflow: hidden; background: #000; }
@@ -72,18 +72,21 @@
 <div id="episode-counter">Episode: <span id="ep-num">1</span></div>
 <div id="gag-text"></div>
 <p class="instruction">Type <code>!idea your idea</code> in chat to modify the show!</p>
-<div id="loading">Loading 3D Springfield...</div>
+<div id="loading">Opening Portal to Dimension C-137...</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
         // Audio setup
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         
         const melody = [
-            {note: 'C5', duration: 0.3}, {note: 'E5', duration: 0.3}, {note: 'F#5', duration: 0.3}, {note: 'A5', duration: 0.3},
-            {note: 'G5', duration: 0.6}, {note: 'E5', duration: 0.3}, {note: 'C5', duration: 0.3},
-            {note: 'A4', duration: 0.4}, {note: 'F#4', duration: 0.4}, {note: 'F#4', duration: 0.4}, {note: 'F#4', duration: 0.2},
-            {note: 'G4', duration: 0.8}
+            {note: 'E4', duration: 0.2}, {note: 'G4', duration: 0.2}, {note: 'A4', duration: 0.4},
+            {note: 'E4', duration: 0.2}, {note: 'G4', duration: 0.2}, {note: 'A#4', duration: 0.2}, {note: 'A4', duration: 0.4},
+            {note: 'E4', duration: 0.2}, {note: 'G4', duration: 0.2}, {note: 'A4', duration: 0.4},
+            {note: 'G4', duration: 0.2}, {note: 'E4', duration: 0.6}
         ];
+        
+        // Add A#4 to frequencies
+        noteFreqs['A#4'] = 466.16;
         
         const noteFreqs = {
             'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23, 'F#4': 369.99, 'G4': 392.00, 'A4': 440.00,
@@ -117,7 +120,7 @@
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setClearColor(0x87CEEB);
+        renderer.setClearColor(0x0a0a2e); // Dark space background
         document.getElementById('scene-container').appendChild(renderer.domElement);
         
         // Lighting
@@ -128,17 +131,18 @@
         scene.add(directionalLight);
         
         // Materials
-        const yellowMat = new THREE.MeshLambertMaterial({ color: 0xFFD700 });
-        const whiteMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
-        const blueMat = new THREE.MeshLambertMaterial({ color: 0x4169E1 });
-        const greenMat = new THREE.MeshLambertMaterial({ color: 0x32CD32 });
-        const orangeMat = new THREE.MeshLambertMaterial({ color: 0xFF6600 });
-        const redMat = new THREE.MeshLambertMaterial({ color: 0xFF0000 });
-        const babyBlueMat = new THREE.MeshLambertMaterial({ color: 0x87CEEB });
-        const couchMat = new THREE.MeshLambertMaterial({ color: 0x8B0000 });
-        const floorMat = new THREE.MeshLambertMaterial({ color: 0x228B22 });
-        const wallMat = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
-        const cloudMat = new THREE.MeshLambertMaterial({ color: 0xffffff, transparent: true, opacity: 0.9 });
+        const yellowMat = new THREE.MeshLambertMaterial({ color: 0xAFE1AF }); // Rick's skin tone
+        const whiteMat = new THREE.MeshLambertMaterial({ color: 0xB8D4E3 }); // Lab coat
+        const blueMat = new THREE.MeshLambertMaterial({ color: 0x97E5E5 }); // Rick's hair
+        const greenMat = new THREE.MeshLambertMaterial({ color: 0x00FF00 }); // Portal green
+        const orangeMat = new THREE.MeshLambertMaterial({ color: 0xFFFF00 }); // Morty's shirt
+        const redMat = new THREE.MeshLambertMaterial({ color: 0x8B0000 }); // Morty's pants
+        const babyBlueMat = new THREE.MeshLambertMaterial({ color: 0x5DADE2 }); // Summer
+        const couchMat = new THREE.MeshLambertMaterial({ color: 0x444444 }); // Garage workbench
+        const floorMat = new THREE.MeshLambertMaterial({ color: 0x555555 }); // Garage floor
+        const wallMat = new THREE.MeshLambertMaterial({ color: 0x777777 }); // Garage wall
+        const cloudMat = new THREE.MeshLambertMaterial({ color: 0x00FF00, transparent: true, opacity: 0.6 }); // Portal clouds
+        const portalMat = new THREE.MeshBasicMaterial({ color: 0x00FF00, transparent: true, opacity: 0.8 });
         
         // Create clouds
         const clouds = [];
@@ -172,8 +176,8 @@
         const titleMesh = new THREE.Mesh(titleGeo, yellowMat);
         titleGroup.add(titleMesh);
         
-        // Add "THE SIMPSONS" text using boxes
-        const letters = 'THE SIMPSONS';
+        // Add "RICK AND MORTY" text using boxes
+        const letters = 'RICK & MORTY';
         for (let i = 0; i < letters.length; i++) {
             if (letters[i] !== ' ') {
                 const letterBox = new THREE.Mesh(
@@ -218,39 +222,68 @@
         }
         
         // Create family
-        const homer = createCharacter(whiteMat, 0.5, 0.7, 1.1);
-        const marge = createCharacter(greenMat, 0.5, 0.6, 1);
-        // Add Marge's hair
-        const margeHair = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.25, 0.35, 1.2, 16),
+        const homer = createCharacter(whiteMat, 0.5, 0.7, 1.1); // Rick
+        // Add Rick's spiky blue hair
+        const rickHair = new THREE.Mesh(
+            new THREE.ConeGeometry(0.35, 0.6, 8),
             blueMat
         );
-        margeHair.position.y = 1.8;
-        marge.add(margeHair);
+        rickHair.position.y = 1.5;
+        rickHair.rotation.z = 0.3;
+        homer.add(rickHair);
+        const rickHair2 = new THREE.Mesh(
+            new THREE.ConeGeometry(0.25, 0.5, 8),
+            blueMat
+        );
+        rickHair2.position.set(0.2, 1.4, 0);
+        rickHair2.rotation.z = -0.4;
+        homer.add(rickHair2);
         
-        const bart = createCharacter(orangeMat, 0.4, 0.5, 0.8);
-        // Bart's spiky hair
-        for (let i = 0; i < 5; i++) {
-            const spike = new THREE.Mesh(
-                new THREE.ConeGeometry(0.08, 0.3, 8),
-                yellowMat
-            );
-            spike.position.set(Math.cos(i * 1.2) * 0.2, 1.1, Math.sin(i * 1.2) * 0.1);
-            bart.add(spike);
-        }
+        const marge = createCharacter(orangeMat, 0.5, 0.6, 0.85); // Morty
+        // Morty's brown curly hair
+        const mortyHair = new THREE.Mesh(
+            new THREE.SphereGeometry(0.35, 8, 8),
+            new THREE.MeshLambertMaterial({ color: 0x8B4513 })
+        );
+        mortyHair.position.y = 1.15;
+        mortyHair.scale.set(1, 0.6, 1);
+        marge.add(mortyHair);
         
-        const lisa = createCharacter(redMat, 0.35, 0.4, 0.7);
-        // Lisa's star hair
-        for (let i = 0; i < 8; i++) {
-            const spike = new THREE.Mesh(
-                new THREE.ConeGeometry(0.06, 0.25, 8),
-                yellowMat
-            );
-            spike.position.set(Math.cos(i * 0.8) * 0.18, 0.9, Math.sin(i * 0.8) * 0.15);
-            lisa.add(spike);
-        }
+        const bart = createCharacter(babyBlueMat, 0.4, 0.5, 0.85); // Summer
+        // Summer's ponytail
+        const summerHair = new THREE.Mesh(
+            new THREE.SphereGeometry(0.3, 8, 8),
+            new THREE.MeshLambertMaterial({ color: 0xFFB347 })
+        );
+        summerHair.position.y = 1.05;
+        bart.add(summerHair);
+        const ponytail = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.1, 0.15, 0.4, 8),
+            new THREE.MeshLambertMaterial({ color: 0xFFB347 })
+        );
+        ponytail.position.set(0, 1.1, -0.2);
+        ponytail.rotation.x = 0.5;
+        bart.add(ponytail);
         
-        const maggie = createCharacter(babyBlueMat, 0.3, 0.3, 0.5);
+        const lisa = createCharacter(new THREE.MeshLambertMaterial({ color: 0xFFC0CB }), 0.35, 0.4, 0.9); // Beth
+        // Beth's blonde hair
+        const bethHair = new THREE.Mesh(
+            new THREE.SphereGeometry(0.35, 8, 8),
+            new THREE.MeshLambertMaterial({ color: 0xF0E68C })
+        );
+        bethHair.position.y = 0.95;
+        bethHair.scale.set(1, 0.7, 1);
+        lisa.add(bethHair);
+        
+        const maggie = createCharacter(new THREE.MeshLambertMaterial({ color: 0x2E8B57 }), 0.3, 0.5, 0.95); // Jerry
+        // Jerry's boring hair
+        const jerryHair = new THREE.Mesh(
+            new THREE.SphereGeometry(0.32, 8, 8),
+            new THREE.MeshLambertMaterial({ color: 0x8B4513 })
+        );
+        jerryHair.position.y = 1.1;
+        jerryHair.scale.set(1, 0.5, 1);
+        maggie.add(jerryHair);
         
         const family = [homer, marge, bart, lisa, maggie];
         family.forEach(char => {
@@ -298,23 +331,39 @@
         couch.position.set(0, 0, 0);
         livingRoom.add(couch);
         
-        // TV
-        const tv = new THREE.Group();
-        const tvBody = new THREE.Mesh(
-            new THREE.BoxGeometry(1.5, 1.2, 0.5),
-            new THREE.MeshLambertMaterial({ color: 0x333333 })
+        // Portal Gun on workbench
+        const portalGun = new THREE.Group();
+        const gunBody = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.15, 0.2, 0.8, 16),
+            new THREE.MeshLambertMaterial({ color: 0x888888 })
         );
-        tv.add(tvBody);
+        gunBody.rotation.z = Math.PI / 2;
+        portalGun.add(gunBody);
         
-        const tvScreen = new THREE.Mesh(
-            new THREE.PlaneGeometry(1.2, 0.9),
-            new THREE.MeshBasicMaterial({ color: 0x4169E1 })
+        const gunGlow = new THREE.Mesh(
+            new THREE.SphereGeometry(0.15, 16, 16),
+            new THREE.MeshBasicMaterial({ color: 0x00FF00 })
         );
-        tvScreen.position.z = 0.26;
-        tv.add(tvScreen);
+        gunGlow.position.x = 0.5;
+        portalGun.add(gunGlow);
         
-        tv.position.set(4, 0.6, -5);
-        livingRoom.add(tv);
+        portalGun.position.set(3, 1.2, -5);
+        livingRoom.add(portalGun);
+        
+        // Floating Portal
+        const portal = new THREE.Mesh(
+            new THREE.TorusGeometry(1.5, 0.3, 16, 32),
+            new THREE.MeshBasicMaterial({ color: 0x00FF00, transparent: true, opacity: 0.7 })
+        );
+        portal.position.set(-4, 2, -5);
+        livingRoom.add(portal);
+        
+        const portalCenter = new THREE.Mesh(
+            new THREE.CircleGeometry(1.2, 32),
+            new THREE.MeshBasicMaterial({ color: 0x90EE90, transparent: true, opacity: 0.5, side: THREE.DoubleSide })
+        );
+        portalCenter.position.set(-4, 2, -4.9);
+        livingRoom.add(portalCenter);
         
         livingRoom.position.set(0, 0, 50);
         livingRoom.visible = false;
@@ -339,14 +388,15 @@
         let episodeCount = 0;
         
         const couchGags = [
-            { text: "The family sits normally... in 3D!", action: 'normal' },
-            { text: "Homer bounces off the couch!", action: 'bounce' },
-            { text: "The couch spins!", action: 'spin' },
-            { text: "Everyone is tiny!", action: 'tiny' },
-            { text: "Zero gravity!", action: 'gravity' },
-            { text: "The family orbits the couch!", action: 'orbit' },
-            { text: "Couch explosion!", action: 'explode' },
-            { text: "Matrix slow-mo!", action: 'matrix' }
+            { text: "Wubba lubba dub dub!", action: 'normal' },
+            { text: "Rick portal-hops through dimensions!", action: 'bounce' },
+            { text: "Portal vortex!", action: 'spin' },
+            { text: "Shrink ray malfunction!", action: 'tiny' },
+            { text: "Zero-G space adventure!", action: 'gravity' },
+            { text: "Interdimensional orbit!", action: 'orbit' },
+            { text: "Portal gun explosion!", action: 'explode' },
+            { text: "Time freeze!", action: 'matrix' },
+            { text: "Get schwifty!", action: 'schwifty' }
         ];
         
         let currentGag = couchGags[0];
@@ -506,6 +556,12 @@
                     camera.position.x = Math.cos(time * 0.5) * 8;
                     camera.position.z = 58 + Math.sin(time * 0.5) * 5;
                     camera.lookAt(0, 1, 50);
+                    break;
+                case 'schwifty':
+                    family.forEach((char, i) => {
+                        char.position.y = 0.5 + Math.sin(time * 8 + i) * 0.5;
+                        char.rotation.y = Math.sin(time * 4) * 0.5;
+                    });
                     break;
                 default:
                     family.forEach((char, i) => {
