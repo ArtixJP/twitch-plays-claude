@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>The Blank Awaits</title>
+<title>Orb Harvest - Collect the Stars</title>
 <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
@@ -40,6 +40,73 @@
             color: rgba(255,255,255,0.5);
             z-index: 100;
             letter-spacing: 2px;
+        }
+        .game-ui {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .score-display, .level-display, .fragments-display {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.7);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .score-display { color: #ffd700; }
+        .level-display { color: #7fff7f; }
+        .fragments-display { color: #ff7fff; }
+        .game-title {
+            position: fixed;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.3);
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            z-index: 100;
+            text-shadow: 0 0 20px rgba(255,215,0,0.3);
+        }
+        .level-up {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            color: #7fff7f;
+            letter-spacing: 10px;
+            text-transform: uppercase;
+            z-index: 200;
+            opacity: 0;
+            pointer-events: none;
+            text-shadow: 0 0 30px #7fff7f;
+            animation: none;
+        }
+        .level-up.show {
+            animation: levelUpPulse 2s ease-out forwards;
+        }
+        @keyframes levelUpPulse {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            80% { opacity: 1; }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+        }
+        .rules-hint {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.65rem;
+            color: rgba(255,255,255,0.4);
+            letter-spacing: 2px;
+            text-align: center;
+            z-index: 100;
+            max-width: 400px;
+            line-height: 1.6;
         }
         .gravity-btn {
             position: fixed;
@@ -135,21 +202,178 @@
 <div class="particle" style="left: 90%; animation-delay: 15s;"></div>
 <div class="void">
 <div class="cursor"></div>
-<span class="whisper">click to summon orbs ♪</span>
+<span class="whisper">harvest the stars ★</span>
 </div>
 <canvas id="physics-canvas"></canvas>
+<div class="game-ui">
+<div class="score-display">★ SCORE: <span id="score">0</span></div>
+<div class="level-display">◆ LEVEL: <span id="level">1</span></div>
+<div class="fragments-display">✦ FRAGMENTS: <span id="fragments">0</span>/<span id="target">5</span></div>
+</div>
 <div class="ball-counter">ORBS: <span id="ball-count">0</span></div>
+<div class="game-title">Orb Harvest</div>
+<div class="level-up" id="level-up">LEVEL UP!</div>
+<div class="rules-hint">Click to spawn orbs • Orbs collect star fragments on contact<br/>Golden orbs = 3x points • Reach target to level up!</div>
 <button class="gravity-btn" id="gravity-toggle"><span class="arrow">↓</span> GRAVITY <span class="arrow">↓</span></button>
 <script>
 (function() {
     const canvas = document.getElementById('physics-canvas');
     const ctx = canvas.getContext('2d');
     const balls = [];
+    const fragments = [];
     const gravity = 0.4;
     const bounce = 0.7;
     const friction = 0.99;
     let ballCount = 0;
     let gravityReversed = false;
+    let score = 0;
+    let level = 1;
+    let fragmentsCollected = 0;
+    let targetFragments = 5;
+    
+    class Fragment {
+        constructor() {
+            this.x = Math.random() * (canvas.width - 100) + 50;
+            this.y = Math.random() * (canvas.height - 200) + 50;
+            this.radius = 12;
+            this.hue = 45 + Math.random() * 20;
+            this.pulse = 0;
+            this.value = Math.random() < 0.15 ? 3 : 1; // 15% chance for golden fragment
+            this.collected = false;
+        }
+        
+        update() {
+            this.pulse += 0.05;
+        }
+        
+        draw() {
+            if (this.collected) return;
+            const glow = Math.sin(this.pulse) * 0.3 + 0.7;
+            const isGolden = this.value === 3;
+            
+            // Outer glow
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius + 8, 0, Math.PI * 2);
+            ctx.fillStyle = isGolden ? 
+                `rgba(255, 215, 0, ${glow * 0.3})` : 
+                `rgba(255, 255, 255, ${glow * 0.2})`;
+            ctx.fill();
+            
+            // Star shape
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.rotate(this.pulse * 0.5);
+            ctx.beginPath();
+            for (let i = 0; i < 5; i++) {
+                const angle = (i * Math.PI * 2) / 5 - Math.PI / 2;
+                const outerX = Math.cos(angle) * this.radius;
+                const outerY = Math.sin(angle) * this.radius;
+                const innerAngle = angle + Math.PI / 5;
+                const innerX = Math.cos(innerAngle) * (this.radius * 0.4);
+                const innerY = Math.sin(innerAngle) * (this.radius * 0.4);
+                if (i === 0) ctx.moveTo(outerX, outerY);
+                else ctx.lineTo(outerX, outerY);
+                ctx.lineTo(innerX, innerY);
+            }
+            ctx.closePath();
+            ctx.fillStyle = isGolden ? 
+                `hsla(45, 100%, ${60 + glow * 20}%, ${glow})` : 
+                `hsla(${this.hue}, 80%, ${70 + glow * 15}%, ${glow})`;
+            ctx.fill();
+            ctx.restore();
+        }
+    }
+    
+    function spawnFragments(count) {
+        for (let i = 0; i < count; i++) {
+            fragments.push(new Fragment());
+        }
+    }
+    
+    function checkCollisions() {
+        for (let ball of balls) {
+            for (let frag of fragments) {
+                if (frag.collected) continue;
+                const dx = ball.x - frag.x;
+                const dy = ball.y - frag.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < ball.radius + frag.radius) {
+                    frag.collected = true;
+                    const isGolden = ball.hue > 40 && ball.hue < 60;
+                    const multiplier = frag.value * (isGolden ? 3 : 1);
+                    score += 10 * multiplier * level;
+                    fragmentsCollected++;
+                    document.getElementById('score').textContent = score;
+                    document.getElementById('fragments').textContent = fragmentsCollected;
+                    playCollectSound(frag.value === 3);
+                    
+                    if (fragmentsCollected >= targetFragments) {
+                        levelUp();
+                    }
+                }
+            }
+        }
+        // Remove collected fragments
+        for (let i = fragments.length - 1; i >= 0; i--) {
+            if (fragments[i].collected) fragments.splice(i, 1);
+        }
+    }
+    
+    function levelUp() {
+        level++;
+        fragmentsCollected = 0;
+        targetFragments = Math.min(5 + level * 2, 20);
+        document.getElementById('level').textContent = level;
+        document.getElementById('fragments').textContent = 0;
+        document.getElementById('target').textContent = targetFragments;
+        
+        const levelUpEl = document.getElementById('level-up');
+        levelUpEl.classList.remove('show');
+        void levelUpEl.offsetWidth;
+        levelUpEl.classList.add('show');
+        
+        spawnFragments(targetFragments);
+        playLevelUpSound();
+    }
+    
+    function playCollectSound(isGolden) {
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(isGolden ? 800 : 600, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(isGolden ? 1200 : 900, audioCtx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.2);
+    }
+    
+    function playLevelUpSound() {
+        if (!audioCtx) return;
+        [0, 0.1, 0.2].forEach((delay, i) => {
+            setTimeout(() => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400 + i * 200, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            }, delay * 1000);
+        });
+    }
+    
+    // Initial spawn
+    setTimeout(() => {
+        resize();
+        spawnFragments(targetFragments);
+    }, 100);
     
     // Audio Context for sound effects
     let audioCtx = null;
@@ -312,8 +536,11 @@
     
     document.addEventListener('click', (e) => {
         initAudio();
-        for (let i = 0; i < 5; i++) {
+        const orbCount = Math.max(3, 6 - Math.floor(level / 3));
+        for (let i = 0; i < orbCount; i++) {
             const ball = new Ball(e.clientX, e.clientY);
+            // 10% chance for golden orb (better at collecting)
+            if (Math.random() < 0.1) ball.hue = 45 + Math.random() * 10;
             balls.push(ball);
             ballCount++;
             // Stagger sounds slightly for richness
@@ -325,6 +552,12 @@
     function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
+        // Draw and update fragments
+        for (let frag of fragments) {
+            frag.update();
+            frag.draw();
+        }
+        
         for (let i = balls.length - 1; i >= 0; i--) {
             balls[i].update();
             balls[i].draw();
@@ -332,6 +565,8 @@
                 balls.splice(i, 1);
             }
         }
+        
+        checkCollisions();
         
         requestAnimationFrame(animate);
     }
