@@ -79,6 +79,33 @@
             transform: scale(1.05);
             box-shadow: 0 0 30px rgba(145, 70, 255, 0.7);
         }
+        .chaos-mode { animation: rainbow-bg 3s infinite; }
+        .chaos-mode * { font-family: 'Comic Sans MS', cursive !important; }
+        .chaos-mode .corp-nav { animation: wobble 0.5s infinite; }
+        .chaos-mode .feature-icon { animation: spin 2s infinite linear; }
+        .chaos-mode .hero h1 { animation: bounce 0.5s infinite; }
+        .chaos-mode .cta-btn { animation: shake 0.3s infinite; background: hotpink !important; }
+        @keyframes rainbow-bg {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+        @keyframes wobble {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
         @keyframes pulse-glow {
             0%, 100% { box-shadow: 0 0 20px rgba(145, 70, 255, 0.4); }
             50% { box-shadow: 0 0 35px rgba(145, 70, 255, 0.8); }
@@ -169,7 +196,31 @@
 <h1>Leveraging Synergies for Tomorrow's Challenges</h1>
 <p>At SynergyCore Solutions™, we deliver best-in-class, enterprise-grade paradigm shifts that empower stakeholders to actualize their core competencies.</p>
 <button class="cta-btn">Request a Demo</button>
-<button class="twitch-btn" onclick="alert('🎮 Claude Activated! The AI architect is now listening to chat...')">Twitch plays Claude activation</button>
+<button class="twitch-btn" onclick="makeFunny()">🎪 Make It Funny 🎪</button>
+<script>
+function makeFunny() {
+    document.body.classList.add('chaos-mode');
+    document.querySelector('.corp-logo').innerHTML = '🤡Silly<span>Bonkers</span>™';
+    document.querySelector('.hero h1').innerHTML = '🦆 Leveraging Ducks for Tomorrow\'s Banana Problems 🍌';
+    document.querySelector('.hero p').innerHTML = 'At SillyBonkers™, we deliver best-in-class spaghetti-grade vibes that empower hamsters to actualize their wheel-running potential. Our synergy is literally just three raccoons in a trenchcoat.';
+    document.querySelector('.cta-btn').innerHTML = '🎺 HONK FOR DEMO 🎺';
+    document.querySelectorAll('.feature-card')[0].querySelector('h3').innerHTML = '📊 Data-Driven Nonsense';
+    document.querySelectorAll('.feature-card')[0].querySelector('p').innerHTML = 'We put your data in a blender and call it "insights". Our ROI stands for "Raccoons Obviously Included".';
+    document.querySelectorAll('.feature-card')[1].querySelector('h3').innerHTML = '🤝 Stakeholder Confusion';
+    document.querySelectorAll('.feature-card')[1].querySelector('p').innerHTML = 'Nobody knows what we do. Not even us. But we do it TOGETHER with maximum synergy and jazz hands.';
+    document.querySelectorAll('.feature-card')[2].querySelector('h3').innerHTML = '🚀 Yeeting Solutions';
+    document.querySelectorAll('.feature-card')[2].querySelector('p').innerHTML = 'We yeet your problems into the cloud and hope for the best. It\'s worked 60% of the time, every time.';
+    document.querySelector('.testimonial blockquote').innerHTML = '"SillyBonkers helped us pivot from making money to making memes. Our shareholders are confused but our TikTok is FIRE." 🔥🔥🔥';
+    document.querySelector('.testimonial cite').innerHTML = '— A Definitely Real Person, Chief Vibes Officer, Probably A Company LLC';
+    document.querySelector('.corp-footer').innerHTML = '© 2024 SillyBonkers™ | No Rights Reserved | We Lost The Privacy Policy | Terms of Silliness | 🍪 Cookie Monster Was Here';
+    
+    // Add wobble to nav links
+    document.querySelectorAll('.corp-nav a').forEach((a, i) => {
+        const words = ['Shenanigans', 'Tomfoolery', 'Mischief', 'Chaos', 'Snacks'];
+        a.innerHTML = words[i] || 'Boop';
+    });
+}
+</script>
 </section>
 <section class="features">
 <div class="feature-card">
