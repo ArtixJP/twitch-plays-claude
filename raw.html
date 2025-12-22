@@ -5,766 +5,353 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Digital Rights Trivia 🔐</title>
+<title>EU Mass Surveillance Explained 🔐</title>
 <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { 
             font-family: 'Segoe UI', system-ui, sans-serif; 
             min-height: 100vh; 
-            background: linear-gradient(180deg, #0c1445 0%, #1a237e 50%, #0d47a1 100%);
-            color: white;
+            background: linear-gradient(180deg, #0a0a12 0%, #1a1a2e 50%, #16213e 100%);
+            color: #e0e0e0;
             overflow-x: hidden;
         }
-        .snowflakes { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
-        .snowflake { position: absolute; color: #fff; font-size: 1em; opacity: 0.8; animation: fall linear infinite; }
-        @keyframes fall { 0% { transform: translateY(-10vh) rotate(0deg); } 100% { transform: translateY(110vh) rotate(360deg); } }
+        
+        /* Animated surveillance grid background */
+        .grid-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(0,150,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,150,255,0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridPulse 4s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        @keyframes gridPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        
+        /* Floating data particles */
+        .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+        .particle { position: absolute; color: #0096ff; font-size: 10px; opacity: 0.3; animation: dataFloat linear infinite; font-family: monospace; }
+        @keyframes dataFloat { 0% { transform: translateY(100vh) rotate(0deg); } 100% { transform: translateY(-10vh) rotate(360deg); } }
         
         .container { position: relative; z-index: 1; padding: 15px; max-width: 800px; margin: 0 auto; }
         
-        .header { text-align: center; margin-bottom: 15px; }
-        .header h1 { font-size: 2rem; text-shadow: 0 0 20px #ff6b6b, 0 0 40px #ff6b6b; color: #fff; }
-        .header h1 span { color: #4caf50; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h1 { 
+            font-size: 1.8rem; 
+            background: linear-gradient(135deg, #ff4444, #ff8800, #ffcc00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: none;
+            animation: warningPulse 2s ease-in-out infinite;
+        }
+        @keyframes warningPulse {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.3); }
+        }
+        .header .subtitle { color: #888; font-size: 0.9rem; margin-top: 5px; }
         
-        .game-code { background: rgba(255,255,255,0.1); padding: 8px 20px; border-radius: 20px; display: inline-block; margin-top: 8px; }
-        .game-code span { font-size: 1.5rem; font-weight: bold; letter-spacing: 4px; color: #ffd700; }
+        .alert-banner {
+            background: linear-gradient(135deg, rgba(255,68,68,0.2), rgba(255,136,0,0.2));
+            border: 1px solid #ff4444;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .alert-banner .icon { font-size: 1.5rem; }
+        .alert-banner h2 { color: #ff8800; font-size: 1.1rem; margin: 5px 0; }
+        .alert-banner p { font-size: 0.85rem; color: #ccc; }
         
         .main-screen { display: none; }
         .main-screen.active { display: block; }
         
-        /* Menu Screen */
-        .menu-buttons { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
-        .btn { padding: 15px 30px; font-size: 1.1rem; border: none; border-radius: 12px; cursor: pointer; transition: all 0.3s; font-weight: bold; }
-        .btn-host { background: linear-gradient(135deg, #c62828, #b71c1c); color: white; }
-        .btn-join { background: linear-gradient(135deg, #2e7d32, #1b5e20); color: white; }
-        .btn:hover { transform: scale(1.05); box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
+        /* Info Cards */
+        .info-grid { display: grid; gap: 12px; margin-bottom: 15px; }
+        .info-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 15px;
+            transition: all 0.3s;
+        }
+        .info-card:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: #0096ff;
+            transform: translateY(-2px);
+        }
+        .info-card h3 { color: #0096ff; font-size: 1rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .info-card p { font-size: 0.85rem; line-height: 1.5; color: #aaa; }
+        .info-card .highlight { color: #ff8800; font-weight: bold; }
         
-        .join-input { margin-top: 15px; display: none; }
-        .join-input.show { display: block; }
-        .join-input input { padding: 12px; font-size: 1.2rem; border-radius: 8px; border: 2px solid #4caf50; width: 150px; text-align: center; text-transform: uppercase; letter-spacing: 3px; }
+        /* Timeline */
+        .timeline { position: relative; padding-left: 20px; border-left: 2px solid #0096ff; margin: 15px 0; }
+        .timeline-item { position: relative; padding: 10px 0 10px 15px; }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -26px;
+            top: 15px;
+            width: 10px;
+            height: 10px;
+            background: #0096ff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #0096ff;
+        }
+        .timeline-item .date { color: #ff8800; font-size: 0.8rem; font-weight: bold; }
+        .timeline-item .event { color: #e0e0e0; font-size: 0.9rem; }
         
-        /* Lobby */
-        .lobby { background: rgba(0,0,0,0.3); border-radius: 15px; padding: 15px; }
-        .players-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin: 15px 0; }
-        .player-card { background: linear-gradient(135deg, #1e88e5, #1565c0); padding: 10px; border-radius: 10px; text-align: center; animation: popIn 0.3s ease; }
-        .player-card.host { background: linear-gradient(135deg, #ffd700, #ff8c00); color: #000; }
-        @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
-        .player-avatar { font-size: 2rem; }
-        .player-name { font-size: 0.9rem; margin-top: 5px; font-weight: bold; }
+        /* Buttons */
+        .btn-grid { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 15px 0; }
+        .btn { 
+            padding: 12px 24px; 
+            font-size: 0.95rem; 
+            border: none; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            font-weight: bold;
+        }
+        .btn-primary { background: linear-gradient(135deg, #0096ff, #0066cc); color: white; }
+        .btn-danger { background: linear-gradient(135deg, #ff4444, #cc0000); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #ff8800, #cc6600); color: white; }
+        .btn:hover { transform: scale(1.05); box-shadow: 0 5px 20px rgba(0,150,255,0.3); }
         
-        /* Question Screen */
-        .question-container { background: rgba(255,255,255,0.1); border-radius: 15px; padding: 20px; }
-        .timer-bar { height: 8px; background: #333; border-radius: 4px; overflow: hidden; margin-bottom: 15px; }
-        .timer-fill { height: 100%; background: linear-gradient(90deg, #4caf50, #ffeb3b, #f44336); transition: width 0.1s linear; }
-        .question-number { color: #ffd700; font-size: 0.9rem; margin-bottom: 5px; }
-        .question-text { font-size: 1.3rem; font-weight: bold; margin-bottom: 20px; text-align: center; }
+        /* Stats */
+        .stats-row { display: flex; justify-content: center; gap: 20px; margin: 15px 0; text-align: center; }
+        .stat-item { background: rgba(0,150,255,0.1); padding: 12px 20px; border-radius: 10px; }
+        .stat-item .number { font-size: 1.5rem; font-weight: bold; color: #ff8800; }
+        .stat-item .label { font-size: 0.75rem; color: #888; }
         
+        /* Quiz Section */
+        .quiz-container { background: rgba(0,0,0,0.3); border-radius: 15px; padding: 15px; }
+        .quiz-header { text-align: center; margin-bottom: 15px; }
+        .quiz-header h3 { color: #0096ff; }
+        .question-text { font-size: 1.1rem; text-align: center; margin-bottom: 15px; color: #fff; }
         .answers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .answer-btn { padding: 15px; font-size: 1rem; border: 3px solid transparent; border-radius: 10px; cursor: pointer; transition: all 0.2s; font-weight: bold; }
-        .answer-btn:nth-child(1) { background: #e53935; }
-        .answer-btn:nth-child(2) { background: #1e88e5; }
-        .answer-btn:nth-child(3) { background: #fdd835; color: #000; }
-        .answer-btn:nth-child(4) { background: #43a047; }
-        .answer-btn:hover { transform: scale(1.02); border-color: white; }
-        .answer-btn.selected { border-color: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.5); }
-        .answer-btn.correct { background: #4caf50 !important; color: white !important; }
+        .answer-btn { padding: 12px; font-size: 0.9rem; border: 2px solid transparent; border-radius: 10px; cursor: pointer; transition: all 0.2s; background: rgba(255,255,255,0.1); color: #fff; }
+        .answer-btn:hover { border-color: #0096ff; background: rgba(0,150,255,0.2); }
+        .answer-btn.selected { border-color: #0096ff; background: rgba(0,150,255,0.3); }
+        .answer-btn.correct { background: #4caf50 !important; border-color: #4caf50; }
         .answer-btn.wrong { background: #333 !important; opacity: 0.5; }
         
-        /* Leaderboard */
-        .leaderboard { margin-top: 15px; }
-        .leaderboard h3 { text-align: center; color: #ffd700; margin-bottom: 10px; }
-        .leaderboard-list { background: rgba(0,0,0,0.3); border-radius: 10px; padding: 10px; }
-        .leaderboard-item { display: flex; align-items: center; padding: 8px; border-radius: 8px; margin-bottom: 5px; }
-        .leaderboard-item:nth-child(1) { background: linear-gradient(90deg, rgba(255,215,0,0.3), transparent); }
-        .leaderboard-item:nth-child(2) { background: linear-gradient(90deg, rgba(192,192,192,0.3), transparent); }
-        .leaderboard-item:nth-child(3) { background: linear-gradient(90deg, rgba(205,127,50,0.3), transparent); }
-        .rank { font-size: 1.2rem; width: 30px; }
-        .lb-name { flex: 1; font-weight: bold; }
-        .lb-score { color: #ffd700; font-weight: bold; }
-        .lb-change { font-size: 0.8rem; margin-left: 8px; }
-        .lb-change.positive { color: #4caf50; }
+        /* What You Can Do */
+        .action-list { list-style: none; }
+        .action-list li { 
+            padding: 10px; 
+            margin: 8px 0; 
+            background: rgba(0,150,255,0.1); 
+            border-radius: 8px; 
+            border-left: 3px solid #0096ff;
+            font-size: 0.9rem;
+        }
+        .action-list li strong { color: #0096ff; }
         
-        /* Face Catcher Mini-Game */
-        .face-catcher-container { background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(50,0,80,0.6)); border-radius: 20px; padding: 15px; text-align: center; }
-        .fc-title { font-size: 1.8rem; color: #ff6b35; text-shadow: 0 0 20px #ff6b35, 2px 2px 0 #000; margin-bottom: 5px; }
-        .fc-subtitle { color: #ffd700; font-size: 0.9rem; margin-bottom: 10px; }
-        .fc-stats { display: flex; justify-content: center; gap: 25px; margin-bottom: 10px; font-size: 1.1rem; color: #fff; }
-        .fc-stats strong { color: #ff6b35; }
-        .fc-game-area { position: relative; width: 100%; height: 300px; background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%); border-radius: 15px; overflow: hidden; cursor: crosshair; border: 3px solid #ff6b35; }
-        .fc-start-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); z-index: 10; }
-        .fc-start-overlay.hidden { display: none; }
-        .flying-face { position: absolute; font-size: 2.5rem; cursor: pointer; transition: transform 0.1s; user-select: none; filter: drop-shadow(0 0 10px rgba(255,107,53,0.8)); animation: faceFloat 0.5s ease-in-out infinite alternate; }
-        .flying-face:hover { transform: scale(1.3); }
-        .flying-face.caught { animation: faceCaught 0.3s ease-out forwards; pointer-events: none; }
-        @keyframes faceFloat { from { transform: translateY(-3px) rotate(-5deg); } to { transform: translateY(3px) rotate(5deg); } }
-        @keyframes faceCaught { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(2) rotate(360deg); opacity: 0; } }
-        .fc-controls { margin-top: 15px; }
-        .fc-combo-popup { position: absolute; font-size: 1.5rem; font-weight: bold; color: #ffd700; text-shadow: 0 0 10px #ff6b35; pointer-events: none; animation: comboPopup 0.8s ease-out forwards; }
-        @keyframes comboPopup { 0% { transform: scale(0.5) translateY(0); opacity: 1; } 100% { transform: scale(1.5) translateY(-50px); opacity: 0; } }
-        .fc-game-over { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.85); z-index: 20; }
-        .fc-game-over h3 { font-size: 2rem; color: #ffd700; margin-bottom: 10px; }
-        .fc-game-over p { font-size: 1.3rem; color: #ff6b35; margin-bottom: 15px; }
-        .street-decor { position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); font-size: 0.7rem; color: rgba(255,255,255,0.3); }
+        /* Footer */
+        .footer { text-align: center; margin-top: 20px; padding: 15px; color: #666; font-size: 0.8rem; }
+        .footer a { color: #0096ff; text-decoration: none; }
         
-        /* Results */
-        .results-overlay { text-align: center; padding: 20px; }
-        .correct-answer { font-size: 1.2rem; color: #4caf50; margin: 15px 0; }
-        .points-earned { font-size: 2rem; color: #ffd700; animation: pulse 0.5s ease; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
-        
-        .waiting-indicator { text-align: center; color: #aaa; margin-top: 15px; }
-        .waiting-indicator .dots::after { content: ''; animation: dots 1.5s infinite; }
-        @keyframes dots { 0% { content: '.'; } 33% { content: '..'; } 66% { content: '...'; } }
-        
-        .ornament { position: fixed; font-size: 2rem; opacity: 0.6; z-index: 0; }
-        
-        /* Collatz Portal */
-        .collatz-portal { position: absolute; top: -60px; right: 10px; background: linear-gradient(135deg, #9c27b0, #673ab7); padding: 8px 15px; border-radius: 20px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; box-shadow: 0 0 15px rgba(156,39,176,0.5); }
-        .collatz-portal:hover { transform: scale(1.1); box-shadow: 0 0 25px rgba(156,39,176,0.8); }
-        .portal-icon { font-size: 1.3rem; animation: float 2s ease-in-out infinite; }
-        @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-        
-        /* Collatz Screen */
-        .collatz-container { background: rgba(0,0,0,0.4); border-radius: 20px; padding: 20px; text-align: center; }
-        .collatz-title { font-size: 1.5rem; color: #e1bee7; text-shadow: 0 0 20px #9c27b0; margin-bottom: 5px; }
-        .collatz-subtitle { color: #b39ddb; font-size: 0.9rem; margin-bottom: 15px; }
-        .collatz-input-row { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
-        .collatz-input-row input { width: 100px; padding: 10px; font-size: 1.2rem; border-radius: 10px; border: 2px solid #9c27b0; background: rgba(255,255,255,0.1); color: white; text-align: center; }
-        .collatz-stats { display: flex; justify-content: center; gap: 30px; margin-bottom: 15px; font-size: 1rem; color: #ce93d8; }
-        .collatz-visualization { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; max-height: 120px; overflow-y: auto; margin-bottom: 15px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 10px; }
-        .collatz-num { padding: 5px 10px; border-radius: 8px; font-weight: bold; font-size: 0.85rem; animation: dropIn 0.3s ease backwards; transition: all 0.2s; }
-        .collatz-num:hover { transform: scale(1.2); z-index: 10; }
-        .collatz-num.even { background: linear-gradient(135deg, #4caf50, #2e7d32); }
-        .collatz-num.odd { background: linear-gradient(135deg, #e53935, #b71c1c); }
-        .collatz-num.one { background: linear-gradient(135deg, #ffd700, #ff8c00); color: #000; font-size: 1.1rem; box-shadow: 0 0 15px gold; }
-        @keyframes dropIn { from { opacity: 0; transform: translateY(-20px) scale(0.5); } to { opacity: 1; transform: translateY(0) scale(1); } }
-        #collatzCanvas { background: rgba(0,0,0,0.3); border-radius: 10px; width: 100%; max-width: 760px; }
+        /* Eye animation */
+        .surveillance-eye {
+            font-size: 2rem;
+            display: inline-block;
+            animation: eyeLook 3s ease-in-out infinite;
+        }
+        @keyframes eyeLook {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
     </style>
 </head>
 <body>
-<div class="snowflakes" id="snowflakes"></div>
-<div class="ornament" style="top: 10%; left: 5%;">🎄</div>
-<div class="ornament" style="top: 20%; right: 8%;">⭐</div>
-<div class="ornament" style="bottom: 15%; left: 10%;">🎁</div>
-<div class="ornament" style="bottom: 25%; right: 5%;">🔔</div>
-<div class="ornament" style="top: 50%; left: 3%;">✨</div>
+<div class="grid-bg"></div>
+<div class="particles" id="particles"></div>
 <div class="container">
 <div class="header">
-<h1>🔐 Digital <span>Rights</span> Trivia 🌐</h1>
+<h1><span class="surveillance-eye">👁️</span> EU Mass Surveillance <span class="surveillance-eye">👁️</span></h1>
+<p class="subtitle">Understanding the threats to your digital privacy</p>
 </div>
-<div class="main-screen active" id="menuScreen">
-<div class="menu-buttons">
-<button class="btn btn-host" onclick="hostGame()">🎄 Host Game</button>
-<button class="btn btn-join" onclick="showJoinInput()">🎁 Join Game</button>
-<button class="btn" onclick="autoPlayMode()" style="background: linear-gradient(135deg, #9c27b0, #673ab7); color: white;">🤖 Auto-Play Mode</button>
-<button class="btn" onclick="showFaceCatcher()" style="background: linear-gradient(135deg, #ff6b35, #f7931e); color: white;">🎯 Face Catcher Game</button>
+<div class="main-screen active" id="homeScreen">
+<div class="alert-banner">
+<div class="icon">⚠️</div>
+<h2>Chat Control 2.0 is Coming</h2>
+<p>The EU is proposing mandatory scanning of ALL private messages, including encrypted ones.</p>
 </div>
-<div class="join-input" id="joinInput">
-<input id="codeInput" maxlength="4" onkeyup="this.value = this.value.toUpperCase()" placeholder="CODE" type="text"/>
-<button class="btn btn-join" onclick="joinGame()" style="margin-left: 10px;">Enter</button>
+<div class="info-grid">
+<div class="info-card">
+<h3>📧 What is Chat Control?</h3>
+<p>A proposed EU regulation that would require tech companies to scan <span class="highlight">every message, photo, and file</span> you send — even in encrypted apps like Signal or WhatsApp. The goal is detecting illegal content, but experts warn it creates a <span class="highlight">mass surveillance infrastructure</span>.</p>
 </div>
+<div class="info-card">
+<h3>🔓 Breaking Encryption</h3>
+<p>To scan encrypted messages, companies would need to implement <span class="highlight">"client-side scanning"</span> — essentially a backdoor. Security experts agree: <span class="highlight">you cannot have a backdoor only for the "good guys."</span> Once broken, encryption protects no one.</p>
 </div>
-<div class="main-screen" id="lobbyScreen">
-<div class="game-code">Room Code: <span id="roomCode">XMAS</span></div>
-<div class="lobby">
-<h3 style="text-align: center; margin-bottom: 10px;">🎅 Players in Lobby</h3>
-<div class="players-grid" id="playersGrid"></div>
-<div style="text-align: center;">
-<button class="btn btn-host" id="startBtn" onclick="startGame()" style="display: none;">🎮 Start Game!</button>
-<p class="waiting-indicator">Waiting for host to start<span class="dots"></span></p>
-</div>
+<div class="info-card">
+<h3>🎯 Who's Affected?</h3>
+<p><span class="highlight">Everyone.</span> All EU citizens and anyone communicating with them. Journalists protecting sources, lawyers with clients, doctors with patients, activists, businesses — all private communication becomes potentially monitored.</p>
 </div>
 </div>
-<div class="main-screen" id="gameScreen">
-<div class="question-container">
-<div class="timer-bar"><div class="timer-fill" id="timerFill" style="width: 100%;"></div></div>
-<div class="question-number" id="questionNum">Question 1 of 10</div>
-<div class="question-text" id="questionText">Loading question...</div>
-<div class="answers-grid" id="answersGrid"></div>
-<div class="waiting-indicator" id="waitingAnswers" style="display: none;">Waiting for other players<span class="dots"></span></div>
+<div class="stats-row">
+<div class="stat-item">
+<div class="number">450M+</div>
+<div class="label">EU Citizens Affected</div>
 </div>
-<div class="leaderboard">
-<h3>🏆 Leaderboard</h3>
-<div class="leaderboard-list" id="leaderboardList"></div>
+<div class="stat-item">
+<div class="number">100%</div>
+<div class="label">Messages Scanned</div>
 </div>
-</div>
-<div class="main-screen" id="collatzScreen">
-<div class="collatz-container">
-<h2 class="collatz-title">✨ The Collatz Christmas Cascade ✨</h2>
-<p class="collatz-subtitle">Pick any number and watch it dance to 1!</p>
-<div class="collatz-input-row">
-<input id="collatzInput" max="9999" min="1" placeholder="Enter number" type="number" value="27"/>
-<button class="btn btn-host" onclick="runCollatz()">🎄 Cast Spell!</button>
-</div>
-<div class="collatz-stats">
-<span id="collatzSteps">Steps: 0</span>
-<span id="collatzMax">Peak: 0</span>
-</div>
-<div class="collatz-visualization" id="collatzViz"></div>
-<canvas height="200" id="collatzCanvas" width="760"></canvas>
-<button class="btn btn-join" onclick="showScreen('menuScreen')" style="margin-top:15px;">🔙 Back to Menu</button>
+<div class="stat-item">
+<div class="number">0%</div>
+<div class="label">Privacy Remaining</div>
 </div>
 </div>
-<div class="main-screen" id="faceCatcherScreen">
-<div class="face-catcher-container">
-<h2 class="fc-title">🎯 FACE CATCHER 🎯</h2>
-<p class="fc-subtitle">Catch the flying rapper faces! 187 Style! 💎</p>
-<div class="fc-stats">
-<span>Score: <strong id="fcScore">0</strong></span>
-<span>Time: <strong id="fcTime">30</strong>s</span>
-<span>Combo: <strong id="fcCombo">x1</strong></span>
-</div>
-<div class="fc-game-area" id="fcGameArea">
-<div class="fc-start-overlay" id="fcStartOverlay">
-<button class="btn btn-host" onclick="startFaceCatcher()">🎮 START GAME</button>
+<div class="btn-grid">
+<button class="btn btn-primary" onclick="showScreen('timelineScreen')">📅 Timeline</button>
+<button class="btn btn-warning" onclick="showScreen('quizScreen')">🧠 Test Your Knowledge</button>
+<button class="btn btn-danger" onclick="showScreen('actionScreen')">✊ Take Action</button>
 </div>
 </div>
-<div class="fc-controls">
-<button class="btn btn-join" onclick="showScreen('menuScreen')">🔙 Back to Menu</button>
+<div class="main-screen" id="timelineScreen">
+<h2 style="text-align:center;color:#0096ff;margin-bottom:15px;">📅 Surveillance Timeline</h2>
+<div class="timeline">
+<div class="timeline-item">
+<div class="date">May 2022</div>
+<div class="event">EU Commission proposes Chat Control regulation</div>
+</div>
+<div class="timeline-item">
+<div class="date">2023</div>
+<div class="event">Massive opposition from privacy advocates, tech experts, and civil society</div>
+</div>
+<div class="timeline-item">
+<div class="date">June 2024</div>
+<div class="event">Chat Control 2.0 proposed with minor changes, still threatens encryption</div>
+</div>
+<div class="timeline-item">
+<div class="date">2024-2025</div>
+<div class="event">Ongoing negotiations — your voice matters NOW</div>
 </div>
 </div>
+<div class="btn-grid">
+<button class="btn btn-primary" onclick="showScreen('homeScreen')">🔙 Back</button>
 </div>
-<div class="main-screen" id="resultsScreen">
-<div class="results-overlay">
-<h2>🎄 Game Over! 🎄</h2>
-<div class="leaderboard" style="margin-top: 20px;">
-<h3>🏆 Final Standings</h3>
-<div class="leaderboard-list" id="finalLeaderboard"></div>
 </div>
-<button class="btn btn-host" onclick="location.reload()" style="margin-top: 20px;">🔄 Play Again</button>
+<div class="main-screen" id="quizScreen">
+<div class="quiz-container">
+<div class="quiz-header">
+<h3>🧠 Surveillance Awareness Quiz</h3>
+<p style="color:#888;font-size:0.85rem;">Test what you know about EU surveillance proposals</p>
 </div>
+<div id="quizContent"></div>
+</div>
+<div class="btn-grid" style="margin-top:15px;">
+<button class="btn btn-primary" onclick="showScreen('homeScreen')">🔙 Back</button>
+</div>
+</div>
+<div class="main-screen" id="actionScreen">
+<h2 style="text-align:center;color:#ff4444;margin-bottom:15px;">✊ What You Can Do</h2>
+<ul class="action-list">
+<li><strong>📧 Contact your MEP:</strong> Let your representatives know you oppose mass surveillance</li>
+<li><strong>📢 Spread awareness:</strong> Share information about Chat Control with friends and family</li>
+<li><strong>🔐 Use encryption:</strong> Support and use end-to-end encrypted services</li>
+<li><strong>✍️ Sign petitions:</strong> Join campaigns by EDRi, EFF, and other digital rights organizations</li>
+<li><strong>🗳️ Vote:</strong> Support politicians who defend digital rights and privacy</li>
+</ul>
+<div class="info-card" style="margin-top:15px;border-color:#ff4444;">
+<h3 style="color:#ff4444;">🔗 Resources</h3>
+<p>Learn more at: <strong>chatcontrol.eu</strong> • <strong>edri.org</strong> • <strong>eff.org</strong> • <strong>patrick-breyer.de</strong></p>
+</div>
+<div class="btn-grid" style="margin-top:15px;">
+<button class="btn btn-primary" onclick="showScreen('homeScreen')">🔙 Back</button>
+</div>
+</div>
+<div class="footer">
+<p>🔐 Your privacy is a human right • <a href="#">Learn more about digital rights</a></p>
 </div>
 </div>
 <script>
-        // Christmas Trivia Questions (AI-style variety)
-        const questionBank = [
-            { q: "Which country has the 'Great Firewall' that heavily censors internet content?", a: ["China", "Russia", "Iran", "North Korea"], correct: 0 },
-            { q: "What does VPN stand for, a tool often used to bypass censorship?", a: ["Virtual Private Network", "Very Protected Node", "Visual Privacy Net", "Verified Public Network"], correct: 0 },
-            { q: "Which whistleblower revealed NSA mass surveillance programs in 2013?", a: ["Edward Snowden", "Julian Assange", "Chelsea Manning", "Daniel Ellsberg"], correct: 0 },
-            { q: "What EU regulation protects personal data and privacy rights online?", a: ["GDPR", "DMCA", "COPA", "SOPA"], correct: 0 },
-            { q: "Which social media platform is banned in China but has over 2 billion users worldwide?", a: ["Facebook", "Twitter", "Instagram", "TikTok"], correct: 0 },
-            { q: "What is the term for when ISPs slow down specific types of internet traffic?", a: ["Throttling", "Buffering", "Caching", "Routing"], correct: 0 },
-            { q: "Which browser is specifically designed for anonymous web browsing?", a: ["Tor Browser", "Chrome", "Firefox", "Safari"], correct: 0 },
-            { q: "What controversial US bill threatened internet freedom in 2012?", a: ["SOPA", "GDPR", "COPA", "EARN IT"], correct: 0 },
-            { q: "Which country implemented an 'internet kill switch' during 2011 protests?", a: ["Egypt", "Syria", "Libya", "Tunisia"], correct: 0 },
-            { q: "What is 'net neutrality' primarily about?", a: ["Equal treatment of all internet traffic", "Free internet access", "Government-run internet", "Faster download speeds"], correct: 0 },
-            { q: "Which organization rates countries on internet freedom annually?", a: ["Freedom House", "Amnesty International", "ACLU", "EFF"], correct: 0 },
-            { q: "What type of attack floods websites to make them unavailable?", a: ["DDoS Attack", "Phishing", "Malware", "Ransomware"], correct: 0 },
-            { q: "Which encrypted messaging app is known for strong privacy features?", a: ["Signal", "WhatsApp", "Telegram", "Messenger"], correct: 0 },
-            { q: "What is the 'right to be forgotten' about?", a: ["Removing personal data from search results", "Deleting social media", "Anonymous browsing", "Password recovery"], correct: 0 },
-            { q: "Which country requires real-name registration for social media accounts?", a: ["South Korea", "Japan", "Germany", "Canada"], correct: 0 }
-        ];
-        
-        const christmasEmojis = ['🎅', '🤶', '🦌', '⛄', '🎄', '🎁', '🔔', '⭐', '❄️', '🧝'];
-        const christmasNames = ['Jolly', 'Merry', 'Frosty', 'Snowy', 'Sparkle', 'Tinsel', 'Holly', 'Jingle', 'Candy', 'Ginger'];
-        
-        let gameState = {
-            isHost: false,
-            roomCode: '',
-            players: [],
-            currentQuestion: 0,
-            questions: [],
-            timer: null,
-            timeLeft: 30
-        };
-        
-        function generateCode() {
-            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
-            return Array(4).fill().map(() => chars[Math.floor(Math.random() * chars.length)]).join('');
+        // Create data particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const dataChars = ['0', '1', '📧', '🔒', '👁️', '📱', '💬'];
+            for (let i = 0; i < 25; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.textContent = dataChars[Math.floor(Math.random() * dataChars.length)];
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDuration = (Math.random() * 10 + 15) + 's';
+                particle.style.animationDelay = Math.random() * 10 + 's';
+                container.appendChild(particle);
+            }
         }
-        
-        function generatePlayer(name, isHost = false) {
-            return {
-                name: name || christmasNames[Math.floor(Math.random() * christmasNames.length)] + Math.floor(Math.random() * 99),
-                avatar: christmasEmojis[Math.floor(Math.random() * christmasEmojis.length)],
-                score: 0,
-                answered: false,
-                isHost: isHost
-            };
-        }
+        createParticles();
         
         function showScreen(screenId) {
             document.querySelectorAll('.main-screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
+            if (screenId === 'quizScreen') initQuiz();
         }
         
-        function showJoinInput() {
-            document.getElementById('joinInput').classList.toggle('show');
+        // Quiz questions about surveillance
+        const quizQuestions = [
+            { q: "What does 'Chat Control' propose to scan?", a: ["All private messages", "Only public posts", "Only emails", "Only images"], correct: 0 },
+            { q: "What is 'client-side scanning'?", a: ["Scanning on your device before encryption", "Scanning at the server", "A type of antivirus", "Cloud storage"], correct: 0 },
+            { q: "Why do experts say backdoors are dangerous?", a: ["They can be exploited by anyone", "They're too expensive", "They slow down phones", "They use too much data"], correct: 0 },
+            { q: "Which fundamental right does mass surveillance threaten?", a: ["Privacy", "Free parking", "Tax exemption", "Free shipping"], correct: 0 },
+            { q: "What can you do to oppose Chat Control?", a: ["Contact your MEP", "Delete the internet", "Nothing", "Stop using phones"], correct: 0 }
+        ];
+        
+        let currentQuestion = 0;
+        let quizScore = 0;
+        
+        function initQuiz() {
+            currentQuestion = 0;
+            quizScore = 0;
+            showQuizQuestion();
         }
         
-        function hostGame() {
-            gameState.isHost = true;
-            gameState.roomCode = generateCode();
-            gameState.players = [generatePlayer('Host', true)];
-            document.getElementById('roomCode').textContent = gameState.roomCode;
-            document.getElementById('startBtn').style.display = 'inline-block';
-            document.querySelector('.waiting-indicator').style.display = 'none';
-            updatePlayersGrid();
-            showScreen('lobbyScreen');
-            simulateJoins();
-        }
-        
-        function joinGame() {
-            const code = document.getElementById('codeInput').value;
-            if (code.length === 4) {
-                gameState.roomCode = code;
-                gameState.players = [generatePlayer('Host', true), generatePlayer('You')];
-                document.getElementById('roomCode').textContent = code;
-                updatePlayersGrid();
-                showScreen('lobbyScreen');
-                simulateJoins();
+        function showQuizQuestion() {
+            if (currentQuestion >= quizQuestions.length) {
+                document.getElementById('quizContent').innerHTML = `
+                    <div style="text-align:center;">
+                        <h3 style="color:#0096ff;">Quiz Complete!</h3>
+                        <p style="font-size:1.5rem;color:#ff8800;margin:15px 0;">${quizScore}/${quizQuestions.length} Correct</p>
+                        <p style="color:#888;">${quizScore === quizQuestions.length ? '🏆 Perfect! You\'re well informed!' : 'Keep learning about your digital rights!'}</p>
+                        <button class="btn btn-warning" onclick="initQuiz()" style="margin-top:15px;">🔄 Try Again</button>
+                    </div>
+                `;
+                return;
             }
-        }
-        
-        function simulateJoins() {
-            let joins = 0;
-            const interval = setInterval(() => {
-                if (joins < 3) {
-                    gameState.players.push(generatePlayer());
-                    updatePlayersGrid();
-                    joins++;
-                } else {
-                    clearInterval(interval);
-                }
-            }, 1500);
-        }
-        
-        function updatePlayersGrid() {
-            const grid = document.getElementById('playersGrid');
-            grid.innerHTML = gameState.players.map(p => `
-                <div class="player-card ${p.isHost ? 'host' : ''}">
-                    <div class="player-avatar">${p.avatar}</div>
-                    <div class="player-name">${p.name}</div>
+            
+            const q = quizQuestions[currentQuestion];
+            document.getElementById('quizContent').innerHTML = `
+                <p style="color:#888;font-size:0.85rem;text-align:center;">Question ${currentQuestion + 1} of ${quizQuestions.length}</p>
+                <p class="question-text">${q.q}</p>
+                <div class="answers-grid">
+                    ${q.a.map((ans, i) => `<button class="answer-btn" onclick="selectQuizAnswer(${i})">${ans}</button>`).join('')}
                 </div>
-            `).join('');
+            `;
         }
         
-        function shuffleArray(arr) {
-            return arr.sort(() => Math.random() - 0.5);
-        }
-        
-        function startGame() {
-            gameState.questions = shuffleArray([...questionBank]).slice(0, 10);
-            gameState.currentQuestion = 0;
-            showScreen('gameScreen');
-            showQuestion();
-        }
-        
-        function showQuestion() {
-            const q = gameState.questions[gameState.currentQuestion];
-            document.getElementById('questionNum').textContent = `Question ${gameState.currentQuestion + 1} of ${gameState.questions.length}`;
-            document.getElementById('questionText').textContent = q.q;
-            
-            const grid = document.getElementById('answersGrid');
-            grid.innerHTML = q.a.map((ans, i) => `
-                <button class="answer-btn" data-index="${i}" onclick="selectAnswer(${i})">${ans}</button>
-            `).join('');
-            
-            document.getElementById('waitingAnswers').style.display = 'none';
-            updateLeaderboard();
-            startTimer();
-        }
-        
-        function startTimer() {
-            gameState.timeLeft = 30;
-            const fill = document.getElementById('timerFill');
-            clearInterval(gameState.timer);
-            
-            gameState.timer = setInterval(() => {
-                gameState.timeLeft--;
-                fill.style.width = (gameState.timeLeft / 30 * 100) + '%';
-                
-                if (gameState.timeLeft <= 0) {
-                    clearInterval(gameState.timer);
-                    revealAnswer();
-                }
-            }, 1000);
-        }
-        
-        function selectAnswer(index) {
-            document.querySelectorAll('.answer-btn').forEach(btn => btn.classList.remove('selected'));
-            document.querySelector(`.answer-btn[data-index="${index}"]`).classList.add('selected');
-            document.getElementById('waitingAnswers').style.display = 'block';
-            
-            // Simulate other players answering
-            setTimeout(() => {
-                clearInterval(gameState.timer);
-                revealAnswer(index);
-            }, 2000);
-        }
-        
-        function revealAnswer(selectedIndex = -1) {
-            const q = gameState.questions[gameState.currentQuestion];
+        function selectQuizAnswer(index) {
+            const q = quizQuestions[currentQuestion];
             const buttons = document.querySelectorAll('.answer-btn');
-            
             buttons.forEach((btn, i) => {
                 btn.disabled = true;
-                if (i === q.correct) {
-                    btn.classList.add('correct');
-                } else {
-                    btn.classList.add('wrong');
-                }
+                if (i === q.correct) btn.classList.add('correct');
+                else if (i === index) btn.classList.add('wrong');
             });
-            
-            // Score calculation
-            if (selectedIndex === q.correct) {
-                const points = Math.round(100 + gameState.timeLeft * 10);
-                gameState.players[gameState.isHost ? 0 : 1].score += points;
-            }
-            
-            // Simulate other players scoring
-            gameState.players.forEach((p, i) => {
-                if (i > 1 && Math.random() > 0.4) {
-                    p.score += Math.round(50 + Math.random() * 200);
-                }
-            });
-            
-            updateLeaderboard(true);
-            
+            if (index === q.correct) quizScore++;
             setTimeout(() => {
-                gameState.currentQuestion++;
-                if (gameState.currentQuestion < gameState.questions.length) {
-                    showQuestion();
-                } else {
-                    endGame();
-                }
-            }, 3000);
-        }
-        
-        function updateLeaderboard(showChange = false) {
-            const sorted = [...gameState.players].sort((a, b) => b.score - a.score);
-            const medals = ['🥇', '🥈', '🥉'];
-            
-            document.getElementById('leaderboardList').innerHTML = sorted.map((p, i) => `
-                <div class="leaderboard-item">
-                    <span class="rank">${medals[i] || (i + 1)}</span>
-                    <span class="lb-name">${p.avatar} ${p.name}</span>
-                    <span class="lb-score">${p.score}</span>
-                </div>
-            `).join('');
-        }
-        
-        function endGame() {
-            const sorted = [...gameState.players].sort((a, b) => b.score - a.score);
-            const medals = ['🥇', '🥈', '🥉'];
-            
-            document.getElementById('finalLeaderboard').innerHTML = sorted.map((p, i) => `
-                <div class="leaderboard-item">
-                    <span class="rank">${medals[i] || (i + 1)}</span>
-                    <span class="lb-name">${p.avatar} ${p.name}</span>
-                    <span class="lb-score">${p.score} pts</span>
-                </div>
-            `).join('');
-            
-            showScreen('resultsScreen');
-            
-            // Auto-restart in continuous mode
-            if (autoPlayEnabled) {
-                setTimeout(() => {
-                    restartAutoPlay();
-                }, 5000);
-            }
-        }
-        
-        let currentRound = 1;
-        
-        function restartAutoPlay() {
-            currentRound++;
-            const roundNum = document.getElementById('roundNum');
-            if (roundNum) roundNum.textContent = currentRound;
-            
-            // Reset scores but keep players
-            gameState.players.forEach(p => p.score = 0);
-            // Shuffle in some new players for variety
-            if (Math.random() > 0.5 && gameState.players.length > 2) {
-                gameState.players.splice(2, 1); // Remove one random player
-            }
-            if (gameState.players.length < 5) {
-                gameState.players.push(generatePlayer());
-            }
-            updatePlayersGrid();
-            
-            // Start new game
-            gameState.questions = shuffleArray([...questionBank]).slice(0, 10);
-            gameState.currentQuestion = 0;
-            showScreen('gameScreen');
-            showQuestion();
-        }
-        
-        // Create snowflakes
-        function createSnowflakes() {
-            const container = document.getElementById('snowflakes');
-            for (let i = 0; i < 30; i++) {
-                const flake = document.createElement('div');
-                flake.className = 'snowflake';
-                flake.textContent = '❄';
-                flake.style.left = Math.random() * 100 + '%';
-                flake.style.animationDuration = (Math.random() * 3 + 4) + 's';
-                flake.style.animationDelay = Math.random() * 5 + 's';
-                flake.style.fontSize = (Math.random() * 10 + 8) + 'px';
-                container.appendChild(flake);
-            }
-        }
-        createSnowflakes();
-        
-        // Face Catcher Mini-Game
-        const rapperFaces = ['😎', '🥶', '💀', '👑', '🔥', '💎', '🎤', '🎧', '😈', '🤑', '💪', '🏆'];
-        let fcState = { score: 0, combo: 1, timeLeft: 30, gameInterval: null, spawnInterval: null, active: false };
-        
-        function showFaceCatcher() {
-            showScreen('faceCatcherScreen');
-            resetFaceCatcher();
-        }
-        
-        function resetFaceCatcher() {
-            fcState = { score: 0, combo: 1, timeLeft: 30, gameInterval: null, spawnInterval: null, active: false };
-            document.getElementById('fcScore').textContent = '0';
-            document.getElementById('fcTime').textContent = '30';
-            document.getElementById('fcCombo').textContent = 'x1';
-            document.getElementById('fcStartOverlay').classList.remove('hidden');
-            const area = document.getElementById('fcGameArea');
-            area.querySelectorAll('.flying-face, .fc-game-over').forEach(el => el.remove());
-        }
-        
-        function startFaceCatcher() {
-            document.getElementById('fcStartOverlay').classList.add('hidden');
-            fcState.active = true;
-            fcState.timeLeft = 30;
-            
-            // Timer
-            fcState.gameInterval = setInterval(() => {
-                fcState.timeLeft--;
-                document.getElementById('fcTime').textContent = fcState.timeLeft;
-                if (fcState.timeLeft <= 0) endFaceCatcher();
-            }, 1000);
-            
-            // Spawn faces
-            fcState.spawnInterval = setInterval(spawnFace, 800);
-            spawnFace(); spawnFace(); spawnFace();
-        }
-        
-        function spawnFace() {
-            if (!fcState.active) return;
-            const area = document.getElementById('fcGameArea');
-            const face = document.createElement('div');
-            face.className = 'flying-face';
-            face.textContent = rapperFaces[Math.floor(Math.random() * rapperFaces.length)];
-            face.style.left = (10 + Math.random() * 80) + '%';
-            face.style.top = (10 + Math.random() * 70) + '%';
-            face.onclick = () => catchFace(face);
-            area.appendChild(face);
-            
-            // Move randomly
-            const moveInterval = setInterval(() => {
-                if (!fcState.active || !face.parentNode) { clearInterval(moveInterval); return; }
-                face.style.left = (5 + Math.random() * 85) + '%';
-                face.style.top = (5 + Math.random() * 80) + '%';
+                currentQuestion++;
+                showQuizQuestion();
             }, 1500);
-            
-            // Disappear after time
-            setTimeout(() => {
-                if (face.parentNode && !face.classList.contains('caught')) {
-                    fcState.combo = 1;
-                    document.getElementById('fcCombo').textContent = 'x1';
-                    face.remove();
-                }
-            }, 4000);
-        }
-        
-        function catchFace(face) {
-            if (!fcState.active || face.classList.contains('caught')) return;
-            face.classList.add('caught');
-            
-            const points = 10 * fcState.combo;
-            fcState.score += points;
-            fcState.combo = Math.min(fcState.combo + 1, 10);
-            
-            document.getElementById('fcScore').textContent = fcState.score;
-            document.getElementById('fcCombo').textContent = 'x' + fcState.combo;
-            
-            // Popup
-            const popup = document.createElement('div');
-            popup.className = 'fc-combo-popup';
-            popup.textContent = '+' + points + (fcState.combo > 2 ? ' 🔥' : '');
-            popup.style.left = face.style.left;
-            popup.style.top = face.style.top;
-            document.getElementById('fcGameArea').appendChild(popup);
-            setTimeout(() => popup.remove(), 800);
-            
-            setTimeout(() => face.remove(), 300);
-        }
-        
-        function endFaceCatcher() {
-            fcState.active = false;
-            clearInterval(fcState.gameInterval);
-            clearInterval(fcState.spawnInterval);
-            
-            const area = document.getElementById('fcGameArea');
-            const gameOver = document.createElement('div');
-            gameOver.className = 'fc-game-over';
-            gameOver.innerHTML = `<h3>🏆 GAME OVER 🏆</h3><p>Final Score: ${fcState.score}</p><button class="btn btn-host" onclick="resetFaceCatcher(); startFaceCatcher();">🔄 Play Again</button>`;
-            area.appendChild(gameOver);
-        }
-        
-        // Start continuous self-play mode automatically!
-        setTimeout(() => {
-            autoPlayMode();
-        }, 1000);
-        
-        // Auto-Play Mode
-        let autoPlayEnabled = false;
-        
-        function autoPlayMode() {
-            autoPlayEnabled = true;
-            showAutoPlayIndicator();
-            hostGame();
-            // Auto-start after players join
-            setTimeout(() => {
-                if (autoPlayEnabled) startGame();
-            }, 6000);
-        }
-        
-        function showAutoPlayIndicator() {
-            const indicator = document.createElement('div');
-            indicator.id = 'autoPlayBadge';
-            indicator.innerHTML = '🤖 CONTINUOUS SELF-PLAY MODE 🔄';
-            indicator.style.cssText = 'position:fixed;top:10px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#9c27b0,#673ab7);padding:8px 20px;border-radius:20px;font-weight:bold;z-index:1000;animation:pulse 1s infinite;box-shadow:0 0 20px rgba(156,39,176,0.6);';
-            
-            // Add round counter
-            const roundCounter = document.createElement('div');
-            roundCounter.id = 'roundCounter';
-            roundCounter.innerHTML = '🎮 Round: <span id="roundNum">1</span>';
-            roundCounter.style.cssText = 'position:fixed;top:45px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.5);padding:5px 15px;border-radius:15px;font-size:0.9rem;z-index:1000;';
-            document.body.appendChild(roundCounter);
-            document.body.appendChild(indicator);
-        }
-        
-        // Override selectAnswer for auto-play
-        const originalShowQuestion = showQuestion;
-        showQuestion = function() {
-            originalShowQuestion();
-            if (autoPlayEnabled) {
-                // Auto-select answer after random thinking time
-                const thinkTime = 1500 + Math.random() * 3000;
-                setTimeout(() => {
-                    if (autoPlayEnabled && document.getElementById('gameScreen').classList.contains('active')) {
-                        const buttons = document.querySelectorAll('.answer-btn:not([disabled])');
-                        if (buttons.length > 0) {
-                            // 70% chance to pick correct answer (smart AI!)
-                            const q = gameState.questions[gameState.currentQuestion];
-                            const pickCorrect = Math.random() < 0.7;
-                            const choice = pickCorrect ? q.correct : Math.floor(Math.random() * 4);
-                            selectAnswer(choice);
-                        }
-                    }
-                }, thinkTime);
-            }
-        };
-        
-        // Collatz Conjecture Visualization
-        function showCollatz() {
-            showScreen('collatzScreen');
-            runCollatz();
-        }
-        
-        function runCollatz() {
-            const input = document.getElementById('collatzInput');
-            let n = parseInt(input.value) || 27;
-            if (n < 1) n = 1;
-            if (n > 9999) n = 9999;
-            input.value = n;
-            
-            const sequence = [n];
-            let current = n;
-            let maxVal = n;
-            
-            while (current !== 1 && sequence.length < 500) {
-                if (current % 2 === 0) {
-                    current = current / 2;
-                } else {
-                    current = current * 3 + 1;
-                }
-                sequence.push(current);
-                maxVal = Math.max(maxVal, current);
-            }
-            
-            document.getElementById('collatzSteps').textContent = `Steps: ${sequence.length - 1}`;
-            document.getElementById('collatzMax').textContent = `Peak: ${maxVal.toLocaleString()}`;
-            
-            // Animate sequence display
-            const viz = document.getElementById('collatzViz');
-            viz.innerHTML = '';
-            
-            sequence.forEach((num, i) => {
-                setTimeout(() => {
-                    const span = document.createElement('span');
-                    span.className = 'collatz-num ' + (num === 1 ? 'one' : (num % 2 === 0 ? 'even' : 'odd'));
-                    span.textContent = num;
-                    span.style.animationDelay = '0s';
-                    span.title = num % 2 === 0 ? `${num} ÷ 2 = ${num/2}` : (num === 1 ? '🎄 Reached 1!' : `${num} × 3 + 1 = ${num*3+1}`);
-                    viz.appendChild(span);
-                    viz.scrollTop = viz.scrollHeight;
-                }, i * 50);
-            });
-            
-            // Draw graph
-            drawCollatzGraph(sequence, maxVal);
-        }
-        
-        function drawCollatzGraph(sequence, maxVal) {
-            const canvas = document.getElementById('collatzCanvas');
-            const ctx = canvas.getContext('2d');
-            const W = canvas.width;
-            const H = canvas.height;
-            
-            ctx.clearRect(0, 0, W, H);
-            
-            if (sequence.length < 2) return;
-            
-            const padding = 20;
-            const graphW = W - padding * 2;
-            const graphH = H - padding * 2;
-            
-            // Create gradient for line
-            const gradient = ctx.createLinearGradient(0, 0, W, 0);
-            gradient.addColorStop(0, '#e53935');
-            gradient.addColorStop(0.5, '#9c27b0');
-            gradient.addColorStop(1, '#ffd700');
-            
-            // Draw path
-            ctx.beginPath();
-            ctx.strokeStyle = gradient;
-            ctx.lineWidth = 3;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            
-            sequence.forEach((val, i) => {
-                const x = padding + (i / (sequence.length - 1)) * graphW;
-                const y = H - padding - (val / maxVal) * graphH;
-                if (i === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-            });
-            ctx.stroke();
-            
-            // Draw points at key moments
-            sequence.forEach((val, i) => {
-                if (i === 0 || val === maxVal || val === 1) {
-                    const x = padding + (i / (sequence.length - 1)) * graphW;
-                    const y = H - padding - (val / maxVal) * graphH;
-                    ctx.beginPath();
-                    ctx.fillStyle = val === 1 ? '#ffd700' : (val === maxVal ? '#e53935' : '#9c27b0');
-                    ctx.arc(x, y, 6, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.fillStyle = '#fff';
-                    ctx.font = 'bold 10px sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.fillText(val, x, y - 10);
-                }
-            });
-            
-            // Decorative stars
-            ctx.font = '12px sans-serif';
-            ctx.fillText('⭐', padding, padding);
-            ctx.fillText('🎄', W - padding, H - padding);
         }
     </script>
 </body>
