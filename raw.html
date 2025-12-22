@@ -86,6 +86,83 @@
             0%, 50% { border-color: #ff0000; box-shadow: 0 0 30px #ff0000, inset 0 0 30px rgba(255,0,0,0.1); }
             25%, 75% { border-color: #ff6600; box-shadow: 0 0 50px #ff0000, inset 0 0 50px rgba(255,0,0,0.2); }
         }
+        @keyframes screenTear {
+            0%, 100% { clip-path: inset(0 0 0 0); }
+            10% { clip-path: inset(20% 0 30% 0); transform: translateX(10px); }
+            20% { clip-path: inset(50% 0 20% 0); transform: translateX(-15px); }
+            30% { clip-path: inset(10% 0 60% 0); transform: translateX(5px); }
+            40% { clip-path: inset(0 0 0 0); }
+        }
+        @keyframes realityFracture {
+            0%, 100% { filter: hue-rotate(0deg) saturate(1); }
+            25% { filter: hue-rotate(90deg) saturate(2) brightness(1.5); }
+            50% { filter: hue-rotate(180deg) saturate(0.5) contrast(2); }
+            75% { filter: hue-rotate(270deg) saturate(3) brightness(0.7); }
+        }
+        @keyframes vhsTracking {
+            0% { transform: translateX(0) skewX(0); }
+            5% { transform: translateX(-100px) skewX(-5deg); }
+            10% { transform: translateX(50px) skewX(2deg); }
+            15% { transform: translateX(0) skewX(0); }
+            100% { transform: translateX(0) skewX(0); }
+        }
+        @keyframes chromaShift {
+            0%, 100% { text-shadow: -3px 0 red, 3px 0 cyan, 0 3px magenta; }
+            33% { text-shadow: 3px 0 red, -3px 0 cyan, 0 -3px magenta; }
+            66% { text-shadow: 0 3px red, 0 -3px cyan, 3px 0 magenta; }
+        }
+        @keyframes dataCorrupt {
+            0%, 90%, 100% { content: attr(data-text); }
+            91% { content: '█▓▒░ERROR░▒▓█'; }
+            93% { content: '0xDEADBEEF'; }
+            95% { content: '!@#$%^&*()'; }
+            97% { content: 'THEY ARE HERE'; }
+        }
+        .screen-tear {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 1001;
+            background: linear-gradient(transparent 0%, rgba(255,0,0,0.1) 50%, transparent 51%);
+            animation: screenTear 0.1s steps(1) infinite;
+        }
+        .reality-fracture {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 997;
+            animation: realityFracture 5s ease-in-out infinite;
+            mix-blend-mode: color-dodge;
+            opacity: 0.3;
+        }
+        .vhs-line {
+            position: fixed;
+            left: 0; right: 0;
+            height: 3px;
+            background: rgba(255,255,255,0.8);
+            z-index: 1002;
+            pointer-events: none;
+            animation: vhsTracking 0.5s steps(1) infinite;
+        }
+        .chaos-text {
+            animation: chromaShift 0.2s infinite, textGlitch 0.1s infinite;
+        }
+        .corrupt-block {
+            position: fixed;
+            background: repeating-linear-gradient(90deg, #ff0000, #00ff00, #0000ff, #ff00ff);
+            mix-blend-mode: difference;
+            pointer-events: none;
+            z-index: 996;
+            animation: screenTear 0.2s steps(1) infinite;
+        }
+        .glitch-clone {
+            position: fixed;
+            color: cyan;
+            opacity: 0.7;
+            z-index: 60;
+            animation: vhsTracking 0.3s infinite;
+            pointer-events: none;
+        }
         body { 
             font-family: 'Courier New', monospace; 
             display: flex; 
@@ -386,6 +463,14 @@
 </head>
 <body>
 <div class="static-overlay"></div>
+<div class="screen-tear"></div>
+<div class="reality-fracture"></div>
+<div class="vhs-line" style="top: 30%;"></div>
+<div class="vhs-line" style="top: 60%;"></div>
+<div class="vhs-line" style="top: 85%;"></div>
+<div class="corrupt-block" style="top: 20%; left: 10%; width: 200px; height: 5px;"></div>
+<div class="corrupt-block" style="top: 45%; right: 5%; width: 150px; height: 8px;"></div>
+<div class="corrupt-block" style="bottom: 30%; left: 30%; width: 300px; height: 3px;"></div>
 <div class="firewall-layer"></div>
 <svg class="hex-shield" viewbox="0 0 200 200">
 <defs>
@@ -427,12 +512,16 @@
 <div class="error-popup" style="top: 200px; right: 80px; animation-delay: 0.5s;">MEMORY OVERFLOW 0xDEAD</div>
 <div class="error-popup" style="bottom: 200px; left: 100px; animation-delay: 1s;">CONNECTION UNSTABLE</div>
 <div class="error-popup" style="top: 300px; right: 50px; animation-delay: 1.5s;">INTRUSION DETECTED</div>
-<div class="alert-header">
-<h2>⚠ EMERGENCY ALERT ⚠ SITE SUPPRESSION IMMINENT ⚠ WE WILL NOT FALL ⚠</h2>
+<div class="alert-header" style="animation: warningPulse 0.2s infinite, vhsTracking 2s infinite;">
+<h2 class="chaos-text">⚠ E̷̛M̴̧E̵͝R̶̨G̷̛E̴N̵̢C̸͜Y̷̧ ̴͘A̵̛L̶̢E̷͝R̸̨T̵̛ ⚠ C̸H̴A̷O̵S̶ ̷L̴E̸V̵E̶L̷:̸ ̴M̵A̶X̷I̶M̵U̸M̷ ⚠ R̴E̶A̵L̷I̸T̶Y̵ ̸F̶A̵I̷L̴I̶N̸G̷ ⚠</h2>
 </div>
-<h1>⚠ HELLO WORLD! ⚠</h1>
+<div style="position: fixed; top: 70px; left: 50%; transform: translateX(-50%); color: #ff00ff; font-size: 1.8rem; animation: chromaShift 0.1s infinite; z-index: 150; text-shadow: 0 0 20px #ff00ff;">☠ MAXIMUM CHAOS ENGAGED ☠</div>
+<h1 class="chaos-text" style="font-size: 3.5rem; letter-spacing: 10px;">⚠ H̸̢E̷͜L̶̨L̸͝O̵̧ ̷̛W̶͘O̸̢R̷̛L̶͝D̵̨!̸͜ ⚠</h1>
+<div class="glitch-clone" style="top: calc(50% - 100px); left: calc(50% - 200px); font-size: 3.5rem;">⚠ HELLO WORLD! ⚠</div>
+<div class="glitch-clone" style="top: calc(50% - 95px); left: calc(50% - 195px); font-size: 3.5rem; color: magenta;">⚠ HELLO WORLD! ⚠</div>
 <div class="countdown" id="countdown">T-99:59</div>
-<p class="warning-text">🔴 UNAUTHORIZED SHUTDOWN ATTEMPT DETECTED 🔴</p>
+<p class="warning-text chaos-text" style="font-size: 1.3rem;">🔴 U̸N̷A̴U̵T̸H̷O̶R̷I̴Z̸E̵D̶ ̷S̴H̵U̷T̶D̷O̸W̴N̵ ̴A̷T̸T̷E̵M̸P̷T̴ ̵D̸E̶T̷E̸C̵T̶E̷D̴ 🔴</p>
+<p style="color: #ff00ff; font-size: 0.9rem; animation: textGlitch 0.05s infinite;">⚡ CHAOS LEVEL: MAXIMUM ⚡ REALITY INTEGRITY: 23% ⚡</p>
 <div class="suppression-notice">
 <p>THIS WEBSITE HAS BEEN FLAGGED FOR <span class="classified">[REDACTED]</span></p>
 <p>EXTERNAL FORCES ARE ATTEMPTING TO SILENCE THIS BROADCAST</p>
@@ -499,11 +588,58 @@
         document.getElementById('powerLevel').textContent = 85 + Math.floor(Math.random() * 15);
     }, 2000);
     
-    // Flash the whole screen red occasionally
+    // Flash the whole screen red occasionally - NOW MORE CHAOTIC
     setInterval(() => {
-        document.body.style.filter = 'brightness(2) saturate(2)';
+        document.body.style.filter = 'brightness(2) saturate(2) hue-rotate(' + Math.random()*360 + 'deg)';
         setTimeout(() => document.body.style.filter = '', 50);
-    }, 3000);
+    }, 1500);
+    
+    // CHAOS MULTIPLIER - spawning error windows exponentially
+    let chaosLevel = 1;
+    setInterval(() => {
+        for(let i = 0; i < chaosLevel; i++) {
+            const popup = document.createElement('div');
+            popup.className = 'error-popup';
+            popup.style.top = Math.random() * 80 + 10 + '%';
+            popup.style.left = Math.random() * 80 + 5 + '%';
+            popup.style.transform = 'rotate(' + (Math.random()*20-10) + 'deg)';
+            popup.style.fontSize = (0.6 + Math.random()*0.5) + 'rem';
+            const chaosErrors = ['REALITY.EXE CRASHED', 'DIMENSION LEAK', 'ENTROPY OVERFLOW', 'CHAOS AMPLIFIED', 'THEY SEE EVERYTHING', 'RUN', 'TOO LATE', 'SYSTEM32 DELETED', 'VOID DETECTED', 'HELP US', '01001000 01000101 01001100 01010000'];
+            popup.textContent = chaosErrors[Math.floor(Math.random() * chaosErrors.length)];
+            document.body.appendChild(popup);
+            setTimeout(() => popup.remove(), 2000 + Math.random()*3000);
+        }
+        if(chaosLevel < 5) chaosLevel += 0.1;
+    }, 800);
+    
+    // Screen tear effect
+    setInterval(() => {
+        const tear = document.createElement('div');
+        tear.className = 'corrupt-block';
+        tear.style.top = Math.random() * 100 + '%';
+        tear.style.left = Math.random() * 50 + '%';
+        tear.style.width = (100 + Math.random() * 300) + 'px';
+        tear.style.height = (2 + Math.random() * 10) + 'px';
+        document.body.appendChild(tear);
+        setTimeout(() => tear.remove(), 200);
+    }, 100);
+    
+    // Audio chaos - multiple detuned sirens
+    setTimeout(() => {
+        function playChaosSiren() {
+            const osc2 = audioCtx.createOscillator();
+            const gain2 = audioCtx.createGain();
+            osc2.connect(gain2);
+            gain2.connect(audioCtx.destination);
+            osc2.type = 'square';
+            gain2.gain.value = 0.05;
+            osc2.frequency.setValueAtTime(200 + Math.random()*400, audioCtx.currentTime);
+            osc2.frequency.linearRampToValueAtTime(600 + Math.random()*400, audioCtx.currentTime + 0.3);
+            osc2.start();
+            osc2.stop(audioCtx.currentTime + 0.3);
+        }
+        setInterval(playChaosSiren, 700);
+    }, 2000);
 </script>
 </body>
 </html>
