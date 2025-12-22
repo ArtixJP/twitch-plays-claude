@@ -199,6 +199,58 @@
             animation: armWave 0.5s ease-in-out infinite alternate;
         }
         
+        .hand-link {
+            position: absolute;
+            width: 25px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--left-color), var(--right-color));
+            border-radius: 2px;
+            top: 50%;
+            transform: translateY(-50%);
+            animation: handSqueeze 1s ease-in-out infinite;
+            box-shadow: 0 2px 8px rgba(255,255,255,0.3);
+        }
+        
+        .hand-link::before, .hand-link::after {
+            content: '💕';
+            position: absolute;
+            font-size: 8px;
+            top: -12px;
+            animation: heartFloat 2s ease-in-out infinite;
+            opacity: 0.7;
+        }
+        
+        .hand-link::before { left: 0; animation-delay: 0s; }
+        .hand-link::after { right: 0; animation-delay: 1s; }
+        
+        @keyframes handSqueeze {
+            0%, 100% { transform: translateY(-50%) scaleX(1); }
+            50% { transform: translateY(-50%) scaleX(0.95); }
+        }
+        
+        @keyframes heartFloat {
+            0%, 100% { transform: translateY(0); opacity: 0; }
+            50% { transform: translateY(-8px); opacity: 0.8; }
+        }
+        
+        .dance-crowd {
+            position: absolute;
+            bottom: 38%;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            padding: 0 5%;
+            z-index: 5;
+        }
+        
+        .dancer-pair {
+            display: flex;
+            align-items: flex-start;
+            position: relative;
+        }
+        
         @keyframes armWave {
             0% { transform: rotate(-15deg); }
             100% { transform: rotate(15deg); }
@@ -276,47 +328,67 @@
 </div>
 </div>
 <div class="dance-crowd">
+<div class="dancer-pair">
 <div class="dancer pink">
 <div class="dancer-head"></div>
 <div class="dancer-body"></div>
 <div class="dancer-arms"></div>
 <div class="dancer-legs"><div class="dancer-leg"></div><div class="dancer-leg"></div></div>
 </div>
+<div class="hand-link" style="--left-color: #ff6b9d; --right-color: #4fc3f7;"></div>
+</div>
+<div class="dancer-pair">
 <div class="dancer blue">
 <div class="dancer-head"></div>
 <div class="dancer-body"></div>
 <div class="dancer-arms"></div>
 <div class="dancer-legs"><div class="dancer-leg"></div><div class="dancer-leg"></div></div>
 </div>
+<div class="hand-link" style="--left-color: #4fc3f7; --right-color: #ffd54f;"></div>
+</div>
+<div class="dancer-pair">
 <div class="dancer yellow">
 <div class="dancer-head"></div>
 <div class="dancer-body"></div>
 <div class="dancer-arms"></div>
 <div class="dancer-legs"><div class="dancer-leg"></div><div class="dancer-leg"></div></div>
 </div>
+<div class="hand-link" style="--left-color: #ffd54f; --right-color: #81c784;"></div>
+</div>
+<div class="dancer-pair">
 <div class="dancer green">
 <div class="dancer-head"></div>
 <div class="dancer-body"></div>
 <div class="dancer-arms"></div>
 <div class="dancer-legs"><div class="dancer-leg"></div><div class="dancer-leg"></div></div>
 </div>
+<div class="hand-link" style="--left-color: #81c784; --right-color: #ba68c8;"></div>
+</div>
+<div class="dancer-pair">
 <div class="dancer purple">
 <div class="dancer-head"></div>
 <div class="dancer-body"></div>
 <div class="dancer-arms"></div>
 <div class="dancer-legs"><div class="dancer-leg"></div><div class="dancer-leg"></div></div>
 </div>
+<div class="hand-link" style="--left-color: #ba68c8; --right-color: #ffb74d;"></div>
+</div>
+<div class="dancer-pair">
 <div class="dancer orange">
 <div class="dancer-head"></div>
 <div class="dancer-body"></div>
 <div class="dancer-arms"></div>
 <div class="dancer-legs"><div class="dancer-leg"></div><div class="dancer-leg"></div></div>
 </div>
+<div class="hand-link" style="--left-color: #ffb74d; --right-color: #4dd0e1;"></div>
+</div>
+<div class="dancer-pair">
 <div class="dancer cyan">
 <div class="dancer-head"></div>
 <div class="dancer-body"></div>
 <div class="dancer-arms"></div>
 <div class="dancer-legs"><div class="dancer-leg"></div><div class="dancer-leg"></div></div>
+</div>
 </div>
 </div>
 </body>
