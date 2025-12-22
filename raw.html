@@ -25,6 +25,12 @@ body { font-family: 'Courier New', monospace; overflow: hidden; background: #1a0
     color: #ffd700; text-shadow: 0 0 10px #ff8c00;
 }
 .hud h1 { font-size: 1.2rem; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
+.mining-stats { font-size: 0.8rem; color: #f7931a; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255, 200, 100, 0.3); text-shadow: 0 0 8px #f7931a; }
+.mining-node { position: absolute; z-index: 120; animation: node-pulse 1.5s ease-in-out infinite; filter: drop-shadow(0 0 10px #f7931a); font-size: 1.5rem; cursor: pointer; }
+@keyframes node-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+.mining-particles { position: absolute; pointer-events: none; z-index: 125; }
+.mine-particle { position: absolute; font-size: 0.8rem; animation: particle-fly 1s ease-out forwards; }
+@keyframes particle-fly { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-30px) scale(0.5); } }
 .btc-icon {
     width: 24px; height: 24px; background: linear-gradient(135deg, #f7931a, #ffb84d);
     border-radius: 50%; display: flex; align-items: center; justify-content: center;
@@ -276,6 +282,7 @@ body { font-family: 'Courier New', monospace; overflow: hidden; background: #1a0
 <h1><span class="btc-icon">₿</span> BEACH BAR</h1>
 <div class="price" id="price">$67,432</div>
 <div class="change" id="change">▲ +2.34%</div>
+<div class="mining-stats">⛏️ Mined: <span id="btc-mined">0.000</span> BTC</div>
 </div>
 <div class="commands-menu">
 <span class="cmd-title">⚡ VILLAGER COMMANDS</span>
@@ -321,6 +328,7 @@ body { font-family: 'Courier New', monospace; overflow: hidden; background: #1a0
 <div class="roster-item luna">🛒 Luna <span>Market Vendor</span></div>
 <div class="roster-item max">🏊 Max <span>Lifeguard</span></div>
 <div class="roster-item zara">₿ Zara <span>BTC Evangelist</span></div>
+<div class="roster-item miner" style="background: rgba(139, 69, 19, 0.3);">⛏️ Pickaxe Pete <span>Miner</span></div>
 </div>
 <div class="audio-indicator" id="audio-toggle">🌊 Ocean Waves</div>
 <div class="abduction-status" id="abduction-status">
@@ -1559,6 +1567,151 @@ setInterval(() => {
 // Global commands for chat integration
 window.triggerDance = triggerDance;
 window.triggerWar = triggerWar;
+
+// ========== BITCOIN MINING SYSTEM ==========
+let totalBTCMined = 0;
+let miningNodes = [];
+let minerTarget = null;
+
+// Create Pickaxe Pete - The Miner
+const pete = createVillager(0x8b4513, 0xffd700, 'miner');
+pete.position.set(-8, 0, 30);
+scene.add(pete);
+
+let peteTargetNode = null;
+let peteMining = false;
+let peteMiningProgress = 0;
+
+// Mining node 3D object
+function create3DMiningNode(x, z) {
+    const g = new THREE.Group();
+    // Gold/Bitcoin ore rock
+    const rock = new THREE.Mesh(
+        new THREE.DodecahedronGeometry(0.4, 0),
+        new THREE.MeshPhongMaterial({ color: 0xf7931a, emissive: 0xf7931a, emissiveIntensity: 0.3 })
+    );
+    rock.position.y = 0.4;
+    g.add(rock);
+    // Sparkle particles around it
+    for (let i = 0; i < 5; i++) {
+        const spark = new THREE.Mesh(
+            new THREE.SphereGeometry(0.08, 6, 6),
+            new THREE.MeshBasicMaterial({ color: 0xffdd00 })
+        );
+        spark.position.set(
+            Math.cos(i * Math.PI * 2 / 5) * 0.5,
+            0.3 + Math.random() * 0.3,
+            Math.sin(i * Math.PI * 2 / 5) * 0.5
+        );
+        spark.userData.phase = i;
+        g.add(spark);
+    }
+    g.position.set(x, 0, z);
+    g.userData = { btcValue: 0.001 + Math.random() * 0.005, mined: false };
+    return g;
+}
+
+// Spawn mining nodes periodically
+function spawnMiningNode() {
+    if (miningNodes.length >= 5) return; // Max 5 nodes at once
+    const x = -10 + Math.random() * 20;
+    const z = 22 + Math.random() * 12;
+    const node = create3DMiningNode(x, z);
+    scene.add(node);
+    miningNodes.push(node);
+    console.log('⛏️ New mining node spawned!');
+}
+
+// Initial nodes
+setTimeout(() => spawnMiningNode(), 2000);
+setTimeout(() => spawnMiningNode(), 4000);
+
+// Spawn new nodes every 8-15 seconds
+setInterval(() => {
+    if (Math.random() > 0.3) spawnMiningNode();
+}, 10000);
+
+// Pete's mining AI
+function updatePeteMiner(t) {
+    if (peteMining) {
+        // Mining animation - shake and progress
+        pete.rotation.y += 0.3;
+        pete.position.y = Math.abs(Math.sin(t * 15)) * 0.15;
+        peteMiningProgress += 0.02;
+        
+        if (peteMiningProgress >= 1 && peteTargetNode) {
+            // Mining complete!
+            const btcGained = peteTargetNode.userData.btcValue;
+            totalBTCMined += btcGained;
+            document.getElementById('btc-mined').textContent = totalBTCMined.toFixed(3);
+            
+            // Remove the node
+            scene.remove(peteTargetNode);
+            miningNodes = miningNodes.filter(n => n !== peteTargetNode);
+            
+            console.log(`⛏️ Pete mined ${btcGained.toFixed(4)} BTC!`);
+            
+            peteMining = false;
+            peteTargetNode = null;
+            peteMiningProgress = 0;
+        }
+    } else {
+        // Look for nearest unmined node
+        let nearestNode = null;
+        let nearestDist = Infinity;
+        
+        miningNodes.forEach(node => {
+            if (!node.userData.mined) {
+                const dist = pete.position.distanceTo(node.position);
+                if (dist < nearestDist) {
+                    nearestDist = dist;
+                    nearestNode = node;
+                }
+            }
+        });
+        
+        if (nearestNode) {
+            if (nearestDist < 1.5) {
+                // Start mining!
+                peteMining = true;
+                peteTargetNode = nearestNode;
+                peteMiningProgress = 0;
+            } else {
+                // Walk towards node
+                const dir = new THREE.Vector3().subVectors(nearestNode.position, pete.position).normalize();
+                pete.position.x += dir.x * 0.05;
+                pete.position.z += dir.z * 0.05;
+                pete.rotation.y = Math.atan2(dir.x, dir.z);
+                
+                // Walking animation
+                const walkCycle = t * 8;
+                pete.userData.leftLeg.rotation.x = Math.sin(walkCycle) * 0.5;
+                pete.userData.rightLeg.rotation.x = Math.sin(walkCycle + Math.PI) * 0.5;
+                pete.position.y = Math.abs(Math.sin(walkCycle)) * 0.05;
+            }
+        } else {
+            // Idle patrol when no nodes
+            pete.position.x = -8 + Math.sin(t * 0.5) * 3;
+            pete.position.z = 30 + Math.cos(t * 0.3) * 2;
+        }
+    }
+    
+    // Animate mining nodes
+    miningNodes.forEach(node => {
+        node.rotation.y += 0.02;
+        node.children.forEach((child, i) => {
+            if (child.userData.phase !== undefined) {
+                child.position.y = 0.3 + Math.sin(t * 3 + child.userData.phase) * 0.15;
+            }
+        });
+    });
+}
+
+// Patch into animation loop
+const _origAnimLoop = animate;
+setInterval(() => {
+    updatePeteMiner(Date.now() * 0.001);
+}, 50);
 
 // AUTO-START WAR - Community demanded battle!
 setTimeout(() => {
