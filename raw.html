@@ -65,6 +65,34 @@
             font-size: 2rem;
             z-index: 400;
         }
+        .speech-bubble {
+            position: absolute;
+            background: white;
+            border-radius: 15px;
+            padding: 10px 15px;
+            font-family: 'Comic Sans MS', cursive;
+            font-size: 0.9rem;
+            max-width: 200px;
+            box-shadow: 3px 3px 10px rgba(0,0,0,0.3);
+            z-index: 250;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 20px;
+            border-width: 10px 10px 0;
+            border-style: solid;
+            border-color: white transparent transparent;
+        }
+        .speech-bubble.rick { border: 3px solid #97E5E5; }
+        .speech-bubble.morty { border: 3px solid #FFFF00; }
+        .speech-bubble.summer { border: 3px solid #5DADE2; }
+        .speech-bubble.beth { border: 3px solid #FFC0CB; }
+        .speech-bubble.jerry { border: 3px solid #2E8B57; }
     </style>
 </head>
 <body>
@@ -73,6 +101,11 @@
 <div id="gag-text"></div>
 <p class="instruction">Type <code>!idea your idea</code> in chat to modify the show!</p>
 <div id="loading" style="display:none;">Opening Portal to Dimension C-137...</div>
+<div class="speech-bubble rick" id="speech-rick"></div>
+<div class="speech-bubble morty" id="speech-morty"></div>
+<div class="speech-bubble summer" id="speech-summer"></div>
+<div class="speech-bubble beth" id="speech-beth"></div>
+<div class="speech-bubble jerry" id="speech-jerry"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
         // Audio setup
@@ -539,6 +572,101 @@
         let animationTime = 0;
         let episodeCount = 0;
         
+        // Speech synthesis setup
+        const synth = window.speechSynthesis;
+        const voices = {
+            rick: { pitch: 0.8, rate: 1.3 },
+            morty: { pitch: 1.4, rate: 1.1 },
+            summer: { pitch: 1.3, rate: 1.0 },
+            beth: { pitch: 1.2, rate: 0.95 },
+            jerry: { pitch: 0.9, rate: 0.85 }
+        };
+        
+        const dialogues = {
+            rick: [
+                "Morty! *burp* We gotta go, Morty!",
+                "I'm pickle Riiick! Wait, no I'm not.",
+                "Wubba lubba dub dub!",
+                "Science isn't about WHY, it's about WHY NOT!",
+                "I turned myself into a couch potato, Morty!",
+                "The universe is basically an animal. It grazes on the ordinary.",
+                "Nobody exists on purpose. Watch TV."
+            ],
+            morty: [
+                "Aw geez, Rick!",
+                "I-I don't know about this, Rick!",
+                "Oh man, oh geez, oh man!",
+                "This is getting out of hand!",
+                "Rick, I don't think this is a good idea!",
+                "W-what are we even doing here, Rick?",
+                "I'm in constant pain, Rick!"
+            ],
+            summer: [
+                "Ugh, you guys are so embarrassing.",
+                "This is literally the worst.",
+                "I can't even right now.",
+                "Mom! Grandpa's being weird again!",
+                "Whatever, I'm going to my room.",
+                "This family is SO dysfunctional."
+            ],
+            beth: [
+                "Dad, please don't traumatize the kids.",
+                "I'm a horse surgeon, not a therapist.",
+                "Wine. I need wine.",
+                "Jerry, this is your fault somehow.",
+                "I'm the smart one in this family.",
+                "At least I'm not Jerry."
+            ],
+            jerry: [
+                "Can someone explain what's happening?",
+                "I think I'm contributing!",
+                "Nobody respects me in this house.",
+                "I have a job interview... in my dreams.",
+                "This is fine. Everything is fine.",
+                "I'm not useless! I can... uh...",
+                "Pluto IS a planet!"
+            ]
+        };
+        
+        function speak(character, text) {
+            if (synth.speaking) return;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.pitch = voices[character].pitch;
+            utterance.rate = voices[character].rate;
+            utterance.volume = 0.7;
+            synth.speak(utterance);
+        }
+        
+        function showSpeechBubble(character, index) {
+            const charNames = ['rick', 'morty', 'summer', 'beth', 'jerry'];
+            const name = charNames[index];
+            const bubble = document.getElementById('speech-' + name);
+            const text = dialogues[name][Math.floor(Math.random() * dialogues[name].length)];
+            
+            bubble.textContent = text;
+            bubble.style.opacity = '1';
+            
+            // Position based on character screen position
+            const positions = [
+                { left: '15%', top: '35%' },
+                { left: '30%', top: '40%' },
+                { left: '45%', top: '38%' },
+                { left: '60%', top: '42%' },
+                { left: '75%', top: '36%' }
+            ];
+            bubble.style.left = positions[index].left;
+            bubble.style.top = positions[index].top;
+            
+            speak(name, text);
+            
+            setTimeout(() => {
+                bubble.style.opacity = '0';
+            }, 3000);
+        }
+        
+        let dialogueTimer = 0;
+        let lastSpeaker = -1;
+        
         const couchGags = [
             { text: "Wubba lubba dub dub!", action: 'normal' },
             { text: "Rick portal-hops through dimensions!", action: 'bounce' },
@@ -588,6 +716,13 @@
             camera.lookAt(0, 5, 0);
             
             currentGag = couchGags[Math.floor(Math.random() * couchGags.length)];
+            
+            // Reset dialogue
+            dialogueTimer = 0;
+            lastSpeaker = -1;
+            ['rick', 'morty', 'summer', 'beth', 'jerry'].forEach(name => {
+                document.getElementById('speech-' + name).style.opacity = '0';
+            });
             
             // Reset pentagram and satan
             if (window.pentagramGroup) {
@@ -663,6 +798,16 @@
                     gagStartTime += 0.016;
                     document.getElementById('gag-text').textContent = currentGag.text;
                     document.getElementById('gag-text').style.opacity = '1';
+                    
+                    // Trigger random dialogue
+                    dialogueTimer += 0.016;
+                    if (dialogueTimer > 2.5) {
+                        let speaker = Math.floor(Math.random() * 5);
+                        while (speaker === lastSpeaker) speaker = Math.floor(Math.random() * 5);
+                        lastSpeaker = speaker;
+                        showSpeechBubble(family[speaker], speaker);
+                        dialogueTimer = 0;
+                    }
                     
                     applyGag(currentGag.action, gagStartTime);
                 }
