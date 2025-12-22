@@ -1,11 +1,12 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Twitch plays Claude</title>
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Twitch plays Claude</title>
+<style>
         body { 
             font-family: system-ui, sans-serif; 
             display: flex; 
@@ -14,8 +15,137 @@
             align-items: center; 
             min-height: 100vh; 
             margin: 0;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0a2342 100%);
             color: white;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .ocean {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            background: linear-gradient(180deg, transparent 0%, #0a3d62 30%, #1e5f74 100%);
+            overflow: hidden;
+        }
+        
+        .wave {
+            position: absolute;
+            width: 200%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120'%3E%3Cpath fill='%23ffffff15' d='M0,60 C300,100 400,20 600,60 C800,100 900,20 1200,60 L1200,120 L0,120 Z'/%3E%3C/svg%3E") repeat-x;
+            background-size: 600px 100%;
+            animation: wave 8s linear infinite;
+        }
+        
+        .wave:nth-child(2) {
+            opacity: 0.5;
+            animation-delay: -2s;
+            animation-duration: 10s;
+        }
+        
+        @keyframes wave {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        
+        .walker {
+            position: absolute;
+            bottom: 35%;
+            animation: walk 15s linear infinite;
+        }
+        
+        @keyframes walk {
+            0% { left: -80px; }
+            100% { left: 100%; }
+        }
+        
+        .walker-body {
+            width: 40px;
+            height: 70px;
+            position: relative;
+        }
+        
+        .walker-head {
+            width: 18px;
+            height: 18px;
+            background: #2c3e50;
+            border-radius: 50%;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .walker-torso {
+            width: 4px;
+            height: 25px;
+            background: #2c3e50;
+            position: absolute;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .walker-leg {
+            width: 4px;
+            height: 25px;
+            background: #2c3e50;
+            position: absolute;
+            top: 38px;
+            transform-origin: top center;
+        }
+        
+        .walker-leg.left {
+            left: 14px;
+            animation: legSwing 0.6s ease-in-out infinite;
+        }
+        
+        .walker-leg.right {
+            left: 22px;
+            animation: legSwing 0.6s ease-in-out infinite reverse;
+        }
+        
+        @keyframes legSwing {
+            0%, 100% { transform: rotate(-20deg); }
+            50% { transform: rotate(20deg); }
+        }
+        
+        .walker-arm {
+            width: 3px;
+            height: 20px;
+            background: #2c3e50;
+            position: absolute;
+            top: 18px;
+            transform-origin: top center;
+        }
+        
+        .walker-arm.left {
+            left: 10px;
+            animation: armSwing 0.6s ease-in-out infinite reverse;
+        }
+        
+        .walker-arm.right {
+            left: 27px;
+            animation: armSwing 0.6s ease-in-out infinite;
+        }
+        
+        @keyframes armSwing {
+            0%, 100% { transform: rotate(-30deg); }
+            50% { transform: rotate(30deg); }
+        }
+        
+        .walker-reflection {
+            position: absolute;
+            bottom: -15px;
+            left: 0;
+            width: 40px;
+            height: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            filter: blur(3px);
         }
         h1 { font-size: 3rem; text-align: center; margin-bottom: 1rem; }
         .instruction {
@@ -36,10 +166,25 @@
     </style>
 </head>
 <body>
-    <h1>Hello World!</h1>
-    <p class="instruction">
-        Type <code>!idea &lt;your idea&gt;</code> in the Twitch chat to add to this page.<br>
+<h1>Hello World!</h1>
+<p class="instruction">
+        Type <code>!idea &lt;your idea&gt;</code> in the Twitch chat to add to this page.<br/>
         Example: <code>!idea Add a space cat floating in the background</code>
-    </p>
+</p>
+<div class="ocean">
+<div class="wave"></div>
+<div class="wave"></div>
+</div>
+<div class="walker">
+<div class="walker-body">
+<div class="walker-head"></div>
+<div class="walker-torso"></div>
+<div class="walker-arm left"></div>
+<div class="walker-arm right"></div>
+<div class="walker-leg left"></div>
+<div class="walker-leg right"></div>
+<div class="walker-reflection"></div>
+</div>
+</div>
 </body>
 </html>
