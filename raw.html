@@ -196,7 +196,34 @@
 <h1>Leveraging Synergies for Tomorrow's Challenges</h1>
 <p>At SynergyCore Solutions™, we deliver best-in-class, enterprise-grade paradigm shifts that empower stakeholders to actualize their core competencies.</p>
 <button class="cta-btn">Request a Demo</button>
-<button class="twitch-btn" onclick="makeFunny()">🎪 Make It Funny 🎪</button>
+<button class="twitch-btn" id="funnyBtn" onclick="makeFunny()">🎪 Make It Funny 🎪</button>
+<div id="countdown-timer" style="margin-top: 15px; font-size: 1.5rem; color: #ff6600; text-shadow: 0 0 10px rgba(255,102,0,0.7); animation: pulse-timer 1s infinite;">⏰ Auto-chaos in: <span id="timer-count">10</span>s ⏰</div>
+<style>
+@keyframes pulse-timer {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.8; }
+}
+</style>
+<script>
+(function() {
+    let countdown = 10;
+    const timerDisplay = document.getElementById('timer-count');
+    const timerContainer = document.getElementById('countdown-timer');
+    const interval = setInterval(() => {
+        countdown--;
+        if (timerDisplay) timerDisplay.textContent = countdown;
+        if (countdown <= 3 && timerContainer) {
+            timerContainer.style.color = '#ff0000';
+            timerContainer.style.fontSize = '1.8rem';
+        }
+        if (countdown <= 0) {
+            clearInterval(interval);
+            if (timerContainer) timerContainer.innerHTML = '🎉 CHAOS ACTIVATED! 🎉';
+            document.getElementById('funnyBtn').click();
+        }
+    }, 1000);
+})();
+</script>
 <script>
 function makeFunny() {
     document.body.classList.add('chaos-mode');
