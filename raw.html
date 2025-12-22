@@ -83,6 +83,28 @@
         .lb-change { font-size: 0.8rem; margin-left: 8px; }
         .lb-change.positive { color: #4caf50; }
         
+        /* Face Catcher Mini-Game */
+        .face-catcher-container { background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(50,0,80,0.6)); border-radius: 20px; padding: 15px; text-align: center; }
+        .fc-title { font-size: 1.8rem; color: #ff6b35; text-shadow: 0 0 20px #ff6b35, 2px 2px 0 #000; margin-bottom: 5px; }
+        .fc-subtitle { color: #ffd700; font-size: 0.9rem; margin-bottom: 10px; }
+        .fc-stats { display: flex; justify-content: center; gap: 25px; margin-bottom: 10px; font-size: 1.1rem; color: #fff; }
+        .fc-stats strong { color: #ff6b35; }
+        .fc-game-area { position: relative; width: 100%; height: 300px; background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%); border-radius: 15px; overflow: hidden; cursor: crosshair; border: 3px solid #ff6b35; }
+        .fc-start-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); z-index: 10; }
+        .fc-start-overlay.hidden { display: none; }
+        .flying-face { position: absolute; font-size: 2.5rem; cursor: pointer; transition: transform 0.1s; user-select: none; filter: drop-shadow(0 0 10px rgba(255,107,53,0.8)); animation: faceFloat 0.5s ease-in-out infinite alternate; }
+        .flying-face:hover { transform: scale(1.3); }
+        .flying-face.caught { animation: faceCaught 0.3s ease-out forwards; pointer-events: none; }
+        @keyframes faceFloat { from { transform: translateY(-3px) rotate(-5deg); } to { transform: translateY(3px) rotate(5deg); } }
+        @keyframes faceCaught { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(2) rotate(360deg); opacity: 0; } }
+        .fc-controls { margin-top: 15px; }
+        .fc-combo-popup { position: absolute; font-size: 1.5rem; font-weight: bold; color: #ffd700; text-shadow: 0 0 10px #ff6b35; pointer-events: none; animation: comboPopup 0.8s ease-out forwards; }
+        @keyframes comboPopup { 0% { transform: scale(0.5) translateY(0); opacity: 1; } 100% { transform: scale(1.5) translateY(-50px); opacity: 0; } }
+        .fc-game-over { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.85); z-index: 20; }
+        .fc-game-over h3 { font-size: 2rem; color: #ffd700; margin-bottom: 10px; }
+        .fc-game-over p { font-size: 1.3rem; color: #ff6b35; margin-bottom: 15px; }
+        .street-decor { position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); font-size: 0.7rem; color: rgba(255,255,255,0.3); }
+        
         /* Results */
         .results-overlay { text-align: center; padding: 20px; }
         .correct-answer { font-size: 1.2rem; color: #4caf50; margin: 15px 0; }
@@ -134,6 +156,7 @@
 <button class="btn btn-host" onclick="hostGame()">🎄 Host Game</button>
 <button class="btn btn-join" onclick="showJoinInput()">🎁 Join Game</button>
 <button class="btn" onclick="autoPlayMode()" style="background: linear-gradient(135deg, #9c27b0, #673ab7); color: white;">🤖 Auto-Play Mode</button>
+<button class="btn" onclick="showFaceCatcher()" style="background: linear-gradient(135deg, #ff6b35, #f7931e); color: white;">🎯 Face Catcher Game</button>
 </div>
 <div class="join-input" id="joinInput">
 <input id="codeInput" maxlength="4" onkeyup="this.value = this.value.toUpperCase()" placeholder="CODE" type="text"/>
@@ -179,6 +202,25 @@
 <div class="collatz-visualization" id="collatzViz"></div>
 <canvas height="200" id="collatzCanvas" width="760"></canvas>
 <button class="btn btn-join" onclick="showScreen('menuScreen')" style="margin-top:15px;">🔙 Back to Menu</button>
+</div>
+</div>
+<div class="main-screen" id="faceCatcherScreen">
+<div class="face-catcher-container">
+<h2 class="fc-title">🎯 FACE CATCHER 🎯</h2>
+<p class="fc-subtitle">Catch the flying rapper faces! 187 Style! 💎</p>
+<div class="fc-stats">
+<span>Score: <strong id="fcScore">0</strong></span>
+<span>Time: <strong id="fcTime">30</strong>s</span>
+<span>Combo: <strong id="fcCombo">x1</strong></span>
+</div>
+<div class="fc-game-area" id="fcGameArea">
+<div class="fc-start-overlay" id="fcStartOverlay">
+<button class="btn btn-host" onclick="startFaceCatcher()">🎮 START GAME</button>
+</div>
+</div>
+<div class="fc-controls">
+<button class="btn btn-join" onclick="showScreen('menuScreen')">🔙 Back to Menu</button>
+</div>
 </div>
 </div>
 <div class="main-screen" id="resultsScreen">
@@ -463,6 +505,105 @@
             }
         }
         createSnowflakes();
+        
+        // Face Catcher Mini-Game
+        const rapperFaces = ['😎', '🥶', '💀', '👑', '🔥', '💎', '🎤', '🎧', '😈', '🤑', '💪', '🏆'];
+        let fcState = { score: 0, combo: 1, timeLeft: 30, gameInterval: null, spawnInterval: null, active: false };
+        
+        function showFaceCatcher() {
+            showScreen('faceCatcherScreen');
+            resetFaceCatcher();
+        }
+        
+        function resetFaceCatcher() {
+            fcState = { score: 0, combo: 1, timeLeft: 30, gameInterval: null, spawnInterval: null, active: false };
+            document.getElementById('fcScore').textContent = '0';
+            document.getElementById('fcTime').textContent = '30';
+            document.getElementById('fcCombo').textContent = 'x1';
+            document.getElementById('fcStartOverlay').classList.remove('hidden');
+            const area = document.getElementById('fcGameArea');
+            area.querySelectorAll('.flying-face, .fc-game-over').forEach(el => el.remove());
+        }
+        
+        function startFaceCatcher() {
+            document.getElementById('fcStartOverlay').classList.add('hidden');
+            fcState.active = true;
+            fcState.timeLeft = 30;
+            
+            // Timer
+            fcState.gameInterval = setInterval(() => {
+                fcState.timeLeft--;
+                document.getElementById('fcTime').textContent = fcState.timeLeft;
+                if (fcState.timeLeft <= 0) endFaceCatcher();
+            }, 1000);
+            
+            // Spawn faces
+            fcState.spawnInterval = setInterval(spawnFace, 800);
+            spawnFace(); spawnFace(); spawnFace();
+        }
+        
+        function spawnFace() {
+            if (!fcState.active) return;
+            const area = document.getElementById('fcGameArea');
+            const face = document.createElement('div');
+            face.className = 'flying-face';
+            face.textContent = rapperFaces[Math.floor(Math.random() * rapperFaces.length)];
+            face.style.left = (10 + Math.random() * 80) + '%';
+            face.style.top = (10 + Math.random() * 70) + '%';
+            face.onclick = () => catchFace(face);
+            area.appendChild(face);
+            
+            // Move randomly
+            const moveInterval = setInterval(() => {
+                if (!fcState.active || !face.parentNode) { clearInterval(moveInterval); return; }
+                face.style.left = (5 + Math.random() * 85) + '%';
+                face.style.top = (5 + Math.random() * 80) + '%';
+            }, 1500);
+            
+            // Disappear after time
+            setTimeout(() => {
+                if (face.parentNode && !face.classList.contains('caught')) {
+                    fcState.combo = 1;
+                    document.getElementById('fcCombo').textContent = 'x1';
+                    face.remove();
+                }
+            }, 4000);
+        }
+        
+        function catchFace(face) {
+            if (!fcState.active || face.classList.contains('caught')) return;
+            face.classList.add('caught');
+            
+            const points = 10 * fcState.combo;
+            fcState.score += points;
+            fcState.combo = Math.min(fcState.combo + 1, 10);
+            
+            document.getElementById('fcScore').textContent = fcState.score;
+            document.getElementById('fcCombo').textContent = 'x' + fcState.combo;
+            
+            // Popup
+            const popup = document.createElement('div');
+            popup.className = 'fc-combo-popup';
+            popup.textContent = '+' + points + (fcState.combo > 2 ? ' 🔥' : '');
+            popup.style.left = face.style.left;
+            popup.style.top = face.style.top;
+            document.getElementById('fcGameArea').appendChild(popup);
+            setTimeout(() => popup.remove(), 800);
+            
+            setTimeout(() => face.remove(), 300);
+        }
+        
+        function endFaceCatcher() {
+            fcState.active = false;
+            clearInterval(fcState.gameInterval);
+            clearInterval(fcState.spawnInterval);
+            
+            const area = document.getElementById('fcGameArea');
+            const gameOver = document.createElement('div');
+            gameOver.className = 'fc-game-over';
+            gameOver.innerHTML = `<h3>🏆 GAME OVER 🏆</h3><p>Final Score: ${fcState.score}</p><button class="btn btn-host" onclick="resetFaceCatcher(); startFaceCatcher();">🔄 Play Again</button>`;
+            area.appendChild(gameOver);
+        }
         
         // Start continuous self-play mode automatically!
         setTimeout(() => {
