@@ -172,7 +172,7 @@
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setClearColor(0x000011); // Deep space background
+        renderer.setClearColor(0x87ceeb); // Bright sky blue - lights on everywhere
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -184,16 +184,16 @@
         
         // Advanced Lighting System
         // Photorealistic Lighting Setup
-        const ambientLight = new THREE.AmbientLight(0x404060, 0.15);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); // Bright ambient - lights on everywhere
         scene.add(ambientLight);
         
         // Hemisphere light for natural sky/ground bounce
-        const hemiLight = new THREE.HemisphereLight(0x6688cc, 0x224422, 0.4);
+        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x88aa88, 1.0); // Bright hemisphere light
         hemiLight.position.set(0, 50, 0);
         scene.add(hemiLight);
         
         // Main key light - simulating sun/studio light
-        const directionalLight = new THREE.DirectionalLight(0xfffaf0, 2.0);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 3.0); // Super bright sun
         directionalLight.position.set(10, 25, 15);
         directionalLight.castShadow = true;
         directionalLight.shadow.mapSize.width = 4096;
@@ -631,9 +631,9 @@
         maggie.add(jerryHair);
         
         const family = [homer, marge, bart, lisa, maggie];
-        family.forEach(char => {
-            char.position.set(20, 0, 0);
-            char.visible = false;
+        family.forEach((char, i) => {
+            char.position.set(-2 + i * 2, 0, 0);
+            char.visible = true; // Always visible - continuous scene
             scene.add(char);
         });
         
@@ -911,7 +911,7 @@
         // Reference livingRoom as fortniteMap for compatibility
         const livingRoom = fortniteMap;
         livingRoom.position.set(0, 0, 50);
-        livingRoom.visible = false;
+        livingRoom.visible = true; // Always visible - continuous scene
         scene.add(livingRoom);
         
         // Pentagram and Satan summoning ritual
@@ -1061,7 +1061,8 @@
         pentagramGroup.add(satan);
         
         pentagramGroup.position.set(0, -0.4, 48);
-        pentagramGroup.visible = false;
+        pentagramGroup.visible = true; // Always visible - continuous scene
+        satan.visible = true; // Satan always visible too
         scene.add(pentagramGroup);
         
         // Store references for animation
@@ -1143,7 +1144,7 @@
         helicopter.add(rightSkid);
         
         helicopter.position.set(0, 25, 45);
-        helicopter.visible = false;
+        helicopter.visible = true; // Always visible - continuous scene
         scene.add(helicopter);
         
         // Parachutes for each family member
@@ -1236,7 +1237,7 @@
         }
         
         // Animation state
-        let phase = 'clouds';
+        let phase = 'continuous'; // Single continuous scene mode
         let animationTime = 0;
         let episodeCount = 0;
         
@@ -1422,8 +1423,54 @@
                 if (cloud.position.x < -35) cloud.position.x = 35;
             });
             
-            // Phase-based animation
-            if (phase === 'clouds') {
+            // CONTINUOUS SCENE MODE - Everything runs together
+            if (phase === 'continuous') {
+                // Smooth camera orbit around the entire scene
+                const orbitRadius = 80;
+                const orbitSpeed = 0.1;
+                camera.position.x = Math.cos(animationTime * orbitSpeed) * orbitRadius;
+                camera.position.z = Math.sin(animationTime * orbitSpeed) * orbitRadius + 25;
+                camera.position.y = 30 + Math.sin(animationTime * 0.2) * 10;
+                camera.lookAt(0, 5, 25);
+                
+                // Animate family dancing
+                family.forEach((char, i) => {
+                    char.position.y = 0.5 + Math.abs(Math.sin(animationTime * 4 + i)) * 0.5;
+                    char.rotation.y = Math.sin(animationTime * 2 + i) * 0.3;
+                });
+                
+                // Animate helicopter
+                if (window.helicopter) {
+                    window.helicopter.position.x = Math.sin(animationTime * 0.3) * 20;
+                    window.helicopter.position.z = 45 + Math.cos(animationTime * 0.3) * 10;
+                    window.rotorBlades.rotation.y += 0.5;
+                    window.tailRotor.rotation.y += 0.8;
+                }
+                
+                // Satan floats menacingly
+                if (window.satan) {
+                    window.satan.position.y = 1 + Math.sin(animationTime * 1.5) * 0.5;
+                    window.satan.rotation.y = animationTime * 0.3;
+                }
+                
+                // Fire pillars flicker
+                if (window.firePillars) {
+                    window.firePillars.forEach((fire, i) => {
+                        fire.children[0].scale.y = 1 + Math.sin(animationTime * 10 + i) * 0.3;
+                    });
+                }
+                
+                // Battle bus circles
+                if (window.battleBus) {
+                    window.battleBus.position.x = Math.cos(animationTime * 0.2) * 100;
+                    window.battleBus.position.z = Math.sin(animationTime * 0.2) * 100;
+                }
+                
+                // Rift spins
+                if (window.rift) {
+                    window.rift.rotation.z = animationTime * 0.5;
+                }
+            } else if (phase === 'clouds') {
                 // Title flies through clouds
                 titleGroup.position.z += 0.3;
                 titleGroup.position.y = 8 + Math.sin(animationTime * 2) * 0.5;
@@ -1489,9 +1536,8 @@
                     applyGag(currentGag.action, gagStartTime);
                 }
                 
-                if (animationTime > 7) {
-                    startEpisode();
-                }
+                // Continuous scene - no episode restart
+                // Scene keeps running forever
             }
             
             // Animate advanced effects
@@ -1855,7 +1901,9 @@
         // Start
         document.getElementById('loading').style.display = 'none';
         animate();
-        setTimeout(startEpisode, 1000);
+        // Continuous scene - no episode restart needed
+        console.log('Continuous scene mode active - lights on everywhere!');
+        playTheme(); // Play theme once
     </script>
 </body>
 </html>
