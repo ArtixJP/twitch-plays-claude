@@ -72,11 +72,16 @@
 <div id="episode-counter">Episode: <span id="ep-num">1</span></div>
 <div id="gag-text"></div>
 <p class="instruction">Type <code>!idea your idea</code> in chat to modify the show!</p>
-<div id="loading">Opening Portal to Dimension C-137...</div>
+<div id="loading" style="display:none;">Opening Portal to Dimension C-137...</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
         // Audio setup
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        const noteFreqs = {
+            'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23, 'F#4': 369.99, 'G4': 392.00, 'A4': 440.00, 'A#4': 466.16,
+            'C5': 523.25, 'E5': 659.25, 'F#5': 739.99, 'G5': 783.99, 'A5': 880.00
+        };
         
         const melody = [
             {note: 'E4', duration: 0.2}, {note: 'G4', duration: 0.2}, {note: 'A4', duration: 0.4},
@@ -84,14 +89,6 @@
             {note: 'E4', duration: 0.2}, {note: 'G4', duration: 0.2}, {note: 'A4', duration: 0.4},
             {note: 'G4', duration: 0.2}, {note: 'E4', duration: 0.6}
         ];
-        
-        // Add A#4 to frequencies
-        noteFreqs['A#4'] = 466.16;
-        
-        const noteFreqs = {
-            'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23, 'F#4': 369.99, 'G4': 392.00, 'A4': 440.00,
-            'C5': 523.25, 'E5': 659.25, 'F#5': 739.99, 'G5': 783.99, 'A5': 880.00
-        };
         
         function playNote(freq, startTime, duration) {
             const osc = audioCtx.createOscillator();
