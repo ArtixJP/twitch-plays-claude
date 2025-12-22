@@ -207,6 +207,7 @@
 <div>Position: <span id="pos">0, 0, 0</span></div>
 <div>Blocks: <span id="block-count">0</span></div>
 <div>Characters: <span id="char-count">21</span> 🧑‍🌾🐑🐷🧙🍄</div>
+<div>Buildings: <span id="building-count">3</span> 🏠🍔⛲</div>
 </div>
 <div id="mode-indicator">🤖 AUTO-EXPLORE MODE</div>
 <div id="crosshair"></div>
@@ -269,6 +270,11 @@
             snow: new THREE.MeshLambertMaterial({ color: 0xFFFFFF }),
             coal: new THREE.MeshLambertMaterial({ color: 0x2C2C2C }),
             gold: new THREE.MeshLambertMaterial({ color: 0xFFD700 }),
+            brick: new THREE.MeshLambertMaterial({ color: 0xB22222 }),
+            glass: new THREE.MeshLambertMaterial({ color: 0x87CEEB, transparent: true, opacity: 0.6 }),
+            roof: new THREE.MeshLambertMaterial({ color: 0x8B0000 }),
+            sign: new THREE.MeshLambertMaterial({ color: 0xFFFFE0 }),
+            fountain: new THREE.MeshLambertMaterial({ color: 0xD3D3D3 }),
         };
 
         const blockGeometry = new THREE.BoxGeometry(1, 1, 1);
@@ -352,6 +358,165 @@
         }
 
         document.getElementById('block-count').textContent = blockCount;
+
+        // === RESTAURANTS ===
+        function createRestaurant(baseX, baseZ, name, signColor) {
+            const terrainY = Math.floor(noise(baseX, baseZ)) + 6;
+            
+            // Foundation and floor
+            for (let x = -3; x <= 3; x++) {
+                for (let z = -3; z <= 3; z++) {
+                    createBlock(baseX + x, terrainY, baseZ + z, materials.stone);
+                }
+            }
+            
+            // Walls
+            for (let y = 1; y <= 4; y++) {
+                for (let x = -3; x <= 3; x++) {
+                    // Front and back walls
+                    if (!(x >= -1 && x <= 1 && y <= 2)) { // Door opening
+                        createBlock(baseX + x, terrainY + y, baseZ - 3, materials.brick);
+                    }
+                    createBlock(baseX + x, terrainY + y, baseZ + 3, materials.brick);
+                }
+                for (let z = -2; z <= 2; z++) {
+                    // Side walls with windows
+                    if (y === 2 || y === 3) {
+                        createBlock(baseX - 3, terrainY + y, baseZ + z, materials.glass);
+                        createBlock(baseX + 3, terrainY + y, baseZ + z, materials.glass);
+                    } else {
+                        createBlock(baseX - 3, terrainY + y, baseZ + z, materials.brick);
+                        createBlock(baseX + 3, terrainY + y, baseZ + z, materials.brick);
+                    }
+                }
+            }
+            
+            // Roof
+            for (let x = -4; x <= 4; x++) {
+                for (let z = -4; z <= 4; z++) {
+                    createBlock(baseX + x, terrainY + 5, baseZ + z, materials.roof);
+                }
+            }
+            
+            // Sign above door
+            const signMat = new THREE.MeshBasicMaterial({ color: signColor });
+            const signGeo = new THREE.BoxGeometry(5, 1.5, 0.2);
+            const signMesh = new THREE.Mesh(signGeo, signMat);
+            signMesh.position.set(baseX, terrainY + 5.5, baseZ - 3.5);
+            scene.add(signMesh);
+            
+            // Sign text using canvas texture
+            const textCanvas = document.createElement('canvas');
+            textCanvas.width = 256;
+            textCanvas.height = 64;
+            const textCtx = textCanvas.getContext('2d');
+            textCtx.fillStyle = signColor === 0xFFD700 ? '#8B0000' : '#FFFFFF';
+            textCtx.fillRect(0, 0, 256, 64);
+            textCtx.fillStyle = signColor === 0xFFD700 ? '#FFD700' : '#000000';
+            textCtx.font = 'bold 28px Arial';
+            textCtx.textAlign = 'center';
+            textCtx.fillText(name, 128, 42);
+            const textTexture = new THREE.CanvasTexture(textCanvas);
+            const textMat = new THREE.MeshBasicMaterial({ map: textTexture });
+            const textMesh = new THREE.Mesh(new THREE.PlaneGeometry(5, 1.2), textMat);
+            textMesh.position.set(baseX, terrainY + 5.5, baseZ - 3.6);
+            scene.add(textMesh);
+            
+            // Tables inside
+            for (let tx = -1; tx <= 1; tx += 2) {
+                const table = new THREE.Mesh(new THREE.BoxGeometry(1, 0.1, 1), materials.wood);
+                table.position.set(baseX + tx, terrainY + 1.5, baseZ);
+                scene.add(table);
+                const tableLeg = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.5, 0.2), materials.wood);
+                tableLeg.position.set(baseX + tx, terrainY + 1.2, baseZ);
+                scene.add(tableLeg);
+            }
+        }
+        
+        // Create restaurants at different locations
+        createRestaurant(20, 15, '🍔 BURGER HUT', 0xFFD700);
+        createRestaurant(-25, 20, '🍕 PIZZA PALACE', 0xFF4500);
+        createRestaurant(15, -25, '🍜 NOODLE HOUSE', 0x00FF00);
+        
+        // === CENTRAL FOUNTAIN ===
+        function createFountain() {
+            const fx = 0, fz = 0;
+            const terrainY = Math.floor(noise(fx, fz)) + 6;
+            
+            // Base pool (octagonal shape approximation)
+            for (let x = -4; x <= 4; x++) {
+                for (let z = -4; z <= 4; z++) {
+                    if (Math.abs(x) + Math.abs(z) <= 6) {
+                        createBlock(fx + x, terrainY, fz + z, materials.fountain);
+                        // Water inside
+                        if (Math.abs(x) <= 3 && Math.abs(z) <= 3 && Math.abs(x) + Math.abs(z) <= 5) {
+                            createBlock(fx + x, terrainY + 0.3, fz + z, materials.water);
+                        }
+                    }
+                }
+            }
+            
+            // Rim
+            for (let x = -4; x <= 4; x++) {
+                for (let z = -4; z <= 4; z++) {
+                    if (Math.abs(x) + Math.abs(z) === 6 || (Math.abs(x) === 4 && Math.abs(z) <= 2) || (Math.abs(z) === 4 && Math.abs(x) <= 2)) {
+                        createBlock(fx + x, terrainY + 1, fz + z, materials.fountain);
+                    }
+                }
+            }
+            
+            // Central pillar
+            for (let y = 1; y <= 4; y++) {
+                createBlock(fx, terrainY + y, fz, materials.fountain);
+            }
+            
+            // Top basin
+            for (let x = -1; x <= 1; x++) {
+                for (let z = -1; z <= 1; z++) {
+                    createBlock(fx + x, terrainY + 5, fz + z, materials.fountain);
+                }
+            }
+            createBlock(fx, terrainY + 5.3, fz, materials.water);
+            
+            // Animated water particles
+            const waterParticles = [];
+            const particleGeo = new THREE.SphereGeometry(0.1, 4, 4);
+            const particleMat = new THREE.MeshBasicMaterial({ color: 0x4FC3F7, transparent: true, opacity: 0.8 });
+            
+            for (let i = 0; i < 30; i++) {
+                const particle = new THREE.Mesh(particleGeo, particleMat);
+                particle.userData = {
+                    angle: (i / 30) * Math.PI * 2,
+                    speed: 0.02 + Math.random() * 0.02,
+                    height: Math.random(),
+                    radius: 0.5 + Math.random() * 1.5
+                };
+                particle.position.set(fx, terrainY + 5, fz);
+                scene.add(particle);
+                waterParticles.push(particle);
+            }
+            
+            return { particles: waterParticles, baseY: terrainY + 5, x: fx, z: fz };
+        }
+        
+        const fountain = createFountain();
+        
+        function updateFountain(time) {
+            fountain.particles.forEach(p => {
+                const d = p.userData;
+                d.height += d.speed;
+                if (d.height > 1) d.height = 0;
+                
+                const arcHeight = Math.sin(d.height * Math.PI) * 3;
+                const currentRadius = d.radius * d.height;
+                
+                p.position.x = fountain.x + Math.cos(d.angle + time) * currentRadius;
+                p.position.z = fountain.z + Math.sin(d.angle + time) * currentRadius;
+                p.position.y = fountain.baseY + arcHeight;
+                
+                p.material.opacity = 0.8 - d.height * 0.6;
+            });
+        }
 
         // === VOXEL CHARACTERS ===
         const characters = [];
@@ -1030,8 +1195,35 @@
             pitch: 0,
             velocityY: 0,
             speed: 0.15,
-            jumpForce: 0.3
+            jumpForce: 0.3,
+            // Smooth camera targets
+            targetX: 0,
+            targetY: spawnHeight,
+            targetZ: 0,
+            targetYaw: 0,
+            targetPitch: 0
         };
+        
+        // Collision detection helper
+        function getTerrainHeight(x, z) {
+            const baseHeight = Math.floor(noise(x, z)) + 6;
+            // Check for buildings/structures at this position
+            let maxHeight = baseHeight;
+            blocks.forEach(block => {
+                const bx = block.position.x;
+                const bz = block.position.z;
+                const by = block.position.y;
+                if (Math.abs(x - bx) < 1 && Math.abs(z - bz) < 1) {
+                    maxHeight = Math.max(maxHeight, by + 1);
+                }
+            });
+            return maxHeight;
+        }
+        
+        function checkCollision(x, y, z) {
+            const minHeight = getTerrainHeight(x, z) + 1.5; // Player eye level above ground
+            return Math.max(y, minHeight);
+        }
 
         camera.position.set(player.x, player.y, player.z);
 
@@ -1072,15 +1264,37 @@
             requestAnimationFrame(animate);
 
             if (autoMode) {
-                // Auto-explore: walk/fly around the world, staying closer to terrain
-                autoTime += 0.005;
-                player.x = Math.sin(autoTime) * 30;
-                player.z = Math.cos(autoTime) * 30;
-                // Calculate terrain height at current position for ground-following
-                const terrainY = Math.floor(noise(player.x, player.z)) + 5;
-                player.y = terrainY + 3 + Math.sin(autoTime * 2) * 2;
-                player.yaw = autoTime + Math.PI;
-                player.pitch = -0.2 + Math.sin(autoTime * 3) * 0.1;
+                // Auto-explore: smooth cinematic camera movement
+                autoTime += 0.003; // Slower for smoother movement
+                
+                // Figure-8 path for more interesting exploration
+                const pathScale = 35;
+                player.targetX = Math.sin(autoTime) * pathScale * Math.cos(autoTime * 0.5);
+                player.targetZ = Math.cos(autoTime) * pathScale;
+                
+                // Calculate terrain height and stay above it
+                const terrainY = getTerrainHeight(player.targetX, player.targetZ);
+                player.targetY = terrainY + 4 + Math.sin(autoTime * 1.5) * 1.5;
+                
+                // Smooth look direction (look slightly ahead)
+                const lookAheadTime = autoTime + 0.1;
+                const lookX = Math.sin(lookAheadTime) * pathScale * Math.cos(lookAheadTime * 0.5);
+                const lookZ = Math.cos(lookAheadTime) * pathScale;
+                player.targetYaw = Math.atan2(lookX - player.targetX, lookZ - player.targetZ) + Math.PI;
+                player.targetPitch = -0.15 + Math.sin(autoTime * 2) * 0.08;
+                
+                // Smooth interpolation (lerp)
+                const smoothFactor = 0.02;
+                player.x += (player.targetX - player.x) * smoothFactor;
+                player.y += (player.targetY - player.y) * smoothFactor;
+                player.z += (player.targetZ - player.z) * smoothFactor;
+                
+                // Smooth yaw interpolation (handle wrap-around)
+                let yawDiff = player.targetYaw - player.yaw;
+                while (yawDiff > Math.PI) yawDiff -= Math.PI * 2;
+                while (yawDiff < -Math.PI) yawDiff += Math.PI * 2;
+                player.yaw += yawDiff * smoothFactor * 2;
+                player.pitch += (player.targetPitch - player.pitch) * smoothFactor * 2;
             } else {
                 // Player control
                 const moveX = Math.sin(player.yaw) * player.speed;
@@ -1106,6 +1320,9 @@
                 if (keys['ShiftLeft']) {
                     player.y -= player.speed;
                 }
+                
+                // Apply collision - prevent going inside blocks
+                player.y = checkCollision(player.x, player.y, player.z);
             }
 
             // Update camera
@@ -1127,6 +1344,9 @@
             // Update movie screen
             updateMovieScreen();
             checkScreenProximity();
+            
+            // Update fountain animation
+            updateFountain(autoTime * 10);
 
             renderer.render(scene, camera);
         }
