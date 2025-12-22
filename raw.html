@@ -338,35 +338,126 @@
     
     function playCollectSound(isGolden) {
         if (!audioCtx) return;
-        const osc = audioCtx.createOscillator();
+        const now = audioCtx.currentTime;
+        
+        // Main shimmer tone
+        const osc1 = audioCtx.createOscillator();
+        const osc2 = audioCtx.createOscillator();
+        const osc3 = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(isGolden ? 800 : 600, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(isGolden ? 1200 : 900, audioCtx.currentTime + 0.1);
-        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
-        osc.connect(gain);
+        const filter = audioCtx.createBiquadFilter();
+        
+        const baseFreq = isGolden ? 880 : 660;
+        osc1.type = 'sine';
+        osc2.type = 'triangle';
+        osc3.type = 'sine';
+        
+        osc1.frequency.setValueAtTime(baseFreq, now);
+        osc1.frequency.exponentialRampToValueAtTime(baseFreq * 1.5, now + 0.15);
+        osc2.frequency.setValueAtTime(baseFreq * 1.5, now);
+        osc2.frequency.exponentialRampToValueAtTime(baseFreq * 2, now + 0.1);
+        osc3.frequency.setValueAtTime(baseFreq * 0.5, now);
+        osc3.detune.setValueAtTime(isGolden ? 10 : 5, now);
+        
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(2000, now);
+        filter.Q.setValueAtTime(2, now);
+        
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+        
+        const merger = audioCtx.createGain();
+        merger.gain.setValueAtTime(0.4, now);
+        
+        osc1.connect(merger);
+        osc2.connect(merger);
+        osc3.connect(merger);
+        merger.connect(filter);
+        filter.connect(gain);
         gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.2);
+        
+        osc1.start(now);
+        osc2.start(now);
+        osc3.start(now + 0.02);
+        osc1.stop(now + 0.4);
+        osc2.stop(now + 0.3);
+        osc3.stop(now + 0.5);
+        
+        // Sparkle overlay
+        if (isGolden) {
+            [0, 0.05, 0.1].forEach((d, i) => {
+                const sparkle = audioCtx.createOscillator();
+                const sGain = audioCtx.createGain();
+                sparkle.type = 'sine';
+                sparkle.frequency.setValueAtTime(1200 + i * 400, now + d);
+                sGain.gain.setValueAtTime(0.05, now + d);
+                sGain.gain.exponentialRampToValueAtTime(0.001, now + d + 0.1);
+                sparkle.connect(sGain);
+                sGain.connect(audioCtx.destination);
+                sparkle.start(now + d);
+                sparkle.stop(now + d + 0.15);
+            });
+        }
     }
     
     function playLevelUpSound() {
         if (!audioCtx) return;
-        [0, 0.1, 0.2].forEach((delay, i) => {
-            setTimeout(() => {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(400 + i * 200, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.3);
-            }, delay * 1000);
+        const now = audioCtx.currentTime;
+        
+        // Epic ascending chord progression
+        const notes = [261.63, 329.63, 392, 523.25, 659.25]; // C major arpeggio
+        notes.forEach((freq, i) => {
+            const osc1 = audioCtx.createOscillator();
+            const osc2 = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            const filter = audioCtx.createBiquadFilter();
+            
+            osc1.type = 'triangle';
+            osc2.type = 'sine';
+            osc1.frequency.setValueAtTime(freq, now + i * 0.08);
+            osc2.frequency.setValueAtTime(freq * 2, now + i * 0.08);
+            osc2.detune.setValueAtTime(5, now);
+            
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(3000, now + i * 0.08);
+            filter.frequency.exponentialRampToValueAtTime(800, now + i * 0.08 + 0.6);
+            
+            gain.gain.setValueAtTime(0, now + i * 0.08);
+            gain.gain.linearRampToValueAtTime(0.12, now + i * 0.08 + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.8);
+            
+            const mix = audioCtx.createGain();
+            mix.gain.setValueAtTime(0.5, now);
+            osc1.connect(mix);
+            osc2.connect(mix);
+            mix.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc1.start(now + i * 0.08);
+            osc2.start(now + i * 0.08);
+            osc1.stop(now + i * 0.08 + 0.9);
+            osc2.stop(now + i * 0.08 + 0.9);
         });
+        
+        // Cosmic whoosh
+        const noise = audioCtx.createOscillator();
+        const noiseGain = audioCtx.createGain();
+        const noiseFilter = audioCtx.createBiquadFilter();
+        noise.type = 'sawtooth';
+        noise.frequency.setValueAtTime(80, now);
+        noise.frequency.exponentialRampToValueAtTime(400, now + 0.5);
+        noiseFilter.type = 'bandpass';
+        noiseFilter.frequency.setValueAtTime(200, now);
+        noiseFilter.frequency.exponentialRampToValueAtTime(1500, now + 0.4);
+        noiseFilter.Q.setValueAtTime(5, now);
+        noiseGain.gain.setValueAtTime(0.08, now);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+        noise.connect(noiseFilter);
+        noiseFilter.connect(noiseGain);
+        noiseGain.connect(audioCtx.destination);
+        noise.start(now);
+        noise.stop(now + 0.7);
     }
     
     // Initial spawn
@@ -410,54 +501,138 @@
     
     function playOrbSound(hue) {
         if (!audioCtx) return;
+        const now = audioCtx.currentTime;
         
-        const osc = audioCtx.createOscillator();
+        // Layered bubble/pop sound with harmonic richness
+        const baseFreq = 180 + (hue / 360) * 300;
+        
+        // Main body - warm sine
+        const osc1 = audioCtx.createOscillator();
+        const osc2 = audioCtx.createOscillator();
+        const subOsc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         const filter = audioCtx.createBiquadFilter();
         
-        // Map hue to frequency for varied tones
-        const baseFreq = 200 + (hue / 360) * 400;
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(baseFreq, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.5, audioCtx.currentTime + 0.3);
+        osc1.type = 'sine';
+        osc2.type = 'triangle';
+        subOsc.type = 'sine';
+        
+        osc1.frequency.setValueAtTime(baseFreq, now);
+        osc1.frequency.exponentialRampToValueAtTime(baseFreq * 0.6, now + 0.25);
+        osc2.frequency.setValueAtTime(baseFreq * 1.5, now);
+        osc2.frequency.exponentialRampToValueAtTime(baseFreq * 0.8, now + 0.2);
+        osc2.detune.setValueAtTime(Math.random() * 10 - 5, now);
+        subOsc.frequency.setValueAtTime(baseFreq * 0.5, now);
         
         filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(1500, audioCtx.currentTime);
+        filter.frequency.setValueAtTime(2500, now);
+        filter.frequency.exponentialRampToValueAtTime(400, now + 0.3);
+        filter.Q.setValueAtTime(1.5, now);
         
-        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
         
-        osc.connect(filter);
+        const mixer = audioCtx.createGain();
+        mixer.gain.setValueAtTime(0.5, now);
+        
+        osc1.connect(mixer);
+        osc2.connect(mixer);
+        subOsc.connect(mixer);
+        mixer.connect(filter);
         filter.connect(gain);
         gain.connect(audioCtx.destination);
         
-        osc.start(audioCtx.currentTime);
-        osc.stop(audioCtx.currentTime + 0.4);
+        osc1.start(now);
+        osc2.start(now);
+        subOsc.start(now);
+        osc1.stop(now + 0.4);
+        osc2.stop(now + 0.35);
+        subOsc.stop(now + 0.45);
+        
+        // Soft attack click for punch
+        const click = audioCtx.createOscillator();
+        const clickGain = audioCtx.createGain();
+        click.type = 'square';
+        click.frequency.setValueAtTime(baseFreq * 4, now);
+        click.frequency.exponentialRampToValueAtTime(baseFreq * 2, now + 0.02);
+        clickGain.gain.setValueAtTime(0.03, now);
+        clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+        click.connect(clickGain);
+        clickGain.connect(audioCtx.destination);
+        click.start(now);
+        click.stop(now + 0.04);
     }
     
     function playGravityToggle(reversed) {
         if (!audioCtx) return;
+        const now = audioCtx.currentTime;
         
-        const osc = audioCtx.createOscillator();
+        // Sci-fi gravity shift sound with whoosh and resonance
+        const osc1 = audioCtx.createOscillator();
+        const osc2 = audioCtx.createOscillator();
+        const lfo = audioCtx.createOscillator();
+        const lfoGain = audioCtx.createGain();
         const gain = audioCtx.createGain();
+        const filter = audioCtx.createBiquadFilter();
         
-        osc.type = 'triangle';
+        osc1.type = 'sawtooth';
+        osc2.type = 'triangle';
+        lfo.type = 'sine';
+        
         if (reversed) {
-            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.2);
+            osc1.frequency.setValueAtTime(80, now);
+            osc1.frequency.exponentialRampToValueAtTime(400, now + 0.3);
+            osc2.frequency.setValueAtTime(120, now);
+            osc2.frequency.exponentialRampToValueAtTime(600, now + 0.25);
+            filter.frequency.setValueAtTime(300, now);
+            filter.frequency.exponentialRampToValueAtTime(2000, now + 0.3);
         } else {
-            osc.frequency.setValueAtTime(400, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.2);
+            osc1.frequency.setValueAtTime(400, now);
+            osc1.frequency.exponentialRampToValueAtTime(80, now + 0.3);
+            osc2.frequency.setValueAtTime(600, now);
+            osc2.frequency.exponentialRampToValueAtTime(120, now + 0.25);
+            filter.frequency.setValueAtTime(2000, now);
+            filter.frequency.exponentialRampToValueAtTime(300, now + 0.3);
         }
         
-        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+        lfo.frequency.setValueAtTime(15, now);
+        lfoGain.gain.setValueAtTime(30, now);
+        lfo.connect(lfoGain);
+        lfoGain.connect(osc1.frequency);
         
-        osc.connect(gain);
+        filter.type = 'bandpass';
+        filter.Q.setValueAtTime(3, now);
+        
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+        
+        const mix = audioCtx.createGain();
+        mix.gain.setValueAtTime(0.4, now);
+        osc1.connect(mix);
+        osc2.connect(mix);
+        mix.connect(filter);
+        filter.connect(gain);
         gain.connect(audioCtx.destination);
         
-        osc.start(audioCtx.currentTime);
-        osc.stop(audioCtx.currentTime + 0.3);
+        lfo.start(now);
+        osc1.start(now);
+        osc2.start(now);
+        lfo.stop(now + 0.5);
+        osc1.stop(now + 0.5);
+        osc2.stop(now + 0.45);
+        
+        // Subtle sub-bass thump
+        const sub = audioCtx.createOscillator();
+        const subGain = audioCtx.createGain();
+        sub.type = 'sine';
+        sub.frequency.setValueAtTime(reversed ? 40 : 60, now);
+        sub.frequency.exponentialRampToValueAtTime(reversed ? 80 : 30, now + 0.15);
+        subGain.gain.setValueAtTime(0.15, now);
+        subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+        sub.connect(subGain);
+        subGain.connect(audioCtx.destination);
+        sub.start(now);
+        sub.stop(now + 0.25);
     }
     
     document.getElementById('gravity-toggle').addEventListener('click', (e) => {
