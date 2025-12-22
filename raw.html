@@ -130,8 +130,143 @@
 <script src="https://cdn.jsdelivr.net/npm/three@0.150.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.150.0/examples/js/shaders/CopyShader.js"></script>
 <script>
-        // Audio setup
+        // Audio setup - Full Soundtrack System
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // WHITE NOISE GENERATOR for atmosphere
+        function createWhiteNoise() {
+            const bufferSize = 2 * audioCtx.sampleRate;
+            const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const output = noiseBuffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                output[i] = Math.random() * 2 - 1;
+            }
+            return noiseBuffer;
+        }
+        
+        let whiteNoiseSource = null;
+        function startWhiteNoise() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            whiteNoiseSource = audioCtx.createBufferSource();
+            whiteNoiseSource.buffer = createWhiteNoise();
+            whiteNoiseSource.loop = true;
+            
+            const noiseGain = audioCtx.createGain();
+            noiseGain.gain.value = 0.03; // Very subtle
+            
+            const noiseFilter = audioCtx.createBiquadFilter();
+            noiseFilter.type = 'lowpass';
+            noiseFilter.frequency.value = 800;
+            
+            whiteNoiseSource.connect(noiseFilter);
+            noiseFilter.connect(noiseGain);
+            noiseGain.connect(audioCtx.destination);
+            whiteNoiseSource.start();
+        }
+        
+        // RANDOM SFX SYSTEM
+        const sfxTypes = ['laser', 'whoosh', 'bloop', 'zap', 'rumble', 'chime'];
+        
+        function playSFX(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            const now = audioCtx.currentTime;
+            
+            switch(type) {
+                case 'laser':
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(1000, now);
+                    osc.frequency.exponentialRampToValueAtTime(100, now + 0.3);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    break;
+                case 'whoosh':
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(200, now);
+                    osc.frequency.exponentialRampToValueAtTime(800, now + 0.2);
+                    osc.frequency.exponentialRampToValueAtTime(100, now + 0.4);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                    break;
+                case 'bloop':
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, now);
+                    osc.frequency.exponentialRampToValueAtTime(200, now + 0.15);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                    break;
+                case 'zap':
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(2000, now);
+                    osc.frequency.exponentialRampToValueAtTime(50, now + 0.1);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                    break;
+                case 'rumble':
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(60, now);
+                    osc.frequency.setValueAtTime(80, now + 0.2);
+                    osc.frequency.setValueAtTime(40, now + 0.5);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+                    break;
+                case 'chime':
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(880, now);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.8);
+                    break;
+            }
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 1);
+        }
+        
+        function playRandomSFX() {
+            const randomType = sfxTypes[Math.floor(Math.random() * sfxTypes.length)];
+            playSFX(randomType);
+        }
+        
+        // AMBIENT DRONE for atmosphere
+        function playAmbientDrone() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc1 = audioCtx.createOscillator();
+            const osc2 = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            osc1.type = 'sine';
+            osc1.frequency.value = 55; // Low A
+            osc2.type = 'sine';
+            osc2.frequency.value = 82.5; // E
+            
+            gain.gain.value = 0.05;
+            
+            osc1.connect(gain);
+            osc2.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc1.start();
+            osc2.start();
+            
+            // Slowly modulate
+            setInterval(() => {
+                osc1.frequency.value = 55 + Math.sin(Date.now() * 0.0005) * 5;
+                osc2.frequency.value = 82.5 + Math.cos(Date.now() * 0.0003) * 3;
+            }, 100);
+        }
+        
+        // Start all audio systems
+        setTimeout(() => {
+            startWhiteNoise();
+            playAmbientDrone();
+            // Random SFX every 3-8 seconds
+            setInterval(() => {
+                if (Math.random() > 0.3) playRandomSFX();
+            }, 3000 + Math.random() * 5000);
+        }, 1000);
         
         const noteFreqs = {
             'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23, 'F#4': 369.99, 'G4': 392.00, 'A4': 440.00, 'A#4': 466.16,
@@ -172,7 +307,8 @@
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setClearColor(0x050510); // Deep space void for black hole
+        renderer.setClearColor(0x1a1a3a); // Visible deep space - not pure black
+        scene.fog = new THREE.Fog(0x1a1a3a, 50, 300); // Add atmospheric fog
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -184,7 +320,7 @@
         
         // Advanced Lighting System
         // Photorealistic Lighting Setup
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); // Bright ambient - lights on everywhere
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.2); // SUPER Bright ambient - lights on everywhere
         scene.add(ambientLight);
         
         // Hemisphere light for natural sky/ground bounce
@@ -193,7 +329,7 @@
         scene.add(hemiLight);
         
         // Main key light - simulating sun/studio light
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 3.0); // Super bright sun
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 4.0); // ULTRA bright sun
         directionalLight.position.set(10, 25, 15);
         directionalLight.castShadow = true;
         directionalLight.shadow.mapSize.width = 4096;
@@ -1010,10 +1146,10 @@
         scene.add(blackHoleGroup);
         window.blackHole = blackHoleGroup;
         
-        // Black hole light absorption (negative light effect)
-        const blackHoleLight = new THREE.PointLight(0x000022, -2, 50);
-        blackHoleLight.position.copy(blackHoleGroup.position);
-        scene.add(blackHoleLight);
+        // Black hole subtle glow (removed negative light that was darkening everything)
+        const blackHoleGlow = new THREE.PointLight(0x4400ff, 5, 60);
+        blackHoleGlow.position.copy(blackHoleGroup.position);
+        scene.add(blackHoleGlow);
         
         // Victory Royale sign (hidden initially)
         const victorySign = new THREE.Group();
@@ -1309,14 +1445,14 @@
         window.tailRotor = tailRotor;
         window.parachutes = parachutes;
         
-        // Grass ground with realistic material - BRIGHT AND VISIBLE
+        // Grass ground with realistic material - SUPER BRIGHT AND VISIBLE
         const grassMat = new THREE.MeshStandardMaterial({ 
-            color: 0x4a8f3c, 
-            roughness: 0.7, 
+            color: 0x66cc55, 
+            roughness: 0.6, 
             metalness: 0.0,
-            envMapIntensity: 0.4,
-            emissive: 0x1a3a15,
-            emissiveIntensity: 0.2
+            envMapIntensity: 0.5,
+            emissive: 0x2a5a25,
+            emissiveIntensity: 0.4
         });
         const grassGround = new THREE.Mesh(
             new THREE.PlaneGeometry(200, 200, 50, 50),
@@ -1327,14 +1463,14 @@
         grassGround.receiveShadow = true;
         scene.add(grassGround);
         
-        // Secondary bright ground layer for visibility
+        // Secondary bright ground layer for visibility - EXTRA BRIGHT
         const groundBase = new THREE.Mesh(
             new THREE.PlaneGeometry(300, 300),
             new THREE.MeshStandardMaterial({ 
-                color: 0x3d7a32, 
-                roughness: 0.8,
-                emissive: 0x1a3010,
-                emissiveIntensity: 0.15
+                color: 0x55aa44, 
+                roughness: 0.7,
+                emissive: 0x335522,
+                emissiveIntensity: 0.35
             })
         );
         groundBase.rotation.x = -Math.PI / 2;
@@ -2097,7 +2233,15 @@
         animate();
         // Continuous scene - no episode restart needed
         console.log('Continuous scene mode active - lights on everywhere!');
+        console.log('Audio system: White noise + ambient drone + random SFX active!');
         playTheme(); // Play theme once
+        
+        // Additional ground visibility boost - add extra light pointing down
+        const groundBoostLight = new THREE.DirectionalLight(0xaaffaa, 2.0);
+        groundBoostLight.position.set(0, 50, 0);
+        groundBoostLight.target.position.set(0, 0, 0);
+        scene.add(groundBoostLight);
+        scene.add(groundBoostLight.target);
     </script>
 </body>
 </html>
