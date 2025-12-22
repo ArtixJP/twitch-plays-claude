@@ -369,6 +369,161 @@
         livingRoom.visible = false;
         scene.add(livingRoom);
         
+        // Pentagram and Satan summoning ritual
+        const pentagramGroup = new THREE.Group();
+        
+        // Create pentagram using lines
+        const pentagramMat = new THREE.LineBasicMaterial({ color: 0xFF0000, linewidth: 3 });
+        const pentagramPoints = [];
+        for (let i = 0; i < 6; i++) {
+            const angle = (i * 2 * Math.PI / 5) - Math.PI / 2;
+            pentagramPoints.push(new THREE.Vector3(Math.cos(angle) * 2, 0.01, Math.sin(angle) * 2));
+        }
+        const pentagramGeo = new THREE.BufferGeometry().setFromPoints(pentagramPoints);
+        const pentagram = new THREE.Line(pentagramGeo, pentagramMat);
+        pentagramGroup.add(pentagram);
+        
+        // Pentagram inner star
+        const starPoints = [];
+        for (let i = 0; i < 6; i++) {
+            const angle = ((i * 2) % 5 * 2 * Math.PI / 5) - Math.PI / 2;
+            starPoints.push(new THREE.Vector3(Math.cos(angle) * 2, 0.02, Math.sin(angle) * 2));
+        }
+        const starGeo = new THREE.BufferGeometry().setFromPoints(starPoints);
+        const star = new THREE.Line(starGeo, pentagramMat);
+        pentagramGroup.add(star);
+        
+        // Blood pool
+        const bloodPool = new THREE.Mesh(
+            new THREE.CircleGeometry(2.5, 32),
+            new THREE.MeshBasicMaterial({ color: 0x8B0000, transparent: true, opacity: 0.7 })
+        );
+        bloodPool.rotation.x = -Math.PI / 2;
+        bloodPool.position.y = 0.005;
+        pentagramGroup.add(bloodPool);
+        
+        // Fire pillars at pentagram points
+        const firePillars = [];
+        for (let i = 0; i < 5; i++) {
+            const angle = (i * 2 * Math.PI / 5) - Math.PI / 2;
+            const fireGroup = new THREE.Group();
+            
+            // Fire base
+            const fireBase = new THREE.Mesh(
+                new THREE.ConeGeometry(0.3, 1.5, 8),
+                new THREE.MeshBasicMaterial({ color: 0xFF4500, transparent: true, opacity: 0.9 })
+            );
+            fireBase.position.y = 0.75;
+            fireGroup.add(fireBase);
+            
+            // Inner flame
+            const innerFlame = new THREE.Mesh(
+                new THREE.ConeGeometry(0.15, 1, 8),
+                new THREE.MeshBasicMaterial({ color: 0xFFFF00, transparent: true, opacity: 0.8 })
+            );
+            innerFlame.position.y = 0.5;
+            fireGroup.add(innerFlame);
+            
+            // Point light for glow
+            const fireLight = new THREE.PointLight(0xFF4500, 1, 5);
+            fireLight.position.y = 1;
+            fireGroup.add(fireLight);
+            
+            fireGroup.position.set(Math.cos(angle) * 2.3, 0, Math.sin(angle) * 2.3);
+            pentagramGroup.add(fireGroup);
+            firePillars.push(fireGroup);
+        }
+        
+        // SATAN - Interdimensional Demon Entity
+        const satan = new THREE.Group();
+        
+        // Demonic body
+        const demonBody = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.5, 0.7, 2, 16),
+            new THREE.MeshLambertMaterial({ color: 0x8B0000 })
+        );
+        demonBody.position.y = 1;
+        satan.add(demonBody);
+        
+        // Demon head
+        const demonHead = new THREE.Mesh(
+            new THREE.SphereGeometry(0.5, 16, 16),
+            new THREE.MeshLambertMaterial({ color: 0x660000 })
+        );
+        demonHead.position.y = 2.5;
+        satan.add(demonHead);
+        
+        // Horns
+        const hornMat = new THREE.MeshLambertMaterial({ color: 0x1a1a1a });
+        const leftHorn = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.8, 8), hornMat);
+        leftHorn.position.set(-0.3, 3, 0);
+        leftHorn.rotation.z = 0.4;
+        satan.add(leftHorn);
+        
+        const rightHorn = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.8, 8), hornMat);
+        rightHorn.position.set(0.3, 3, 0);
+        rightHorn.rotation.z = -0.4;
+        satan.add(rightHorn);
+        
+        // Glowing eyes
+        const eyeMat = new THREE.MeshBasicMaterial({ color: 0xFF0000 });
+        const leftEye = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 8), eyeMat);
+        leftEye.position.set(-0.2, 2.6, 0.4);
+        satan.add(leftEye);
+        
+        const rightEye = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 8), eyeMat);
+        rightEye.position.set(0.2, 2.6, 0.4);
+        satan.add(rightEye);
+        
+        // Wings
+        const wingMat = new THREE.MeshLambertMaterial({ color: 0x330000, side: THREE.DoubleSide });
+        const wingShape = new THREE.Shape();
+        wingShape.moveTo(0, 0);
+        wingShape.lineTo(1.5, 1);
+        wingShape.lineTo(2, 0.5);
+        wingShape.lineTo(1.8, -0.5);
+        wingShape.lineTo(0, -0.2);
+        const wingGeo = new THREE.ShapeGeometry(wingShape);
+        
+        const leftWing = new THREE.Mesh(wingGeo, wingMat);
+        leftWing.position.set(-0.5, 2, -0.3);
+        leftWing.rotation.y = -0.5;
+        satan.add(leftWing);
+        
+        const rightWing = new THREE.Mesh(wingGeo, wingMat);
+        rightWing.position.set(0.5, 2, -0.3);
+        rightWing.rotation.y = Math.PI + 0.5;
+        rightWing.scale.x = -1;
+        satan.add(rightWing);
+        
+        // Trident
+        const tridentStaff = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.05, 0.05, 3, 8),
+            new THREE.MeshLambertMaterial({ color: 0x333333 })
+        );
+        tridentStaff.position.set(0.8, 1.5, 0);
+        satan.add(tridentStaff);
+        
+        const tridentHead = new THREE.Mesh(
+            new THREE.ConeGeometry(0.15, 0.5, 3),
+            new THREE.MeshLambertMaterial({ color: 0x8B0000 })
+        );
+        tridentHead.position.set(0.8, 3.2, 0);
+        satan.add(tridentHead);
+        
+        satan.position.y = -3;
+        satan.visible = false;
+        pentagramGroup.add(satan);
+        
+        pentagramGroup.position.set(0, -0.4, 48);
+        pentagramGroup.visible = false;
+        scene.add(pentagramGroup);
+        
+        // Store references for animation
+        window.pentagramGroup = pentagramGroup;
+        window.satan = satan;
+        window.firePillars = firePillars;
+        
         // Grass ground
         const grassGround = new THREE.Mesh(
             new THREE.PlaneGeometry(100, 100),
@@ -396,7 +551,8 @@
             { text: "Interdimensional orbit!", action: 'orbit' },
             { text: "Portal gun explosion!", action: 'explode' },
             { text: "Time freeze!", action: 'matrix' },
-            { text: "Get schwifty!", action: 'schwifty' }
+            { text: "Get schwifty!", action: 'schwifty' },
+            { text: "THEY SUMMONED SOMETHING FROM DIMENSION 666!", action: 'satan' }
         ];
         
         let currentGag = couchGags[0];
@@ -435,6 +591,14 @@
             camera.lookAt(0, 5, 0);
             
             currentGag = couchGags[Math.floor(Math.random() * couchGags.length)];
+            
+            // Reset pentagram and satan
+            if (window.pentagramGroup) {
+                window.pentagramGroup.visible = false;
+                window.satan.visible = false;
+                window.satan.position.y = -3;
+            }
+            renderer.setClearColor(0x0a0a2e);
             
             playTheme();
         }
@@ -562,6 +726,38 @@
                         char.position.y = 0.5 + Math.sin(time * 8 + i) * 0.5;
                         char.rotation.y = Math.sin(time * 4) * 0.5;
                     });
+                    break;
+                case 'satan':
+                    window.pentagramGroup.visible = true;
+                    
+                    // Animate fire pillars
+                    window.firePillars.forEach((fire, i) => {
+                        fire.children[0].scale.y = 1 + Math.sin(time * 10 + i) * 0.3;
+                        fire.children[1].scale.y = 1 + Math.sin(time * 12 + i) * 0.4;
+                        fire.children[2].intensity = 1 + Math.sin(time * 8 + i) * 0.5;
+                    });
+                    
+                    // Satan rises from pentagram
+                    window.satan.visible = true;
+                    window.satan.position.y = Math.min(-3 + time * 1.5, 0);
+                    window.satan.rotation.y = time * 0.5;
+                    
+                    // Blood pool pulses
+                    window.pentagramGroup.children[2].material.opacity = 0.5 + Math.sin(time * 3) * 0.3;
+                    
+                    // Family reacts in horror
+                    family.forEach((char, i) => {
+                        char.position.x = -2 + i * 1 + Math.sin(time * 15 + i) * 0.1;
+                        char.position.z = 52 + time * 0.3;
+                        char.rotation.y = Math.PI;
+                    });
+                    
+                    // Camera shakes
+                    camera.position.x = Math.sin(time * 20) * 0.1;
+                    camera.position.y = 4 + Math.sin(time * 25) * 0.05;
+                    
+                    // Red lighting effect
+                    renderer.setClearColor(new THREE.Color(0.1 + Math.sin(time * 5) * 0.05, 0, 0));
                     break;
                 default:
                     family.forEach((char, i) => {
