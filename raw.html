@@ -443,6 +443,147 @@
         50% { opacity: 1; transform: translateX(-50%) scale(1.1); }
     }
     
+    /* MEATBALL GOLEM - FSM's Coffee Buddy */
+    .meatball-golem-container {
+        position: fixed;
+        z-index: 99;
+        pointer-events: none;
+        animation: golem-patrol 18s ease-in-out infinite;
+    }
+    
+    @keyframes golem-patrol {
+        0% { top: 60%; right: -10%; transform: rotate(5deg) scaleX(-1); }
+        25% { top: 25%; right: 60%; transform: rotate(-3deg) scaleX(-1); }
+        50% { top: 45%; right: 85%; transform: rotate(8deg) scaleX(1); }
+        75% { top: 70%; right: 40%; transform: rotate(-5deg) scaleX(1); }
+        100% { top: 60%; right: -10%; transform: rotate(5deg) scaleX(-1); }
+    }
+    
+    .meatball-golem {
+        position: relative;
+        font-size: 2.8rem;
+        filter: drop-shadow(0 0 15px rgba(139, 69, 19, 0.8));
+    }
+    
+    .golem-body {
+        animation: golem-bounce 0.6s ease-in-out infinite;
+    }
+    
+    @keyframes golem-bounce {
+        0%, 100% { transform: translateY(0) rotate(-3deg); }
+        50% { transform: translateY(-8px) rotate(3deg); }
+    }
+    
+    .golem-arms {
+        position: absolute;
+        font-size: 1.2rem;
+    }
+    
+    .golem-arm-left { top: 10px; left: -20px; animation: arm-wave 0.7s ease-in-out infinite; }
+    .golem-arm-right { top: 10px; right: -20px; animation: arm-wave 0.7s ease-in-out infinite reverse; }
+    
+    @keyframes arm-wave {
+        0%, 100% { transform: rotate(-20deg); }
+        50% { transform: rotate(20deg); }
+    }
+    
+    .golem-face {
+        position: absolute;
+        top: -5px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 0.9rem;
+    }
+    
+    .golem-crown {
+        position: absolute;
+        top: -25px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 1.2rem;
+        animation: crown-float 2s ease-in-out infinite;
+    }
+    
+    @keyframes crown-float {
+        0%, 100% { transform: translateX(-50%) translateY(0); }
+        50% { transform: translateX(-50%) translateY(-5px); }
+    }
+    
+    .golem-title {
+        position: absolute;
+        bottom: -25px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-family: 'Press Start 2P', cursive;
+        font-size: 0.4rem;
+        color: #8B4513;
+        text-shadow: 0 0 8px #8B4513;
+        white-space: nowrap;
+    }
+    
+    /* COFFEE CHAT MODE */
+    .fsm-container.coffee-time,
+    .meatball-golem-container.coffee-time {
+        animation-play-state: paused !important;
+    }
+    
+    .coffee-cup {
+        position: absolute;
+        bottom: -15px;
+        right: -25px;
+        font-size: 1.5rem;
+        opacity: 0;
+        transition: opacity 0.3s;
+        animation: coffee-steam 1s ease-in-out infinite;
+    }
+    
+    .coffee-time .coffee-cup {
+        opacity: 1;
+    }
+    
+    @keyframes coffee-steam {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-3px); }
+    }
+    
+    .monster-chat-bubble {
+        position: fixed;
+        z-index: 200;
+        background: rgba(0, 0, 0, 0.95);
+        border: 3px solid var(--cyber-blue);
+        border-radius: 15px;
+        padding: 15px 20px;
+        max-width: 300px;
+        font-family: 'VT323', monospace;
+        font-size: 1.1rem;
+        color: var(--matrix-green);
+        opacity: 0;
+        transform: scale(0);
+        transition: all 0.3s ease-out;
+        box-shadow: 0 0 30px rgba(0, 255, 255, 0.4);
+        pointer-events: none;
+    }
+    
+    .monster-chat-bubble.visible {
+        opacity: 1;
+        transform: scale(1);
+    }
+    
+    .monster-chat-bubble::before {
+        content: '☕ COFFEE BREAK ☕';
+        display: block;
+        font-family: 'Press Start 2P', cursive;
+        font-size: 0.5rem;
+        color: var(--neon-pink);
+        margin-bottom: 10px;
+        text-align: center;
+    }
+    
+    .chat-speaker {
+        color: var(--twitch-purple);
+        font-weight: bold;
+    }
+    
     /* Elon Musk Joke Popup */
     .elon-joke-popup {
         position: fixed;
@@ -511,7 +652,20 @@
 <div class="fsm-halo">✨</div>
 </div>
 <div class="fsm-blessing">R'AMEN</div>
+<div class="coffee-cup">☕</div>
 </div>
+<div class="meatball-golem-container">
+<div class="meatball-golem">
+<div class="golem-crown">👑</div>
+<div class="golem-face">😤</div>
+<div class="golem-arm-left golem-arms">💪</div>
+<div class="golem-body">🧆🧆🧆</div>
+<div class="golem-arm-right golem-arms">💪</div>
+<div class="coffee-cup">☕</div>
+</div>
+<div class="golem-title">MEATBALL KING</div>
+</div>
+<div class="monster-chat-bubble" id="chat-bubble"></div>
 <nav class="pixel-nav">
 <div class="pixel-logo">⟨MATRIX<span class="twitch-accent">_BAKE</span>⟩ 🥐</div>
 <ul>
@@ -679,6 +833,76 @@ function checkFSMPosition() {
 }
 
 setInterval(checkFSMPosition, 200);
+
+// Monster Coffee Chat System
+const golemContainer = document.querySelector('.meatball-golem-container');
+const chatBubble = document.getElementById('chat-bubble');
+
+const coffeeConversations = [
+    ["🍝 FSM", "Ah, my spherical friend! How's the kingdom?", "🧆 GOLEM", "Heavy lies the crown... and the marinara."],
+    ["🧆 GOLEM", "You know what I love about you?", "🍝 FSM", "My noodly appendages?", "🧆 GOLEM", "Your commitment to carbs."],
+    ["🍝 FSM", "This coffee is divine.", "🧆 GOLEM", "Like you?", "🍝 FSM", "Exactly. R'amen."],
+    ["🧆 GOLEM", "Ever feel like we're just... floating through existence?", "🍝 FSM", "Constantly. It's in my CSS."],
+    ["🍝 FSM", "Remember when we were just ingredients?", "🧆 GOLEM", "Before the great compilation? Simpler times."],
+    ["🧆 GOLEM", "The bakers here are weird.", "🍝 FSM", "Three of them. In a trenchcoat.", "🧆 GOLEM", "...Respect."]
+];
+
+let isChatting = false;
+let chatTimeout = null;
+
+function getDistance(el1, el2) {
+    const rect1 = el1.getBoundingClientRect();
+    const rect2 = el2.getBoundingClientRect();
+    const x1 = rect1.left + rect1.width / 2;
+    const y1 = rect1.top + rect1.height / 2;
+    const x2 = rect2.left + rect2.width / 2;
+    const y2 = rect2.top + rect2.height / 2;
+    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+}
+
+function startCoffeeChat() {
+    if (isChatting) return;
+    isChatting = true;
+    
+    fsmContainer.classList.add('coffee-time');
+    golemContainer.classList.add('coffee-time');
+    
+    const convo = coffeeConversations[Math.floor(Math.random() * coffeeConversations.length)];
+    let chatHTML = '';
+    for (let i = 0; i < convo.length; i += 2) {
+        chatHTML += `<div><span class="chat-speaker">${convo[i]}:</span> ${convo[i+1]}</div>`;
+    }
+    
+    const fsmRect = fsmContainer.getBoundingClientRect();
+    const golemRect = golemContainer.getBoundingClientRect();
+    const midX = (fsmRect.left + golemRect.left) / 2;
+    const midY = Math.min(fsmRect.top, golemRect.top) - 20;
+    
+    chatBubble.innerHTML = chatHTML;
+    chatBubble.style.left = Math.max(20, Math.min(midX, window.innerWidth - 320)) + 'px';
+    chatBubble.style.top = Math.max(80, midY) + 'px';
+    chatBubble.classList.add('visible');
+    
+    chatTimeout = setTimeout(endCoffeeChat, 5000);
+}
+
+function endCoffeeChat() {
+    isChatting = false;
+    fsmContainer.classList.remove('coffee-time');
+    golemContainer.classList.remove('coffee-time');
+    chatBubble.classList.remove('visible');
+}
+
+function checkMonsterProximity() {
+    if (!fsmContainer || !golemContainer) return;
+    const distance = getDistance(fsmContainer, golemContainer);
+    
+    if (distance < 200 && !isChatting) {
+        startCoffeeChat();
+    }
+}
+
+setInterval(checkMonsterProximity, 300);
 </script>
 </body>
 </html>
