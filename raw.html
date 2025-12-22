@@ -1839,7 +1839,7 @@ setInterval(() => {
 </div>
 <span class="music-label">CHILL<br/>BEATS</span>
 </div>
-<div class="cataclysm-scar" id="cataclysm-scar">⚠️ AUTO-CATACLYSM ENABLED • NO CLICKS NEEDED • EXPLOSIONS EVERY 60s • ENJOY THE SHOW ⚠️</div>
+<div class="cataclysm-scar" id="cataclysm-scar" style="display: block;">⚠️ AUTO-CATACLYSM ENABLED • INSTANT DESTRUCTION • EXPLOSIONS EVERY 60s • SITE BROKEN SUCCESSFULLY ⚠️</div>
 <div class="auto-explosion-indicator" id="auto-indicator">💥 AUTO-BOOM ACTIVE 💥</div>
 <style>
 .auto-explosion-indicator {
@@ -2508,9 +2508,22 @@ function createFirework(x, y) {
 }
 
 function triggerCataclysm() {
-    // Screen shake
+    // MAXIMUM DESTRUCTION MODE
+    console.log('%c💥 BOOM! SITE EXPLODING! 💥', 'color: #ff0000; font-size: 30px; font-weight: bold; text-shadow: 2px 2px #ffff00;');
+    
+    // Screen shake - MORE INTENSE
     document.body.classList.add('screen-shake');
-    setTimeout(() => document.body.classList.remove('screen-shake'), 500);
+    document.body.style.animation = 'page-break-glitch 0.8s ease-out';
+    setTimeout(() => {
+        document.body.classList.remove('screen-shake');
+        document.body.style.animation = '';
+    }, 800);
+    
+    // Make all cards explode outward
+    document.querySelectorAll('.pixel-card, .pricing-card, .tpc-rule').forEach((el, i) => {
+        el.classList.add('initial-explosion');
+        setTimeout(() => el.classList.remove('initial-explosion'), 1000);
+    });
     
     // Flash overlay
     const overlay = document.createElement('div');
@@ -2574,7 +2587,18 @@ function triggerCataclysm() {
 }
 
 // Trigger cataclysm immediately on page load - NO CLICK NEEDED!
-setTimeout(triggerCataclysm, 500);
+// INSTANT CHAOS - NO DELAY!
+triggerCataclysm();
+
+// Glitch the entire page immediately
+document.body.style.animation = 'page-break-glitch 0.5s ease-out';
+
+// Add broken CSS overlay
+const brokenOverlay = document.createElement('div');
+brokenOverlay.id = 'broken-site-overlay';
+brokenOverlay.innerHTML = '<div class="error-text">⚠️ SITE.EXE HAS STOPPED WORKING ⚠️</div><div class="glitch-bars"></div>';
+document.body.appendChild(brokenOverlay);
+setTimeout(() => brokenOverlay.remove(), 3000);
 
 // Second wave cataclysm after 10 seconds
 setTimeout(triggerCataclysm, 10000);
