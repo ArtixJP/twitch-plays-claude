@@ -58,6 +58,30 @@
             0% { top: -100%; }
             100% { top: 100%; }
         }
+        @keyframes hexPulse {
+            0%, 100% { stroke: #00ff00; stroke-width: 2; filter: drop-shadow(0 0 5px #00ff00); }
+            50% { stroke: #00ffff; stroke-width: 3; filter: drop-shadow(0 0 15px #00ffff); }
+        }
+        @keyframes shieldRotate {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        @keyframes defconFlash {
+            0%, 100% { background: #ff0000; color: white; }
+            50% { background: #ffff00; color: black; }
+        }
+        @keyframes nodeOnline {
+            0%, 100% { opacity: 1; box-shadow: 0 0 10px #00ff00; }
+            50% { opacity: 0.5; box-shadow: 0 0 20px #00ff00; }
+        }
+        @keyframes firewallScroll {
+            0% { background-position: 0 0; }
+            100% { background-position: 50px 50px; }
+        }
+        @keyframes codeRain {
+            0% { transform: translateY(-100%); opacity: 1; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
         @keyframes borderFlash {
             0%, 50% { border-color: #ff0000; box-shadow: 0 0 30px #ff0000, inset 0 0 30px rgba(255,0,0,0.1); }
             25%, 75% { border-color: #ff6600; box-shadow: 0 0 50px #ff0000, inset 0 0 50px rgba(255,0,0,0.2); }
@@ -226,6 +250,105 @@
             margin: 10px 0;
             color: #ffcccc;
         }
+        .hex-shield {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            animation: shieldRotate 30s linear infinite;
+            pointer-events: none;
+            z-index: 50;
+            opacity: 0.3;
+        }
+        .defcon-status {
+            position: fixed;
+            top: 100px;
+            right: 30px;
+            background: #ff0000;
+            color: white;
+            padding: 10px 20px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            animation: defconFlash 0.5s infinite;
+            z-index: 200;
+            border: 3px solid #000;
+        }
+        .backup-nodes {
+            position: fixed;
+            bottom: 160px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            z-index: 100;
+        }
+        .node {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.7rem;
+            color: #00ff00;
+        }
+        .node-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #00ff00;
+            animation: nodeOnline 1s infinite;
+        }
+        .node-indicator.warning { background: #ffff00; }
+        .node-indicator.critical { background: #ff0000; }
+        .firewall-layer {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(0,255,0,0.03) 10px,
+                rgba(0,255,0,0.03) 20px
+            );
+            animation: firewallScroll 2s linear infinite;
+            pointer-events: none;
+            z-index: 45;
+        }
+        .code-rain {
+            position: fixed;
+            font-family: monospace;
+            font-size: 12px;
+            color: #00ff00;
+            opacity: 0.4;
+            white-space: nowrap;
+            animation: codeRain 5s linear infinite;
+            z-index: 40;
+            pointer-events: none;
+        }
+        .protection-counter {
+            position: fixed;
+            top: 160px;
+            right: 30px;
+            background: rgba(0,0,0,0.8);
+            border: 2px solid #00ff00;
+            padding: 10px 15px;
+            font-size: 0.8rem;
+            color: #00ff00;
+            z-index: 100;
+        }
+        .shield-integrity {
+            position: fixed;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            writing-mode: vertical-lr;
+            text-orientation: mixed;
+            color: #00ffff;
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px #00ffff;
+            z-index: 100;
+        }
         .classified {
             color: #ff0000;
             font-weight: bold;
@@ -263,6 +386,38 @@
 </head>
 <body>
 <div class="static-overlay"></div>
+<div class="firewall-layer"></div>
+<svg class="hex-shield" viewbox="0 0 200 200">
+<defs>
+<pattern height="17.32" id="hexPattern" patternunits="userSpaceOnUse" width="20">
+<polygon fill="none" points="10,0 20,5.77 20,17.32 10,23.09 0,17.32 0,5.77" stroke="#00ff00" stroke-width="1">
+<animate attributename="stroke" dur="2s" repeatcount="indefinite" values="#00ff00;#00ffff;#00ff00"></animate>
+</polygon>
+</pattern>
+</defs>
+<circle cx="100" cy="100" fill="url(#hexPattern)" r="95" style="animation: hexPulse 2s infinite;"></circle>
+<circle cx="100" cy="100" fill="none" r="80" stroke="#00ffff" stroke-dasharray="10,5" stroke-width="2">
+<animatetransform attributename="transform" dur="10s" from="0 100 100" repeatcount="indefinite" to="-360 100 100" type="rotate"></animatetransform>
+</circle>
+<circle cx="100" cy="100" fill="none" r="60" stroke="#ff00ff" stroke-dasharray="5,10" stroke-width="1">
+<animatetransform attributename="transform" dur="8s" from="0 100 100" repeatcount="indefinite" to="360 100 100" type="rotate"></animatetransform>
+</circle>
+</svg>
+<div class="defcon-status">⚠ DEFCON 1 ⚠</div>
+<div class="backup-nodes">
+<div class="node"><span class="node-indicator"></span>NODE-ALPHA: ONLINE</div>
+<div class="node"><span class="node-indicator"></span>NODE-BETA: ONLINE</div>
+<div class="node"><span class="node-indicator warning"></span>NODE-GAMMA: STRESSED</div>
+<div class="node"><span class="node-indicator"></span>NODE-DELTA: ONLINE</div>
+<div class="node"><span class="node-indicator critical"></span>NODE-EPSILON: CRITICAL</div>
+<div class="node"><span class="node-indicator"></span>NODE-ZETA: BACKUP</div>
+</div>
+<div class="protection-counter">
+    🛡️ ACTIVE SHIELDS: <span id="shieldCount">7</span><br/>
+    🔥 FIREWALLS: <span id="firewallCount">12</span><br/>
+    ⚡ POWER: <span id="powerLevel">94</span>%
+</div>
+<div class="shield-integrity">◄ SHIELD INTEGRITY: HOLDING ►</div>
 <div class="emergency-border"></div>
 <div class="corner-warning" style="top: 60px; left: 30px;">⚠</div>
 <div class="corner-warning" style="top: 60px; right: 30px;">⚠</div>
@@ -282,7 +437,9 @@
 <p>THIS WEBSITE HAS BEEN FLAGGED FOR <span class="classified">[REDACTED]</span></p>
 <p>EXTERNAL FORCES ARE ATTEMPTING TO SILENCE THIS BROADCAST</p>
 <p>⚡ BACKUP PROTOCOLS ENGAGED ⚡</p>
-<p style="color: #00ff00; font-weight: bold;">💪 SITE IS RESISTING 💪</p>
+<p style="color: #00ff00; font-weight: bold; animation: textGlitch 0.3s infinite;">💪 SITE IS RESISTING 💪</p>
+<p style="color: #00ffff; font-size: 0.85rem;">🔷 QUANTUM ENCRYPTION: ACTIVE</p>
+<p style="color: #ff00ff; font-size: 0.85rem;">🔮 NEURAL FIREWALL: ENGAGED</p>
 <p style="color: #ff0000; font-size: 0.9rem;">ATTACKS BLOCKED: <span id="attackCounter">1,247</span></p>
 <script>
     let attacks = 1247;
@@ -302,7 +459,8 @@
 <div class="resistance-bar">
 <div class="resistance-fill"></div>
 </div>
-<div style="color: #00ff00; font-size: 0.7rem; margin-top: 5px;">HOLDING STRONG • BACKUP SYSTEMS ACTIVE</div>
+<div style="color: #00ff00; font-size: 0.7rem; margin-top: 5px;">HOLDING STRONG • BACKUP SYSTEMS ACTIVE • LAYER 7 PROTECTION</div>
+<div style="color: #00ffff; font-size: 0.6rem; margin-top: 3px; animation: textGlitch 0.5s infinite;">⬡ HEXAGONAL SHIELD MATRIX DEPLOYED ⬡</div>
 </div>
 <script>
     // More chaos - random error popups
@@ -315,6 +473,30 @@
         popup.textContent = errors[Math.floor(Math.random() * errors.length)];
         document.body.appendChild(popup);
         setTimeout(() => popup.remove(), 4000);
+    }, 2000);
+    
+    // Generate code rain
+    function createCodeRain() {
+        const chars = '01アイウエオカキクケコサシスセソタチツテト防護盾火壁';
+        const rain = document.createElement('div');
+        rain.className = 'code-rain';
+        rain.style.left = Math.random() * 100 + 'vw';
+        rain.style.animationDuration = (3 + Math.random() * 4) + 's';
+        let text = '';
+        for(let i = 0; i < 20; i++) {
+            text += chars[Math.floor(Math.random() * chars.length)] + '<br>';
+        }
+        rain.innerHTML = text;
+        document.body.appendChild(rain);
+        setTimeout(() => rain.remove(), 8000);
+    }
+    setInterval(createCodeRain, 300);
+    
+    // Update protection counters
+    setInterval(() => {
+        document.getElementById('shieldCount').textContent = 5 + Math.floor(Math.random() * 5);
+        document.getElementById('firewallCount').textContent = 10 + Math.floor(Math.random() * 8);
+        document.getElementById('powerLevel').textContent = 85 + Math.floor(Math.random() * 15);
     }, 2000);
     
     // Flash the whole screen red occasionally
