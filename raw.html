@@ -330,7 +330,7 @@
         
         draw() {
             if (!this.alive) return;
-            const ctx = window.stickCtx || ctx;
+            const stickCtx = ctx;
             
             ctx.save();
             ctx.translate(this.x, this.y);
