@@ -153,7 +153,7 @@
 <div>🎮 VOXEL WORLD</div>
 <div>Position: <span id="pos">0, 0, 0</span></div>
 <div>Blocks: <span id="block-count">0</span></div>
-<div>Characters: <span id="char-count">20</span> 🧑‍🌾🐑🐷🧙</div>
+<div>Characters: <span id="char-count">21</span> 🧑‍🌾🐑🐷🧙🍄</div>
 </div>
 <div id="mode-indicator">🤖 AUTO-EXPLORE MODE</div>
 <div id="crosshair"></div>
@@ -400,6 +400,101 @@
                     group.add(leg);
                 });
                 
+            } else if (type === 'mario') {
+                // It's-a me, Mario! Voxel style
+                const red = new THREE.MeshLambertMaterial({color: 0xFF0000});
+                const blue = new THREE.MeshLambertMaterial({color: 0x0000FF});
+                const skin = new THREE.MeshLambertMaterial({color: 0xFFDBB4});
+                const brown = new THREE.MeshLambertMaterial({color: 0x8B4513});
+                
+                // Head
+                const head = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), skin);
+                head.position.y = 1.5;
+                group.add(head);
+                
+                // Mario's iconic cap
+                const capMain = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.15, 0.55), red);
+                capMain.position.y = 1.8;
+                group.add(capMain);
+                const capBrim = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.08, 0.2), red);
+                capBrim.position.set(0, 1.72, 0.35);
+                group.add(capBrim);
+                
+                // M emblem on cap
+                const mLogo = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.12, 0.02), new THREE.MeshBasicMaterial({color: 0xFFFFFF}));
+                mLogo.position.set(0, 1.78, 0.29);
+                group.add(mLogo);
+                
+                // Mustache
+                const mustache = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.08, 0.1), brown);
+                mustache.position.set(0, 1.35, 0.25);
+                group.add(mustache);
+                
+                // Eyes
+                const eyeMat = new THREE.MeshBasicMaterial({color: 0x000000});
+                const leftEye = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.05), eyeMat);
+                leftEye.position.set(-0.12, 1.55, 0.25);
+                group.add(leftEye);
+                const rightEye = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.05), eyeMat);
+                rightEye.position.set(0.12, 1.55, 0.25);
+                group.add(rightEye);
+                
+                // Body (red shirt)
+                const body = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.3), red);
+                body.position.y = 1.0;
+                group.add(body);
+                
+                // Blue overalls
+                const overalls = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.35, 0.32), blue);
+                overalls.position.y = 0.75;
+                group.add(overalls);
+                
+                // Yellow buttons on overalls
+                const buttonMat = new THREE.MeshBasicMaterial({color: 0xFFD700});
+                const leftButton = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.05), buttonMat);
+                leftButton.position.set(-0.15, 0.85, 0.18);
+                group.add(leftButton);
+                const rightButton = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.05), buttonMat);
+                rightButton.position.set(0.15, 0.85, 0.18);
+                group.add(rightButton);
+                
+                // Legs (blue)
+                const leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.5, 0.25), blue);
+                leftLeg.position.set(-0.12, 0.35, 0);
+                leftLeg.name = 'leftLeg';
+                group.add(leftLeg);
+                const rightLeg = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.5, 0.25), blue);
+                rightLeg.position.set(0.12, 0.35, 0);
+                rightLeg.name = 'rightLeg';
+                group.add(rightLeg);
+                
+                // Brown shoes
+                const leftShoe = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.12, 0.35), brown);
+                leftShoe.position.set(-0.12, 0.1, 0.05);
+                group.add(leftShoe);
+                const rightShoe = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.12, 0.35), brown);
+                rightShoe.position.set(0.12, 0.1, 0.05);
+                group.add(rightShoe);
+                
+                // Arms (red sleeves with skin hands)
+                const leftArm = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.4, 0.15), red);
+                leftArm.position.set(-0.35, 1.0, 0);
+                leftArm.name = 'leftArm';
+                group.add(leftArm);
+                const rightArm = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.4, 0.15), red);
+                rightArm.position.set(0.35, 1.0, 0);
+                rightArm.name = 'rightArm';
+                group.add(rightArm);
+                
+                // Gloves (white)
+                const gloveMat = new THREE.MeshLambertMaterial({color: 0xFFFFFF});
+                const leftGlove = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.15, 0.18), gloveMat);
+                leftGlove.position.set(-0.35, 0.72, 0);
+                group.add(leftGlove);
+                const rightGlove = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.15, 0.18), gloveMat);
+                rightGlove.position.set(0.35, 0.72, 0);
+                group.add(rightGlove);
+                
             } else if (type === 'wizard') {
                 // Mysterious robed figure
                 const robeColor = new THREE.MeshLambertMaterial({color: 0x4B0082});
@@ -470,6 +565,9 @@
         }
         // One mysterious wizard
         createVoxelCharacter('wizard', 10, 10);
+        
+        // It's-a Mario!
+        createVoxelCharacter('mario', -5, 8);
 
         function updateCharacters(time) {
             characters.forEach(char => {
@@ -491,7 +589,7 @@
                 const dist = Math.sqrt(dx*dx + dz*dz);
                 
                 if (dist > 0.5) {
-                    const speed = data.type === 'wizard' ? 0.02 : 0.03;
+                    const speed = data.type === 'wizard' ? 0.02 : (data.type === 'mario' ? 0.05 : 0.03);
                     char.position.x += (dx / dist) * speed;
                     char.position.z += (dz / dist) * speed;
                     char.rotation.y = Math.atan2(dx, dz);
