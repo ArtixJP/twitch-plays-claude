@@ -59,6 +59,47 @@
         .score-display { color: #ffd700; }
         .level-display { color: #7fff7f; }
         .fragments-display { color: #ff7fff; }
+        .lives-display { color: #ff6b6b; }
+        .stickman-alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
+            color: #ff6b6b;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            z-index: 200;
+            opacity: 0;
+            pointer-events: none;
+            text-shadow: 0 0 20px #ff6b6b;
+        }
+        .stickman-alert.show {
+            animation: alertPulse 1.5s ease-out forwards;
+        }
+        @keyframes alertPulse {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+            80% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        .goal-marker {
+            position: fixed;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 100px;
+            background: linear-gradient(180deg, rgba(255,100,100,0.1) 0%, rgba(255,50,50,0.3) 50%, rgba(255,100,100,0.1) 100%);
+            border: 2px dashed rgba(255,100,100,0.5);
+            border-radius: 5px;
+            z-index: 5;
+            animation: goalPulse 2s ease-in-out infinite;
+        }
+        @keyframes goalPulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(255,100,100,0.3); }
+            50% { box-shadow: 0 0 25px rgba(255,100,100,0.6); }
+        }
         .game-title {
             position: fixed;
             top: 60px;
@@ -209,11 +250,14 @@
 <div class="score-display">★ SCORE: <span id="score">0</span></div>
 <div class="level-display">◆ LEVEL: <span id="level">1</span></div>
 <div class="fragments-display">✦ FRAGMENTS: <span id="fragments">0</span>/<span id="target">5</span></div>
+<div class="lives-display">♥ LIVES: <span id="lives">3</span></div>
 </div>
 <div class="ball-counter">ORBS: <span id="ball-count">0</span></div>
 <div class="game-title">Orb Harvest</div>
 <div class="level-up" id="level-up">LEVEL UP!</div>
-<div class="rules-hint">Click to spawn orbs • Orbs collect star fragments on contact<br/>Golden orbs = 3x points • Reach target to level up!</div>
+<div class="stickman-alert" id="stickman-alert">STICKMAN ESCAPED!</div>
+<div class="goal-marker"><span style="position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:0.6rem;color:rgba(255,100,100,0.7);letter-spacing:1px;">GOAL</span></div>
+<div class="rules-hint">Click to spawn orbs • Block the stickman from reaching his goal!<br/>Orbs push him back • Golden orbs = 3x points • Don't let him escape!</div>
 <button class="gravity-btn" id="gravity-toggle"><span class="arrow">↓</span> GRAVITY <span class="arrow">↓</span></button>
 <script>
 (function() {
@@ -230,6 +274,197 @@
     let level = 1;
     let fragmentsCollected = 0;
     let targetFragments = 5;
+    let lives = 3;
+    let stickmen = [];
+    let stickmanSpawnTimer = 0;
+    const STICKMAN_SPAWN_INTERVAL = 300; // frames between spawns
+    
+    class Stickman {
+        constructor() {
+            this.x = 50;
+            this.y = canvas.height / 2 + (Math.random() - 0.5) * 200;
+            this.targetX = canvas.width - 60;
+            this.speed = 1 + level * 0.3;
+            this.baseSpeed = this.speed;
+            this.vx = 0;
+            this.vy = 0;
+            this.legPhase = 0;
+            this.armPhase = 0;
+            this.knockback = 0;
+            this.alive = true;
+            this.reached = false;
+            this.color = `hsl(${Math.random() * 60 + 180}, 70%, 60%)`;
+        }
+        
+        update() {
+            if (!this.alive) return;
+            
+            // Apply knockback decay
+            this.knockback *= 0.95;
+            this.vx *= 0.9;
+            this.vy *= 0.9;
+            
+            // Move towards goal
+            if (this.knockback < 0.5) {
+                this.x += this.speed;
+            }
+            
+            // Apply velocity from knockback
+            this.x += this.vx;
+            this.y += this.vy;
+            
+            // Keep in bounds vertically
+            this.y = Math.max(80, Math.min(canvas.height - 80, this.y));
+            this.x = Math.max(30, this.x);
+            
+            // Animation phases
+            this.legPhase += 0.15 * this.speed;
+            this.armPhase += 0.12 * this.speed;
+            
+            // Check if reached goal
+            if (this.x >= this.targetX) {
+                this.reached = true;
+                this.alive = false;
+            }
+        }
+        
+        draw() {
+            if (!this.alive) return;
+            const ctx = window.stickCtx || ctx;
+            
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            
+            // Knockback wobble
+            if (this.knockback > 0.5) {
+                ctx.rotate(Math.sin(Date.now() * 0.05) * 0.2 * this.knockback);
+            }
+            
+            ctx.strokeStyle = this.color;
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+            
+            // Head
+            ctx.beginPath();
+            ctx.arc(0, -35, 10, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // Eyes (looking towards goal)
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            ctx.arc(3, -37, 2, 0, Math.PI * 2);
+            ctx.arc(7, -37, 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Body
+            ctx.beginPath();
+            ctx.moveTo(0, -25);
+            ctx.lineTo(0, 5);
+            ctx.stroke();
+            
+            // Arms (swinging)
+            const armSwing = Math.sin(this.armPhase) * 25;
+            ctx.beginPath();
+            ctx.moveTo(0, -15);
+            ctx.lineTo(-15, -5 + armSwing * 0.5);
+            ctx.moveTo(0, -15);
+            ctx.lineTo(15, -5 - armSwing * 0.5);
+            ctx.stroke();
+            
+            // Legs (walking animation)
+            const legSwing = Math.sin(this.legPhase) * 20;
+            ctx.beginPath();
+            ctx.moveTo(0, 5);
+            ctx.lineTo(-10 + legSwing * 0.3, 30);
+            ctx.moveTo(0, 5);
+            ctx.lineTo(10 - legSwing * 0.3, 30);
+            ctx.stroke();
+            
+            // Determination indicator (exclamation when close to goal)
+            if (this.x > this.targetX - 150) {
+                ctx.fillStyle = 'rgba(255,100,100,0.8)';
+                ctx.font = '12px Arial';
+                ctx.fillText('!', 15, -40);
+            }
+            
+            ctx.restore();
+        }
+        
+        checkCollision(ball) {
+            const dx = this.x - ball.x;
+            const dy = this.y - 10 - ball.y; // Offset for stickman center
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const hitRadius = 35 + ball.radius;
+            
+            if (dist < hitRadius) {
+                // Calculate knockback
+                const force = (ball.radius / 10) * 3 + Math.abs(ball.vx) + Math.abs(ball.vy) * 0.5;
+                const angle = Math.atan2(dy, dx);
+                this.vx += Math.cos(angle) * force * 2;
+                this.vy += Math.sin(angle) * force;
+                this.knockback = Math.min(5, this.knockback + force);
+                this.x = Math.max(30, this.x); // Don't go off screen
+                return true;
+            }
+            return false;
+        }
+    }
+    
+    function spawnStickman() {
+        const stick = new Stickman();
+        stickmen.push(stick);
+        playStickmanSpawnSound();
+    }
+    
+    function playStickmanSpawnSound() {
+        if (!audioCtx) return;
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(200, now);
+        osc.frequency.exponentialRampToValueAtTime(400, now + 0.1);
+        gain.gain.setValueAtTime(0.05, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.2);
+    }
+    
+    function playStickmanHitSound() {
+        if (!audioCtx) return;
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(300, now);
+        osc.frequency.exponentialRampToValueAtTime(150, now + 0.1);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.15);
+    }
+    
+    function playStickmanEscapeSound() {
+        if (!audioCtx) return;
+        const now = audioCtx.currentTime;
+        [0, 0.1, 0.2].forEach((d, i) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(400 - i * 80, now + d);
+            osc.frequency.exponentialRampToValueAtTime(100, now + d + 0.2);
+            gain.gain.setValueAtTime(0.08, now + d);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + d + 0.25);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now + d);
+            osc.stop(now + d + 0.3);
+        });
+    }
     
     class Fragment {
         constructor() {
@@ -742,6 +977,55 @@
         }
         
         checkCollisions();
+        
+        // Update stickmen
+        stickmanSpawnTimer++;
+        if (stickmanSpawnTimer >= STICKMAN_SPAWN_INTERVAL / (1 + level * 0.1)) {
+            stickmanSpawnTimer = 0;
+            if (stickmen.filter(s => s.alive).length < 3 + Math.floor(level / 2)) {
+                spawnStickman();
+            }
+        }
+        
+        for (let stick of stickmen) {
+            stick.update();
+            stick.draw();
+            
+            // Check collisions with balls
+            for (let ball of balls) {
+                if (stick.checkCollision(ball)) {
+                    playStickmanHitSound();
+                    score += 5 * level;
+                    document.getElementById('score').textContent = score;
+                }
+            }
+            
+            // Check if escaped
+            if (stick.reached) {
+                lives--;
+                document.getElementById('lives').textContent = lives;
+                const alertEl = document.getElementById('stickman-alert');
+                alertEl.classList.remove('show');
+                void alertEl.offsetWidth;
+                alertEl.classList.add('show');
+                playStickmanEscapeSound();
+                
+                if (lives <= 0) {
+                    // Game over - reset
+                    lives = 3;
+                    score = Math.max(0, score - 100);
+                    level = Math.max(1, level - 1);
+                    document.getElementById('lives').textContent = lives;
+                    document.getElementById('score').textContent = score;
+                    document.getElementById('level').textContent = level;
+                }
+            }
+        }
+        
+        // Remove dead stickmen
+        for (let i = stickmen.length - 1; i >= 0; i--) {
+            if (!stickmen[i].alive) stickmen.splice(i, 1);
+        }
         
         requestAnimationFrame(animate);
     }
