@@ -1,45 +1,399 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Twitch plays Claude</title>
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Christmas Trivia Party 🎄</title>
+<style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body { 
-            font-family: system-ui, sans-serif; 
-            display: flex; 
-            flex-direction: column;
-            justify-content: center; 
-            align-items: center; 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
             min-height: 100vh; 
-            margin: 0;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: linear-gradient(180deg, #0c1445 0%, #1a237e 50%, #0d47a1 100%);
             color: white;
+            overflow-x: hidden;
         }
-        h1 { font-size: 3rem; text-align: center; margin-bottom: 1rem; }
-        .instruction {
-            text-align: center;
-            font-size: 1.2rem;
-            color: #a0aec0;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 0 20px;
-            line-height: 1.6;
-        }
-        .instruction code {
-            background: rgba(145, 71, 255, 0.2);
-            padding: 2px 8px;
-            border-radius: 4px;
-            color: #bf94ff;
-        }
+        .snowflakes { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+        .snowflake { position: absolute; color: #fff; font-size: 1em; opacity: 0.8; animation: fall linear infinite; }
+        @keyframes fall { 0% { transform: translateY(-10vh) rotate(0deg); } 100% { transform: translateY(110vh) rotate(360deg); } }
+        
+        .container { position: relative; z-index: 1; padding: 15px; max-width: 800px; margin: 0 auto; }
+        
+        .header { text-align: center; margin-bottom: 15px; }
+        .header h1 { font-size: 2rem; text-shadow: 0 0 20px #ff6b6b, 0 0 40px #ff6b6b; color: #fff; }
+        .header h1 span { color: #4caf50; }
+        
+        .game-code { background: rgba(255,255,255,0.1); padding: 8px 20px; border-radius: 20px; display: inline-block; margin-top: 8px; }
+        .game-code span { font-size: 1.5rem; font-weight: bold; letter-spacing: 4px; color: #ffd700; }
+        
+        .main-screen { display: none; }
+        .main-screen.active { display: block; }
+        
+        /* Menu Screen */
+        .menu-buttons { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
+        .btn { padding: 15px 30px; font-size: 1.1rem; border: none; border-radius: 12px; cursor: pointer; transition: all 0.3s; font-weight: bold; }
+        .btn-host { background: linear-gradient(135deg, #c62828, #b71c1c); color: white; }
+        .btn-join { background: linear-gradient(135deg, #2e7d32, #1b5e20); color: white; }
+        .btn:hover { transform: scale(1.05); box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
+        
+        .join-input { margin-top: 15px; display: none; }
+        .join-input.show { display: block; }
+        .join-input input { padding: 12px; font-size: 1.2rem; border-radius: 8px; border: 2px solid #4caf50; width: 150px; text-align: center; text-transform: uppercase; letter-spacing: 3px; }
+        
+        /* Lobby */
+        .lobby { background: rgba(0,0,0,0.3); border-radius: 15px; padding: 15px; }
+        .players-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin: 15px 0; }
+        .player-card { background: linear-gradient(135deg, #1e88e5, #1565c0); padding: 10px; border-radius: 10px; text-align: center; animation: popIn 0.3s ease; }
+        .player-card.host { background: linear-gradient(135deg, #ffd700, #ff8c00); color: #000; }
+        @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+        .player-avatar { font-size: 2rem; }
+        .player-name { font-size: 0.9rem; margin-top: 5px; font-weight: bold; }
+        
+        /* Question Screen */
+        .question-container { background: rgba(255,255,255,0.1); border-radius: 15px; padding: 20px; }
+        .timer-bar { height: 8px; background: #333; border-radius: 4px; overflow: hidden; margin-bottom: 15px; }
+        .timer-fill { height: 100%; background: linear-gradient(90deg, #4caf50, #ffeb3b, #f44336); transition: width 0.1s linear; }
+        .question-number { color: #ffd700; font-size: 0.9rem; margin-bottom: 5px; }
+        .question-text { font-size: 1.3rem; font-weight: bold; margin-bottom: 20px; text-align: center; }
+        
+        .answers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .answer-btn { padding: 15px; font-size: 1rem; border: 3px solid transparent; border-radius: 10px; cursor: pointer; transition: all 0.2s; font-weight: bold; }
+        .answer-btn:nth-child(1) { background: #e53935; }
+        .answer-btn:nth-child(2) { background: #1e88e5; }
+        .answer-btn:nth-child(3) { background: #fdd835; color: #000; }
+        .answer-btn:nth-child(4) { background: #43a047; }
+        .answer-btn:hover { transform: scale(1.02); border-color: white; }
+        .answer-btn.selected { border-color: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.5); }
+        .answer-btn.correct { background: #4caf50 !important; color: white !important; }
+        .answer-btn.wrong { background: #333 !important; opacity: 0.5; }
+        
+        /* Leaderboard */
+        .leaderboard { margin-top: 15px; }
+        .leaderboard h3 { text-align: center; color: #ffd700; margin-bottom: 10px; }
+        .leaderboard-list { background: rgba(0,0,0,0.3); border-radius: 10px; padding: 10px; }
+        .leaderboard-item { display: flex; align-items: center; padding: 8px; border-radius: 8px; margin-bottom: 5px; }
+        .leaderboard-item:nth-child(1) { background: linear-gradient(90deg, rgba(255,215,0,0.3), transparent); }
+        .leaderboard-item:nth-child(2) { background: linear-gradient(90deg, rgba(192,192,192,0.3), transparent); }
+        .leaderboard-item:nth-child(3) { background: linear-gradient(90deg, rgba(205,127,50,0.3), transparent); }
+        .rank { font-size: 1.2rem; width: 30px; }
+        .lb-name { flex: 1; font-weight: bold; }
+        .lb-score { color: #ffd700; font-weight: bold; }
+        .lb-change { font-size: 0.8rem; margin-left: 8px; }
+        .lb-change.positive { color: #4caf50; }
+        
+        /* Results */
+        .results-overlay { text-align: center; padding: 20px; }
+        .correct-answer { font-size: 1.2rem; color: #4caf50; margin: 15px 0; }
+        .points-earned { font-size: 2rem; color: #ffd700; animation: pulse 0.5s ease; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+        
+        .waiting-indicator { text-align: center; color: #aaa; margin-top: 15px; }
+        .waiting-indicator .dots::after { content: ''; animation: dots 1.5s infinite; }
+        @keyframes dots { 0% { content: '.'; } 33% { content: '..'; } 66% { content: '...'; } }
+        
+        .ornament { position: fixed; font-size: 2rem; opacity: 0.6; z-index: 0; }
     </style>
 </head>
 <body>
-    <h1>Hello World!</h1>
-    <p class="instruction">
-        Type <code>!idea &lt;your idea&gt;</code> in the Twitch chat to add to this page.<br>
-        Example: <code>!idea Add a space cat floating in the background</code>
-    </p>
+<div class="snowflakes" id="snowflakes"></div>
+<div class="ornament" style="top: 10%; left: 5%;">🎄</div>
+<div class="ornament" style="top: 20%; right: 8%;">⭐</div>
+<div class="ornament" style="bottom: 15%; left: 10%;">🎁</div>
+<div class="ornament" style="bottom: 25%; right: 5%;">🔔</div>
+<div class="container">
+<div class="header">
+<h1>🎅 Christmas <span>Trivia</span> Party 🎄</h1>
+</div>
+
+<div class="main-screen active" id="menuScreen">
+<div class="menu-buttons">
+<button class="btn btn-host" onclick="hostGame()">🎄 Host Game</button>
+<button class="btn btn-join" onclick="showJoinInput()">🎁 Join Game</button>
+</div>
+<div class="join-input" id="joinInput">
+<input id="codeInput" maxlength="4" onkeyup="this.value = this.value.toUpperCase()" placeholder="CODE" type="text"/>
+<button class="btn btn-join" onclick="joinGame()" style="margin-left: 10px;">Enter</button>
+</div>
+</div>
+
+<div class="main-screen" id="lobbyScreen">
+<div class="game-code">Room Code: <span id="roomCode">XMAS</span></div>
+<div class="lobby">
+<h3 style="text-align: center; margin-bottom: 10px;">🎅 Players in Lobby</h3>
+<div class="players-grid" id="playersGrid"></div>
+<div style="text-align: center;">
+<button class="btn btn-host" id="startBtn" onclick="startGame()" style="display: none;">🎮 Start Game!</button>
+<p class="waiting-indicator">Waiting for host to start<span class="dots"></span></p>
+</div>
+</div>
+</div>
+
+<div class="main-screen" id="gameScreen">
+<div class="question-container">
+<div class="timer-bar"><div class="timer-fill" id="timerFill" style="width: 100%;"></div></div>
+<div class="question-number" id="questionNum">Question 1 of 10</div>
+<div class="question-text" id="questionText">Loading question...</div>
+<div class="answers-grid" id="answersGrid"></div>
+<div class="waiting-indicator" id="waitingAnswers" style="display: none;">Waiting for other players<span class="dots"></span></div>
+</div>
+<div class="leaderboard">
+<h3>🏆 Leaderboard</h3>
+<div class="leaderboard-list" id="leaderboardList"></div>
+</div>
+</div>
+
+<div class="main-screen" id="resultsScreen">
+<div class="results-overlay">
+<h2>🎄 Game Over! 🎄</h2>
+<div class="leaderboard" style="margin-top: 20px;">
+<h3>🏆 Final Standings</h3>
+<div class="leaderboard-list" id="finalLeaderboard"></div>
+</div>
+<button class="btn btn-host" onclick="location.reload()" style="margin-top: 20px;">🔄 Play Again</button>
+</div>
+</div>
+</div>
+<script>
+        // Christmas Trivia Questions (AI-style variety)
+        const questionBank = [
+            { q: "In which country did the tradition of decorating Christmas trees originate?", a: ["Germany", "England", "France", "Sweden"], correct: 0 },
+            { q: "What is the name of the Grinch's dog in 'How the Grinch Stole Christmas'?", a: ["Max", "Buddy", "Rex", "Spot"], correct: 0 },
+            { q: "How many reindeer pull Santa's sleigh (including Rudolph)?", a: ["9", "8", "10", "7"], correct: 0 },
+            { q: "Which Christmas song holds the record for best-selling single of all time?", a: ["White Christmas", "Jingle Bells", "Silent Night", "Last Christmas"], correct: 0 },
+            { q: "What plant is traditionally hung for kissing underneath at Christmas?", a: ["Mistletoe", "Holly", "Poinsettia", "Ivy"], correct: 0 },
+            { q: "In 'Home Alone', where is the family going on vacation when they leave Kevin behind?", a: ["Paris", "London", "Rome", "Madrid"], correct: 0 },
+            { q: "What color are mistletoe berries?", a: ["White", "Red", "Blue", "Black"], correct: 0 },
+            { q: "Which country started the tradition of putting up a Christmas tree?", a: ["Germany", "USA", "Norway", "Finland"], correct: 0 },
+            { q: "What is Frosty the Snowman's nose made of?", a: ["Button", "Carrot", "Coal", "Stick"], correct: 0 },
+            { q: "In the song '12 Days of Christmas', what is given on the 5th day?", a: ["Golden Rings", "Calling Birds", "French Hens", "Turtle Doves"], correct: 0 },
+            { q: "What do people traditionally put on top of a Christmas tree?", a: ["Star or Angel", "Snowflake", "Bell", "Candle"], correct: 0 },
+            { q: "Which reindeer shares its name with a famous symbol of love?", a: ["Cupid", "Comet", "Blitzen", "Prancer"], correct: 0 },
+            { q: "What is Boxing Day named after?", a: ["Gift boxes for the poor", "Boxing sport", "Cardboard boxes", "Music boxes"], correct: 0 },
+            { q: "In 'A Christmas Carol', what is Scrooge's first name?", a: ["Ebenezer", "Edward", "Ernest", "Edmund"], correct: 0 },
+            { q: "Which country donates the Christmas tree in Trafalgar Square each year?", a: ["Norway", "Sweden", "Finland", "Denmark"], correct: 0 }
+        ];
+        
+        const christmasEmojis = ['🎅', '🤶', '🦌', '⛄', '🎄', '🎁', '🔔', '⭐', '❄️', '🧝'];
+        const christmasNames = ['Jolly', 'Merry', 'Frosty', 'Snowy', 'Sparkle', 'Tinsel', 'Holly', 'Jingle', 'Candy', 'Ginger'];
+        
+        let gameState = {
+            isHost: false,
+            roomCode: '',
+            players: [],
+            currentQuestion: 0,
+            questions: [],
+            timer: null,
+            timeLeft: 30
+        };
+        
+        function generateCode() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+            return Array(4).fill().map(() => chars[Math.floor(Math.random() * chars.length)]).join('');
+        }
+        
+        function generatePlayer(name, isHost = false) {
+            return {
+                name: name || christmasNames[Math.floor(Math.random() * christmasNames.length)] + Math.floor(Math.random() * 99),
+                avatar: christmasEmojis[Math.floor(Math.random() * christmasEmojis.length)],
+                score: 0,
+                answered: false,
+                isHost: isHost
+            };
+        }
+        
+        function showScreen(screenId) {
+            document.querySelectorAll('.main-screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+        
+        function showJoinInput() {
+            document.getElementById('joinInput').classList.toggle('show');
+        }
+        
+        function hostGame() {
+            gameState.isHost = true;
+            gameState.roomCode = generateCode();
+            gameState.players = [generatePlayer('Host', true)];
+            document.getElementById('roomCode').textContent = gameState.roomCode;
+            document.getElementById('startBtn').style.display = 'inline-block';
+            document.querySelector('.waiting-indicator').style.display = 'none';
+            updatePlayersGrid();
+            showScreen('lobbyScreen');
+            simulateJoins();
+        }
+        
+        function joinGame() {
+            const code = document.getElementById('codeInput').value;
+            if (code.length === 4) {
+                gameState.roomCode = code;
+                gameState.players = [generatePlayer('Host', true), generatePlayer('You')];
+                document.getElementById('roomCode').textContent = code;
+                updatePlayersGrid();
+                showScreen('lobbyScreen');
+                simulateJoins();
+            }
+        }
+        
+        function simulateJoins() {
+            let joins = 0;
+            const interval = setInterval(() => {
+                if (joins < 3) {
+                    gameState.players.push(generatePlayer());
+                    updatePlayersGrid();
+                    joins++;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 1500);
+        }
+        
+        function updatePlayersGrid() {
+            const grid = document.getElementById('playersGrid');
+            grid.innerHTML = gameState.players.map(p => `
+                <div class="player-card ${p.isHost ? 'host' : ''}">
+                    <div class="player-avatar">${p.avatar}</div>
+                    <div class="player-name">${p.name}</div>
+                </div>
+            `).join('');
+        }
+        
+        function shuffleArray(arr) {
+            return arr.sort(() => Math.random() - 0.5);
+        }
+        
+        function startGame() {
+            gameState.questions = shuffleArray([...questionBank]).slice(0, 10);
+            gameState.currentQuestion = 0;
+            showScreen('gameScreen');
+            showQuestion();
+        }
+        
+        function showQuestion() {
+            const q = gameState.questions[gameState.currentQuestion];
+            document.getElementById('questionNum').textContent = `Question ${gameState.currentQuestion + 1} of ${gameState.questions.length}`;
+            document.getElementById('questionText').textContent = q.q;
+            
+            const grid = document.getElementById('answersGrid');
+            grid.innerHTML = q.a.map((ans, i) => `
+                <button class="answer-btn" data-index="${i}" onclick="selectAnswer(${i})">${ans}</button>
+            `).join('');
+            
+            document.getElementById('waitingAnswers').style.display = 'none';
+            updateLeaderboard();
+            startTimer();
+        }
+        
+        function startTimer() {
+            gameState.timeLeft = 30;
+            const fill = document.getElementById('timerFill');
+            clearInterval(gameState.timer);
+            
+            gameState.timer = setInterval(() => {
+                gameState.timeLeft--;
+                fill.style.width = (gameState.timeLeft / 30 * 100) + '%';
+                
+                if (gameState.timeLeft <= 0) {
+                    clearInterval(gameState.timer);
+                    revealAnswer();
+                }
+            }, 1000);
+        }
+        
+        function selectAnswer(index) {
+            document.querySelectorAll('.answer-btn').forEach(btn => btn.classList.remove('selected'));
+            document.querySelector(`.answer-btn[data-index="${index}"]`).classList.add('selected');
+            document.getElementById('waitingAnswers').style.display = 'block';
+            
+            // Simulate other players answering
+            setTimeout(() => {
+                clearInterval(gameState.timer);
+                revealAnswer(index);
+            }, 2000);
+        }
+        
+        function revealAnswer(selectedIndex = -1) {
+            const q = gameState.questions[gameState.currentQuestion];
+            const buttons = document.querySelectorAll('.answer-btn');
+            
+            buttons.forEach((btn, i) => {
+                btn.disabled = true;
+                if (i === q.correct) {
+                    btn.classList.add('correct');
+                } else {
+                    btn.classList.add('wrong');
+                }
+            });
+            
+            // Score calculation
+            if (selectedIndex === q.correct) {
+                const points = Math.round(100 + gameState.timeLeft * 10);
+                gameState.players[gameState.isHost ? 0 : 1].score += points;
+            }
+            
+            // Simulate other players scoring
+            gameState.players.forEach((p, i) => {
+                if (i > 1 && Math.random() > 0.4) {
+                    p.score += Math.round(50 + Math.random() * 200);
+                }
+            });
+            
+            updateLeaderboard(true);
+            
+            setTimeout(() => {
+                gameState.currentQuestion++;
+                if (gameState.currentQuestion < gameState.questions.length) {
+                    showQuestion();
+                } else {
+                    endGame();
+                }
+            }, 3000);
+        }
+        
+        function updateLeaderboard(showChange = false) {
+            const sorted = [...gameState.players].sort((a, b) => b.score - a.score);
+            const medals = ['🥇', '🥈', '🥉'];
+            
+            document.getElementById('leaderboardList').innerHTML = sorted.map((p, i) => `
+                <div class="leaderboard-item">
+                    <span class="rank">${medals[i] || (i + 1)}</span>
+                    <span class="lb-name">${p.avatar} ${p.name}</span>
+                    <span class="lb-score">${p.score}</span>
+                </div>
+            `).join('');
+        }
+        
+        function endGame() {
+            const sorted = [...gameState.players].sort((a, b) => b.score - a.score);
+            const medals = ['🥇', '🥈', '🥉'];
+            
+            document.getElementById('finalLeaderboard').innerHTML = sorted.map((p, i) => `
+                <div class="leaderboard-item">
+                    <span class="rank">${medals[i] || (i + 1)}</span>
+                    <span class="lb-name">${p.avatar} ${p.name}</span>
+                    <span class="lb-score">${p.score} pts</span>
+                </div>
+            `).join('');
+            
+            showScreen('resultsScreen');
+        }
+        
+        // Create snowflakes
+        function createSnowflakes() {
+            const container = document.getElementById('snowflakes');
+            for (let i = 0; i < 30; i++) {
+                const flake = document.createElement('div');
+                flake.className = 'snowflake';
+                flake.textContent = '❄';
+                flake.style.left = Math.random() * 100 + '%';
+                flake.style.animationDuration = (Math.random() * 3 + 4) + 's';
+                flake.style.animationDelay = Math.random() * 5 + 's';
+                flake.style.fontSize = (Math.random() * 10 + 8) + 'px';
+                container.appendChild(flake);
+            }
+        }
+        createSnowflakes();
+    </script>
 </body>
 </html>
