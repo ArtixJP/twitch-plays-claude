@@ -279,6 +279,46 @@
         text-align: center;
     }
     
+    .music-control.waiting-autoplay .music-btn {
+        animation: autoplay-pulse 1s ease-in-out infinite;
+        border-color: var(--neon-pink);
+        color: var(--neon-pink);
+    }
+    
+    .music-control.waiting-autoplay .music-label {
+        color: var(--neon-pink);
+        animation: label-blink 0.8s ease-in-out infinite;
+    }
+    
+    .music-control.waiting-autoplay::before {
+        content: '👆 CLICK TO VIBE';
+        position: absolute;
+        top: -35px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-family: 'Press Start 2P', cursive;
+        font-size: 0.35rem;
+        color: var(--neon-pink);
+        text-shadow: 0 0 10px var(--neon-pink);
+        white-space: nowrap;
+        animation: bounce-hint 1s ease-in-out infinite;
+    }
+    
+    @keyframes autoplay-pulse {
+        0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(255, 107, 157, 0.5); }
+        50% { transform: scale(1.1); box-shadow: 0 0 40px rgba(255, 107, 157, 0.8); }
+    }
+    
+    @keyframes label-blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+    
+    @keyframes bounce-hint {
+        0%, 100% { transform: translateX(-50%) translateY(0); }
+        50% { transform: translateX(-50%) translateY(-5px); }
+    }
+    
     .music-visualizer {
         display: flex;
         gap: 3px;
@@ -823,7 +863,7 @@
 <span class="prompt">matrix@twitch:~$</span> <span class="cursor"></span>
 </div>
 </div>
-<div class="music-control">
+<div class="music-control waiting-autoplay" id="music-control">
 <button class="music-btn" id="music-toggle" title="Toggle Chill Beats">🎵</button>
 <div class="music-visualizer">
 <div class="viz-bar" style="height: 5px;"></div>
@@ -1206,12 +1246,39 @@ class ChillMusicGenerator {
 
 const chillMusic = new ChillMusicGenerator();
 const musicBtn = document.getElementById('music-toggle');
+const musicControl = document.getElementById('music-control');
 const vizBars = document.querySelectorAll('.viz-bar');
 
-musicBtn.addEventListener('click', () => {
+// Autoplay on first user interaction (browsers require user gesture for audio)
+let hasAutoPlayed = false;
+function autoplayOnInteraction() {
+    if (hasAutoPlayed) return;
+    hasAutoPlayed = true;
+    
+    // Start the music!
     const playing = chillMusic.toggle();
-    musicBtn.classList.toggle('playing', playing);
-    musicBtn.textContent = playing ? '🎶' : '🎵';
+    musicBtn.classList.add('playing');
+    musicBtn.textContent = '🎶';
+    musicControl.classList.remove('waiting-autoplay');
+    
+    // Remove the listener after first trigger
+    document.removeEventListener('click', autoplayOnInteraction);
+    document.removeEventListener('touchstart', autoplayOnInteraction);
+    document.removeEventListener('keydown', autoplayOnInteraction);
+}
+
+// Listen for any user interaction
+document.addEventListener('click', autoplayOnInteraction);
+document.addEventListener('touchstart', autoplayOnInteraction);
+document.addEventListener('keydown', autoplayOnInteraction);
+
+musicBtn.addEventListener('click', (e) => {
+    if (hasAutoPlayed) {
+        const playing = chillMusic.toggle();
+        musicBtn.classList.toggle('playing', playing);
+        musicBtn.textContent = playing ? '🎶' : '🎵';
+    }
+    // If not autoplayed yet, the autoplayOnInteraction will handle it
 });
 
 // Visualizer animation
