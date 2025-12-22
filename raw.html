@@ -153,6 +153,7 @@
 <div>🎮 VOXEL WORLD</div>
 <div>Position: <span id="pos">0, 0, 0</span></div>
 <div>Blocks: <span id="block-count">0</span></div>
+<div>Characters: <span id="char-count">20</span> 🧑‍🌾🐑🐷🧙</div>
 </div>
 <div id="mode-indicator">🤖 AUTO-EXPLORE MODE</div>
 <div id="crosshair"></div>
@@ -292,6 +293,236 @@
         }
 
         document.getElementById('block-count').textContent = blockCount;
+
+        // === VOXEL CHARACTERS ===
+        const characters = [];
+        const characterGroup = new THREE.Group();
+        scene.add(characterGroup);
+
+        // Character colors
+        const skinColors = [0xFFDBB4, 0xE8B89D, 0xC68642, 0x8D5524];
+        const shirtColors = [0xFF6B6B, 0x4ECDC4, 0x45B7D1, 0x96CEB4, 0xFECE48, 0xAA96DA];
+        const pantsColors = [0x2C3E50, 0x8B4513, 0x34495E, 0x1E3D59];
+
+        function createVoxelCharacter(type, x, z) {
+            const group = new THREE.Group();
+            const terrainY = Math.floor(noise(x, z)) + 6;
+            
+            if (type === 'villager') {
+                const skin = skinColors[Math.floor(Math.random() * skinColors.length)];
+                const shirt = shirtColors[Math.floor(Math.random() * shirtColors.length)];
+                const pants = pantsColors[Math.floor(Math.random() * pantsColors.length)];
+                
+                // Head
+                const head = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshLambertMaterial({color: skin}));
+                head.position.y = 1.5;
+                group.add(head);
+                
+                // Eyes
+                const eyeMat = new THREE.MeshBasicMaterial({color: 0x000000});
+                const leftEye = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.05), eyeMat);
+                leftEye.position.set(-0.12, 1.55, 0.25);
+                group.add(leftEye);
+                const rightEye = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.05), eyeMat);
+                rightEye.position.set(0.12, 1.55, 0.25);
+                group.add(rightEye);
+                
+                // Body
+                const body = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.6, 0.3), new THREE.MeshLambertMaterial({color: shirt}));
+                body.position.y = 0.95;
+                group.add(body);
+                
+                // Legs
+                const legMat = new THREE.MeshLambertMaterial({color: pants});
+                const leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.5, 0.25), legMat);
+                leftLeg.position.set(-0.12, 0.4, 0);
+                leftLeg.name = 'leftLeg';
+                group.add(leftLeg);
+                const rightLeg = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.5, 0.25), legMat);
+                rightLeg.position.set(0.12, 0.4, 0);
+                rightLeg.name = 'rightLeg';
+                group.add(rightLeg);
+                
+                // Arms
+                const armMat = new THREE.MeshLambertMaterial({color: skin});
+                const leftArm = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.5, 0.15), armMat);
+                leftArm.position.set(-0.35, 0.95, 0);
+                leftArm.name = 'leftArm';
+                group.add(leftArm);
+                const rightArm = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.5, 0.15), armMat);
+                rightArm.position.set(0.35, 0.95, 0);
+                rightArm.name = 'rightArm';
+                group.add(rightArm);
+                
+            } else if (type === 'sheep') {
+                // Fluffy body
+                const wool = new THREE.MeshLambertMaterial({color: 0xF5F5F5});
+                const body = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.6, 1.2), wool);
+                body.position.y = 0.6;
+                group.add(body);
+                
+                // Head
+                const head = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.35, 0.4), new THREE.MeshLambertMaterial({color: 0x333333}));
+                head.position.set(0, 0.7, 0.7);
+                group.add(head);
+                
+                // Legs
+                const legMat = new THREE.MeshLambertMaterial({color: 0x333333});
+                [[-0.25, 0.2, -0.35], [0.25, 0.2, -0.35], [-0.25, 0.2, 0.35], [0.25, 0.2, 0.35]].forEach((pos, i) => {
+                    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.4, 0.15), legMat);
+                    leg.position.set(...pos);
+                    leg.name = 'leg' + i;
+                    group.add(leg);
+                });
+                
+            } else if (type === 'pig') {
+                const pink = new THREE.MeshLambertMaterial({color: 0xFFB6C1});
+                // Body
+                const body = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.5, 0.9), pink);
+                body.position.y = 0.45;
+                group.add(body);
+                
+                // Head
+                const head = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.4, 0.4), pink);
+                head.position.set(0, 0.5, 0.55);
+                group.add(head);
+                
+                // Snout
+                const snout = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.2, 0.1), new THREE.MeshLambertMaterial({color: 0xFF9999}));
+                snout.position.set(0, 0.45, 0.8);
+                group.add(snout);
+                
+                // Legs
+                [[-0.2, 0.15, -0.25], [0.2, 0.15, -0.25], [-0.2, 0.15, 0.25], [0.2, 0.15, 0.25]].forEach((pos, i) => {
+                    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.3, 0.12), pink);
+                    leg.position.set(...pos);
+                    leg.name = 'leg' + i;
+                    group.add(leg);
+                });
+                
+            } else if (type === 'wizard') {
+                // Mysterious robed figure
+                const robeColor = new THREE.MeshLambertMaterial({color: 0x4B0082});
+                const body = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.0, 0.4), robeColor);
+                body.position.y = 0.7;
+                group.add(body);
+                
+                // Head
+                const head = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4), new THREE.MeshLambertMaterial({color: 0xFFDBB4}));
+                head.position.y = 1.4;
+                group.add(head);
+                
+                // Wizard hat
+                const hatBase = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.1, 0.6), robeColor);
+                hatBase.position.y = 1.65;
+                group.add(hatBase);
+                const hatTop = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.5, 0.4), robeColor);
+                hatTop.position.y = 1.9;
+                group.add(hatTop);
+                const hatTip = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.3, 0.2), robeColor);
+                hatTip.position.y = 2.3;
+                group.add(hatTip);
+                
+                // Glowing staff
+                const staff = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.5, 0.08), new THREE.MeshLambertMaterial({color: 0x8B4513}));
+                staff.position.set(0.4, 0.9, 0);
+                group.add(staff);
+                const orb = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 8), new THREE.MeshBasicMaterial({color: 0x00FFFF}));
+                orb.position.set(0.4, 1.7, 0);
+                orb.name = 'orb';
+                group.add(orb);
+                
+                // Beard
+                const beard = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.35, 0.15), new THREE.MeshLambertMaterial({color: 0xCCCCCC}));
+                beard.position.set(0, 1.15, 0.22);
+                group.add(beard);
+            }
+            
+            group.position.set(x, terrainY, z);
+            group.userData = {
+                type: type,
+                targetX: x,
+                targetZ: z,
+                wanderTimer: Math.random() * 100,
+                walkPhase: Math.random() * Math.PI * 2
+            };
+            
+            characterGroup.add(group);
+            characters.push(group);
+            return group;
+        }
+
+        // Spawn characters around the world
+        for (let i = 0; i < 8; i++) {
+            const x = (Math.random() - 0.5) * 50;
+            const z = (Math.random() - 0.5) * 50;
+            createVoxelCharacter('villager', x, z);
+        }
+        for (let i = 0; i < 6; i++) {
+            const x = (Math.random() - 0.5) * 50;
+            const z = (Math.random() - 0.5) * 50;
+            createVoxelCharacter('sheep', x, z);
+        }
+        for (let i = 0; i < 5; i++) {
+            const x = (Math.random() - 0.5) * 50;
+            const z = (Math.random() - 0.5) * 50;
+            createVoxelCharacter('pig', x, z);
+        }
+        // One mysterious wizard
+        createVoxelCharacter('wizard', 10, 10);
+
+        function updateCharacters(time) {
+            characters.forEach(char => {
+                const data = char.userData;
+                data.wanderTimer -= 0.016;
+                
+                // Pick new target when timer runs out
+                if (data.wanderTimer <= 0) {
+                    data.targetX = char.position.x + (Math.random() - 0.5) * 10;
+                    data.targetZ = char.position.z + (Math.random() - 0.5) * 10;
+                    data.targetX = Math.max(-35, Math.min(35, data.targetX));
+                    data.targetZ = Math.max(-35, Math.min(35, data.targetZ));
+                    data.wanderTimer = 3 + Math.random() * 5;
+                }
+                
+                // Move towards target
+                const dx = data.targetX - char.position.x;
+                const dz = data.targetZ - char.position.z;
+                const dist = Math.sqrt(dx*dx + dz*dz);
+                
+                if (dist > 0.5) {
+                    const speed = data.type === 'wizard' ? 0.02 : 0.03;
+                    char.position.x += (dx / dist) * speed;
+                    char.position.z += (dz / dist) * speed;
+                    char.rotation.y = Math.atan2(dx, dz);
+                    
+                    // Update Y position based on terrain
+                    const terrainY = Math.floor(noise(char.position.x, char.position.z)) + 6;
+                    char.position.y = terrainY + (data.type === 'wizard' ? Math.sin(time * 2) * 0.3 : 0);
+                    
+                    // Animate legs/arms
+                    data.walkPhase += 0.15;
+                    char.children.forEach(part => {
+                        if (part.name === 'leftLeg' || part.name === 'leg0' || part.name === 'leg2') {
+                            part.rotation.x = Math.sin(data.walkPhase) * 0.5;
+                        }
+                        if (part.name === 'rightLeg' || part.name === 'leg1' || part.name === 'leg3') {
+                            part.rotation.x = Math.sin(data.walkPhase + Math.PI) * 0.5;
+                        }
+                        if (part.name === 'leftArm') {
+                            part.rotation.x = Math.sin(data.walkPhase + Math.PI) * 0.4;
+                        }
+                        if (part.name === 'rightArm') {
+                            part.rotation.x = Math.sin(data.walkPhase) * 0.4;
+                        }
+                        // Wizard orb glow
+                        if (part.name === 'orb') {
+                            part.material.color.setHSL((time * 0.1) % 1, 1, 0.6);
+                        }
+                    });
+                }
+            });
+        }
 
         // Raycaster for block selection
         const raycaster = new THREE.Raycaster();
@@ -473,6 +704,9 @@
             // Update block selection
             updateBlockSelection();
             
+            // Update characters
+            updateCharacters(autoTime);
+
             // Update HUD
             document.getElementById('pos').textContent = 
                 `${Math.floor(player.x)}, ${Math.floor(player.y)}, ${Math.floor(player.z)}`;
