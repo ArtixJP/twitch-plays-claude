@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Rick and Morty 3D Portal Opening</title>
+<title>Rick and Morty 3D Portal Opening - Advanced Graphics Demo</title>
 <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { overflow: hidden; background: #000; }
@@ -21,6 +21,22 @@
             font-family: 'Arial Black', sans-serif;
             font-size: 1rem;
             z-index: 300;
+            border: 2px solid rgba(0, 255, 100, 0.5);
+            box-shadow: 0 0 20px rgba(0, 255, 100, 0.3), inset 0 0 10px rgba(0, 255, 100, 0.1);
+        }
+        #graphics-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: linear-gradient(135deg, rgba(0,255,100,0.2), rgba(100,0,255,0.2));
+            color: #00ff88;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-family: 'Arial', sans-serif;
+            font-size: 0.8rem;
+            z-index: 300;
+            border: 1px solid rgba(0,255,100,0.4);
+            text-shadow: 0 0 10px rgba(0,255,100,0.5);
         }
         #gag-text {
             position: absolute;
@@ -97,6 +113,7 @@
 </head>
 <body>
 <div id="scene-container"></div>
+<div id="graphics-badge">🎮 Advanced Graphics: PBR + Bloom + Volumetric FX</div>
 <div id="episode-counter">Episode: <span id="ep-num">1</span></div>
 <div id="gag-text"></div>
 <p class="instruction">Type <code>!idea your idea</code> in chat to modify the show!</p>
@@ -107,6 +124,11 @@
 <div class="speech-bubble beth" id="speech-beth"></div>
 <div class="speech-bubble jerry" id="speech-jerry"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.150.0/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.150.0/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.150.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.150.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.150.0/examples/js/shaders/CopyShader.js"></script>
 <script>
         // Audio setup
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -150,15 +172,140 @@
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setClearColor(0x0a0a2e); // Dark space background
+        renderer.setClearColor(0x000011); // Deep space background
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.2;
+        renderer.outputEncoding = THREE.sRGBEncoding || THREE.LinearEncoding;
         document.getElementById('scene-container').appendChild(renderer.domElement);
         
-        // Lighting
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        // Advanced Lighting System
+        const ambientLight = new THREE.AmbientLight(0x222244, 0.4);
         scene.add(ambientLight);
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        directionalLight.position.set(5, 10, 7);
+        
+        const directionalLight = new THREE.DirectionalLight(0xffeedd, 1.2);
+        directionalLight.position.set(10, 20, 15);
+        directionalLight.castShadow = true;
+        directionalLight.shadow.mapSize.width = 2048;
+        directionalLight.shadow.mapSize.height = 2048;
+        directionalLight.shadow.camera.near = 0.5;
+        directionalLight.shadow.camera.far = 100;
+        directionalLight.shadow.camera.left = -30;
+        directionalLight.shadow.camera.right = 30;
+        directionalLight.shadow.camera.top = 30;
+        directionalLight.shadow.camera.bottom = -30;
+        directionalLight.shadow.bias = -0.0001;
         scene.add(directionalLight);
+        
+        // Rim light for dramatic effect
+        const rimLight = new THREE.DirectionalLight(0x00ffff, 0.5);
+        rimLight.position.set(-10, 5, -10);
+        scene.add(rimLight);
+        
+        // Portal glow light
+        const portalLight = new THREE.PointLight(0x00ff00, 3, 15);
+        portalLight.position.set(-4, 2, 45);
+        scene.add(portalLight);
+        
+        // Volumetric Nebula Particle System
+        const nebulaParticles = new THREE.BufferGeometry();
+        const nebulaCount = 5000;
+        const nebulaPositions = new Float32Array(nebulaCount * 3);
+        const nebulaColors = new Float32Array(nebulaCount * 3);
+        const nebulaSizes = new Float32Array(nebulaCount);
+        
+        for (let i = 0; i < nebulaCount; i++) {
+            const i3 = i * 3;
+            const radius = 20 + Math.random() * 80;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.random() * Math.PI;
+            
+            nebulaPositions[i3] = radius * Math.sin(phi) * Math.cos(theta);
+            nebulaPositions[i3 + 1] = (Math.random() - 0.5) * 40;
+            nebulaPositions[i3 + 2] = radius * Math.sin(phi) * Math.sin(theta) - 30;
+            
+            // Color gradient: cyan to magenta to green
+            const colorChoice = Math.random();
+            if (colorChoice < 0.33) {
+                nebulaColors[i3] = 0; nebulaColors[i3 + 1] = 1; nebulaColors[i3 + 2] = 0.5;
+            } else if (colorChoice < 0.66) {
+                nebulaColors[i3] = 0.5; nebulaColors[i3 + 1] = 0; nebulaColors[i3 + 2] = 1;
+            } else {
+                nebulaColors[i3] = 0; nebulaColors[i3 + 1] = 0.8; nebulaColors[i3 + 2] = 1;
+            }
+            
+            nebulaSizes[i] = 0.5 + Math.random() * 2;
+        }
+        
+        nebulaParticles.setAttribute('position', new THREE.BufferAttribute(nebulaPositions, 3));
+        nebulaParticles.setAttribute('color', new THREE.BufferAttribute(nebulaColors, 3));
+        nebulaParticles.setAttribute('size', new THREE.BufferAttribute(nebulaSizes, 1));
+        
+        const nebulaMaterial = new THREE.PointsMaterial({
+            size: 1.5,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.6,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false
+        });
+        
+        const nebula = new THREE.Points(nebulaParticles, nebulaMaterial);
+        scene.add(nebula);
+        window.nebula = nebula;
+        
+        // Glowing Stars with Bloom
+        const starGeometry = new THREE.BufferGeometry();
+        const starCount = 2000;
+        const starPositions = new Float32Array(starCount * 3);
+        const starColors = new Float32Array(starCount * 3);
+        
+        for (let i = 0; i < starCount; i++) {
+            const i3 = i * 3;
+            starPositions[i3] = (Math.random() - 0.5) * 200;
+            starPositions[i3 + 1] = (Math.random() - 0.5) * 100 + 20;
+            starPositions[i3 + 2] = (Math.random() - 0.5) * 200 - 50;
+            
+            const brightness = 0.5 + Math.random() * 0.5;
+            starColors[i3] = brightness;
+            starColors[i3 + 1] = brightness;
+            starColors[i3 + 2] = brightness + Math.random() * 0.3;
+        }
+        
+        starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+        starGeometry.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
+        
+        const starMaterial = new THREE.PointsMaterial({
+            size: 0.3,
+            vertexColors: true,
+            transparent: true,
+            blending: THREE.AdditiveBlending
+        });
+        
+        const stars = new THREE.Points(starGeometry, starMaterial);
+        scene.add(stars);
+        window.stars = stars;
+        
+        // Energy Ring Effect
+        const ringCount = 5;
+        const energyRings = [];
+        for (let r = 0; r < ringCount; r++) {
+            const ringGeo = new THREE.TorusGeometry(3 + r * 1.5, 0.05, 8, 64);
+            const ringMat = new THREE.MeshBasicMaterial({
+                color: new THREE.Color().setHSL(0.3 + r * 0.1, 1, 0.5),
+                transparent: true,
+                opacity: 0.7,
+                blending: THREE.AdditiveBlending
+            });
+            const ring = new THREE.Mesh(ringGeo, ringMat);
+            ring.position.set(-4, 2, 45);
+            ring.userData.speed = 0.5 + r * 0.2;
+            ring.userData.axis = r % 2 === 0 ? 'x' : 'y';
+            scene.add(ring);
+            energyRings.push(ring);
+        }
+        window.energyRings = energyRings;
         
         // Materials
         const yellowMat = new THREE.MeshLambertMaterial({ color: 0xAFE1AF }); // Rick's skin tone
@@ -683,6 +830,27 @@
         camera.position.set(0, 5, 15);
         camera.lookAt(0, 5, 0);
         
+        // Post-processing setup (Bloom effect)
+        let composer;
+        try {
+            composer = new THREE.EffectComposer(renderer);
+            const renderPass = new THREE.RenderPass(scene, camera);
+            composer.addPass(renderPass);
+            
+            const bloomPass = new THREE.UnrealBloomPass(
+                new THREE.Vector2(window.innerWidth, window.innerHeight),
+                1.5,  // strength
+                0.4,  // radius
+                0.85  // threshold
+            );
+            composer.addPass(bloomPass);
+            window.composer = composer;
+            window.bloomPass = bloomPass;
+        } catch(e) {
+            console.log('Post-processing not available, using standard rendering');
+            composer = null;
+        }
+        
         // Animation state
         let phase = 'clouds';
         let animationTime = 0;
@@ -943,7 +1111,38 @@
                 }
             }
             
-            renderer.render(scene, camera);
+            // Animate advanced effects
+            if (window.nebula) {
+                window.nebula.rotation.y += 0.0005;
+                const positions = window.nebula.geometry.attributes.position.array;
+                for (let i = 0; i < positions.length; i += 3) {
+                    positions[i + 1] += Math.sin(animationTime + positions[i] * 0.01) * 0.01;
+                }
+                window.nebula.geometry.attributes.position.needsUpdate = true;
+            }
+            
+            if (window.stars) {
+                window.stars.rotation.y += 0.0002;
+            }
+            
+            if (window.energyRings) {
+                window.energyRings.forEach((ring, i) => {
+                    if (ring.userData.axis === 'x') {
+                        ring.rotation.x += ring.userData.speed * 0.02;
+                    } else {
+                        ring.rotation.y += ring.userData.speed * 0.02;
+                    }
+                    ring.rotation.z = Math.sin(animationTime * 2 + i) * 0.5;
+                    ring.material.opacity = 0.4 + Math.sin(animationTime * 3 + i) * 0.3;
+                });
+            }
+            
+            // Render with post-processing if available
+            if (window.composer) {
+                window.composer.render();
+            } else {
+                renderer.render(scene, camera);
+            }
         }
         
         function applyGag(action, time) {
@@ -1096,11 +1295,14 @@
             }
         }
         
-        // Handle resize
+        // Handle resize with post-processing
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
+            if (window.composer) {
+                window.composer.setSize(window.innerWidth, window.innerHeight);
+            }
         });
         
         // Start
