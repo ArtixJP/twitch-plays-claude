@@ -1,31 +1,234 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Twitch plays Claude</title>
-    <style>
-        body { 
-            font-family: system-ui, sans-serif; 
-            display: flex; 
-            flex-direction: column;
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
-            margin: 0;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: white;
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Simpsons Opening Simulator</title>
+<style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #87CEEB;
+            overflow: hidden;
+            font-family: 'Arial Black', sans-serif;
         }
-        h1 { font-size: 3rem; text-align: center; margin-bottom: 1rem; }
-        .instruction {
+        #scene {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            filter: blur(2px);
+        }
+        #title {
+            position: absolute;
+            font-size: 8vw;
+            color: #FFD700;
+            text-shadow: 4px 4px 0 #8B4513, -2px -2px 0 #FFA500;
+            font-family: 'Arial Black', sans-serif;
+            letter-spacing: -0.05em;
+            top: -20%;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            z-index: 100;
+        }
+        #couch-room {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 70%;
+            background: linear-gradient(to bottom, #8B4513 0%, #654321 100%);
+            display: none;
+        }
+        #floor {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 30%;
+            background: #228B22;
+        }
+        #couch {
+            position: absolute;
+            bottom: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 120px;
+            background: #8B0000;
+            border-radius: 20px 20px 5px 5px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+        #couch::before {
+            content: '';
+            position: absolute;
+            top: -40px;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background: #8B0000;
+            border-radius: 10px 10px 0 0;
+        }
+        #tv {
+            position: absolute;
+            bottom: 20%;
+            right: 15%;
+            width: 80px;
+            height: 60px;
+            background: #333;
+            border-radius: 5px;
+        }
+        #tv::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            width: 70px;
+            height: 40px;
+            background: #4169E1;
+            animation: tvFlicker 0.5s infinite;
+        }
+        @keyframes tvFlicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        .character {
+            position: absolute;
+            bottom: -100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.5s ease;
+        }
+        .head {
+            width: 50px;
+            height: 50px;
+            background: #FFD700;
+            border-radius: 50%;
+            position: relative;
+        }
+        .body {
+            width: 40px;
+            height: 50px;
+            border-radius: 10px;
+        }
+        .legs {
+            display: flex;
+            gap: 5px;
+        }
+        .leg {
+            width: 12px;
+            height: 30px;
+            background: #4169E1;
+            border-radius: 0 0 5px 5px;
+        }
+        /* Homer */
+        #homer .head { background: #FFD700; }
+        #homer .head::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 10px;
+            width: 30px;
+            height: 10px;
+            background: #333;
+            border-radius: 50%;
+        }
+        #homer .body { background: white; }
+        /* Marge */
+        #marge .head::after {
+            content: '';
+            position: absolute;
+            top: -60px;
+            left: 5px;
+            width: 40px;
+            height: 70px;
+            background: #4169E1;
+            border-radius: 20px 20px 0 0;
+        }
+        #marge .body { background: #32CD32; }
+        #marge .leg { background: #32CD32; }
+        /* Bart */
+        #bart .head {
+            width: 40px;
+            height: 40px;
+        }
+        #bart .head::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: 0;
+            width: 40px;
+            height: 20px;
+            background: #FFD700;
+            clip-path: polygon(0% 100%, 10% 0%, 20% 100%, 30% 0%, 40% 100%, 50% 0%, 60% 100%, 70% 0%, 80% 100%, 90% 0%, 100% 100%);
+        }
+        #bart .body { background: #FF6600; width: 30px; height: 35px; }
+        #bart .leg { background: #4169E1; height: 20px; width: 10px; }
+        /* Lisa */
+        #lisa .head {
+            width: 35px;
+            height: 35px;
+        }
+        #lisa .head::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: -5px;
+            width: 45px;
+            height: 30px;
+            background: #FFD700;
+            clip-path: polygon(50% 0%, 20% 50%, 0% 50%, 30% 100%, 70% 100%, 100% 50%, 80% 50%);
+        }
+        #lisa .body { background: #FF0000; width: 25px; height: 30px; }
+        #lisa .leg { background: #FF0000; height: 15px; width: 8px; }
+        /* Maggie */
+        #maggie .head {
+            width: 30px;
+            height: 30px;
+        }
+        #maggie .body { background: #87CEEB; width: 25px; height: 25px; }
+        #maggie .leg { display: none; }
+        #gag-text {
+            position: absolute;
+            bottom: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+            color: white;
+            text-shadow: 2px 2px 4px black;
             text-align: center;
-            font-size: 1.2rem;
+            opacity: 0;
+            z-index: 200;
+        }
+        #episode-counter {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            color: #FFD700;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 1rem;
+            z-index: 300;
+        }
+        .instruction {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
             color: #a0aec0;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 0 20px;
-            line-height: 1.6;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            z-index: 300;
         }
         .instruction code {
             background: rgba(145, 71, 255, 0.2);
@@ -36,10 +239,272 @@
     </style>
 </head>
 <body>
-    <h1>Hello World!</h1>
-    <p class="instruction">
-        Type <code>!idea &lt;your idea&gt;</code> in the Twitch chat to add to this page.<br>
-        Example: <code>!idea Add a space cat floating in the background</code>
-    </p>
+<div id="scene">
+<div id="title">THE SIMPSONS</div>
+<div id="couch-room">
+<div id="couch"></div>
+<div id="tv"></div>
+</div>
+<div id="floor"></div>
+<div class="character" id="homer">
+<div class="head"></div>
+<div class="body"></div>
+<div class="legs"><div class="leg"></div><div class="leg"></div></div>
+</div>
+<div class="character" id="marge">
+<div class="head"></div>
+<div class="body"></div>
+<div class="legs"><div class="leg"></div><div class="leg"></div></div>
+</div>
+<div class="character" id="bart">
+<div class="head"></div>
+<div class="body"></div>
+<div class="legs"><div class="leg"></div><div class="leg"></div></div>
+</div>
+<div class="character" id="lisa">
+<div class="head"></div>
+<div class="body"></div>
+<div class="legs"><div class="leg"></div><div class="leg"></div></div>
+</div>
+<div class="character" id="maggie">
+<div class="head"></div>
+<div class="body"></div>
+<div class="legs"><div class="leg"></div><div class="leg"></div></div>
+</div>
+<div id="gag-text"></div>
+<div id="episode-counter">Episode: <span id="ep-num">1</span></div>
+</div>
+<p class="instruction">Type <code>!idea your idea</code> in chat to modify the show!</p>
+<script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // Simpsons theme melody (simplified)
+        const melody = [
+            {note: 'C5', duration: 0.3}, {note: 'E5', duration: 0.3}, {note: 'F#5', duration: 0.3}, {note: 'A5', duration: 0.3},
+            {note: 'G5', duration: 0.6}, {note: 'E5', duration: 0.3}, {note: 'C5', duration: 0.3},
+            {note: 'A4', duration: 0.4}, {note: 'F#4', duration: 0.4}, {note: 'F#4', duration: 0.4}, {note: 'F#4', duration: 0.2},
+            {note: 'G4', duration: 0.8}, {note: 'rest', duration: 0.2},
+            {note: 'C5', duration: 0.3}, {note: 'E5', duration: 0.3}, {note: 'F#5', duration: 0.3}, {note: 'A5', duration: 0.3},
+            {note: 'G5', duration: 0.6}, {note: 'E5', duration: 0.3}, {note: 'C5', duration: 0.3},
+            {note: 'A4', duration: 0.4}, {note: 'F#4', duration: 0.4}, {note: 'A4', duration: 0.4}, {note: 'G4', duration: 0.8}
+        ];
+        
+        const noteFreqs = {
+            'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23, 'F#4': 369.99, 'G4': 392.00, 'A4': 440.00, 'B4': 493.88,
+            'C5': 523.25, 'D5': 587.33, 'E5': 659.25, 'F5': 698.46, 'F#5': 739.99, 'G5': 783.99, 'A5': 880.00, 'B5': 987.77
+        };
+        
+        function playNote(freq, startTime, duration) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'square';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0.15, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(startTime);
+            osc.stop(startTime + duration);
+        }
+        
+        function playTheme() {
+            let time = audioCtx.currentTime;
+            melody.forEach(({note, duration}) => {
+                if (note !== 'rest' && noteFreqs[note]) {
+                    playNote(noteFreqs[note], time, duration * 0.9);
+                }
+                time += duration * 0.5;
+            });
+        }
+        
+        // Clouds
+        function createClouds() {
+            const scene = document.getElementById('scene');
+            for (let i = 0; i < 15; i++) {
+                const cloud = document.createElement('div');
+                cloud.className = 'cloud';
+                cloud.style.width = (80 + Math.random() * 120) + 'px';
+                cloud.style.height = (40 + Math.random() * 40) + 'px';
+                cloud.style.top = (Math.random() * 40) + '%';
+                cloud.style.left = (Math.random() * 100) + '%';
+                cloud.style.opacity = 0.7 + Math.random() * 0.3;
+                scene.appendChild(cloud);
+                animateCloud(cloud);
+            }
+        }
+        
+        function animateCloud(cloud) {
+            const speed = 20 + Math.random() * 30;
+            let pos = parseFloat(cloud.style.left);
+            setInterval(() => {
+                pos -= 0.05;
+                if (pos < -20) pos = 110;
+                cloud.style.left = pos + '%';
+            }, speed);
+        }
+        
+        // Couch gags
+        const couchGags = [
+            { text: "The family sits normally... for once!", action: 'normal' },
+            { text: "Homer bounces off the couch!", action: 'bounce' },
+            { text: "The couch runs away!", action: 'runaway' },
+            { text: "Everyone is tiny!", action: 'tiny' },
+            { text: "The family is upside down!", action: 'upsidedown' },
+            { text: "It's a pile-up!", action: 'pileup' },
+            { text: "The couch is missing!", action: 'nocouch' },
+            { text: "Everyone phases through the couch!", action: 'ghost' },
+            { text: "Super speed entry!", action: 'speed' },
+            { text: "The family freezes mid-air!", action: 'freeze' },
+            { text: "Everyone spins onto the couch!", action: 'spin' },
+            { text: "Gravity reversal!", action: 'gravity' }
+        ];
+        
+        let episodeCount = 0;
+        
+        function runEpisode() {
+            episodeCount++;
+            document.getElementById('ep-num').textContent = episodeCount;
+            
+            const title = document.getElementById('title');
+            const couchRoom = document.getElementById('couch-room');
+            const floor = document.getElementById('floor');
+            const couch = document.getElementById('couch');
+            const gagText = document.getElementById('gag-text');
+            const characters = ['homer', 'marge', 'bart', 'lisa', 'maggie'];
+            
+            // Reset
+            title.style.top = '-20%';
+            title.style.transition = 'none';
+            couchRoom.style.display = 'none';
+            floor.style.display = 'block';
+            couch.style.transform = 'translateX(-50%)';
+            couch.style.display = 'block';
+            gagText.style.opacity = '0';
+            
+            characters.forEach((char, i) => {
+                const el = document.getElementById(char);
+                el.style.transition = 'none';
+                el.style.bottom = '-100px';
+                el.style.left = '-100px';
+                el.style.transform = 'scale(1) rotate(0deg)';
+                el.style.opacity = '1';
+            });
+            
+            // Play theme
+            playTheme();
+            
+            // Title drops
+            setTimeout(() => {
+                title.style.transition = 'top 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+                title.style.top = '5%';
+            }, 100);
+            
+            // Characters run across
+            setTimeout(() => {
+                characters.forEach((char, i) => {
+                    const el = document.getElementById(char);
+                    el.style.transition = 'all 2s linear';
+                    el.style.bottom = '30%';
+                    el.style.left = (110 + i * 5) + '%';
+                    
+                    setTimeout(() => {
+                        el.style.left = '-20%';
+                    }, 100);
+                });
+            }, 1500);
+            
+            // Transition to living room
+            setTimeout(() => {
+                floor.style.display = 'none';
+                couchRoom.style.display = 'block';
+                title.style.top = '-20%';
+                
+                const gag = couchGags[Math.floor(Math.random() * couchGags.length)];
+                gagText.textContent = gag.text;
+                
+                // Family runs in
+                characters.forEach((char, i) => {
+                    const el = document.getElementById(char);
+                    el.style.transition = 'all 0.8s ease-out';
+                    el.style.bottom = '25%';
+                    
+                    setTimeout(() => {
+                        el.style.left = (30 + i * 10) + '%';
+                        
+                        // Apply gag effect
+                        setTimeout(() => applyGag(gag.action, el, i, couch), 800);
+                    }, i * 150);
+                });
+                
+                setTimeout(() => {
+                    gagText.style.transition = 'opacity 0.5s';
+                    gagText.style.opacity = '1';
+                }, 1500);
+                
+            }, 4000);
+            
+            // Next episode
+            setTimeout(runEpisode, 9000);
+        }
+        
+        function applyGag(action, el, index, couch) {
+            switch(action) {
+                case 'bounce':
+                    if (index === 0) {
+                        el.style.transition = 'bottom 0.3s ease-out';
+                        el.style.bottom = '60%';
+                        setTimeout(() => { el.style.bottom = '25%'; }, 300);
+                    }
+                    break;
+                case 'runaway':
+                    couch.style.transition = 'transform 1s ease-in';
+                    couch.style.transform = 'translateX(200%)';
+                    break;
+                case 'tiny':
+                    el.style.transform = 'scale(0.4)';
+                    break;
+                case 'upsidedown':
+                    el.style.transform = 'rotate(180deg)';
+                    el.style.bottom = '50%';
+                    break;
+                case 'pileup':
+                    el.style.left = '50%';
+                    el.style.bottom = (25 + index * 8) + '%';
+                    break;
+                case 'nocouch':
+                    couch.style.display = 'none';
+                    el.style.bottom = '15%';
+                    break;
+                case 'ghost':
+                    el.style.opacity = '0.3';
+                    break;
+                case 'spin':
+                    el.style.transform = 'rotate(' + (720 + index * 90) + 'deg)';
+                    break;
+                case 'gravity':
+                    el.style.bottom = '70%';
+                    el.style.transform = 'rotate(180deg)';
+                    break;
+                case 'freeze':
+                    el.style.bottom = (40 + Math.random() * 20) + '%';
+                    el.style.left = (20 + index * 15) + '%';
+                    break;
+            }
+        }
+        
+        // Initialize
+        createClouds();
+        
+        // Auto-start after user interaction or timeout
+        document.addEventListener('click', () => {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            runEpisode();
+        }, { once: true });
+        
+        setTimeout(() => {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            runEpisode();
+        }, 1000);
+    </script>
 </body>
 </html>
