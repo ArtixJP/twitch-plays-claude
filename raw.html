@@ -468,6 +468,240 @@
         text-decoration: none;
     }
     
+    /* Pricing Section */
+    .pricing-section {
+        padding: 50px 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .section-title {
+        font-family: 'Press Start 2P', cursive;
+        font-size: 1.2rem;
+        text-align: center;
+        color: var(--matrix-green);
+        text-shadow: 0 0 20px var(--matrix-green);
+        margin-bottom: 10px;
+    }
+    
+    .pricing-subtitle {
+        text-align: center;
+        color: rgba(184, 244, 184, 0.7);
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+    }
+    
+    .pricing-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
+        align-items: stretch;
+    }
+    
+    .pricing-card {
+        background: rgba(45, 31, 61, 0.8);
+        border: 2px solid var(--twitch-purple);
+        border-radius: 15px;
+        padding: 30px 25px;
+        text-align: center;
+        position: relative;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .pricing-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 40px rgba(145, 70, 255, 0.3);
+    }
+    
+    .pricing-card.featured {
+        border-color: var(--matrix-green);
+        background: rgba(0, 255, 65, 0.05);
+        transform: scale(1.02);
+    }
+    
+    .pricing-card.featured:hover {
+        transform: scale(1.02) translateY(-5px);
+    }
+    
+    .tier-badge {
+        font-family: 'Press Start 2P', cursive;
+        font-size: 0.5rem;
+        background: var(--twitch-purple);
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        display: inline-block;
+        margin-bottom: 15px;
+    }
+    
+    .featured .tier-badge {
+        background: var(--matrix-green);
+        color: var(--matrix-dark);
+    }
+    
+    .popular-tag {
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--neon-pink);
+        color: white;
+        font-family: 'Press Start 2P', cursive;
+        font-size: 0.4rem;
+        padding: 5px 12px;
+        border-radius: 10px;
+        white-space: nowrap;
+    }
+    
+    .price {
+        font-family: 'Press Start 2P', cursive;
+        font-size: 2rem;
+        color: var(--cyber-blue);
+        text-shadow: 0 0 15px var(--cyber-blue);
+        margin: 15px 0;
+    }
+    
+    .price span {
+        font-size: 0.8rem;
+        opacity: 0.7;
+    }
+    
+    .pricing-card h3 {
+        font-family: 'VT323', monospace;
+        font-size: 1.3rem;
+        color: var(--matrix-green);
+        margin-bottom: 20px;
+    }
+    
+    .features-list {
+        list-style: none;
+        text-align: left;
+        margin-bottom: 25px;
+    }
+    
+    .features-list li {
+        padding: 8px 0;
+        color: rgba(184, 244, 184, 0.8);
+        font-size: 1rem;
+        border-bottom: 1px solid rgba(145, 70, 255, 0.2);
+    }
+    
+    /* About Section */
+    .about-section {
+        padding: 50px 20px;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    
+    .about-content {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+    
+    .founder-card {
+        display: flex;
+        gap: 25px;
+        align-items: center;
+        background: rgba(0, 0, 0, 0.5);
+        border: 2px solid var(--cyber-blue);
+        border-radius: 15px;
+        padding: 25px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .founder-avatar {
+        font-size: 2rem;
+        text-align: center;
+        line-height: 1.2;
+        animation: trenchcoat-wobble 2s ease-in-out infinite;
+    }
+    
+    @keyframes trenchcoat-wobble {
+        0%, 100% { transform: rotate(-2deg); }
+        50% { transform: rotate(2deg); }
+    }
+    
+    .founder-info h3 {
+        font-family: 'Press Start 2P', cursive;
+        font-size: 0.7rem;
+        color: var(--cyber-blue);
+        margin-bottom: 5px;
+    }
+    
+    .founder-title {
+        color: var(--neon-pink);
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+    }
+    
+    .founder-info p {
+        color: rgba(184, 244, 184, 0.7);
+        font-size: 1rem;
+        font-style: italic;
+    }
+    
+    .company-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+    }
+    
+    @media (max-width: 600px) {
+        .company-stats { grid-template-columns: repeat(2, 1fr); }
+    }
+    
+    .stat-box {
+        background: rgba(45, 31, 61, 0.7);
+        border: 1px solid var(--twitch-purple);
+        border-radius: 10px;
+        padding: 20px 15px;
+        text-align: center;
+    }
+    
+    .stat-number {
+        font-family: 'Press Start 2P', cursive;
+        font-size: 1.2rem;
+        color: var(--matrix-green);
+        text-shadow: 0 0 10px var(--matrix-green);
+    }
+    
+    .stat-label {
+        font-size: 0.8rem;
+        color: rgba(184, 244, 184, 0.6);
+        margin-top: 8px;
+    }
+    
+    .mission-statement {
+        background: rgba(0, 0, 0, 0.6);
+        border-left: 4px solid var(--twitch-purple);
+        padding: 25px;
+        border-radius: 0 10px 10px 0;
+    }
+    
+    .mission-statement h4 {
+        font-family: 'Press Start 2P', cursive;
+        font-size: 0.6rem;
+        color: var(--twitch-purple);
+        margin-bottom: 15px;
+    }
+    
+    .mission-statement p {
+        color: rgba(184, 244, 184, 0.8);
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 15px;
+    }
+    
+    .investors {
+        font-size: 0.9rem !important;
+        color: rgba(184, 244, 184, 0.5) !important;
+        border-top: 1px solid rgba(145, 70, 255, 0.3);
+        padding-top: 15px;
+        margin-top: 15px !important;
+    }
+    
     /* Pixel Art Decorations */
     .pixel-decoration {
         position: fixed;
@@ -843,6 +1077,87 @@
 <span class="pixel-icon">🧁</span>
 <h3>YEAST_ENGINE</h3>
 <p>&gt; Dough yeeted into ovens at 350°F. Cloud-native sourdough. Rises 60% of the time, every time.</p>
+</div>
+</section>
+<section class="pricing-section">
+<h2 class="section-title">⟨ PRICING_PROTOCOL ⟩</h2>
+<p class="pricing-subtitle">&gt; SELECT YOUR CARB SUBSCRIPTION TIER</p>
+<div class="pricing-grid">
+<div class="pricing-card">
+<div class="tier-badge">SEED</div>
+<div class="price">$9<span>/mo</span></div>
+<h3>STARTER DOUGH</h3>
+<ul class="features-list">
+<li>✓ 5 Croissants/month</li>
+<li>✓ Basic Matrix Rain</li>
+<li>✓ Email support (eventually)</li>
+<li>✗ No FSM blessings</li>
+</ul>
+<button class="pixel-btn">[ KNEAD NOW ]</button>
+</div>
+<div class="pricing-card featured">
+<div class="tier-badge">SERIES A</div>
+<div class="popular-tag">🔥 MOST DISRUPTED</div>
+<div class="price">$49<span>/mo</span></div>
+<h3>SCALE-UP SOURDOUGH</h3>
+<ul class="features-list">
+<li>✓ Unlimited Croissants</li>
+<li>✓ Premium Butter API</li>
+<li>✓ 24/7 Yeast Monitoring</li>
+<li>✓ FSM Blessing (weekly)</li>
+<li>✓ Meatball Golem escort</li>
+</ul>
+<button class="pixel-btn twitch">[ RAISE DOUGH ]</button>
+</div>
+<div class="pricing-card">
+<div class="tier-badge">UNICORN</div>
+<div class="price">$420<span>/mo</span></div>
+<h3>ENTERPRISE ÉCLAIR</h3>
+<ul class="features-list">
+<li>✓ Everything in Series A</li>
+<li>✓ Dedicated Pastry Chef</li>
+<li>✓ White-label Baguettes</li>
+<li>✓ Blockchain receipts</li>
+<li>✓ Personal R'AMEN ceremony</li>
+</ul>
+<button class="pixel-btn">[ CONTACT SALES ]</button>
+</div>
+</div>
+</section>
+<section class="about-section">
+<h2 class="section-title">⟨ ABOUT_US.EXE ⟩</h2>
+<div class="about-content">
+<div class="founder-card">
+<div class="founder-avatar">👨‍🍳👨‍🍳👨‍🍳<br/>🥼</div>
+<div class="founder-info">
+<h3>THE FOUNDING TEAM</h3>
+<p class="founder-title">Three Bakers in a Trenchcoat</p>
+<p>"We met at a failed crypto conference. One of us had sourdough starter in their laptop bag. The rest is history."</p>
+</div>
+</div>
+<div class="company-stats">
+<div class="stat-box">
+<div class="stat-number">$4.2M</div>
+<div class="stat-label">RAISED IN FLOUR</div>
+</div>
+<div class="stat-box">
+<div class="stat-number">27</div>
+<div class="stat-label">CROISSANT LAYERS</div>
+</div>
+<div class="stat-box">
+<div class="stat-number">∞</div>
+<div class="stat-label">PIVOTS COMPLETED</div>
+</div>
+<div class="stat-box">
+<div class="stat-number">82%</div>
+<div class="stat-label">BUTTER CONTENT</div>
+</div>
+</div>
+<div class="mission-statement">
+<h4>&gt; OUR MISSION</h4>
+<p>"To disrupt the carbohydrate-industrial complex through artisanal, cloud-native, AI-powered pastry solutions. We're not just baking bread—we're baking the future.™"</p>
+<p class="investors">BACKED BY: a]ventures • Breadcrumb Capital • YCombinator (rejected) • Mom</p>
+</div>
 </div>
 </section>
 <div class="terminal-section">
