@@ -113,7 +113,7 @@
 </head>
 <body>
 <div id="scene-container"></div>
-<div id="graphics-badge">🎮 FORTNITE x RICK AND MORTY: Battle Royale Island</div>
+<div id="graphics-badge">🕳️ BLACK HOLE SINGULARITY SIMULATOR - Everything Gets Sucked In</div>
 <div id="episode-counter">Episode: <span id="ep-num">1</span></div>
 <div id="gag-text"></div>
 <p class="instruction">Type <code>!idea your idea</code> in chat to modify the show!</p>
@@ -172,7 +172,7 @@
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setClearColor(0x87ceeb); // Bright sky blue - lights on everywhere
+        renderer.setClearColor(0x050510); // Deep space void for black hole
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -892,6 +892,129 @@
         fortniteMap.add(rift);
         window.rift = rift;
         
+        // BLACK HOLE SINGULARITY
+        const blackHoleGroup = new THREE.Group();
+        
+        // Event Horizon - the point of no return
+        const eventHorizonGeo = new THREE.SphereGeometry(8, 64, 64);
+        const eventHorizonMat = new THREE.MeshBasicMaterial({ 
+            color: 0x000000,
+            transparent: false
+        });
+        const eventHorizon = new THREE.Mesh(eventHorizonGeo, eventHorizonMat);
+        blackHoleGroup.add(eventHorizon);
+        window.eventHorizon = eventHorizon;
+        
+        // Photon sphere - light orbiting the black hole
+        const photonSphereGeo = new THREE.TorusGeometry(10, 0.3, 16, 100);
+        const photonSphereMat = new THREE.MeshBasicMaterial({ 
+            color: 0xffaa00, 
+            transparent: true, 
+            opacity: 0.8,
+            blending: THREE.AdditiveBlending
+        });
+        const photonSphere = new THREE.Mesh(photonSphereGeo, photonSphereMat);
+        photonSphere.rotation.x = Math.PI / 2;
+        blackHoleGroup.add(photonSphere);
+        
+        // Accretion disk - superheated matter spiraling in
+        const accretionDiskGeo = new THREE.RingGeometry(12, 35, 128, 8);
+        const accretionDiskMat = new THREE.ShaderMaterial({
+            uniforms: {
+                time: { value: 0 },
+                innerColor: { value: new THREE.Color(0xffffff) },
+                outerColor: { value: new THREE.Color(0xff4400) }
+            },
+            vertexShader: `
+                varying vec2 vUv;
+                void main() {
+                    vUv = uv;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                uniform float time;
+                uniform vec3 innerColor;
+                uniform vec3 outerColor;
+                varying vec2 vUv;
+                void main() {
+                    float dist = length(vUv - 0.5) * 2.0;
+                    vec3 color = mix(innerColor, outerColor, dist);
+                    float alpha = (1.0 - dist) * 0.9;
+                    float swirl = sin(vUv.x * 30.0 + time * 5.0) * 0.2 + 0.8;
+                    gl_FragColor = vec4(color * swirl, alpha);
+                }
+            `,
+            transparent: true,
+            side: THREE.DoubleSide,
+            blending: THREE.AdditiveBlending
+        });
+        const accretionDisk = new THREE.Mesh(accretionDiskGeo, accretionDiskMat);
+        accretionDisk.rotation.x = Math.PI / 2 + 0.3;
+        blackHoleGroup.add(accretionDisk);
+        window.accretionDisk = accretionDisk;
+        
+        // Gravitational lensing effect ring
+        const lensingGeo = new THREE.TorusGeometry(15, 2, 8, 64);
+        const lensingMat = new THREE.MeshBasicMaterial({ 
+            color: 0x8888ff, 
+            transparent: true, 
+            opacity: 0.3,
+            wireframe: true
+        });
+        const lensingRing = new THREE.Mesh(lensingGeo, lensingMat);
+        blackHoleGroup.add(lensingRing);
+        window.lensingRing = lensingRing;
+        
+        // Jets - relativistic plasma jets
+        const jetGeo = new THREE.ConeGeometry(3, 50, 16, 1, true);
+        const jetMat = new THREE.MeshBasicMaterial({ 
+            color: 0x00aaff, 
+            transparent: true, 
+            opacity: 0.5,
+            blending: THREE.AdditiveBlending,
+            side: THREE.DoubleSide
+        });
+        const topJet = new THREE.Mesh(jetGeo, jetMat);
+        topJet.position.y = 30;
+        blackHoleGroup.add(topJet);
+        const bottomJet = new THREE.Mesh(jetGeo, jetMat);
+        bottomJet.position.y = -30;
+        bottomJet.rotation.x = Math.PI;
+        blackHoleGroup.add(bottomJet);
+        
+        // Hawking radiation particles
+        const hawkingGeo = new THREE.BufferGeometry();
+        const hawkingCount = 500;
+        const hawkingPos = new Float32Array(hawkingCount * 3);
+        for (let i = 0; i < hawkingCount; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const radius = 9 + Math.random() * 3;
+            hawkingPos[i * 3] = Math.cos(angle) * radius;
+            hawkingPos[i * 3 + 1] = (Math.random() - 0.5) * 4;
+            hawkingPos[i * 3 + 2] = Math.sin(angle) * radius;
+        }
+        hawkingGeo.setAttribute('position', new THREE.BufferAttribute(hawkingPos, 3));
+        const hawkingMat = new THREE.PointsMaterial({ 
+            color: 0xffffff, 
+            size: 0.3, 
+            transparent: true, 
+            opacity: 0.8,
+            blending: THREE.AdditiveBlending
+        });
+        const hawkingParticles = new THREE.Points(hawkingGeo, hawkingMat);
+        blackHoleGroup.add(hawkingParticles);
+        
+        // Position black hole in center of scene
+        blackHoleGroup.position.set(0, 30, 20);
+        scene.add(blackHoleGroup);
+        window.blackHole = blackHoleGroup;
+        
+        // Black hole light absorption (negative light effect)
+        const blackHoleLight = new THREE.PointLight(0x000022, -2, 50);
+        blackHoleLight.position.copy(blackHoleGroup.position);
+        scene.add(blackHoleLight);
+        
         // Victory Royale sign (hidden initially)
         const victorySign = new THREE.Group();
         const signBack = new THREE.Mesh(
@@ -1488,6 +1611,43 @@
                 if (window.rift) {
                     window.rift.rotation.z = animationTime * 0.5;
                 }
+                
+                // BLACK HOLE GRAVITY - pulls everything toward center
+                if (window.blackHole) {
+                    const bhPos = window.blackHole.position;
+                    const pullStrength = 0.015;
+                    
+                    // Pull family members toward black hole
+                    family.forEach((char, i) => {
+                        const dx = bhPos.x - char.position.x;
+                        const dy = bhPos.y - char.position.y;
+                        const dz = bhPos.z - char.position.z;
+                        const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+                        if (dist > 5) {
+                            char.position.x += dx * pullStrength / Math.max(dist * 0.1, 1);
+                            char.position.y += dy * pullStrength / Math.max(dist * 0.1, 1);
+                            char.position.z += dz * pullStrength / Math.max(dist * 0.1, 1);
+                            // Spaghettification effect
+                            const stretch = Math.max(0.5, 1 - (50 - dist) * 0.01);
+                            char.scale.y = 1 + (1 - stretch) * 2;
+                            char.scale.x = stretch;
+                            char.scale.z = stretch;
+                            char.rotation.x += 0.05;
+                            char.rotation.z += 0.03;
+                        }
+                    });
+                    
+                    // Animate accretion disk
+                    window.accretionDisk.rotation.z += 0.02;
+                    window.accretionDisk.rotation.x = Math.sin(animationTime * 0.3) * 0.1 + 0.3;
+                    
+                    // Pulsing event horizon
+                    window.eventHorizon.scale.setScalar(1 + Math.sin(animationTime * 2) * 0.05);
+                    
+                    // Gravitational lensing ring pulses
+                    window.lensingRing.rotation.y = animationTime * 0.5;
+                    window.lensingRing.material.opacity = 0.3 + Math.sin(animationTime * 3) * 0.2;
+                }
             } else if (phase === 'clouds') {
                 // Title flies through clouds
                 titleGroup.position.z += 0.3;
@@ -1556,6 +1716,22 @@
                 
                 // Continuous scene - no episode restart
                 // Scene keeps running forever
+            }
+            
+            // Animate BLACK HOLE
+            if (window.blackHole && window.accretionDisk) {
+                window.accretionDisk.material.uniforms.time.value = animationTime;
+                window.blackHole.rotation.y += 0.002;
+                
+                // Hawking radiation animation
+                const hawkingPositions = window.blackHole.children[6].geometry.attributes.position.array;
+                for (let i = 0; i < hawkingPositions.length; i += 3) {
+                    hawkingPositions[i + 1] += (Math.random() - 0.5) * 0.1;
+                    if (Math.abs(hawkingPositions[i + 1]) > 3) {
+                        hawkingPositions[i + 1] *= -0.5;
+                    }
+                }
+                window.blackHole.children[6].geometry.attributes.position.needsUpdate = true;
             }
             
             // Animate advanced effects
