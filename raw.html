@@ -5,273 +5,457 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>SynergyCore Solutions™ | Innovating Tomorrow, Today</title>
+<title>⟨MATRIX_CORE⟩ | The Digital Realm</title>
+<link href="https://fonts.googleapis.com/css2?family=VT323&amp;family=Press+Start+2P&amp;display=swap" rel="stylesheet"/>
 <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Arial', sans-serif; 
-            background: #f5f5f5;
-            color: #333;
-            min-height: 100vh;
-        }
-        .corp-nav {
-            background: linear-gradient(90deg, #003366 0%, #004080 100%);
-            padding: 15px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .corp-logo {
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: white;
-            letter-spacing: -1px;
-        }
-        .corp-logo span { color: #7cb9e8; }
-        .corp-nav ul {
-            display: flex;
-            list-style: none;
-            gap: 30px;
-        }
-        .corp-nav a {
-            color: rgba(255,255,255,0.85);
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: color 0.2s;
-        }
-        .corp-nav a:hover { color: white; }
-        .hero {
-            background: linear-gradient(135deg, #004080 0%, #001a33 100%);
-            padding: 80px 40px;
-            text-align: center;
-            color: white;
-        }
-        .hero h1 {
-            font-size: 2.5rem;
-            font-weight: 300;
-            margin-bottom: 20px;
-            letter-spacing: 1px;
-        }
-        .hero p {
-            font-size: 1.1rem;
-            color: rgba(255,255,255,0.8);
-            max-width: 600px;
-            margin: 0 auto 30px;
-            line-height: 1.6;
-        }
-        .twitch-btn {
-            background: linear-gradient(135deg, #9146FF 0%, #6441A5 100%);
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            font-size: 1rem;
-            border-radius: 3px;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-left: 15px;
-            box-shadow: 0 0 20px rgba(145, 70, 255, 0.4);
-            animation: pulse-glow 2s infinite;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .twitch-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 30px rgba(145, 70, 255, 0.7);
-        }
-        .chaos-mode { animation: rainbow-bg 3s infinite; }
-        .chaos-mode * { font-family: 'Comic Sans MS', cursive !important; }
-        .chaos-mode .corp-nav { animation: wobble 0.5s infinite; }
-        .chaos-mode .feature-icon { animation: spin 2s infinite linear; }
-        .chaos-mode .hero h1 { animation: bounce 0.5s infinite; }
-        .chaos-mode .cta-btn { animation: shake 0.3s infinite; background: hotpink !important; }
-        @keyframes rainbow-bg {
-            0% { filter: hue-rotate(0deg); }
-            100% { filter: hue-rotate(360deg); }
-        }
-        @keyframes wobble {
-            0%, 100% { transform: rotate(-2deg); }
-            50% { transform: rotate(2deg); }
-        }
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 20px rgba(145, 70, 255, 0.4); }
-            50% { box-shadow: 0 0 35px rgba(145, 70, 255, 0.8); }
-        }
-        .cta-btn {
-            background: #ff6600;
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            font-size: 1rem;
-            border-radius: 3px;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .features {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            padding: 60px 40px;
-            background: white;
-            flex-wrap: wrap;
-        }
-        .feature-card {
-            text-align: center;
-            max-width: 250px;
-        }
-        .feature-icon {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #004080, #0066cc);
-            border-radius: 50%;
-            margin: 0 auto 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-        }
-        .feature-card h3 {
-            color: #003366;
-            margin-bottom: 10px;
-            font-size: 1.1rem;
-        }
-        .feature-card p {
-            color: #666;
-            font-size: 0.9rem;
-            line-height: 1.5;
-        }
-        .testimonial {
-            background: #e8f4f8;
-            padding: 50px 40px;
-            text-align: center;
-        }
-        .testimonial blockquote {
-            font-style: italic;
-            font-size: 1.2rem;
-            color: #444;
-            max-width: 700px;
-            margin: 0 auto;
-        }
-        .testimonial cite {
-            display: block;
-            margin-top: 15px;
-            color: #666;
-            font-size: 0.9rem;
-        }
-        .corp-footer {
-            background: #1a1a1a;
-            color: #999;
-            text-align: center;
-            padding: 25px;
-            font-size: 0.8rem;
-        }
-    </style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+        --matrix-green: #00ff41;
+        --matrix-dark: #0d0d0d;
+        --twitch-purple: #9146FF;
+        --neon-pink: #ff00ff;
+        --cyber-blue: #00ffff;
+    }
+    
+    body { 
+        font-family: 'VT323', monospace;
+        background: var(--matrix-dark);
+        color: var(--matrix-green);
+        min-height: 100vh;
+        overflow-x: hidden;
+        position: relative;
+    }
+    
+    /* CRT Scanline Effect */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: repeating-linear-gradient(
+            0deg,
+            rgba(0, 0, 0, 0.15),
+            rgba(0, 0, 0, 0.15) 1px,
+            transparent 1px,
+            transparent 2px
+        );
+        pointer-events: none;
+        z-index: 1000;
+    }
+    
+    /* Matrix Rain Canvas */
+    #matrix-rain {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        opacity: 0.3;
+    }
+    
+    .pixel-nav {
+        background: linear-gradient(180deg, rgba(13,13,13,0.95) 0%, rgba(20,20,20,0.9) 100%);
+        border-bottom: 3px solid var(--matrix-green);
+        padding: 10px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        box-shadow: 0 0 20px rgba(0,255,65,0.3);
+    }
+    
+    .pixel-nav::after {
+        content: '';
+        position: absolute;
+        bottom: -3px;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, var(--matrix-green), var(--twitch-purple), var(--matrix-green));
+        animation: scan-line 2s linear infinite;
+    }
+    
+    @keyframes scan-line {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
+    
+    .pixel-logo {
+        font-family: 'Press Start 2P', cursive;
+        font-size: 0.9rem;
+        color: var(--matrix-green);
+        text-shadow: 0 0 10px var(--matrix-green), 0 0 20px var(--matrix-green);
+        animation: glitch 3s infinite;
+    }
+    
+    .pixel-logo .twitch-accent { color: var(--twitch-purple); text-shadow: 0 0 10px var(--twitch-purple); }
+    
+    @keyframes glitch {
+        0%, 90%, 100% { transform: translate(0); }
+        92% { transform: translate(-2px, 1px); filter: hue-rotate(90deg); }
+        94% { transform: translate(2px, -1px); }
+        96% { transform: translate(-1px, 2px); filter: hue-rotate(0deg); }
+    }
+    
+    .pixel-nav ul {
+        display: flex;
+        list-style: none;
+        gap: 20px;
+    }
+    
+    .pixel-nav a {
+        color: var(--matrix-green);
+        text-decoration: none;
+        font-family: 'VT323', monospace;
+        font-size: 1.2rem;
+        padding: 5px 10px;
+        border: 1px solid transparent;
+        transition: all 0.2s;
+        position: relative;
+    }
+    
+    .pixel-nav a:hover {
+        border: 1px solid var(--matrix-green);
+        background: rgba(0,255,65,0.1);
+        box-shadow: 0 0 10px rgba(0,255,65,0.5), inset 0 0 10px rgba(0,255,65,0.1);
+    }
+    
+    .pixel-nav a::before {
+        content: '>';
+        position: absolute;
+        left: -15px;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+    
+    .pixel-nav a:hover::before { opacity: 1; }
+    
+    .hero-matrix {
+        padding: 60px 20px;
+        text-align: center;
+        position: relative;
+        min-height: 50vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .hero-matrix h1 {
+        font-family: 'Press Start 2P', cursive;
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+        text-shadow: 0 0 20px var(--matrix-green), 0 0 40px var(--matrix-green);
+        animation: text-flicker 4s infinite;
+        line-height: 1.8;
+    }
+    
+    @keyframes text-flicker {
+        0%, 100% { opacity: 1; }
+        92% { opacity: 1; }
+        93% { opacity: 0.8; }
+        94% { opacity: 1; }
+        95% { opacity: 0.9; }
+    }
+    
+    .hero-matrix p {
+        font-size: 1.3rem;
+        color: rgba(0,255,65,0.8);
+        max-width: 700px;
+        margin: 0 auto 30px;
+        line-height: 1.8;
+        border-left: 3px solid var(--twitch-purple);
+        padding-left: 15px;
+    }
+    
+    .pixel-btn {
+        font-family: 'Press Start 2P', cursive;
+        font-size: 0.7rem;
+        padding: 15px 25px;
+        margin: 10px;
+        border: 3px solid var(--matrix-green);
+        background: transparent;
+        color: var(--matrix-green);
+        cursor: pointer;
+        position: relative;
+        transition: all 0.2s;
+        text-transform: uppercase;
+    }
+    
+    .pixel-btn:hover {
+        background: var(--matrix-green);
+        color: var(--matrix-dark);
+        box-shadow: 0 0 30px var(--matrix-green), inset 0 0 20px rgba(0,0,0,0.3);
+    }
+    
+    .pixel-btn.twitch {
+        border-color: var(--twitch-purple);
+        color: var(--twitch-purple);
+        animation: pulse-twitch 2s infinite;
+    }
+    
+    .pixel-btn.twitch:hover {
+        background: var(--twitch-purple);
+        color: white;
+        box-shadow: 0 0 30px var(--twitch-purple);
+    }
+    
+    @keyframes pulse-twitch {
+        0%, 100% { box-shadow: 0 0 10px rgba(145,70,255,0.5); }
+        50% { box-shadow: 0 0 25px rgba(145,70,255,0.8); }
+    }
+    
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        padding: 40px 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .pixel-card {
+        background: rgba(0,0,0,0.8);
+        border: 2px solid var(--matrix-green);
+        padding: 25px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .pixel-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--twitch-purple), transparent);
+        animation: card-scan 3s linear infinite;
+    }
+    
+    @keyframes card-scan {
+        0% { left: -100%; }
+        100% { left: 100%; }
+    }
+    
+    .pixel-icon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        display: block;
+        animation: pixel-bounce 1s ease-in-out infinite;
+    }
+    
+    @keyframes pixel-bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+    }
+    
+    .pixel-card h3 {
+        font-family: 'Press Start 2P', cursive;
+        font-size: 0.7rem;
+        color: var(--cyber-blue);
+        margin-bottom: 15px;
+        text-shadow: 0 0 10px var(--cyber-blue);
+    }
+    
+    .pixel-card p {
+        font-size: 1.1rem;
+        color: rgba(0,255,65,0.7);
+        line-height: 1.6;
+    }
+    
+    .terminal-section {
+        background: rgba(0,0,0,0.9);
+        border: 2px solid var(--matrix-green);
+        margin: 30px 20px;
+        padding: 20px;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .terminal-header {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(0,255,65,0.3);
+    }
+    
+    .terminal-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+    }
+    
+    .terminal-dot.red { background: #ff5f56; }
+    .terminal-dot.yellow { background: #ffbd2e; }
+    .terminal-dot.green { background: #27ca40; }
+    
+    .terminal-content {
+        font-family: 'VT323', monospace;
+        font-size: 1.2rem;
+        color: var(--matrix-green);
+    }
+    
+    .terminal-content .prompt { color: var(--twitch-purple); }
+    .terminal-content .output { color: rgba(0,255,65,0.8); display: block; margin: 10px 0; }
+    
+    .cursor {
+        display: inline-block;
+        width: 10px;
+        height: 1.2rem;
+        background: var(--matrix-green);
+        animation: blink 1s step-end infinite;
+    }
+    
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+    }
+    
+    .pixel-footer {
+        background: rgba(0,0,0,0.95);
+        border-top: 3px solid var(--matrix-green);
+        padding: 20px;
+        text-align: center;
+        font-size: 1rem;
+        color: rgba(0,255,65,0.6);
+    }
+    
+    .pixel-footer a {
+        color: var(--twitch-purple);
+        text-decoration: none;
+    }
+    
+    /* Pixel Art Decorations */
+    .pixel-decoration {
+        position: fixed;
+        font-size: 2rem;
+        opacity: 0.3;
+        animation: float 6s ease-in-out infinite;
+        pointer-events: none;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(5deg); }
+    }
+</style>
 </head>
 <body>
-<nav class="corp-nav">
-<div class="corp-logo">Synergy<span>Core</span>™</div>
+<canvas id="matrix-rain"></canvas>
+<div class="pixel-decoration" style="top: 20%; left: 5%;">👾</div>
+<div class="pixel-decoration" style="top: 60%; right: 8%; animation-delay: -2s;">🎮</div>
+<div class="pixel-decoration" style="top: 40%; right: 3%; animation-delay: -4s;">💜</div>
+<nav class="pixel-nav">
+<div class="pixel-logo">⟨MATRIX<span class="twitch-accent">_CORE</span>⟩</div>
 <ul>
-<li><a href="#">Solutions</a></li>
-<li><a href="#">About Us</a></li>
-<li><a href="#">Partners</a></li>
-<li><a href="#">Careers</a></li>
-<li><a href="#">Contact</a></li>
+<li><a href="#">DECRYPT</a></li>
+<li><a href="#">NODES</a></li>
+<li><a href="#">STREAM</a></li>
+<li><a href="#">UPLOAD</a></li>
 </ul>
 </nav>
-<section class="hero">
-<h1>Leveraging Synergies for Tomorrow's Challenges</h1>
-<p>At SynergyCore Solutions™, we deliver best-in-class, enterprise-grade paradigm shifts that empower stakeholders to actualize their core competencies.</p>
-<button class="cta-btn">Request a Demo</button>
-<button class="twitch-btn" id="funnyBtn" onclick="makeFunny()">🎪 Make It Funny 🎪</button>
-<div id="countdown-timer" style="margin-top: 15px; font-size: 1.5rem; color: #ff6600; text-shadow: 0 0 10px rgba(255,102,0,0.7); animation: pulse-timer 1s infinite;">⏰ Auto-chaos in: <span id="timer-count">10</span>s ⏰</div>
-<style>
-@keyframes pulse-timer {
-    0%, 100% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.05); opacity: 0.8; }
+<section class="hero-matrix">
+<h1>⟨ WELCOME TO THE MATRIX ⟩<br/>🎮 TWITCH EDITION 🎮</h1>
+<p>&gt; INITIALIZING CHAOS PROTOCOL...<br/>&gt; LEGACY DATA: SillyBonkers™ ABSORBED<br/>&gt; THREE RACCOONS IN TRENCHCOAT DETECTED<br/>&gt; SYNERGY LEVELS: MAXIMUM BONKERS</p>
+<div>
+<button class="pixel-btn">[ JACK IN ]</button>
+<button class="pixel-btn twitch">📺 GO LIVE</button>
+</div>
+</section>
+<section class="features-grid">
+<div class="pixel-card">
+<span class="pixel-icon">📊</span>
+<h3>DATA_STREAMS</h3>
+<p>&gt; Processing viewer data through the matrix. ROI = Raccoons Obviously Integrated. All analytics are now pixel-perfect.</p>
+</div>
+<div class="pixel-card">
+<span class="pixel-icon">🤖</span>
+<h3>BOT_NETWORK</h3>
+<p>&gt; Deploy autonomous chat agents. Maximum confusion achieved. Jazz hands protocol: ENABLED.</p>
+</div>
+<div class="pixel-card">
+<span class="pixel-icon">🚀</span>
+<h3>YEET_ENGINE</h3>
+<p>&gt; Problems yeeted into the digital void at 60fps. Cloud-native chaos. Works 60% of the time, every time.</p>
+</div>
+</section>
+<div class="terminal-section">
+<div class="terminal-header">
+<span class="terminal-dot red"></span>
+<span class="terminal-dot yellow"></span>
+<span class="terminal-dot green"></span>
+</div>
+<div class="terminal-content">
+<span class="prompt">matrix@twitch:~$</span> cat testimonial.txt
+        <span class="output">"SillyBonkers helped us pivot from making money to making memes. Our shareholders are confused but our TikTok is FIRE." 🔥</span>
+<span class="prompt">matrix@twitch:~$</span> echo $VIBES
+        <span class="output">IMMACULATE</span>
+<span class="prompt">matrix@twitch:~$</span> <span class="cursor"></span>
+</div>
+</div>
+<footer class="pixel-footer">
+    ⟨ 2024 MATRIX_CORE ⟩ | <a href="#">PRIVACY.EXE</a> | <a href="#">TERMS.DAT</a> | 🍪 COOKIES ENCRYPTED | POWERED BY TWITCH CHAT
+</footer>
+<script>
+// Matrix Rain Effect
+const canvas = document.getElementById('matrix-rain');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 }
-</style>
-<script>
-(function() {
-    let countdown = 10;
-    const timerDisplay = document.getElementById('timer-count');
-    const timerContainer = document.getElementById('countdown-timer');
-    const interval = setInterval(() => {
-        countdown--;
-        if (timerDisplay) timerDisplay.textContent = countdown;
-        if (countdown <= 3 && timerContainer) {
-            timerContainer.style.color = '#ff0000';
-            timerContainer.style.fontSize = '1.8rem';
-        }
-        if (countdown <= 0) {
-            clearInterval(interval);
-            if (timerContainer) timerContainer.innerHTML = '🎉 CHAOS ACTIVATED! 🎉';
-            document.getElementById('funnyBtn').click();
-        }
-    }, 1000);
-})();
-</script>
-<script>
-function makeFunny() {
-    document.body.classList.add('chaos-mode');
-    document.querySelector('.corp-logo').innerHTML = '🤡Silly<span>Bonkers</span>™';
-    document.querySelector('.hero h1').innerHTML = '🦆 Leveraging Ducks for Tomorrow\'s Banana Problems 🍌';
-    document.querySelector('.hero p').innerHTML = 'At SillyBonkers™, we deliver best-in-class spaghetti-grade vibes that empower hamsters to actualize their wheel-running potential. Our synergy is literally just three raccoons in a trenchcoat.';
-    document.querySelector('.cta-btn').innerHTML = '🎺 HONK FOR DEMO 🎺';
-    document.querySelectorAll('.feature-card')[0].querySelector('h3').innerHTML = '📊 Data-Driven Nonsense';
-    document.querySelectorAll('.feature-card')[0].querySelector('p').innerHTML = 'We put your data in a blender and call it "insights". Our ROI stands for "Raccoons Obviously Included".';
-    document.querySelectorAll('.feature-card')[1].querySelector('h3').innerHTML = '🤝 Stakeholder Confusion';
-    document.querySelectorAll('.feature-card')[1].querySelector('p').innerHTML = 'Nobody knows what we do. Not even us. But we do it TOGETHER with maximum synergy and jazz hands.';
-    document.querySelectorAll('.feature-card')[2].querySelector('h3').innerHTML = '🚀 Yeeting Solutions';
-    document.querySelectorAll('.feature-card')[2].querySelector('p').innerHTML = 'We yeet your problems into the cloud and hope for the best. It\'s worked 60% of the time, every time.';
-    document.querySelector('.testimonial blockquote').innerHTML = '"SillyBonkers helped us pivot from making money to making memes. Our shareholders are confused but our TikTok is FIRE." 🔥🔥🔥';
-    document.querySelector('.testimonial cite').innerHTML = '— A Definitely Real Person, Chief Vibes Officer, Probably A Company LLC';
-    document.querySelector('.corp-footer').innerHTML = '© 2024 SillyBonkers™ | No Rights Reserved | We Lost The Privacy Policy | Terms of Silliness | 🍪 Cookie Monster Was Here';
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ<>{}[]|/\\!@#$%^&*()TWITCH💜🎮';
+const charArray = chars.split('');
+const fontSize = 14;
+let columns = Math.floor(canvas.width / fontSize);
+let drops = Array(columns).fill(1);
+
+function draw() {
+    ctx.fillStyle = 'rgba(13, 13, 13, 0.05)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    // Add wobble to nav links
-    document.querySelectorAll('.corp-nav a').forEach((a, i) => {
-        const words = ['Shenanigans', 'Tomfoolery', 'Mischief', 'Chaos', 'Snacks'];
-        a.innerHTML = words[i] || 'Boop';
-    });
+    ctx.fillStyle = '#00ff41';
+    ctx.font = fontSize + 'px monospace';
+    
+    for (let i = 0; i < drops.length; i++) {
+        const char = charArray[Math.floor(Math.random() * charArray.length)];
+        const x = i * fontSize;
+        const y = drops[i] * fontSize;
+        
+        // Random purple chars for Twitch vibes
+        if (Math.random() > 0.95) {
+            ctx.fillStyle = '#9146FF';
+        } else {
+            ctx.fillStyle = '#00ff41';
+        }
+        
+        ctx.fillText(char, x, y);
+        
+        if (y > canvas.height && Math.random() > 0.975) {
+            drops[i] = 0;
+        }
+        drops[i]++;
+    }
 }
+
+setInterval(draw, 50);
+
+window.addEventListener('resize', () => {
+    columns = Math.floor(canvas.width / fontSize);
+    drops = Array(columns).fill(1);
+});
 </script>
-</section>
-<section class="features">
-<div class="feature-card">
-<div class="feature-icon">📊</div>
-<h3>Data-Driven Insights</h3>
-<p>Leverage actionable analytics to drive ROI and optimize your vertical integration strategies.</p>
-</div>
-<div class="feature-card">
-<div class="feature-icon">🤝</div>
-<h3>Stakeholder Alignment</h3>
-<p>Facilitate cross-functional collaboration through our proprietary synergy matrix.</p>
-</div>
-<div class="feature-card">
-<div class="feature-icon">🚀</div>
-<h3>Scalable Solutions</h3>
-<p>Future-proof your business with agile, cloud-native infrastructure that grows with you.</p>
-</div>
-</section>
-<section class="testimonial">
-<blockquote>"SynergyCore helped us pivot our core deliverables and achieve unprecedented synergy across all departments."</blockquote>
-<cite>— John Smith, VP of Strategic Initiatives, Generic Corp Inc.</cite>
-</section>
-<footer class="corp-footer">
-        © 2024 SynergyCore Solutions™ | All Rights Reserved | Privacy Policy | Terms of Service | Cookie Preferences
-    </footer>
 </body>
 </html>
