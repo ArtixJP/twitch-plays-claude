@@ -317,7 +317,7 @@
     }
     
     .music-control.waiting-autoplay::before {
-        content: '👆 CLICK TO VIBE';
+        content: '👆 CLICK ANYWHERE!';
         position: absolute;
         top: -35px;
         left: 50%;
@@ -1959,7 +1959,7 @@ setInterval(() => {
 <span class="prompt">matrix@twitch:~$</span> <span class="cursor"></span>
 </div>
 </div>
-<div class="audio-status" id="audio-status">🔇 CLICK ANYWHERE FOR SOUND</div>
+<div class="audio-status" id="audio-status">🔇 CLICK ANYWHERE TO START VIBING</div>
 <div class="music-control waiting-autoplay" id="music-control">
 <button class="music-btn" id="music-toggle" title="Toggle Chill Beats">🎵</button>
 <div class="music-visualizer">
@@ -2405,34 +2405,65 @@ const vizBars = document.querySelectorAll('.viz-bar');
 
 // Autoplay on first user interaction (browsers require user gesture for audio)
 let hasAutoPlayed = false;
-function autoplayOnInteraction() {
+function autoplayOnInteraction(e) {
     if (hasAutoPlayed) return;
     hasAutoPlayed = true;
     
-    // Start the music!
-    const playing = chillMusic.toggle();
-    musicBtn.classList.add('playing');
-    musicBtn.textContent = '🎶';
-    musicControl.classList.remove('waiting-autoplay');
+    console.log('%c🎵 AUTOPLAY TRIGGERED! 🎵', 'color: #00ff41; font-size: 16px; font-weight: bold;');
     
-    // Remove the listener after first trigger
+    // Initialize audio context fresh on user gesture
+    if (!chillMusic.audioCtx) {
+        chillMusic.init();
+    }
+    
+    // Resume if suspended (required by browsers)
+    if (chillMusic.audioCtx && chillMusic.audioCtx.state === 'suspended') {
+        chillMusic.audioCtx.resume().then(() => {
+            console.log('AudioContext resumed successfully');
+            startMusicNow();
+        }).catch(err => {
+            console.log('AudioContext resume failed:', err);
+            startMusicNow(); // Try anyway
+        });
+    } else {
+        startMusicNow();
+    }
+    
+    function startMusicNow() {
+        if (!chillMusic.isPlaying) {
+            chillMusic.start();
+        }
+        musicBtn.classList.add('playing');
+        musicBtn.textContent = '🎶';
+        musicControl.classList.remove('waiting-autoplay');
+        updateAudioStatus();
+    }
+    
+    // Remove the listeners after first trigger
     document.removeEventListener('click', autoplayOnInteraction);
     document.removeEventListener('touchstart', autoplayOnInteraction);
     document.removeEventListener('keydown', autoplayOnInteraction);
 }
 
-// Listen for any user interaction
-document.addEventListener('click', autoplayOnInteraction);
-document.addEventListener('touchstart', autoplayOnInteraction);
-document.addEventListener('keydown', autoplayOnInteraction);
+// Listen for any user interaction - use capture to get it first
+document.addEventListener('click', autoplayOnInteraction, { once: false, capture: true });
+document.addEventListener('touchstart', autoplayOnInteraction, { once: false, capture: true });
+document.addEventListener('keydown', autoplayOnInteraction, { once: false, capture: true });
 
 musicBtn.addEventListener('click', (e) => {
-    if (hasAutoPlayed) {
-        const playing = chillMusic.toggle();
-        musicBtn.classList.toggle('playing', playing);
-        musicBtn.textContent = playing ? '🎶' : '🎵';
+    e.stopPropagation(); // Prevent double-trigger
+    
+    if (!hasAutoPlayed) {
+        // First click - trigger autoplay
+        autoplayOnInteraction(e);
+        return;
     }
-    // If not autoplayed yet, the autoplayOnInteraction will handle it
+    
+    // Subsequent clicks - toggle
+    const playing = chillMusic.toggle();
+    musicBtn.classList.toggle('playing', playing);
+    musicBtn.textContent = playing ? '🎶' : '🎵';
+    updateAudioStatus();
 });
 
 // Visualizer animation
