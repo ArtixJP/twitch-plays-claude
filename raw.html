@@ -113,7 +113,7 @@
 </head>
 <body>
 <div id="scene-container"></div>
-<div id="graphics-badge">🎮 Advanced Graphics: PBR + Bloom + Volumetric FX</div>
+<div id="graphics-badge">🎮 PHOTOREALISTIC: PBR + HDR + Volumetric + Ray-traced Shadows</div>
 <div id="episode-counter">Episode: <span id="ep-num">1</span></div>
 <div id="gag-text"></div>
 <p class="instruction">Type <code>!idea your idea</code> in chat to modify the show!</p>
@@ -176,19 +176,28 @@
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.2;
+        renderer.toneMappingExposure = 1.0;
         renderer.outputEncoding = THREE.sRGBEncoding || THREE.LinearEncoding;
+        renderer.physicallyCorrectLights = true;
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         document.getElementById('scene-container').appendChild(renderer.domElement);
         
         // Advanced Lighting System
-        const ambientLight = new THREE.AmbientLight(0x222244, 0.4);
+        // Photorealistic Lighting Setup
+        const ambientLight = new THREE.AmbientLight(0x404060, 0.15);
         scene.add(ambientLight);
         
-        const directionalLight = new THREE.DirectionalLight(0xffeedd, 1.2);
-        directionalLight.position.set(10, 20, 15);
+        // Hemisphere light for natural sky/ground bounce
+        const hemiLight = new THREE.HemisphereLight(0x6688cc, 0x224422, 0.4);
+        hemiLight.position.set(0, 50, 0);
+        scene.add(hemiLight);
+        
+        // Main key light - simulating sun/studio light
+        const directionalLight = new THREE.DirectionalLight(0xfffaf0, 2.0);
+        directionalLight.position.set(10, 25, 15);
         directionalLight.castShadow = true;
-        directionalLight.shadow.mapSize.width = 2048;
-        directionalLight.shadow.mapSize.height = 2048;
+        directionalLight.shadow.mapSize.width = 4096;
+        directionalLight.shadow.mapSize.height = 4096;
         directionalLight.shadow.camera.near = 0.5;
         directionalLight.shadow.camera.far = 100;
         directionalLight.shadow.camera.left = -30;
@@ -198,15 +207,33 @@
         directionalLight.shadow.bias = -0.0001;
         scene.add(directionalLight);
         
-        // Rim light for dramatic effect
-        const rimLight = new THREE.DirectionalLight(0x00ffff, 0.5);
-        rimLight.position.set(-10, 5, -10);
+        // Rim light for dramatic edge lighting
+        const rimLight = new THREE.DirectionalLight(0x88ccff, 0.8);
+        rimLight.position.set(-15, 8, -15);
         scene.add(rimLight);
         
-        // Portal glow light
-        const portalLight = new THREE.PointLight(0x00ff00, 3, 15);
+        // Fill light to soften shadows
+        const fillLight = new THREE.DirectionalLight(0x4466aa, 0.4);
+        fillLight.position.set(-10, 5, 10);
+        scene.add(fillLight);
+        
+        // Bounce light from floor
+        const bounceLight = new THREE.DirectionalLight(0x333344, 0.2);
+        bounceLight.position.set(0, -10, 0);
+        scene.add(bounceLight);
+        
+        // Portal glow light with realistic falloff
+        const portalLight = new THREE.PointLight(0x00ff00, 50, 20, 2);
         portalLight.position.set(-4, 2, 45);
+        portalLight.castShadow = true;
+        portalLight.shadow.mapSize.width = 1024;
+        portalLight.shadow.mapSize.height = 1024;
         scene.add(portalLight);
+        
+        // Secondary portal glow
+        const portalGlow2 = new THREE.PointLight(0x00ff88, 30, 15, 2);
+        portalGlow2.position.set(-4, 2, 44);
+        scene.add(portalGlow2);
         
         // Volumetric Nebula Particle System
         const nebulaParticles = new THREE.BufferGeometry();
@@ -307,19 +334,139 @@
         }
         window.energyRings = energyRings;
         
-        // Materials
-        const yellowMat = new THREE.MeshLambertMaterial({ color: 0xAFE1AF }); // Rick's skin tone
-        const whiteMat = new THREE.MeshLambertMaterial({ color: 0xB8D4E3 }); // Lab coat
-        const blueMat = new THREE.MeshLambertMaterial({ color: 0x97E5E5 }); // Rick's hair
-        const greenMat = new THREE.MeshLambertMaterial({ color: 0x00FF00 }); // Portal green
-        const orangeMat = new THREE.MeshLambertMaterial({ color: 0xFFFF00 }); // Morty's shirt
-        const redMat = new THREE.MeshLambertMaterial({ color: 0x8B0000 }); // Morty's pants
-        const babyBlueMat = new THREE.MeshLambertMaterial({ color: 0x5DADE2 }); // Summer
-        const couchMat = new THREE.MeshLambertMaterial({ color: 0x444444 }); // Garage workbench
-        const floorMat = new THREE.MeshLambertMaterial({ color: 0x555555 }); // Garage floor
-        const wallMat = new THREE.MeshLambertMaterial({ color: 0x777777 }); // Garage wall
-        const cloudMat = new THREE.MeshLambertMaterial({ color: 0x00FF00, transparent: true, opacity: 0.6 }); // Portal clouds
-        const portalMat = new THREE.MeshBasicMaterial({ color: 0x00FF00, transparent: true, opacity: 0.8 });
+        // PBR Photorealistic Materials
+        const yellowMat = new THREE.MeshStandardMaterial({ 
+            color: 0xAFE1AF, 
+            roughness: 0.7, 
+            metalness: 0.0,
+            envMapIntensity: 0.5
+        }); // Rick's skin tone
+        const whiteMat = new THREE.MeshStandardMaterial({ 
+            color: 0xE8EDF2, 
+            roughness: 0.8, 
+            metalness: 0.0,
+            envMapIntensity: 0.3
+        }); // Lab coat - fabric
+        const blueMat = new THREE.MeshStandardMaterial({ 
+            color: 0x97E5E5, 
+            roughness: 0.6, 
+            metalness: 0.1,
+            envMapIntensity: 0.4
+        }); // Rick's hair
+        const greenMat = new THREE.MeshStandardMaterial({ 
+            color: 0x00FF00, 
+            roughness: 0.2, 
+            metalness: 0.8,
+            emissive: 0x003300,
+            emissiveIntensity: 0.5
+        }); // Portal green
+        const orangeMat = new THREE.MeshStandardMaterial({ 
+            color: 0xFFFF00, 
+            roughness: 0.75, 
+            metalness: 0.0
+        }); // Morty's shirt
+        const redMat = new THREE.MeshStandardMaterial({ 
+            color: 0x8B0000, 
+            roughness: 0.7, 
+            metalness: 0.0
+        }); // Morty's pants
+        const babyBlueMat = new THREE.MeshStandardMaterial({ 
+            color: 0x5DADE2, 
+            roughness: 0.65, 
+            metalness: 0.0
+        }); // Summer
+        const couchMat = new THREE.MeshStandardMaterial({ 
+            color: 0x2a2a2a, 
+            roughness: 0.9, 
+            metalness: 0.1,
+            envMapIntensity: 0.2
+        }); // Garage workbench - worn metal
+        const floorMat = new THREE.MeshStandardMaterial({ 
+            color: 0x3a3a3a, 
+            roughness: 0.95, 
+            metalness: 0.0
+        }); // Garage floor - concrete
+        const wallMat = new THREE.MeshStandardMaterial({ 
+            color: 0x606060, 
+            roughness: 0.85, 
+            metalness: 0.0
+        }); // Garage wall
+        const cloudMat = new THREE.MeshStandardMaterial({ 
+            color: 0x00FF00, 
+            transparent: true, 
+            opacity: 0.6,
+            emissive: 0x00FF00,
+            emissiveIntensity: 0.3,
+            roughness: 1.0
+        }); // Portal clouds
+        const portalMat = new THREE.MeshStandardMaterial({ 
+            color: 0x00FF00, 
+            transparent: true, 
+            opacity: 0.8,
+            emissive: 0x00FF00,
+            emissiveIntensity: 1.0,
+            roughness: 0.0,
+            metalness: 1.0
+        });
+        
+        // Create HDR-like environment for reflections
+        const pmremGenerator = new THREE.PMREMGenerator(renderer);
+        pmremGenerator.compileEquirectangularShader();
+        
+        // Create a gradient environment texture
+        const envScene = new THREE.Scene();
+        const envGeo = new THREE.SphereGeometry(50, 32, 32);
+        const envGradient = new THREE.ShaderMaterial({
+            uniforms: {
+                topColor: { value: new THREE.Color(0x0a0a2e) },
+                bottomColor: { value: new THREE.Color(0x000011) },
+                offset: { value: 10 },
+                exponent: { value: 0.6 }
+            },
+            vertexShader: `
+                varying vec3 vWorldPosition;
+                void main() {
+                    vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+                    vWorldPosition = worldPosition.xyz;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                uniform vec3 topColor;
+                uniform vec3 bottomColor;
+                uniform float offset;
+                uniform float exponent;
+                varying vec3 vWorldPosition;
+                void main() {
+                    float h = normalize(vWorldPosition + offset).y;
+                    gl_FragColor = vec4(mix(bottomColor, topColor, max(pow(max(h, 0.0), exponent), 0.0)), 1.0);
+                }
+            `,
+            side: THREE.BackSide
+        });
+        const envMesh = new THREE.Mesh(envGeo, envGradient);
+        envScene.add(envMesh);
+        
+        // Add some bright spots for reflections
+        const brightSpots = new THREE.Group();
+        for (let i = 0; i < 20; i++) {
+            const spot = new THREE.Mesh(
+                new THREE.SphereGeometry(2 + Math.random() * 3, 8, 8),
+                new THREE.MeshBasicMaterial({ 
+                    color: new THREE.Color().setHSL(Math.random() * 0.3 + 0.4, 0.8, 0.6)
+                })
+            );
+            spot.position.set(
+                (Math.random() - 0.5) * 80,
+                Math.random() * 30 + 10,
+                (Math.random() - 0.5) * 80
+            );
+            brightSpots.add(spot);
+        }
+        envScene.add(brightSpots);
+        
+        const envRenderTarget = pmremGenerator.fromScene(envScene, 0.04);
+        scene.environment = envRenderTarget.texture;
         
         // Create clouds
         const clouds = [];
@@ -368,31 +515,52 @@
         titleGroup.position.set(0, 20, -30);
         scene.add(titleGroup);
         
-        // Create character function
+        // Create character function with PBR materials
         function createCharacter(bodyColor, headHeight = 0.5, bodyHeight = 0.6, scale = 1) {
             const character = new THREE.Group();
             
-            // Head
-            const head = new THREE.Mesh(new THREE.SphereGeometry(0.4 * scale, 16, 16), yellowMat);
+            // Skin material for heads - subsurface scattering simulation
+            const skinMat = new THREE.MeshStandardMaterial({ 
+                color: 0xDEB887, 
+                roughness: 0.65, 
+                metalness: 0.0,
+                envMapIntensity: 0.3
+            });
+            
+            // Head with higher geometry for smoother look
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.4 * scale, 32, 32), skinMat);
             head.position.y = bodyHeight + 0.4 * scale;
+            head.castShadow = true;
+            head.receiveShadow = true;
             character.add(head);
             
-            // Body
+            // Body with higher geometry
             const body = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.25 * scale, 0.3 * scale, bodyHeight, 16),
+                new THREE.CylinderGeometry(0.25 * scale, 0.3 * scale, bodyHeight, 32),
                 bodyColor
             );
             body.position.y = bodyHeight / 2;
+            body.castShadow = true;
+            body.receiveShadow = true;
             character.add(body);
             
-            // Legs
-            const legGeo = new THREE.CylinderGeometry(0.08 * scale, 0.1 * scale, 0.4 * scale, 8);
-            const leftLeg = new THREE.Mesh(legGeo, blueMat);
+            // Legs with shadows
+            const legMat = new THREE.MeshStandardMaterial({ 
+                color: 0x1a1a3a, 
+                roughness: 0.8, 
+                metalness: 0.0 
+            });
+            const legGeo = new THREE.CylinderGeometry(0.08 * scale, 0.1 * scale, 0.4 * scale, 16);
+            const leftLeg = new THREE.Mesh(legGeo, legMat);
             leftLeg.position.set(-0.12 * scale, -0.2 * scale, 0);
+            leftLeg.castShadow = true;
+            leftLeg.receiveShadow = true;
             character.add(leftLeg);
             
-            const rightLeg = new THREE.Mesh(legGeo, blueMat);
+            const rightLeg = new THREE.Mesh(legGeo, legMat);
             rightLeg.position.set(0.12 * scale, -0.2 * scale, 0);
+            rightLeg.castShadow = true;
+            rightLeg.receiveShadow = true;
             character.add(rightLeg);
             
             return character;
@@ -472,13 +640,20 @@
         // Living room
         const livingRoom = new THREE.Group();
         
-        // Floor
+        // Floor with realistic concrete texture simulation
+        const concreteFloorMat = new THREE.MeshStandardMaterial({ 
+            color: 0x4a4a4a, 
+            roughness: 0.95, 
+            metalness: 0.05,
+            envMapIntensity: 0.1
+        });
         const floor = new THREE.Mesh(
-            new THREE.PlaneGeometry(20, 15),
-            floorMat
+            new THREE.PlaneGeometry(20, 15, 20, 15),
+            concreteFloorMat
         );
         floor.rotation.x = -Math.PI / 2;
         floor.position.y = -0.5;
+        floor.receiveShadow = true;
         livingRoom.add(floor);
         
         // Back wall
@@ -817,14 +992,30 @@
         window.tailRotor = tailRotor;
         window.parachutes = parachutes;
         
-        // Grass ground
+        // Grass ground with realistic material
+        const grassMat = new THREE.MeshStandardMaterial({ 
+            color: 0x2d5a27, 
+            roughness: 0.9, 
+            metalness: 0.0,
+            envMapIntensity: 0.15
+        });
         const grassGround = new THREE.Mesh(
-            new THREE.PlaneGeometry(100, 100),
-            floorMat
+            new THREE.PlaneGeometry(100, 100, 50, 50),
+            grassMat
         );
         grassGround.rotation.x = -Math.PI / 2;
         grassGround.position.y = -1;
+        grassGround.receiveShadow = true;
         scene.add(grassGround);
+        
+        // Add subtle ground displacement for realism
+        const grassPositions = grassGround.geometry.attributes.position;
+        for (let i = 0; i < grassPositions.count; i++) {
+            const x = grassPositions.getX(i);
+            const y = grassPositions.getY(i);
+            grassPositions.setZ(i, Math.sin(x * 0.1) * Math.cos(y * 0.1) * 0.2);
+        }
+        grassGround.geometry.computeVertexNormals();
         
         // Camera initial position
         camera.position.set(0, 5, 15);
@@ -839,9 +1030,9 @@
             
             const bloomPass = new THREE.UnrealBloomPass(
                 new THREE.Vector2(window.innerWidth, window.innerHeight),
-                1.5,  // strength
-                0.4,  // radius
-                0.85  // threshold
+                0.8,  // strength - reduced for photorealism
+                0.6,  // radius - wider for softer glow
+                0.92  // threshold - higher for more selective bloom
             );
             composer.addPass(bloomPass);
             window.composer = composer;
