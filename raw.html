@@ -1276,6 +1276,122 @@
         0%, 100% { transform: translateY(0) rotate(0deg); }
         50% { transform: translateY(-20px) rotate(5deg); }
     }
+/* CATACLYSM EVENT STYLES */
+.cataclysm-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    pointer-events: none;
+    background: radial-gradient(circle at center, transparent 0%, rgba(255, 100, 0, 0.3) 100%);
+    animation: cataclysm-flash 0.5s ease-out forwards;
+}
+
+@keyframes cataclysm-flash {
+    0% { opacity: 1; background: rgba(255, 255, 255, 0.9); }
+    20% { background: rgba(255, 150, 0, 0.7); }
+    100% { opacity: 0; }
+}
+
+.explosion-particle {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 10000;
+    animation: explode-particle 2s ease-out forwards;
+}
+
+@keyframes explode-particle {
+    0% { transform: translate(0, 0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+}
+
+.firework {
+    position: fixed;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 10001;
+    animation: firework-burst 1.5s ease-out forwards;
+}
+
+@keyframes firework-burst {
+    0% { transform: scale(0); opacity: 1; box-shadow: 0 0 20px currentColor; }
+    50% { transform: scale(3); opacity: 1; }
+    100% { transform: scale(0); opacity: 0; }
+}
+
+.screen-shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    10% { transform: translate(-10px, -5px) rotate(-1deg); }
+    20% { transform: translate(10px, 5px) rotate(1deg); }
+    30% { transform: translate(-8px, 3px) rotate(-0.5deg); }
+    40% { transform: translate(8px, -3px) rotate(0.5deg); }
+    50% { transform: translate(-5px, 2px) rotate(-0.3deg); }
+    60% { transform: translate(5px, -2px) rotate(0.3deg); }
+    70% { transform: translate(-3px, 1px) rotate(-0.1deg); }
+    80% { transform: translate(3px, -1px) rotate(0.1deg); }
+    90% { transform: translate(-1px, 0px) rotate(0deg); }
+}
+
+.burning {
+    animation: burn-away 2s ease-in forwards;
+    filter: brightness(1.5) saturate(2);
+}
+
+@keyframes burn-away {
+    0% { filter: brightness(1) saturate(1); opacity: 1; transform: scale(1); }
+    30% { filter: brightness(2) saturate(3) hue-rotate(30deg); opacity: 0.8; }
+    60% { filter: brightness(0.5) saturate(0.5) grayscale(0.8); opacity: 0.4; transform: scale(0.95); }
+    80% { filter: brightness(0.2) grayscale(1); opacity: 0.2; transform: scale(0.9); }
+    100% { filter: brightness(1) saturate(1) grayscale(0); opacity: 1; transform: scale(1); }
+}
+
+.cataclysm-scar {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.5rem;
+    color: #ff4444;
+    text-shadow: 0 0 10px #ff4444;
+    z-index: 500;
+    opacity: 0.7;
+    animation: scar-pulse 3s ease-in-out infinite;
+}
+
+@keyframes scar-pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 0.9; }
+}
+
+.phoenix-rising {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 5rem;
+    z-index: 10002;
+    animation: phoenix-rise 3s ease-out forwards;
+    pointer-events: none;
+}
+
+@keyframes phoenix-rise {
+    0% { opacity: 0; transform: translate(-50%, 100%) scale(0.5); filter: brightness(3); }
+    30% { opacity: 1; transform: translate(-50%, -50%) scale(1.5); filter: brightness(2); }
+    60% { opacity: 1; transform: translate(-50%, -50%) scale(1); filter: brightness(1); }
+    100% { opacity: 0; transform: translate(-50%, -150%) scale(0.8); }
+}
 </style>
 </head>
 <body>
@@ -1723,6 +1839,7 @@ setInterval(() => {
 </div>
 <span class="music-label">CHILL<br/>BEATS</span>
 </div>
+<div class="cataclysm-scar" id="cataclysm-scar">⚠️ SITE SURVIVED CATACLYSM EVENT #1 • REBUILT FROM ASHES • STRONGER THAN BEFORE ⚠️</div>
 <footer class="pixel-footer">
     ⟨ 2024 MATRIX_BAKE ⟩ | <a href="#">RECIPE.EXE</a> | <a href="#">FLOUR.DAT</a> | 🍪 COOKIES FRESHLY BAKED | POWERED BY SOURDOUGH STARTER
 </footer>
@@ -2332,6 +2449,118 @@ function restartQuiz() {
 
 // Initialize quiz
 renderQuestion();
+
+// ═══════════════════════════════════════════════════════
+// CATACLYSM EVENT - EXPLOSION & FIREWORKS SPECTACULAR
+// The site explodes but rises from the ashes!
+// ═══════════════════════════════════════════════════════
+
+function createExplosionParticle(x, y, color) {
+    const particle = document.createElement('div');
+    particle.className = 'explosion-particle';
+    particle.style.left = x + 'px';
+    particle.style.top = y + 'px';
+    particle.style.background = color;
+    particle.style.setProperty('--tx', (Math.random() - 0.5) * 400 + 'px');
+    particle.style.setProperty('--ty', (Math.random() - 0.5) * 400 + 'px');
+    particle.style.boxShadow = `0 0 10px ${color}`;
+    document.body.appendChild(particle);
+    setTimeout(() => particle.remove(), 2000);
+}
+
+function createFirework(x, y) {
+    const colors = ['#ff0000', '#ff8800', '#ffff00', '#00ff00', '#00ffff', '#ff00ff', '#9146FF', '#00ff41'];
+    for (let i = 0; i < 30; i++) {
+        setTimeout(() => {
+            const firework = document.createElement('div');
+            firework.className = 'firework';
+            const angle = (i / 30) * Math.PI * 2;
+            const distance = 50 + Math.random() * 100;
+            firework.style.left = (x + Math.cos(angle) * distance) + 'px';
+            firework.style.top = (y + Math.sin(angle) * distance) + 'px';
+            firework.style.background = colors[Math.floor(Math.random() * colors.length)];
+            firework.style.color = firework.style.background;
+            document.body.appendChild(firework);
+            setTimeout(() => firework.remove(), 1500);
+        }, i * 20);
+    }
+}
+
+function triggerCataclysm() {
+    // Screen shake
+    document.body.classList.add('screen-shake');
+    setTimeout(() => document.body.classList.remove('screen-shake'), 500);
+    
+    // Flash overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'cataclysm-overlay';
+    document.body.appendChild(overlay);
+    setTimeout(() => overlay.remove(), 500);
+    
+    // Explosion particles from center
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    const colors = ['#ff4400', '#ffaa00', '#ff0000', '#ffff00', '#ff6600'];
+    
+    for (let i = 0; i < 100; i++) {
+        setTimeout(() => {
+            createExplosionParticle(
+                centerX + (Math.random() - 0.5) * 200,
+                centerY + (Math.random() - 0.5) * 200,
+                colors[Math.floor(Math.random() * colors.length)]
+            );
+        }, i * 10);
+    }
+    
+    // Multiple fireworks
+    const fireworkPositions = [
+        [centerX, centerY],
+        [centerX - 200, centerY - 100],
+        [centerX + 200, centerY - 100],
+        [centerX - 150, centerY + 150],
+        [centerX + 150, centerY + 150]
+    ];
+    
+    fireworkPositions.forEach((pos, i) => {
+        setTimeout(() => createFirework(pos[0], pos[1]), i * 300);
+    });
+    
+    // Make elements 'burn' temporarily
+    const burnableElements = document.querySelectorAll('.pixel-card, .pricing-card, .terminal-section, .tpc-container, .quiz-container');
+    burnableElements.forEach((el, i) => {
+        setTimeout(() => {
+            el.classList.add('burning');
+            setTimeout(() => el.classList.remove('burning'), 2000);
+        }, i * 100);
+    });
+    
+    // Phoenix rising animation
+    setTimeout(() => {
+        const phoenix = document.createElement('div');
+        phoenix.className = 'phoenix-rising';
+        phoenix.textContent = '🔥🥐🔥';
+        document.body.appendChild(phoenix);
+        setTimeout(() => phoenix.remove(), 3000);
+    }, 1000);
+    
+    // Show the scar
+    const scar = document.getElementById('cataclysm-scar');
+    if (scar) scar.style.display = 'block';
+    
+    // Console message
+    console.log('%c⚠️ CATACLYSM EVENT TRIGGERED ⚠️', 'color: #ff4400; font-size: 20px; font-weight: bold;');
+    console.log('%cThe site burns... but rises from the ashes! R\'AMEN 🍝', 'color: #00ff41; font-size: 14px;');
+}
+
+// Trigger cataclysm immediately on page load!
+setTimeout(triggerCataclysm, 500);
+
+// Add bonus fireworks every 30 seconds as a reminder of the cataclysm
+setInterval(() => {
+    const x = Math.random() * window.innerWidth;
+    const y = Math.random() * (window.innerHeight / 2);
+    createFirework(x, y);
+}, 30000);
 </script>
 </body>
 </html>
