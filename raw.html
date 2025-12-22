@@ -767,9 +767,13 @@
         maggie.add(jerryHair);
         
         const family = [homer, marge, bart, lisa, maggie];
+        const characterNames = ['Rick', 'Morty', 'Summer', 'Beth', 'Jerry'];
         family.forEach((char, i) => {
-            char.position.set(-2 + i * 2, 0, 0);
+            // Start characters at different walking positions
+            const startAngle = (i / 5) * Math.PI * 2;
+            char.position.set(-5 + Math.cos(startAngle) * 10, 0.5, 30 + Math.sin(startAngle) * 8);
             char.visible = true; // Always visible - continuous scene
+            char.userData.name = characterNames[i];
             scene.add(char);
         });
         
@@ -1710,10 +1714,50 @@
                 camera.position.y = 30 + Math.sin(animationTime * 0.2) * 10;
                 camera.lookAt(0, 5, 25);
                 
-                // Animate family dancing
+                // Rick and Morty characters walking around
+                const walkPaths = [
+                    { radius: 15, speed: 0.3, offset: 0, centerX: -5, centerZ: 30 },      // Rick - erratic walk
+                    { radius: 12, speed: 0.5, offset: Math.PI, centerX: 0, centerZ: 35 }, // Morty - follows Rick
+                    { radius: 20, speed: 0.2, offset: Math.PI/2, centerX: 10, centerZ: 25 }, // Summer - wandering
+                    { radius: 8, speed: 0.15, offset: Math.PI*1.5, centerX: -10, centerZ: 40 }, // Beth - pacing
+                    { radius: 10, speed: 0.1, offset: Math.PI/4, centerX: 5, centerZ: 45 }  // Jerry - lost
+                ];
+                
                 family.forEach((char, i) => {
-                    char.position.y = 0.5 + Math.abs(Math.sin(animationTime * 4 + i)) * 0.5;
-                    char.rotation.y = Math.sin(animationTime * 2 + i) * 0.3;
+                    const path = walkPaths[i];
+                    const walkTime = animationTime * path.speed + path.offset;
+                    
+                    // Walking path - figure-8 pattern for more interesting movement
+                    const prevX = char.position.x;
+                    const prevZ = char.position.z;
+                    char.position.x = path.centerX + Math.sin(walkTime) * path.radius;
+                    char.position.z = path.centerZ + Math.sin(walkTime * 2) * (path.radius * 0.5);
+                    
+                    // Walking bob animation
+                    const walkCycle = animationTime * 8 + i;
+                    char.position.y = 0.5 + Math.abs(Math.sin(walkCycle)) * 0.15;
+                    
+                    // Face walking direction
+                    const dx = char.position.x - prevX;
+                    const dz = char.position.z - prevZ;
+                    if (Math.abs(dx) > 0.001 || Math.abs(dz) > 0.001) {
+                        char.rotation.y = Math.atan2(dx, dz);
+                    }
+                    
+                    // Subtle body sway while walking
+                    char.rotation.z = Math.sin(walkCycle) * 0.05;
+                    
+                    // Rick occasionally stumbles (burp animation)
+                    if (i === 0 && Math.sin(animationTime * 0.5) > 0.95) {
+                        char.rotation.x = Math.sin(animationTime * 10) * 0.2;
+                    } else {
+                        char.rotation.x = 0;
+                    }
+                    
+                    // Morty nervously looks around
+                    if (i === 1) {
+                        char.rotation.y += Math.sin(animationTime * 3) * 0.3;
+                    }
                 });
                 
                 // Animate helicopter
