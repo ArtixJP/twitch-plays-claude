@@ -145,6 +145,59 @@
             transition: opacity 0.3s;
             z-index: 101;
         }
+        #cinema-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            flex-direction: column;
+        }
+        #cinema-canvas {
+            border: 8px solid #333;
+            box-shadow: 0 0 50px rgba(255,200,0,0.5);
+            image-rendering: pixelated;
+        }
+        #cinema-text {
+            color: #FFD700;
+            font-size: 24px;
+            margin-top: 20px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 10px #FFD700;
+        }
+        #cinema-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+        }
+        #screen-prompt {
+            position: absolute;
+            bottom: 150px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: #FFD700;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 18px;
+            z-index: 100;
+            display: none;
+            border: 2px solid #FFD700;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
     </style>
 </head>
 <body>
@@ -167,6 +220,12 @@
 <div class="inv-slot" data-block="gold"><div class="block-preview" style="background: #FFD700;"></div></div>
 </div>
 <div id="action-hint"></div>
+<div id="screen-prompt">🎬 Press F to watch the movie!</div>
+<div id="cinema-overlay">
+<span id="cinema-close">✕ ESC to close</span>
+<canvas height="360" id="cinema-canvas" width="640"></canvas>
+<div id="cinema-text">🎬 MARIO SAVES THE PRINCESS 🎬</div>
+</div>
 <div id="controls-hint">
 <span class="key">↑</span> Forward
             <span class="key">↓</span> Back
@@ -566,6 +625,262 @@
         // One mysterious wizard
         createVoxelCharacter('wizard', 10, 10);
         
+        // === CINEMA SCREEN ===
+        const cinemaGroup = new THREE.Group();
+        const screenX = -15, screenZ = -20;
+        const screenTerrainY = Math.floor(noise(screenX, screenZ)) + 6;
+        
+        // Screen frame (dark blocks)
+        const frameMat = new THREE.MeshLambertMaterial({color: 0x1a1a1a});
+        for (let fx = -4; fx <= 4; fx++) {
+            for (let fy = 0; fy <= 6; fy++) {
+                if (fx === -4 || fx === 4 || fy === 0 || fy === 6) {
+                    const frameBlock = new THREE.Mesh(blockGeometry, frameMat);
+                    frameBlock.position.set(screenX + fx, screenTerrainY + fy, screenZ);
+                    scene.add(frameBlock);
+                    blocks.push(frameBlock);
+                }
+            }
+        }
+        
+        // Movie screen (emissive white surface)
+        const screenGeo = new THREE.PlaneGeometry(7, 5);
+        const screenCanvas = document.createElement('canvas');
+        screenCanvas.width = 320;
+        screenCanvas.height = 180;
+        const screenCtx = screenCanvas.getContext('2d');
+        const screenTexture = new THREE.CanvasTexture(screenCanvas);
+        screenTexture.minFilter = THREE.NearestFilter;
+        screenTexture.magFilter = THREE.NearestFilter;
+        const screenMat = new THREE.MeshBasicMaterial({map: screenTexture});
+        const screenMesh = new THREE.Mesh(screenGeo, screenMat);
+        screenMesh.position.set(screenX, screenTerrainY + 3.5, screenZ + 0.1);
+        scene.add(screenMesh);
+        
+        // Cinema seats (stone blocks)
+        for (let row = 0; row < 3; row++) {
+            for (let seat = -3; seat <= 3; seat++) {
+                const seatBlock = new THREE.Mesh(blockGeometry, materials.stone);
+                seatBlock.position.set(screenX + seat, screenTerrainY, screenZ + 5 + row * 2);
+                seatBlock.scale.y = 0.5;
+                scene.add(seatBlock);
+            }
+        }
+        
+        // Movie animation state
+        let movieFrame = 0;
+        let moviePlaying = true; // Auto-play for viewers
+        let nearScreen = false;
+        let fullscreenMode = false;
+        
+        // Pixel art drawing helpers
+        function drawPixelMario(ctx, x, y, scale = 1) {
+            ctx.fillStyle = '#FF0000'; // Red cap
+            ctx.fillRect(x + 3*scale, y, 5*scale, scale);
+            ctx.fillRect(x + 2*scale, y + scale, 8*scale, scale);
+            ctx.fillStyle = '#FFDBAC'; // Skin
+            ctx.fillRect(x + 2*scale, y + 2*scale, 3*scale, scale);
+            ctx.fillRect(x + scale, y + 3*scale, 3*scale, scale);
+            ctx.fillStyle = '#8B4513'; // Hair/mustache
+            ctx.fillRect(x + 5*scale, y + 2*scale, 3*scale, scale);
+            ctx.fillRect(x + 2*scale, y + 4*scale, 6*scale, scale);
+            ctx.fillStyle = '#FF0000'; // Body
+            ctx.fillRect(x + 2*scale, y + 5*scale, 6*scale, 2*scale);
+            ctx.fillStyle = '#0000FF'; // Overalls
+            ctx.fillRect(x + 2*scale, y + 7*scale, 2*scale, 3*scale);
+            ctx.fillRect(x + 6*scale, y + 7*scale, 2*scale, 3*scale);
+        }
+        
+        function drawPixelPeach(ctx, x, y, scale = 1) {
+            ctx.fillStyle = '#FFD700'; // Crown
+            ctx.fillRect(x + 2*scale, y, 4*scale, 2*scale);
+            ctx.fillStyle = '#FFB6C1'; // Hair
+            ctx.fillRect(x + scale, y + 2*scale, 6*scale, 3*scale);
+            ctx.fillStyle = '#FFDBAC'; // Face
+            ctx.fillRect(x + 2*scale, y + 3*scale, 4*scale, 2*scale);
+            ctx.fillStyle = '#FF69B4'; // Dress
+            ctx.fillRect(x + scale, y + 5*scale, 6*scale, 5*scale);
+        }
+        
+        function drawPixelBowser(ctx, x, y, scale = 1) {
+            ctx.fillStyle = '#228B22'; // Green body
+            ctx.fillRect(x + 2*scale, y + 2*scale, 8*scale, 6*scale);
+            ctx.fillStyle = '#FFD700'; // Yellow belly
+            ctx.fillRect(x + 4*scale, y + 4*scale, 4*scale, 3*scale);
+            ctx.fillStyle = '#8B0000'; // Red hair
+            ctx.fillRect(x + 3*scale, y, 6*scale, 3*scale);
+            ctx.fillStyle = '#FFFFFF'; // Horns
+            ctx.fillRect(x + 2*scale, y, 2*scale, 2*scale);
+            ctx.fillRect(x + 8*scale, y, 2*scale, 2*scale);
+            ctx.fillStyle = '#8B4513'; // Shell
+            ctx.fillRect(x + scale, y + 3*scale, 2*scale, 4*scale);
+            ctx.fillRect(x + 9*scale, y + 3*scale, 2*scale, 4*scale);
+        }
+        
+        function drawMovieFrame(ctx, frame) {
+            const w = ctx.canvas.width;
+            const h = ctx.canvas.height;
+            const scene = Math.floor(frame / 120) % 5;
+            
+            // Clear
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, w, h);
+            
+            if (scene === 0) {
+                // Scene 1: Castle, Peach captured
+                ctx.fillStyle = '#4169E1';
+                ctx.fillRect(0, 0, w, h * 0.6);
+                ctx.fillStyle = '#228B22';
+                ctx.fillRect(0, h * 0.6, w, h * 0.4);
+                // Castle
+                ctx.fillStyle = '#808080';
+                ctx.fillRect(w * 0.6, h * 0.2, w * 0.3, h * 0.5);
+                ctx.fillStyle = '#8B0000';
+                ctx.fillRect(w * 0.65, h * 0.1, w * 0.08, h * 0.15);
+                ctx.fillRect(w * 0.77, h * 0.1, w * 0.08, h * 0.15);
+                // Bowser with Peach
+                drawPixelBowser(ctx, w * 0.65, h * 0.35, 3);
+                drawPixelPeach(ctx, w * 0.72, h * 0.38, 2);
+                // Text
+                ctx.fillStyle = '#FFF';
+                ctx.font = '16px Courier New';
+                ctx.fillText('BOWSER CAPTURES PRINCESS PEACH!', 20, 30);
+            } else if (scene === 1) {
+                // Scene 2: Mario sets off
+                ctx.fillStyle = '#87CEEB';
+                ctx.fillRect(0, 0, w, h * 0.7);
+                ctx.fillStyle = '#228B22';
+                ctx.fillRect(0, h * 0.7, w, h * 0.3);
+                // Pipes
+                ctx.fillStyle = '#00AA00';
+                ctx.fillRect(50, h * 0.55, 40, h * 0.2);
+                ctx.fillRect(200, h * 0.5, 40, h * 0.25);
+                // Mario running (animated)
+                const marioX = 30 + (frame % 120) * 2;
+                drawPixelMario(ctx, marioX, h * 0.55, 3);
+                ctx.fillStyle = '#FFF';
+                ctx.font = '16px Courier New';
+                ctx.fillText('MARIO BEGINS HIS JOURNEY!', 20, 30);
+            } else if (scene === 2) {
+                // Scene 3: Battle with enemies
+                ctx.fillStyle = '#1a1a2e';
+                ctx.fillRect(0, 0, w, h);
+                ctx.fillStyle = '#4a4a4a';
+                ctx.fillRect(0, h * 0.7, w, h * 0.3);
+                // Lava
+                ctx.fillStyle = '#FF4500';
+                for (let i = 0; i < 10; i++) {
+                    ctx.fillRect(i * 35, h * 0.75 + Math.sin(frame * 0.1 + i) * 5, 30, 20);
+                }
+                // Mario jumping
+                const jumpY = h * 0.4 + Math.sin(frame * 0.1) * 30;
+                drawPixelMario(ctx, w * 0.3, jumpY, 3);
+                // Fireballs
+                ctx.fillStyle = '#FFA500';
+                ctx.beginPath();
+                ctx.arc(w * 0.5 + Math.sin(frame * 0.05) * 50, h * 0.5, 10, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#FFF';
+                ctx.font = '16px Courier New';
+                ctx.fillText('DANGEROUS OBSTACLES AHEAD!', 20, 30);
+            } else if (scene === 3) {
+                // Scene 4: Final battle
+                ctx.fillStyle = '#2d132c';
+                ctx.fillRect(0, 0, w, h);
+                ctx.fillStyle = '#4a1942';
+                ctx.fillRect(0, h * 0.65, w, h * 0.35);
+                // Bowser
+                drawPixelBowser(ctx, w * 0.6, h * 0.4, 4);
+                // Mario attacking
+                const attackX = w * 0.2 + (frame % 60) * 2;
+                drawPixelMario(ctx, attackX, h * 0.45, 3);
+                // Fire effects
+                ctx.fillStyle = '#FF6600';
+                for (let i = 0; i < 5; i++) {
+                    ctx.fillRect(w * 0.4 + Math.random() * 100, h * 0.3 + Math.random() * 50, 8, 8);
+                }
+                // Stars (damage)
+                ctx.fillStyle = '#FFD700';
+                ctx.font = '20px Arial';
+                ctx.fillText('★', w * 0.7 + Math.sin(frame * 0.2) * 20, h * 0.35);
+                ctx.fillStyle = '#FFF';
+                ctx.font = '16px Courier New';
+                ctx.fillText('EPIC BATTLE WITH BOWSER!', 20, 30);
+            } else {
+                // Scene 5: Victory!
+                ctx.fillStyle = '#FFB6C1';
+                ctx.fillRect(0, 0, w, h);
+                // Hearts
+                ctx.fillStyle = '#FF0000';
+                for (let i = 0; i < 8; i++) {
+                    const hx = (i * 45 + frame) % (w + 50) - 25;
+                    const hy = h * 0.2 + Math.sin(frame * 0.05 + i) * 20;
+                    ctx.font = '24px Arial';
+                    ctx.fillText('❤', hx, hy);
+                }
+                // Mario and Peach together
+                drawPixelMario(ctx, w * 0.35, h * 0.45, 3);
+                drawPixelPeach(ctx, w * 0.5, h * 0.43, 3);
+                // Confetti
+                ctx.fillStyle = '#FFD700';
+                for (let i = 0; i < 20; i++) {
+                    ctx.fillRect(
+                        (i * 20 + frame * 2) % w,
+                        (frame + i * 30) % h,
+                        4, 4
+                    );
+                }
+                ctx.fillStyle = '#000';
+                ctx.font = 'bold 20px Courier New';
+                ctx.fillText('MARIO SAVES PEACH! THE END!', 30, 30);
+                ctx.font = '14px Courier New';
+                ctx.fillText('♪ And they lived happily ever after ♪', 50, h - 20);
+            }
+        }
+        
+        // Update movie screen
+        function updateMovieScreen() {
+            if (moviePlaying) {
+                movieFrame++;
+                drawMovieFrame(screenCtx, movieFrame);
+                screenTexture.needsUpdate = true;
+                
+                // Also update fullscreen canvas if open
+                if (fullscreenMode) {
+                    const cinemaCtx = document.getElementById('cinema-canvas').getContext('2d');
+                    cinemaCtx.imageSmoothingEnabled = false;
+                    drawMovieFrame(cinemaCtx, movieFrame);
+                }
+            }
+        }
+        
+        // Check proximity to screen
+        function checkScreenProximity() {
+            const dx = player.x - screenX;
+            const dz = player.z - (screenZ + 6);
+            const dist = Math.sqrt(dx*dx + dz*dz);
+            nearScreen = dist < 8;
+            document.getElementById('screen-prompt').style.display = nearScreen && !fullscreenMode ? 'block' : 'none';
+        }
+        
+        // F key to watch movie fullscreen
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'KeyF' && nearScreen && !fullscreenMode) {
+                fullscreenMode = true;
+                document.getElementById('cinema-overlay').style.display = 'flex';
+                movieFrame = 0; // Restart movie
+            }
+            if (e.code === 'Escape' && fullscreenMode) {
+                fullscreenMode = false;
+                document.getElementById('cinema-overlay').style.display = 'none';
+            }
+        });
+        
+        document.getElementById('cinema-close').addEventListener('click', () => {
+            fullscreenMode = false;
+            document.getElementById('cinema-overlay').style.display = 'none';
+        });
+        
         // It's-a Mario!
         createVoxelCharacter('mario', -5, 8);
 
@@ -808,6 +1123,10 @@
             // Update HUD
             document.getElementById('pos').textContent = 
                 `${Math.floor(player.x)}, ${Math.floor(player.y)}, ${Math.floor(player.z)}`;
+            
+            // Update movie screen
+            updateMovieScreen();
+            checkScreenProximity();
 
             renderer.render(scene, camera);
         }
