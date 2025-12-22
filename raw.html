@@ -113,7 +113,7 @@
 </head>
 <body>
 <div id="scene-container"></div>
-<div id="graphics-badge">🎮 PHOTOREALISTIC: PBR + HDR + Volumetric + Ray-traced Shadows</div>
+<div id="graphics-badge">🎮 FORTNITE x RICK AND MORTY: Battle Royale Island</div>
 <div id="episode-counter">Episode: <span id="ep-num">1</span></div>
 <div id="gag-text"></div>
 <p class="instruction">Type <code>!idea your idea</code> in chat to modify the show!</p>
@@ -637,86 +637,279 @@
             scene.add(char);
         });
         
-        // Living room
-        const livingRoom = new THREE.Group();
+        // FORTNITE MAP - Enormous Battle Royale Island
+        const fortniteMap = new THREE.Group();
         
-        // Floor with realistic concrete texture simulation
-        const concreteFloorMat = new THREE.MeshStandardMaterial({ 
-            color: 0x4a4a4a, 
-            roughness: 0.95, 
-            metalness: 0.05,
-            envMapIntensity: 0.1
+        // Massive island terrain
+        const islandMat = new THREE.MeshStandardMaterial({ 
+            color: 0x4a7c3f, 
+            roughness: 0.9, 
+            metalness: 0.0,
+            envMapIntensity: 0.2
         });
-        const floor = new THREE.Mesh(
-            new THREE.PlaneGeometry(20, 15, 20, 15),
-            concreteFloorMat
-        );
-        floor.rotation.x = -Math.PI / 2;
-        floor.position.y = -0.5;
-        floor.receiveShadow = true;
-        livingRoom.add(floor);
+        const islandGeo = new THREE.PlaneGeometry(500, 500, 100, 100);
+        // Add terrain displacement
+        const islandPositions = islandGeo.attributes.position;
+        for (let i = 0; i < islandPositions.count; i++) {
+            const x = islandPositions.getX(i);
+            const y = islandPositions.getY(i);
+            const height = Math.sin(x * 0.02) * Math.cos(y * 0.02) * 8 + 
+                          Math.sin(x * 0.05 + y * 0.03) * 3 +
+                          Math.random() * 0.5;
+            islandPositions.setZ(i, height);
+        }
+        islandGeo.computeVertexNormals();
+        const island = new THREE.Mesh(islandGeo, islandMat);
+        island.rotation.x = -Math.PI / 2;
+        island.position.y = -5;
+        island.receiveShadow = true;
+        fortniteMap.add(island);
         
-        // Back wall
-        const backWall = new THREE.Mesh(
-            new THREE.PlaneGeometry(20, 10),
-            wallMat
+        // Beach/water around island
+        const waterMat = new THREE.MeshStandardMaterial({ 
+            color: 0x1a6b9c, 
+            roughness: 0.1, 
+            metalness: 0.3,
+            transparent: true,
+            opacity: 0.85
+        });
+        const water = new THREE.Mesh(
+            new THREE.PlaneGeometry(800, 800),
+            waterMat
         );
-        backWall.position.set(0, 4.5, -7);
-        livingRoom.add(backWall);
+        water.rotation.x = -Math.PI / 2;
+        water.position.y = -8;
+        fortniteMap.add(water);
         
-        // Couch
+        // TILTED TOWERS - Iconic POI
+        const tiltedTowers = new THREE.Group();
+        const buildingMat = new THREE.MeshStandardMaterial({ color: 0x666680, roughness: 0.7, metalness: 0.2 });
+        const windowMat = new THREE.MeshStandardMaterial({ color: 0x88ccff, roughness: 0.1, metalness: 0.8, emissive: 0x224466, emissiveIntensity: 0.3 });
+        
+        for (let i = 0; i < 12; i++) {
+            const height = 15 + Math.random() * 35;
+            const width = 4 + Math.random() * 6;
+            const building = new THREE.Mesh(
+                new THREE.BoxGeometry(width, height, width),
+                buildingMat
+            );
+            building.position.set(
+                (Math.random() - 0.5) * 40,
+                height / 2 - 5,
+                (Math.random() - 0.5) * 40
+            );
+            building.castShadow = true;
+            building.receiveShadow = true;
+            tiltedTowers.add(building);
+            
+            // Windows
+            for (let w = 0; w < Math.floor(height / 3); w++) {
+                const windowRow = new THREE.Mesh(
+                    new THREE.BoxGeometry(width * 0.8, 0.5, 0.1),
+                    windowMat
+                );
+                windowRow.position.set(
+                    building.position.x,
+                    w * 3 - 3,
+                    building.position.z + width / 2
+                );
+                tiltedTowers.add(windowRow);
+            }
+        }
+        tiltedTowers.position.set(-80, 0, -60);
+        fortniteMap.add(tiltedTowers);
+        
+        // PLEASANT PARK - Suburban houses
+        const pleasantPark = new THREE.Group();
+        const houseMat = new THREE.MeshStandardMaterial({ color: 0xf5f5dc, roughness: 0.8 });
+        const roofMat = new THREE.MeshStandardMaterial({ color: 0x8b4513, roughness: 0.9 });
+        
+        for (let hx = 0; hx < 4; hx++) {
+            for (let hz = 0; hz < 3; hz++) {
+                const house = new THREE.Group();
+                const houseBody = new THREE.Mesh(
+                    new THREE.BoxGeometry(8, 5, 6),
+                    houseMat
+                );
+                houseBody.position.y = 2.5;
+                houseBody.castShadow = true;
+                house.add(houseBody);
+                
+                const roof = new THREE.Mesh(
+                    new THREE.ConeGeometry(6, 3, 4),
+                    roofMat
+                );
+                roof.position.y = 6.5;
+                roof.rotation.y = Math.PI / 4;
+                house.add(roof);
+                
+                house.position.set(hx * 20 - 30, -5, hz * 18 - 25);
+                pleasantPark.add(house);
+            }
+        }
+        pleasantPark.position.set(100, 0, 80);
+        fortniteMap.add(pleasantPark);
+        
+        // LOOT LAKE - Center lake with floating island
+        const lootLake = new THREE.Mesh(
+            new THREE.CircleGeometry(40, 32),
+            new THREE.MeshStandardMaterial({ color: 0x2288aa, roughness: 0.1, metalness: 0.2, transparent: true, opacity: 0.9 })
+        );
+        lootLake.rotation.x = -Math.PI / 2;
+        lootLake.position.set(0, -4, 0);
+        fortniteMap.add(lootLake);
+        
+        // Floating island (Kevin reference)
+        const floatingIsland = new THREE.Mesh(
+            new THREE.DodecahedronGeometry(12, 1),
+            new THREE.MeshStandardMaterial({ color: 0x6b4c9a, roughness: 0.6, emissive: 0x3a2a5a, emissiveIntensity: 0.3 })
+        );
+        floatingIsland.position.set(0, 15, 0);
+        fortniteMap.add(floatingIsland);
+        
+        // STORM CIRCLE - Purple deadly storm
+        const stormGeometry = new THREE.CylinderGeometry(200, 200, 100, 64, 1, true);
+        const stormMaterial = new THREE.MeshBasicMaterial({ 
+            color: 0x6633aa, 
+            transparent: true, 
+            opacity: 0.3, 
+            side: THREE.BackSide,
+            blending: THREE.AdditiveBlending
+        });
+        const stormWall = new THREE.Mesh(stormGeometry, stormMaterial);
+        stormWall.position.y = 30;
+        fortniteMap.add(stormWall);
+        window.stormWall = stormWall;
+        
+        // Storm particles
+        const stormParticles = new THREE.BufferGeometry();
+        const stormCount = 2000;
+        const stormPos = new Float32Array(stormCount * 3);
+        for (let i = 0; i < stormCount; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const radius = 180 + Math.random() * 40;
+            stormPos[i * 3] = Math.cos(angle) * radius;
+            stormPos[i * 3 + 1] = Math.random() * 80;
+            stormPos[i * 3 + 2] = Math.sin(angle) * radius;
+        }
+        stormParticles.setAttribute('position', new THREE.BufferAttribute(stormPos, 3));
+        const stormPtsMat = new THREE.PointsMaterial({ color: 0x9966ff, size: 2, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending });
+        const stormPts = new THREE.Points(stormParticles, stormPtsMat);
+        fortniteMap.add(stormPts);
+        window.stormPts = stormPts;
+        
+        // BATTLE BUS in sky
+        const battleBus = new THREE.Group();
+        const busBody = new THREE.Mesh(
+            new THREE.BoxGeometry(4, 3, 8),
+            new THREE.MeshStandardMaterial({ color: 0x3377cc, roughness: 0.5 })
+        );
+        battleBus.add(busBody);
+        const busBalloon = new THREE.Mesh(
+            new THREE.SphereGeometry(6, 16, 16),
+            new THREE.MeshStandardMaterial({ color: 0x4488ff, roughness: 0.3, transparent: true, opacity: 0.9 })
+        );
+        busBalloon.position.y = 8;
+        battleBus.add(busBalloon);
+        // Balloon strings
+        for (let s = 0; s < 4; s++) {
+            const string = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.05, 0.05, 6, 8),
+                new THREE.MeshBasicMaterial({ color: 0xffffff })
+            );
+            string.position.set((s % 2 - 0.5) * 2, 4, (Math.floor(s / 2) - 0.5) * 3);
+            battleBus.add(string);
+        }
+        battleBus.position.set(-150, 80, -150);
+        fortniteMap.add(battleBus);
+        window.battleBus = battleBus;
+        
+        // SUPPLY DROPS
+        const supplyDrops = [];
+        for (let d = 0; d < 5; d++) {
+            const drop = new THREE.Group();
+            const crate = new THREE.Mesh(
+                new THREE.BoxGeometry(2, 2, 2),
+                new THREE.MeshStandardMaterial({ color: 0xffdd00, roughness: 0.4, emissive: 0xaa8800, emissiveIntensity: 0.3 })
+            );
+            drop.add(crate);
+            const dropChute = new THREE.Mesh(
+                new THREE.SphereGeometry(2.5, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2),
+                new THREE.MeshBasicMaterial({ color: 0x4488ff, side: THREE.DoubleSide, transparent: true, opacity: 0.8 })
+            );
+            dropChute.rotation.x = Math.PI;
+            dropChute.position.y = 3;
+            drop.add(dropChute);
+            // Light beam
+            const beam = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.5, 2, 30, 8, 1, true),
+                new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.2, side: THREE.DoubleSide })
+            );
+            beam.position.y = -15;
+            drop.add(beam);
+            
+            drop.position.set(
+                (Math.random() - 0.5) * 200,
+                40 + Math.random() * 20,
+                (Math.random() - 0.5) * 200
+            );
+            drop.userData.fallSpeed = 0.1 + Math.random() * 0.1;
+            fortniteMap.add(drop);
+            supplyDrops.push(drop);
+        }
+        window.supplyDrops = supplyDrops;
+        
+        // RIFT IN SKY (Portal replacement)
+        const rift = new THREE.Group();
+        const riftCore = new THREE.Mesh(
+            new THREE.TorusGeometry(8, 2, 16, 32),
+            new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.8 })
+        );
+        rift.add(riftCore);
+        const riftCenter = new THREE.Mesh(
+            new THREE.CircleGeometry(6, 32),
+            new THREE.MeshBasicMaterial({ color: 0xaaffff, transparent: true, opacity: 0.6, side: THREE.DoubleSide })
+        );
+        rift.add(riftCenter);
+        // Rift particles
+        for (let rp = 0; rp < 50; rp++) {
+            const spark = new THREE.Mesh(
+                new THREE.SphereGeometry(0.3, 8, 8),
+                new THREE.MeshBasicMaterial({ color: 0x00ffff })
+            );
+            spark.position.set(
+                (Math.random() - 0.5) * 15,
+                (Math.random() - 0.5) * 15,
+                (Math.random() - 0.5) * 5
+            );
+            spark.userData.angle = Math.random() * Math.PI * 2;
+            spark.userData.speed = 1 + Math.random() * 2;
+            spark.userData.radius = 5 + Math.random() * 5;
+            rift.add(spark);
+        }
+        rift.position.set(0, 60, 0);
+        rift.rotation.x = -Math.PI / 4;
+        fortniteMap.add(rift);
+        window.rift = rift;
+        
+        // Victory Royale sign (hidden initially)
+        const victorySign = new THREE.Group();
+        const signBack = new THREE.Mesh(
+            new THREE.PlaneGeometry(30, 10),
+            new THREE.MeshBasicMaterial({ color: 0xffdd00, transparent: true, opacity: 0.9 })
+        );
+        victorySign.add(signBack);
+        victorySign.position.set(0, 40, -50);
+        victorySign.visible = false;
+        fortniteMap.add(victorySign);
+        window.victorySign = victorySign;
+        
+        // Reference old couch for gag system compatibility
         const couch = new THREE.Group();
-        const couchBase = new THREE.Mesh(
-            new THREE.BoxGeometry(5, 1, 1.5),
-            couchMat
-        );
-        couchBase.position.y = 0;
-        couch.add(couchBase);
+        fortniteMap.add(couch);
         
-        const couchBack = new THREE.Mesh(
-            new THREE.BoxGeometry(5, 1.5, 0.3),
-            couchMat
-        );
-        couchBack.position.set(0, 0.75, -0.6);
-        couch.add(couchBack);
-        
-        couch.position.set(0, 0, 0);
-        livingRoom.add(couch);
-        
-        // Portal Gun on workbench
-        const portalGun = new THREE.Group();
-        const gunBody = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.15, 0.2, 0.8, 16),
-            new THREE.MeshLambertMaterial({ color: 0x888888 })
-        );
-        gunBody.rotation.z = Math.PI / 2;
-        portalGun.add(gunBody);
-        
-        const gunGlow = new THREE.Mesh(
-            new THREE.SphereGeometry(0.15, 16, 16),
-            new THREE.MeshBasicMaterial({ color: 0x00FF00 })
-        );
-        gunGlow.position.x = 0.5;
-        portalGun.add(gunGlow);
-        
-        portalGun.position.set(3, 1.2, -5);
-        livingRoom.add(portalGun);
-        
-        // Floating Portal
-        const portal = new THREE.Mesh(
-            new THREE.TorusGeometry(1.5, 0.3, 16, 32),
-            new THREE.MeshBasicMaterial({ color: 0x00FF00, transparent: true, opacity: 0.7 })
-        );
-        portal.position.set(-4, 2, -5);
-        livingRoom.add(portal);
-        
-        const portalCenter = new THREE.Mesh(
-            new THREE.CircleGeometry(1.2, 32),
-            new THREE.MeshBasicMaterial({ color: 0x90EE90, transparent: true, opacity: 0.5, side: THREE.DoubleSide })
-        );
-        portalCenter.position.set(-4, 2, -4.9);
-        livingRoom.add(portalCenter);
-        
+        // Reference livingRoom as fortniteMap for compatibility
+        const livingRoom = fortniteMap;
         livingRoom.position.set(0, 0, 50);
         livingRoom.visible = false;
         scene.add(livingRoom);
@@ -1143,17 +1336,16 @@
         let lastSpeaker = -1;
         
         const couchGags = [
-            { text: "Wubba lubba dub dub!", action: 'normal' },
-            { text: "Rick portal-hops through dimensions!", action: 'bounce' },
-            { text: "Portal vortex!", action: 'spin' },
-            { text: "Shrink ray malfunction!", action: 'tiny' },
-            { text: "Zero-G space adventure!", action: 'gravity' },
-            { text: "Interdimensional orbit!", action: 'orbit' },
-            { text: "Portal gun explosion!", action: 'explode' },
-            { text: "Time freeze!", action: 'matrix' },
-            { text: "Get schwifty!", action: 'schwifty' },
+            { text: "WHERE WE DROPPIN' BOYS?!", action: 'fortnite_drop' },
+            { text: "TILTED TOWERS! LET'S GO!", action: 'tilted_chaos' },
+            { text: "STORM'S CLOSING IN!", action: 'storm_run' },
+            { text: "SUPPLY DROP INCOMING!", action: 'supply_hunt' },
+            { text: "VICTORY ROYALE!", action: 'victory' },
             { text: "THEY SUMMONED SOMETHING FROM DIMENSION 666!", action: 'satan' },
-            { text: "JUMP! JUMP! JUMP!", action: 'skydive' }
+            { text: "JUMP! JUMP! JUMP!", action: 'skydive' },
+            { text: "BUILD BATTLE!", action: 'build_fight' },
+            { text: "RIFT ZONE ACTIVATED!", action: 'rift_zone' },
+            { text: "DEFAULT DANCE TIME!", action: 'default_dance' }
         ];
         
         let currentGag = couchGags[0];
@@ -1384,6 +1576,170 @@
                         char.position.y = 0.5 + Math.sin(time * 8 + i) * 0.5;
                         char.rotation.y = Math.sin(time * 4) * 0.5;
                     });
+                    break;
+                case 'fortnite_drop':
+                    // Battle bus flies across map
+                    if (window.battleBus) {
+                        window.battleBus.position.x = -150 + time * 30;
+                        window.battleBus.position.z = -150 + time * 30;
+                        window.battleBus.position.y = 80 + Math.sin(time * 2) * 2;
+                    }
+                    // Family drops from bus
+                    family.forEach((char, i) => {
+                        const dropDelay = i * 0.8;
+                        const dropTime = Math.max(0, time - dropDelay);
+                        if (dropTime > 0) {
+                            char.position.x = -100 + dropTime * 20 + i * 10;
+                            char.position.y = Math.max(0, 70 - dropTime * 25);
+                            char.position.z = -100 + dropTime * 20;
+                            char.rotation.x = dropTime < 2 ? dropTime * 3 : 0;
+                            char.rotation.z = Math.sin(dropTime * 5) * 0.3;
+                        }
+                    });
+                    // Animate supply drops
+                    if (window.supplyDrops) {
+                        window.supplyDrops.forEach((drop, i) => {
+                            drop.position.y = Math.max(-3, drop.position.y - drop.userData.fallSpeed);
+                            drop.rotation.y = time * 0.5;
+                        });
+                    }
+                    // Dynamic camera
+                    camera.position.set(
+                        -80 + time * 15,
+                        50 - time * 5,
+                        -80 + time * 15
+                    );
+                    camera.lookAt(family[0].position);
+                    renderer.setClearColor(0x87ceeb);
+                    break;
+                case 'tilted_chaos':
+                    // Characters run through Tilted
+                    family.forEach((char, i) => {
+                        char.position.x = -100 + Math.sin(time * 2 + i) * 20;
+                        char.position.y = 0 + Math.abs(Math.sin(time * 8 + i)) * 2;
+                        char.position.z = -60 + time * 5;
+                        char.rotation.y = Math.sin(time * 3) * 0.5;
+                    });
+                    // Camera circles Tilted
+                    camera.position.set(
+                        -80 + Math.cos(time * 0.5) * 50,
+                        30,
+                        -60 + Math.sin(time * 0.5) * 50
+                    );
+                    camera.lookAt(-80, 10, -60);
+                    break;
+                case 'storm_run':
+                    // Storm shrinks
+                    if (window.stormWall) {
+                        const stormRadius = Math.max(50, 200 - time * 20);
+                        window.stormWall.scale.set(stormRadius / 200, 1, stormRadius / 200);
+                    }
+                    // Family runs from storm
+                    family.forEach((char, i) => {
+                        const angle = time * 0.5 + i * 0.3;
+                        const runRadius = Math.max(10, 150 - time * 15);
+                        char.position.x = Math.cos(angle) * runRadius * 0.3;
+                        char.position.y = Math.abs(Math.sin(time * 10 + i)) * 0.5;
+                        char.position.z = Math.sin(angle) * runRadius * 0.3;
+                    });
+                    // Storm particles rotate
+                    if (window.stormPts) {
+                        window.stormPts.rotation.y = time * 0.2;
+                    }
+                    camera.position.set(0, 60, 100);
+                    camera.lookAt(0, 0, 0);
+                    renderer.setClearColor(new THREE.Color(0.3 + Math.sin(time) * 0.1, 0.2, 0.4));
+                    break;
+                case 'supply_hunt':
+                    // Characters chase supply drops
+                    if (window.supplyDrops && window.supplyDrops.length > 0) {
+                        const targetDrop = window.supplyDrops[0];
+                        family.forEach((char, i) => {
+                            const dx = targetDrop.position.x - char.position.x;
+                            const dz = targetDrop.position.z - char.position.z;
+                            char.position.x += dx * 0.02;
+                            char.position.z += dz * 0.02;
+                            char.position.y = Math.abs(Math.sin(time * 8 + i)) * 1;
+                            char.rotation.y = Math.atan2(dx, dz);
+                        });
+                        window.supplyDrops.forEach(drop => {
+                            drop.position.y = Math.max(-3, drop.position.y - 0.3);
+                            drop.children[2].material.opacity = 0.2 + Math.sin(time * 5) * 0.1;
+                        });
+                    }
+                    camera.position.set(50, 40, 50);
+                    camera.lookAt(family[2].position);
+                    break;
+                case 'victory':
+                    // Victory celebration
+                    if (window.victorySign) window.victorySign.visible = true;
+                    family.forEach((char, i) => {
+                        char.position.x = -2 + i * 2;
+                        char.position.y = 1 + Math.abs(Math.sin(time * 6 + i * 0.5)) * 2;
+                        char.position.z = 0;
+                        char.rotation.y = time * 3;
+                    });
+                    // Confetti effect via storm particles
+                    if (window.stormPts) {
+                        window.stormPts.material.color.setHex(0xffdd00);
+                        window.stormPts.rotation.y = time;
+                    }
+                    camera.position.set(0, 20, 30);
+                    camera.lookAt(0, 5, 0);
+                    renderer.setClearColor(0x4488ff);
+                    break;
+                case 'build_fight':
+                    // Characters build ramps and walls
+                    family.forEach((char, i) => {
+                        char.position.x = Math.sin(time * 2 + i) * 10;
+                        char.position.y = time * 3 + Math.sin(time * 5 + i) * 2;
+                        char.position.z = Math.cos(time * 2 + i) * 10;
+                        char.rotation.y = time * 2;
+                    });
+                    camera.position.set(
+                        Math.cos(time * 0.3) * 40,
+                        20 + time * 2,
+                        Math.sin(time * 0.3) * 40
+                    );
+                    camera.lookAt(0, time * 3, 0);
+                    break;
+                case 'rift_zone':
+                    // Rift spins and characters orbit it
+                    if (window.rift) {
+                        window.rift.rotation.z = time;
+                        window.rift.children.forEach((child, i) => {
+                            if (i > 1 && child.userData.angle !== undefined) {
+                                child.userData.angle += 0.05 * child.userData.speed;
+                                child.position.x = Math.cos(child.userData.angle) * child.userData.radius;
+                                child.position.y = Math.sin(child.userData.angle) * child.userData.radius;
+                            }
+                        });
+                    }
+                    family.forEach((char, i) => {
+                        const orbitAngle = time + i * 1.2;
+                        char.position.x = Math.cos(orbitAngle) * (15 + i * 3);
+                        char.position.y = 50 + Math.sin(orbitAngle * 2) * 5;
+                        char.position.z = Math.sin(orbitAngle) * (15 + i * 3);
+                        char.rotation.x = time * 2;
+                    });
+                    camera.position.set(0, 80, 60);
+                    camera.lookAt(0, 60, 0);
+                    renderer.setClearColor(0x112244);
+                    break;
+                case 'default_dance':
+                    // Default dance animation
+                    family.forEach((char, i) => {
+                        char.position.x = -4 + i * 2;
+                        char.position.y = 0.5 + Math.abs(Math.sin(time * 8)) * 0.5;
+                        char.position.z = 0;
+                        // Dance moves
+                        char.rotation.y = Math.sin(time * 4) * 0.8;
+                        char.rotation.z = Math.sin(time * 8 + i) * 0.2;
+                        char.scale.y = 1 + Math.sin(time * 8) * 0.1;
+                    });
+                    camera.position.set(0, 5, 15);
+                    camera.lookAt(0, 2, 0);
+                    renderer.setClearColor(0x332266);
                     break;
                 case 'satan':
                     window.pentagramGroup.visible = true;
