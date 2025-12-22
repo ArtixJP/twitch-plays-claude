@@ -5,208 +5,11 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Simpsons Opening Simulator</title>
+<title>Simpsons 3D Opening</title>
 <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: #87CEEB;
-            overflow: hidden;
-            font-family: 'Arial Black', sans-serif;
-        }
-        #scene {
-            width: 100vw;
-            height: 100vh;
-            position: relative;
-            overflow: hidden;
-        }
-        .cloud {
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-            filter: blur(2px);
-        }
-        #title {
-            position: absolute;
-            font-size: 8vw;
-            color: #FFD700;
-            text-shadow: 4px 4px 0 #8B4513, -2px -2px 0 #FFA500;
-            font-family: 'Arial Black', sans-serif;
-            letter-spacing: -0.05em;
-            top: -20%;
-            left: 50%;
-            transform: translateX(-50%);
-            white-space: nowrap;
-            z-index: 100;
-        }
-        #couch-room {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 70%;
-            background: linear-gradient(to bottom, #8B4513 0%, #654321 100%);
-            display: none;
-        }
-        #floor {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            height: 30%;
-            background: #228B22;
-        }
-        #couch {
-            position: absolute;
-            bottom: 15%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 300px;
-            height: 120px;
-            background: #8B0000;
-            border-radius: 20px 20px 5px 5px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-        }
-        #couch::before {
-            content: '';
-            position: absolute;
-            top: -40px;
-            left: 0;
-            width: 100%;
-            height: 50px;
-            background: #8B0000;
-            border-radius: 10px 10px 0 0;
-        }
-        #tv {
-            position: absolute;
-            bottom: 20%;
-            right: 15%;
-            width: 80px;
-            height: 60px;
-            background: #333;
-            border-radius: 5px;
-        }
-        #tv::before {
-            content: '';
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            width: 70px;
-            height: 40px;
-            background: #4169E1;
-            animation: tvFlicker 0.5s infinite;
-        }
-        @keyframes tvFlicker {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; }
-        }
-        .character {
-            position: absolute;
-            bottom: -100px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: all 0.5s ease;
-        }
-        .head {
-            width: 50px;
-            height: 50px;
-            background: #FFD700;
-            border-radius: 50%;
-            position: relative;
-        }
-        .body {
-            width: 40px;
-            height: 50px;
-            border-radius: 10px;
-        }
-        .legs {
-            display: flex;
-            gap: 5px;
-        }
-        .leg {
-            width: 12px;
-            height: 30px;
-            background: #4169E1;
-            border-radius: 0 0 5px 5px;
-        }
-        /* Homer */
-        #homer .head { background: #FFD700; }
-        #homer .head::before {
-            content: '';
-            position: absolute;
-            top: 5px;
-            left: 10px;
-            width: 30px;
-            height: 10px;
-            background: #333;
-            border-radius: 50%;
-        }
-        #homer .body { background: white; }
-        /* Marge */
-        #marge .head::after {
-            content: '';
-            position: absolute;
-            top: -60px;
-            left: 5px;
-            width: 40px;
-            height: 70px;
-            background: #4169E1;
-            border-radius: 20px 20px 0 0;
-        }
-        #marge .body { background: #32CD32; }
-        #marge .leg { background: #32CD32; }
-        /* Bart */
-        #bart .head {
-            width: 40px;
-            height: 40px;
-        }
-        #bart .head::before {
-            content: '';
-            position: absolute;
-            top: -15px;
-            left: 0;
-            width: 40px;
-            height: 20px;
-            background: #FFD700;
-            clip-path: polygon(0% 100%, 10% 0%, 20% 100%, 30% 0%, 40% 100%, 50% 0%, 60% 100%, 70% 0%, 80% 100%, 90% 0%, 100% 100%);
-        }
-        #bart .body { background: #FF6600; width: 30px; height: 35px; }
-        #bart .leg { background: #4169E1; height: 20px; width: 10px; }
-        /* Lisa */
-        #lisa .head {
-            width: 35px;
-            height: 35px;
-        }
-        #lisa .head::before {
-            content: '';
-            position: absolute;
-            top: -20px;
-            left: -5px;
-            width: 45px;
-            height: 30px;
-            background: #FFD700;
-            clip-path: polygon(50% 0%, 20% 50%, 0% 50%, 30% 100%, 70% 100%, 100% 50%, 80% 50%);
-        }
-        #lisa .body { background: #FF0000; width: 25px; height: 30px; }
-        #lisa .leg { background: #FF0000; height: 15px; width: 8px; }
-        /* Maggie */
-        #maggie .head {
-            width: 30px;
-            height: 30px;
-        }
-        #maggie .body { background: #87CEEB; width: 25px; height: 25px; }
-        #maggie .leg { display: none; }
-        #gag-text {
-            position: absolute;
-            bottom: 5%;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 1.5rem;
-            color: white;
-            text-shadow: 2px 2px 4px black;
-            text-align: center;
-            opacity: 0;
-            z-index: 200;
-        }
+        body { overflow: hidden; background: #000; }
+        #scene-container { width: 100vw; height: 100vh; }
         #episode-counter {
             position: absolute;
             top: 10px;
@@ -215,8 +18,23 @@
             color: #FFD700;
             padding: 10px 20px;
             border-radius: 10px;
+            font-family: 'Arial Black', sans-serif;
             font-size: 1rem;
             z-index: 300;
+        }
+        #gag-text {
+            position: absolute;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+            color: white;
+            text-shadow: 2px 2px 4px black;
+            text-align: center;
+            opacity: 0;
+            z-index: 200;
+            font-family: 'Arial Black', sans-serif;
+            transition: opacity 0.5s;
         }
         .instruction {
             position: absolute;
@@ -229,6 +47,7 @@
             border-radius: 8px;
             font-size: 0.9rem;
             z-index: 300;
+            font-family: Arial, sans-serif;
         }
         .instruction code {
             background: rgba(145, 71, 255, 0.2);
@@ -236,62 +55,39 @@
             border-radius: 4px;
             color: #bf94ff;
         }
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #FFD700;
+            font-family: 'Arial Black', sans-serif;
+            font-size: 2rem;
+            z-index: 400;
+        }
     </style>
 </head>
 <body>
-<div id="scene">
-<div id="title">THE SIMPSONS</div>
-<div id="couch-room">
-<div id="couch"></div>
-<div id="tv"></div>
-</div>
-<div id="floor"></div>
-<div class="character" id="homer">
-<div class="head"></div>
-<div class="body"></div>
-<div class="legs"><div class="leg"></div><div class="leg"></div></div>
-</div>
-<div class="character" id="marge">
-<div class="head"></div>
-<div class="body"></div>
-<div class="legs"><div class="leg"></div><div class="leg"></div></div>
-</div>
-<div class="character" id="bart">
-<div class="head"></div>
-<div class="body"></div>
-<div class="legs"><div class="leg"></div><div class="leg"></div></div>
-</div>
-<div class="character" id="lisa">
-<div class="head"></div>
-<div class="body"></div>
-<div class="legs"><div class="leg"></div><div class="leg"></div></div>
-</div>
-<div class="character" id="maggie">
-<div class="head"></div>
-<div class="body"></div>
-<div class="legs"><div class="leg"></div><div class="leg"></div></div>
-</div>
-<div id="gag-text"></div>
+<div id="scene-container"></div>
 <div id="episode-counter">Episode: <span id="ep-num">1</span></div>
-</div>
+<div id="gag-text"></div>
 <p class="instruction">Type <code>!idea your idea</code> in chat to modify the show!</p>
+<div id="loading">Loading 3D Springfield...</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
+        // Audio setup
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         
-        // Simpsons theme melody (simplified)
         const melody = [
             {note: 'C5', duration: 0.3}, {note: 'E5', duration: 0.3}, {note: 'F#5', duration: 0.3}, {note: 'A5', duration: 0.3},
             {note: 'G5', duration: 0.6}, {note: 'E5', duration: 0.3}, {note: 'C5', duration: 0.3},
             {note: 'A4', duration: 0.4}, {note: 'F#4', duration: 0.4}, {note: 'F#4', duration: 0.4}, {note: 'F#4', duration: 0.2},
-            {note: 'G4', duration: 0.8}, {note: 'rest', duration: 0.2},
-            {note: 'C5', duration: 0.3}, {note: 'E5', duration: 0.3}, {note: 'F#5', duration: 0.3}, {note: 'A5', duration: 0.3},
-            {note: 'G5', duration: 0.6}, {note: 'E5', duration: 0.3}, {note: 'C5', duration: 0.3},
-            {note: 'A4', duration: 0.4}, {note: 'F#4', duration: 0.4}, {note: 'A4', duration: 0.4}, {note: 'G4', duration: 0.8}
+            {note: 'G4', duration: 0.8}
         ];
         
         const noteFreqs = {
-            'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23, 'F#4': 369.99, 'G4': 392.00, 'A4': 440.00, 'B4': 493.88,
-            'C5': 523.25, 'D5': 587.33, 'E5': 659.25, 'F5': 698.46, 'F#5': 739.99, 'G5': 783.99, 'A5': 880.00, 'B5': 987.77
+            'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23, 'F#4': 369.99, 'G4': 392.00, 'A4': 440.00,
+            'C5': 523.25, 'E5': 659.25, 'F#5': 739.99, 'G5': 783.99, 'A5': 880.00
         };
         
         function playNote(freq, startTime, duration) {
@@ -299,7 +95,7 @@
             const gain = audioCtx.createGain();
             osc.type = 'square';
             osc.frequency.value = freq;
-            gain.gain.setValueAtTime(0.15, startTime);
+            gain.gain.setValueAtTime(0.12, startTime);
             gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
             osc.connect(gain);
             gain.connect(audioCtx.destination);
@@ -308,203 +104,427 @@
         }
         
         function playTheme() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
             let time = audioCtx.currentTime;
             melody.forEach(({note, duration}) => {
-                if (note !== 'rest' && noteFreqs[note]) {
-                    playNote(noteFreqs[note], time, duration * 0.9);
-                }
+                if (noteFreqs[note]) playNote(noteFreqs[note], time, duration * 0.9);
                 time += duration * 0.5;
             });
         }
         
-        // Clouds
-        function createClouds() {
-            const scene = document.getElementById('scene');
-            for (let i = 0; i < 15; i++) {
-                const cloud = document.createElement('div');
-                cloud.className = 'cloud';
-                cloud.style.width = (80 + Math.random() * 120) + 'px';
-                cloud.style.height = (40 + Math.random() * 40) + 'px';
-                cloud.style.top = (Math.random() * 40) + '%';
-                cloud.style.left = (Math.random() * 100) + '%';
-                cloud.style.opacity = 0.7 + Math.random() * 0.3;
-                scene.appendChild(cloud);
-                animateCloud(cloud);
+        // Three.js setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x87CEEB);
+        document.getElementById('scene-container').appendChild(renderer.domElement);
+        
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(5, 10, 7);
+        scene.add(directionalLight);
+        
+        // Materials
+        const yellowMat = new THREE.MeshLambertMaterial({ color: 0xFFD700 });
+        const whiteMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
+        const blueMat = new THREE.MeshLambertMaterial({ color: 0x4169E1 });
+        const greenMat = new THREE.MeshLambertMaterial({ color: 0x32CD32 });
+        const orangeMat = new THREE.MeshLambertMaterial({ color: 0xFF6600 });
+        const redMat = new THREE.MeshLambertMaterial({ color: 0xFF0000 });
+        const babyBlueMat = new THREE.MeshLambertMaterial({ color: 0x87CEEB });
+        const couchMat = new THREE.MeshLambertMaterial({ color: 0x8B0000 });
+        const floorMat = new THREE.MeshLambertMaterial({ color: 0x228B22 });
+        const wallMat = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+        const cloudMat = new THREE.MeshLambertMaterial({ color: 0xffffff, transparent: true, opacity: 0.9 });
+        
+        // Create clouds
+        const clouds = [];
+        function createCloud(x, y, z) {
+            const cloud = new THREE.Group();
+            for (let i = 0; i < 5; i++) {
+                const sphere = new THREE.Mesh(
+                    new THREE.SphereGeometry(1 + Math.random(), 16, 16),
+                    cloudMat
+                );
+                sphere.position.set(Math.random() * 2 - 1, Math.random() * 0.5, Math.random() * 2 - 1);
+                cloud.add(sphere);
+            }
+            cloud.position.set(x, y, z);
+            cloud.userData = { speed: 0.01 + Math.random() * 0.02 };
+            scene.add(cloud);
+            clouds.push(cloud);
+        }
+        
+        for (let i = 0; i < 20; i++) {
+            createCloud(
+                Math.random() * 60 - 30,
+                5 + Math.random() * 10,
+                Math.random() * 40 - 50
+            );
+        }
+        
+        // Create 3D Title
+        const titleGroup = new THREE.Group();
+        const titleGeo = new THREE.BoxGeometry(12, 2, 0.5);
+        const titleMesh = new THREE.Mesh(titleGeo, yellowMat);
+        titleGroup.add(titleMesh);
+        
+        // Add "THE SIMPSONS" text using boxes
+        const letters = 'THE SIMPSONS';
+        for (let i = 0; i < letters.length; i++) {
+            if (letters[i] !== ' ') {
+                const letterBox = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.6, 0.8, 0.3),
+                    new THREE.MeshLambertMaterial({ color: 0x8B4513 })
+                );
+                letterBox.position.set(-5 + i * 0.85, 0, 0.4);
+                titleGroup.add(letterBox);
             }
         }
+        titleGroup.position.set(0, 20, -30);
+        scene.add(titleGroup);
         
-        function animateCloud(cloud) {
-            const speed = 20 + Math.random() * 30;
-            let pos = parseFloat(cloud.style.left);
-            setInterval(() => {
-                pos -= 0.05;
-                if (pos < -20) pos = 110;
-                cloud.style.left = pos + '%';
-            }, speed);
+        // Create character function
+        function createCharacter(bodyColor, headHeight = 0.5, bodyHeight = 0.6, scale = 1) {
+            const character = new THREE.Group();
+            
+            // Head
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.4 * scale, 16, 16), yellowMat);
+            head.position.y = bodyHeight + 0.4 * scale;
+            character.add(head);
+            
+            // Body
+            const body = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.25 * scale, 0.3 * scale, bodyHeight, 16),
+                bodyColor
+            );
+            body.position.y = bodyHeight / 2;
+            character.add(body);
+            
+            // Legs
+            const legGeo = new THREE.CylinderGeometry(0.08 * scale, 0.1 * scale, 0.4 * scale, 8);
+            const leftLeg = new THREE.Mesh(legGeo, blueMat);
+            leftLeg.position.set(-0.12 * scale, -0.2 * scale, 0);
+            character.add(leftLeg);
+            
+            const rightLeg = new THREE.Mesh(legGeo, blueMat);
+            rightLeg.position.set(0.12 * scale, -0.2 * scale, 0);
+            character.add(rightLeg);
+            
+            return character;
         }
         
-        // Couch gags
-        const couchGags = [
-            { text: "The family sits normally... for once!", action: 'normal' },
-            { text: "Homer bounces off the couch!", action: 'bounce' },
-            { text: "The couch runs away!", action: 'runaway' },
-            { text: "Everyone is tiny!", action: 'tiny' },
-            { text: "The family is upside down!", action: 'upsidedown' },
-            { text: "It's a pile-up!", action: 'pileup' },
-            { text: "The couch is missing!", action: 'nocouch' },
-            { text: "Everyone phases through the couch!", action: 'ghost' },
-            { text: "Super speed entry!", action: 'speed' },
-            { text: "The family freezes mid-air!", action: 'freeze' },
-            { text: "Everyone spins onto the couch!", action: 'spin' },
-            { text: "Gravity reversal!", action: 'gravity' }
-        ];
+        // Create family
+        const homer = createCharacter(whiteMat, 0.5, 0.7, 1.1);
+        const marge = createCharacter(greenMat, 0.5, 0.6, 1);
+        // Add Marge's hair
+        const margeHair = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.25, 0.35, 1.2, 16),
+            blueMat
+        );
+        margeHair.position.y = 1.8;
+        marge.add(margeHair);
         
+        const bart = createCharacter(orangeMat, 0.4, 0.5, 0.8);
+        // Bart's spiky hair
+        for (let i = 0; i < 5; i++) {
+            const spike = new THREE.Mesh(
+                new THREE.ConeGeometry(0.08, 0.3, 8),
+                yellowMat
+            );
+            spike.position.set(Math.cos(i * 1.2) * 0.2, 1.1, Math.sin(i * 1.2) * 0.1);
+            bart.add(spike);
+        }
+        
+        const lisa = createCharacter(redMat, 0.35, 0.4, 0.7);
+        // Lisa's star hair
+        for (let i = 0; i < 8; i++) {
+            const spike = new THREE.Mesh(
+                new THREE.ConeGeometry(0.06, 0.25, 8),
+                yellowMat
+            );
+            spike.position.set(Math.cos(i * 0.8) * 0.18, 0.9, Math.sin(i * 0.8) * 0.15);
+            lisa.add(spike);
+        }
+        
+        const maggie = createCharacter(babyBlueMat, 0.3, 0.3, 0.5);
+        
+        const family = [homer, marge, bart, lisa, maggie];
+        family.forEach(char => {
+            char.position.set(20, 0, 0);
+            char.visible = false;
+            scene.add(char);
+        });
+        
+        // Living room
+        const livingRoom = new THREE.Group();
+        
+        // Floor
+        const floor = new THREE.Mesh(
+            new THREE.PlaneGeometry(20, 15),
+            floorMat
+        );
+        floor.rotation.x = -Math.PI / 2;
+        floor.position.y = -0.5;
+        livingRoom.add(floor);
+        
+        // Back wall
+        const backWall = new THREE.Mesh(
+            new THREE.PlaneGeometry(20, 10),
+            wallMat
+        );
+        backWall.position.set(0, 4.5, -7);
+        livingRoom.add(backWall);
+        
+        // Couch
+        const couch = new THREE.Group();
+        const couchBase = new THREE.Mesh(
+            new THREE.BoxGeometry(5, 1, 1.5),
+            couchMat
+        );
+        couchBase.position.y = 0;
+        couch.add(couchBase);
+        
+        const couchBack = new THREE.Mesh(
+            new THREE.BoxGeometry(5, 1.5, 0.3),
+            couchMat
+        );
+        couchBack.position.set(0, 0.75, -0.6);
+        couch.add(couchBack);
+        
+        couch.position.set(0, 0, 0);
+        livingRoom.add(couch);
+        
+        // TV
+        const tv = new THREE.Group();
+        const tvBody = new THREE.Mesh(
+            new THREE.BoxGeometry(1.5, 1.2, 0.5),
+            new THREE.MeshLambertMaterial({ color: 0x333333 })
+        );
+        tv.add(tvBody);
+        
+        const tvScreen = new THREE.Mesh(
+            new THREE.PlaneGeometry(1.2, 0.9),
+            new THREE.MeshBasicMaterial({ color: 0x4169E1 })
+        );
+        tvScreen.position.z = 0.26;
+        tv.add(tvScreen);
+        
+        tv.position.set(4, 0.6, -5);
+        livingRoom.add(tv);
+        
+        livingRoom.position.set(0, 0, 50);
+        livingRoom.visible = false;
+        scene.add(livingRoom);
+        
+        // Grass ground
+        const grassGround = new THREE.Mesh(
+            new THREE.PlaneGeometry(100, 100),
+            floorMat
+        );
+        grassGround.rotation.x = -Math.PI / 2;
+        grassGround.position.y = -1;
+        scene.add(grassGround);
+        
+        // Camera initial position
+        camera.position.set(0, 5, 15);
+        camera.lookAt(0, 5, 0);
+        
+        // Animation state
+        let phase = 'clouds';
+        let animationTime = 0;
         let episodeCount = 0;
         
-        function runEpisode() {
+        const couchGags = [
+            { text: "The family sits normally... in 3D!", action: 'normal' },
+            { text: "Homer bounces off the couch!", action: 'bounce' },
+            { text: "The couch spins!", action: 'spin' },
+            { text: "Everyone is tiny!", action: 'tiny' },
+            { text: "Zero gravity!", action: 'gravity' },
+            { text: "The family orbits the couch!", action: 'orbit' },
+            { text: "Couch explosion!", action: 'explode' },
+            { text: "Matrix slow-mo!", action: 'matrix' }
+        ];
+        
+        let currentGag = couchGags[0];
+        let gagStartTime = 0;
+        
+        function startEpisode() {
             episodeCount++;
             document.getElementById('ep-num').textContent = episodeCount;
+            document.getElementById('gag-text').style.opacity = '0';
             
-            const title = document.getElementById('title');
-            const couchRoom = document.getElementById('couch-room');
-            const floor = document.getElementById('floor');
-            const couch = document.getElementById('couch');
-            const gagText = document.getElementById('gag-text');
-            const characters = ['homer', 'marge', 'bart', 'lisa', 'maggie'];
+            phase = 'clouds';
+            animationTime = 0;
             
-            // Reset
-            title.style.top = '-20%';
-            title.style.transition = 'none';
-            couchRoom.style.display = 'none';
-            floor.style.display = 'block';
-            couch.style.transform = 'translateX(-50%)';
-            couch.style.display = 'block';
-            gagText.style.opacity = '0';
+            // Reset title
+            titleGroup.position.set(0, 20, -30);
+            titleGroup.rotation.set(0, 0, 0);
             
-            characters.forEach((char, i) => {
-                const el = document.getElementById(char);
-                el.style.transition = 'none';
-                el.style.bottom = '-100px';
-                el.style.left = '-100px';
-                el.style.transform = 'scale(1) rotate(0deg)';
-                el.style.opacity = '1';
+            // Reset family
+            family.forEach((char, i) => {
+                char.position.set(20 + i * 2, 0, 0);
+                char.rotation.set(0, 0, 0);
+                char.scale.set(1, 1, 1);
+                char.visible = false;
             });
             
-            // Play theme
+            // Reset couch
+            couch.position.set(0, 0, 0);
+            couch.rotation.set(0, 0, 0);
+            couch.scale.set(1, 1, 1);
+            
+            livingRoom.visible = false;
+            grassGround.visible = true;
+            
+            // Reset camera
+            camera.position.set(0, 5, 15);
+            camera.lookAt(0, 5, 0);
+            
+            currentGag = couchGags[Math.floor(Math.random() * couchGags.length)];
+            
             playTheme();
-            
-            // Title drops
-            setTimeout(() => {
-                title.style.transition = 'top 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
-                title.style.top = '5%';
-            }, 100);
-            
-            // Characters run across
-            setTimeout(() => {
-                characters.forEach((char, i) => {
-                    const el = document.getElementById(char);
-                    el.style.transition = 'all 2s linear';
-                    el.style.bottom = '30%';
-                    el.style.left = (110 + i * 5) + '%';
-                    
-                    setTimeout(() => {
-                        el.style.left = '-20%';
-                    }, 100);
-                });
-            }, 1500);
-            
-            // Transition to living room
-            setTimeout(() => {
-                floor.style.display = 'none';
-                couchRoom.style.display = 'block';
-                title.style.top = '-20%';
-                
-                const gag = couchGags[Math.floor(Math.random() * couchGags.length)];
-                gagText.textContent = gag.text;
-                
-                // Family runs in
-                characters.forEach((char, i) => {
-                    const el = document.getElementById(char);
-                    el.style.transition = 'all 0.8s ease-out';
-                    el.style.bottom = '25%';
-                    
-                    setTimeout(() => {
-                        el.style.left = (30 + i * 10) + '%';
-                        
-                        // Apply gag effect
-                        setTimeout(() => applyGag(gag.action, el, i, couch), 800);
-                    }, i * 150);
-                });
-                
-                setTimeout(() => {
-                    gagText.style.transition = 'opacity 0.5s';
-                    gagText.style.opacity = '1';
-                }, 1500);
-                
-            }, 4000);
-            
-            // Next episode
-            setTimeout(runEpisode, 9000);
         }
         
-        function applyGag(action, el, index, couch) {
+        function animate() {
+            requestAnimationFrame(animate);
+            animationTime += 0.016;
+            
+            // Animate clouds
+            clouds.forEach(cloud => {
+                cloud.position.x -= cloud.userData.speed;
+                if (cloud.position.x < -35) cloud.position.x = 35;
+            });
+            
+            // Phase-based animation
+            if (phase === 'clouds') {
+                // Title flies through clouds
+                titleGroup.position.z += 0.3;
+                titleGroup.position.y = 8 + Math.sin(animationTime * 2) * 0.5;
+                titleGroup.rotation.y = Math.sin(animationTime) * 0.1;
+                
+                camera.position.z = 15 + animationTime * 2;
+                camera.lookAt(titleGroup.position);
+                
+                if (animationTime > 3) {
+                    phase = 'running';
+                    animationTime = 0;
+                    family.forEach(char => char.visible = true);
+                }
+            } else if (phase === 'running') {
+                // Family runs across screen
+                family.forEach((char, i) => {
+                    char.position.x = 15 - animationTime * 8 + i * 1.5;
+                    char.position.y = Math.abs(Math.sin(animationTime * 10 + i)) * 0.3;
+                    char.rotation.y = -Math.PI / 2;
+                });
+                
+                camera.position.set(0, 3, 10);
+                camera.lookAt(family[2].position);
+                
+                if (animationTime > 4) {
+                    phase = 'livingroom';
+                    animationTime = 0;
+                    livingRoom.visible = true;
+                    grassGround.visible = false;
+                    gagStartTime = 0;
+                }
+            } else if (phase === 'livingroom') {
+                // Living room scene
+                camera.position.set(0, 4, 58);
+                camera.lookAt(0, 1, 50);
+                
+                // Family enters and sits
+                if (animationTime < 2) {
+                    family.forEach((char, i) => {
+                        const targetX = -2 + i * 1;
+                        const targetZ = 50.5;
+                        char.position.x += (targetX - char.position.x) * 0.05;
+                        char.position.z += (targetZ - char.position.z) * 0.05;
+                        char.position.y = 0.5 + Math.abs(Math.sin(animationTime * 8 + i)) * 0.2;
+                        char.rotation.y = 0;
+                    });
+                } else {
+                    // Apply couch gag
+                    gagStartTime += 0.016;
+                    document.getElementById('gag-text').textContent = currentGag.text;
+                    document.getElementById('gag-text').style.opacity = '1';
+                    
+                    applyGag(currentGag.action, gagStartTime);
+                }
+                
+                if (animationTime > 7) {
+                    startEpisode();
+                }
+            }
+            
+            renderer.render(scene, camera);
+        }
+        
+        function applyGag(action, time) {
             switch(action) {
                 case 'bounce':
-                    if (index === 0) {
-                        el.style.transition = 'bottom 0.3s ease-out';
-                        el.style.bottom = '60%';
-                        setTimeout(() => { el.style.bottom = '25%'; }, 300);
-                    }
-                    break;
-                case 'runaway':
-                    couch.style.transition = 'transform 1s ease-in';
-                    couch.style.transform = 'translateX(200%)';
-                    break;
-                case 'tiny':
-                    el.style.transform = 'scale(0.4)';
-                    break;
-                case 'upsidedown':
-                    el.style.transform = 'rotate(180deg)';
-                    el.style.bottom = '50%';
-                    break;
-                case 'pileup':
-                    el.style.left = '50%';
-                    el.style.bottom = (25 + index * 8) + '%';
-                    break;
-                case 'nocouch':
-                    couch.style.display = 'none';
-                    el.style.bottom = '15%';
-                    break;
-                case 'ghost':
-                    el.style.opacity = '0.3';
+                    homer.position.y = 0.5 + Math.abs(Math.sin(time * 5)) * 3;
                     break;
                 case 'spin':
-                    el.style.transform = 'rotate(' + (720 + index * 90) + 'deg)';
+                    couch.rotation.y = time * 3;
+                    family.forEach((char, i) => {
+                        char.position.x = Math.cos(time * 3 + i * 0.5) * 2.5;
+                        char.position.z = 50 + Math.sin(time * 3 + i * 0.5) * 2.5;
+                    });
+                    break;
+                case 'tiny':
+                    family.forEach(char => char.scale.setScalar(0.3));
                     break;
                 case 'gravity':
-                    el.style.bottom = '70%';
-                    el.style.transform = 'rotate(180deg)';
+                    family.forEach((char, i) => {
+                        char.position.y = 3 + Math.sin(time * 2 + i) * 1;
+                        char.rotation.z = time;
+                    });
                     break;
-                case 'freeze':
-                    el.style.bottom = (40 + Math.random() * 20) + '%';
-                    el.style.left = (20 + index * 15) + '%';
+                case 'orbit':
+                    family.forEach((char, i) => {
+                        const angle = time * 2 + (i / 5) * Math.PI * 2;
+                        char.position.x = Math.cos(angle) * 3;
+                        char.position.z = 50 + Math.sin(angle) * 3;
+                        char.position.y = 1 + Math.sin(time * 3) * 0.5;
+                    });
                     break;
+                case 'explode':
+                    family.forEach((char, i) => {
+                        char.position.x = Math.cos(i * 1.2) * time * 2;
+                        char.position.z = 50 + Math.sin(i * 1.2) * time * 2;
+                        char.position.y = time * 2;
+                        char.rotation.x = time * 3;
+                        char.rotation.z = time * 2;
+                    });
+                    break;
+                case 'matrix':
+                    camera.position.x = Math.cos(time * 0.5) * 8;
+                    camera.position.z = 58 + Math.sin(time * 0.5) * 5;
+                    camera.lookAt(0, 1, 50);
+                    break;
+                default:
+                    family.forEach((char, i) => {
+                        char.position.set(-2 + i * 1, 0.5, 50.5);
+                    });
             }
         }
         
-        // Initialize
-        createClouds();
+        // Handle resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
         
-        // Auto-start after user interaction or timeout
-        document.addEventListener('click', () => {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            runEpisode();
-        }, { once: true });
-        
-        setTimeout(() => {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            runEpisode();
-        }, 1000);
+        // Start
+        document.getElementById('loading').style.display = 'none';
+        animate();
+        setTimeout(startEpisode, 1000);
     </script>
 </body>
 </html>
