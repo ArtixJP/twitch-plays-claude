@@ -1440,6 +1440,73 @@
     50% { opacity: 0.9; }
 }
 
+@keyframes page-break-glitch {
+    0% { transform: translate(0) skew(0); filter: hue-rotate(0deg); }
+    10% { transform: translate(-5px, 3px) skew(2deg); filter: hue-rotate(90deg); }
+    20% { transform: translate(5px, -3px) skew(-2deg); filter: hue-rotate(-90deg); }
+    30% { transform: translate(-3px, -2px) skew(1deg); filter: hue-rotate(45deg); }
+    40% { transform: translate(3px, 2px) skew(-1deg); filter: hue-rotate(-45deg); }
+    50% { transform: translate(0) skew(0); filter: hue-rotate(0deg); }
+    100% { transform: translate(0) skew(0); filter: hue-rotate(0deg); }
+}
+
+.initial-explosion {
+    animation: card-explode 0.5s ease-out;
+}
+
+@keyframes card-explode {
+    0% { transform: scale(1) rotate(0deg); }
+    50% { transform: scale(1.1) rotate(var(--explode-rot, 3deg)); }
+    100% { transform: scale(1) rotate(0deg); }
+}
+
+#broken-site-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+    animation: overlay-fade 3s ease-out forwards;
+}
+
+@keyframes overlay-fade {
+    0%, 70% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+#broken-site-overlay .error-text {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 1rem;
+    color: #ff4400;
+    text-shadow: 0 0 20px #ff4400;
+    animation: error-blink 0.3s ease-in-out infinite;
+}
+
+@keyframes error-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+#broken-site-overlay .glitch-bars {
+    width: 80%;
+    height: 5px;
+    background: repeating-linear-gradient(90deg, #ff0000 0px, #ff0000 10px, transparent 10px, transparent 20px);
+    margin-top: 20px;
+    animation: glitch-scan 0.2s linear infinite;
+}
+
+@keyframes glitch-scan {
+    0% { transform: translateX(-10px); }
+    100% { transform: translateX(10px); }
+}
+
 .phoenix-rising {
     position: fixed;
     top: 50%;
@@ -1904,8 +1971,43 @@ setInterval(() => {
 </div>
 <span class="music-label">CHILL<br/>BEATS</span>
 </div>
-<div class="cataclysm-scar" id="cataclysm-scar" style="display: block;">⚠️ AUTO-CATACLYSM ENABLED • INSTANT DESTRUCTION • EXPLOSIONS EVERY 60s • SITE BROKEN SUCCESSFULLY ⚠️</div>
-<div class="auto-explosion-indicator" id="auto-indicator">💥 AUTO-BOOM ACTIVE 💥</div>
+<section class="quiz-section">
+<div class="quiz-container">
+<div class="quiz-header">
+<h2 class="quiz-title">WHO WANTS TO BE A CROISSANTAIRE?</h2>
+<div class="prize-ladder" id="prize-ladder"></div>
+</div>
+<div id="quiz-content"></div>
+</div>
+</section>
+<div class="cataclysm-scar" id="cataclysm-scar" style="display: none;">⚠️ CATACLYSM SURVIVED • SITE REBUILT • R'AMEN ⚠️</div>
+<div class="auto-explosion-indicator" id="auto-indicator">💥 AUTO-BOOM: 90s 💥</div>
+<div class="bug-fix-badge">🐛→✨ BUGS SQUASHED</div>
+<style>
+.bug-fix-badge {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #00ff41, #00aa00);
+    color: #000;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.4rem;
+    padding: 8px 12px;
+    border-radius: 10px;
+    z-index: 600;
+    animation: badge-pop 0.5s ease-out, badge-glow 2s ease-in-out infinite;
+    box-shadow: 0 0 15px rgba(0, 255, 65, 0.6);
+}
+@keyframes badge-pop {
+    0% { transform: scale(0) rotate(-20deg); }
+    50% { transform: scale(1.2) rotate(5deg); }
+    100% { transform: scale(1) rotate(0deg); }
+}
+@keyframes badge-glow {
+    0%, 100% { box-shadow: 0 0 15px rgba(0, 255, 65, 0.6); }
+    50% { box-shadow: 0 0 25px rgba(0, 255, 65, 0.9); }
+}
+</style>
 <style>
 .auto-explosion-indicator {
     position: fixed;
@@ -2651,9 +2753,9 @@ function triggerCataclysm() {
     console.log('%cThe site burns... but rises from the ashes! R\'AMEN 🍝', 'color: #00ff41; font-size: 14px;');
 }
 
-// Trigger cataclysm immediately on page load - NO CLICK NEEDED!
-// INSTANT CHAOS - NO DELAY!
-triggerCataclysm();
+// Trigger cataclysm after a short delay so page can load properly
+// Give users a moment to see the site before chaos
+setTimeout(triggerCataclysm, 2000);
 
 // Glitch the entire page immediately
 document.body.style.animation = 'page-break-glitch 0.5s ease-out';
@@ -2665,8 +2767,8 @@ brokenOverlay.innerHTML = '<div class="error-text">⚠️ SITE.EXE HAS STOPPED W
 document.body.appendChild(brokenOverlay);
 setTimeout(() => brokenOverlay.remove(), 3000);
 
-// Second wave cataclysm after 10 seconds
-setTimeout(triggerCataclysm, 10000);
+// Second wave cataclysm after 30 seconds - more breathing room
+setTimeout(triggerCataclysm, 30000);
 
 // Add bonus fireworks every 15 seconds - FULLY AUTOMATIC
 setInterval(() => {
@@ -2686,8 +2788,8 @@ setInterval(() => {
     }
 }, 15000);
 
-// Auto-trigger full cataclysm every 60 seconds - THE CYCLE CONTINUES
-setInterval(triggerCataclysm, 60000);
+// Auto-trigger full cataclysm every 90 seconds - THE CYCLE CONTINUES (less aggressive)
+setInterval(triggerCataclysm, 90000);
 
 // ═══════════════════════════════════════════════════════
 // PERMANENT DAMAGE SYSTEM - Things actually break now!
@@ -2745,12 +2847,25 @@ function applyPermanentDamage() {
     // Update counter
     document.getElementById('damage-count').textContent = damageCount;
     
-    // At high damage, add screen-wide effects
-    if (damageCount > 10) {
-        document.body.style.filter = `hue-rotate(${(damageCount - 10) * 2}deg)`;
+    // At high damage, add screen-wide effects (capped to prevent unreadability)
+    if (damageCount > 10 && damageCount <= 25) {
+        document.body.style.filter = `hue-rotate(${Math.min((damageCount - 10) * 2, 30)}deg)`;
     }
-    if (damageCount > 20) {
-        document.body.style.transform = `skew(${Math.sin(damageCount) * 0.5}deg)`;
+    if (damageCount > 20 && damageCount <= 30) {
+        document.body.style.transform = `skew(${Math.sin(damageCount) * 0.3}deg)`;
+    }
+    // Reset at very high damage to keep site usable
+    if (damageCount > 30) {
+        document.body.style.filter = '';
+        document.body.style.transform = '';
+        damageCount = 0;
+        damagedElements.clear();
+        document.querySelectorAll('.boom-damaged, .boom-cracked, .boom-displaced, .boom-glitching').forEach(el => {
+            el.classList.remove('boom-damaged', 'boom-cracked', 'boom-displaced', 'boom-glitching');
+            el.style.removeProperty('--damage-rotation');
+            el.style.removeProperty('--damage-x');
+            el.style.removeProperty('--damage-y');
+        });
     }
 }
 
