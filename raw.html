@@ -94,6 +94,28 @@
         @keyframes dots { 0% { content: '.'; } 33% { content: '..'; } 66% { content: '...'; } }
         
         .ornament { position: fixed; font-size: 2rem; opacity: 0.6; z-index: 0; }
+        
+        /* Collatz Portal */
+        .collatz-portal { position: absolute; top: -60px; right: 10px; background: linear-gradient(135deg, #9c27b0, #673ab7); padding: 8px 15px; border-radius: 20px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; box-shadow: 0 0 15px rgba(156,39,176,0.5); }
+        .collatz-portal:hover { transform: scale(1.1); box-shadow: 0 0 25px rgba(156,39,176,0.8); }
+        .portal-icon { font-size: 1.3rem; animation: float 2s ease-in-out infinite; }
+        @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        
+        /* Collatz Screen */
+        .collatz-container { background: rgba(0,0,0,0.4); border-radius: 20px; padding: 20px; text-align: center; }
+        .collatz-title { font-size: 1.5rem; color: #e1bee7; text-shadow: 0 0 20px #9c27b0; margin-bottom: 5px; }
+        .collatz-subtitle { color: #b39ddb; font-size: 0.9rem; margin-bottom: 15px; }
+        .collatz-input-row { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
+        .collatz-input-row input { width: 100px; padding: 10px; font-size: 1.2rem; border-radius: 10px; border: 2px solid #9c27b0; background: rgba(255,255,255,0.1); color: white; text-align: center; }
+        .collatz-stats { display: flex; justify-content: center; gap: 30px; margin-bottom: 15px; font-size: 1rem; color: #ce93d8; }
+        .collatz-visualization { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; max-height: 120px; overflow-y: auto; margin-bottom: 15px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 10px; }
+        .collatz-num { padding: 5px 10px; border-radius: 8px; font-weight: bold; font-size: 0.85rem; animation: dropIn 0.3s ease backwards; transition: all 0.2s; }
+        .collatz-num:hover { transform: scale(1.2); z-index: 10; }
+        .collatz-num.even { background: linear-gradient(135deg, #4caf50, #2e7d32); }
+        .collatz-num.odd { background: linear-gradient(135deg, #e53935, #b71c1c); }
+        .collatz-num.one { background: linear-gradient(135deg, #ffd700, #ff8c00); color: #000; font-size: 1.1rem; box-shadow: 0 0 15px gold; }
+        @keyframes dropIn { from { opacity: 0; transform: translateY(-20px) scale(0.5); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        #collatzCanvas { background: rgba(0,0,0,0.3); border-radius: 10px; width: 100%; max-width: 760px; }
     </style>
 </head>
 <body>
@@ -102,11 +124,11 @@
 <div class="ornament" style="top: 20%; right: 8%;">⭐</div>
 <div class="ornament" style="bottom: 15%; left: 10%;">🎁</div>
 <div class="ornament" style="bottom: 25%; right: 5%;">🔔</div>
+<div class="ornament" style="top: 50%; left: 3%;">✨</div>
 <div class="container">
 <div class="header">
 <h1>🎅 Christmas <span>Trivia</span> Party 🎄</h1>
 </div>
-
 <div class="main-screen active" id="menuScreen">
 <div class="menu-buttons">
 <button class="btn btn-host" onclick="hostGame()">🎄 Host Game</button>
@@ -117,7 +139,6 @@
 <button class="btn btn-join" onclick="joinGame()" style="margin-left: 10px;">Enter</button>
 </div>
 </div>
-
 <div class="main-screen" id="lobbyScreen">
 <div class="game-code">Room Code: <span id="roomCode">XMAS</span></div>
 <div class="lobby">
@@ -129,7 +150,6 @@
 </div>
 </div>
 </div>
-
 <div class="main-screen" id="gameScreen">
 <div class="question-container">
 <div class="timer-bar"><div class="timer-fill" id="timerFill" style="width: 100%;"></div></div>
@@ -143,7 +163,23 @@
 <div class="leaderboard-list" id="leaderboardList"></div>
 </div>
 </div>
-
+<div class="main-screen" id="collatzScreen">
+<div class="collatz-container">
+<h2 class="collatz-title">✨ The Collatz Christmas Cascade ✨</h2>
+<p class="collatz-subtitle">Pick any number and watch it dance to 1!</p>
+<div class="collatz-input-row">
+<input id="collatzInput" max="9999" min="1" placeholder="Enter number" type="number" value="27"/>
+<button class="btn btn-host" onclick="runCollatz()">🎄 Cast Spell!</button>
+</div>
+<div class="collatz-stats">
+<span id="collatzSteps">Steps: 0</span>
+<span id="collatzMax">Peak: 0</span>
+</div>
+<div class="collatz-visualization" id="collatzViz"></div>
+<canvas height="200" id="collatzCanvas" width="760"></canvas>
+<button class="btn btn-join" onclick="showScreen('menuScreen')" style="margin-top:15px;">🔙 Back to Menu</button>
+</div>
+</div>
 <div class="main-screen" id="resultsScreen">
 <div class="results-overlay">
 <h2>🎄 Game Over! 🎄</h2>
@@ -394,6 +430,113 @@
             }
         }
         createSnowflakes();
+        
+        // Collatz Conjecture Visualization
+        function showCollatz() {
+            showScreen('collatzScreen');
+            runCollatz();
+        }
+        
+        function runCollatz() {
+            const input = document.getElementById('collatzInput');
+            let n = parseInt(input.value) || 27;
+            if (n < 1) n = 1;
+            if (n > 9999) n = 9999;
+            input.value = n;
+            
+            const sequence = [n];
+            let current = n;
+            let maxVal = n;
+            
+            while (current !== 1 && sequence.length < 500) {
+                if (current % 2 === 0) {
+                    current = current / 2;
+                } else {
+                    current = current * 3 + 1;
+                }
+                sequence.push(current);
+                maxVal = Math.max(maxVal, current);
+            }
+            
+            document.getElementById('collatzSteps').textContent = `Steps: ${sequence.length - 1}`;
+            document.getElementById('collatzMax').textContent = `Peak: ${maxVal.toLocaleString()}`;
+            
+            // Animate sequence display
+            const viz = document.getElementById('collatzViz');
+            viz.innerHTML = '';
+            
+            sequence.forEach((num, i) => {
+                setTimeout(() => {
+                    const span = document.createElement('span');
+                    span.className = 'collatz-num ' + (num === 1 ? 'one' : (num % 2 === 0 ? 'even' : 'odd'));
+                    span.textContent = num;
+                    span.style.animationDelay = '0s';
+                    span.title = num % 2 === 0 ? `${num} ÷ 2 = ${num/2}` : (num === 1 ? '🎄 Reached 1!' : `${num} × 3 + 1 = ${num*3+1}`);
+                    viz.appendChild(span);
+                    viz.scrollTop = viz.scrollHeight;
+                }, i * 50);
+            });
+            
+            // Draw graph
+            drawCollatzGraph(sequence, maxVal);
+        }
+        
+        function drawCollatzGraph(sequence, maxVal) {
+            const canvas = document.getElementById('collatzCanvas');
+            const ctx = canvas.getContext('2d');
+            const W = canvas.width;
+            const H = canvas.height;
+            
+            ctx.clearRect(0, 0, W, H);
+            
+            if (sequence.length < 2) return;
+            
+            const padding = 20;
+            const graphW = W - padding * 2;
+            const graphH = H - padding * 2;
+            
+            // Create gradient for line
+            const gradient = ctx.createLinearGradient(0, 0, W, 0);
+            gradient.addColorStop(0, '#e53935');
+            gradient.addColorStop(0.5, '#9c27b0');
+            gradient.addColorStop(1, '#ffd700');
+            
+            // Draw path
+            ctx.beginPath();
+            ctx.strokeStyle = gradient;
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            sequence.forEach((val, i) => {
+                const x = padding + (i / (sequence.length - 1)) * graphW;
+                const y = H - padding - (val / maxVal) * graphH;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+            
+            // Draw points at key moments
+            sequence.forEach((val, i) => {
+                if (i === 0 || val === maxVal || val === 1) {
+                    const x = padding + (i / (sequence.length - 1)) * graphW;
+                    const y = H - padding - (val / maxVal) * graphH;
+                    ctx.beginPath();
+                    ctx.fillStyle = val === 1 ? '#ffd700' : (val === maxVal ? '#e53935' : '#9c27b0');
+                    ctx.arc(x, y, 6, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 10px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(val, x, y - 10);
+                }
+            });
+            
+            // Decorative stars
+            ctx.font = '12px sans-serif';
+            ctx.fillText('⭐', padding, padding);
+            ctx.fillText('🎄', W - padding, H - padding);
+        }
     </script>
 </body>
 </html>
