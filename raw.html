@@ -593,10 +593,10 @@
 </div>
 </div>
 <div class="snake-arcade">
-<div class="snake-title">🐍 Magic Snake 🐍</div>
+<div class="snake-title">🐍 Auto Snake AI 🐍</div>
 <canvas class="snake-canvas" height="150" id="snakeGame" width="200"></canvas>
 <div class="snake-score">Score: <span id="snakeScore">0</span></div>
-<div class="snake-instructions">Arrow keys to play | Space to restart</div>
+<div class="snake-instructions">🤖 AI Autoplay Active | Space to restart</div>
 </div>
 <script>
 (function() {
@@ -661,8 +661,64 @@
         }
     }
     
+    function autoPlay() {
+        if (gameOver) return;
+        
+        const head = snake[0];
+        const possibleMoves = [
+            { dx: 0, dy: -1, name: 'up' },
+            { dx: 0, dy: 1, name: 'down' },
+            { dx: -1, dy: 0, name: 'left' },
+            { dx: 1, dy: 0, name: 'right' }
+        ];
+        
+        // Filter out reverse direction and self-collision moves
+        const safeMoves = possibleMoves.filter(move => {
+            // Can't reverse
+            if (move.dx === -dx && move.dy === -dy) return false;
+            
+            let newX = head.x + move.dx;
+            let newY = head.y + move.dy;
+            
+            // Wrap around
+            if (newX < 0) newX = tileCount.x - 1;
+            if (newX >= tileCount.x) newX = 0;
+            if (newY < 0) newY = tileCount.y - 1;
+            if (newY >= tileCount.y) newY = 0;
+            
+            // Check self collision
+            return !snake.some(s => s.x === newX && s.y === newY);
+        });
+        
+        if (safeMoves.length > 0) {
+            // Choose move that gets closest to food
+            let bestMove = safeMoves[0];
+            let bestDist = Infinity;
+            
+            safeMoves.forEach(move => {
+                let newX = head.x + move.dx;
+                let newY = head.y + move.dy;
+                if (newX < 0) newX = tileCount.x - 1;
+                if (newX >= tileCount.x) newX = 0;
+                if (newY < 0) newY = tileCount.y - 1;
+                if (newY >= tileCount.y) newY = 0;
+                
+                const dist = Math.abs(newX - food.x) + Math.abs(newY - food.y);
+                if (dist < bestDist) {
+                    bestDist = dist;
+                    bestMove = move;
+                }
+            });
+            
+            dx = bestMove.dx;
+            dy = bestMove.dy;
+        }
+    }
+    
     function update() {
         if (gameOver) return;
+        
+        autoPlay();
         
         const head = { x: snake[0].x + dx, y: snake[0].y + dy };
         
@@ -712,11 +768,6 @@
             resetGame();
             return;
         }
-        
-        if (e.key === 'ArrowUp' && dy !== 1) { dx = 0; dy = -1; }
-        if (e.key === 'ArrowDown' && dy !== -1) { dx = 0; dy = 1; }
-        if (e.key === 'ArrowLeft' && dx !== 1) { dx = -1; dy = 0; }
-        if (e.key === 'ArrowRight' && dx !== -1) { dx = 1; dy = 0; }
     });
     
     gameLoop = setInterval(gameStep, 120);
