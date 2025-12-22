@@ -94,6 +94,57 @@
             height: 2px;
             top: 9px;
         }
+        #inventory {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            gap: 5px;
+            z-index: 100;
+            border: 2px solid #555;
+        }
+        .inv-slot {
+            width: 50px;
+            height: 50px;
+            background: #333;
+            border: 2px solid #666;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .inv-slot:hover, .inv-slot.selected {
+            border-color: #fff;
+            transform: scale(1.1);
+        }
+        .inv-slot.selected {
+            border-color: #0f0;
+            box-shadow: 0 0 10px #0f0;
+        }
+        .block-preview {
+            width: 35px;
+            height: 35px;
+            border-radius: 3px;
+        }
+        #action-hint {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 24px;
+            text-shadow: 2px 2px 4px black;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 101;
+        }
     </style>
 </head>
 <body>
@@ -105,13 +156,25 @@
 </div>
 <div id="mode-indicator">🤖 AUTO-EXPLORE MODE</div>
 <div id="crosshair"></div>
+<div id="inventory">
+<div class="inv-slot selected" data-block="grass"><div class="block-preview" style="background: #4CAF50;"></div></div>
+<div class="inv-slot" data-block="dirt"><div class="block-preview" style="background: #8B4513;"></div></div>
+<div class="inv-slot" data-block="stone"><div class="block-preview" style="background: #808080;"></div></div>
+<div class="inv-slot" data-block="wood"><div class="block-preview" style="background: #8B5A2B;"></div></div>
+<div class="inv-slot" data-block="sand"><div class="block-preview" style="background: #F4D03F;"></div></div>
+<div class="inv-slot" data-block="snow"><div class="block-preview" style="background: #FFFFFF;"></div></div>
+<div class="inv-slot" data-block="gold"><div class="block-preview" style="background: #FFD700;"></div></div>
+</div>
+<div id="action-hint"></div>
 <div id="controls-hint">
 <span class="key">↑</span> Forward
             <span class="key">↓</span> Back
             <span class="key">←</span> Left
             <span class="key">→</span> Right
-            <span class="key">SPACE</span> Jump
+            <span class="key">SPACE</span> Up
             <span class="key">SHIFT</span> Down
+            <span class="key">CLICK</span> Mine
+            <span class="key">M</span> Place
         </div>
 </div>
 <script>
@@ -230,6 +293,89 @@
 
         document.getElementById('block-count').textContent = blockCount;
 
+        // Raycaster for block selection
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2(0, 0); // Center of screen
+        let selectedBlock = null;
+        let selectedBlockType = 'grass';
+        
+        // Selection highlight
+        const highlightGeo = new THREE.BoxGeometry(1.02, 1.02, 1.02);
+        const highlightMat = new THREE.MeshBasicMaterial({ 
+            color: 0xffffff, 
+            transparent: true, 
+            opacity: 0.3,
+            side: THREE.BackSide
+        });
+        const highlightMesh = new THREE.Mesh(highlightGeo, highlightMat);
+        highlightMesh.visible = false;
+        scene.add(highlightMesh);
+        
+        // Inventory slot selection
+        document.querySelectorAll('.inv-slot').forEach(slot => {
+            slot.addEventListener('click', () => {
+                document.querySelectorAll('.inv-slot').forEach(s => s.classList.remove('selected'));
+                slot.classList.add('selected');
+                selectedBlockType = slot.dataset.block;
+                showActionHint('Selected: ' + selectedBlockType.toUpperCase());
+            });
+        });
+        
+        function showActionHint(text) {
+            const hint = document.getElementById('action-hint');
+            hint.textContent = text;
+            hint.style.opacity = '1';
+            setTimeout(() => hint.style.opacity = '0', 1000);
+        }
+        
+        // Mining (click to remove)
+        renderer.domElement.addEventListener('click', (e) => {
+            if (selectedBlock && blocks.includes(selectedBlock)) {
+                scene.remove(selectedBlock);
+                blocks.splice(blocks.indexOf(selectedBlock), 1);
+                blockCount--;
+                document.getElementById('block-count').textContent = blockCount;
+                showActionHint('⛏️ MINED!');
+                highlightMesh.visible = false;
+                selectedBlock = null;
+            }
+        });
+        
+        // Place block (M key)
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'KeyM' && selectedBlock) {
+                // Get the face normal to place block adjacent
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(blocks);
+                if (intersects.length > 0) {
+                    const intersect = intersects[0];
+                    const normal = intersect.face.normal;
+                    const newPos = new THREE.Vector3(
+                        Math.round(intersect.object.position.x + normal.x),
+                        Math.round(intersect.object.position.y + normal.y),
+                        Math.round(intersect.object.position.z + normal.z)
+                    );
+                    createBlock(newPos.x, newPos.y, newPos.z, materials[selectedBlockType]);
+                    document.getElementById('block-count').textContent = blockCount;
+                    showActionHint('🧱 PLACED!');
+                }
+            }
+        });
+        
+        function updateBlockSelection() {
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(blocks);
+            
+            if (intersects.length > 0 && intersects[0].distance < 10) {
+                selectedBlock = intersects[0].object;
+                highlightMesh.position.copy(selectedBlock.position);
+                highlightMesh.visible = true;
+            } else {
+                selectedBlock = null;
+                highlightMesh.visible = false;
+            }
+        }
+
         // Player setup
         const player = {
             x: 0,
@@ -321,6 +467,9 @@
             camera.rotation.y = player.yaw;
             camera.rotation.x = player.pitch;
 
+            // Update block selection
+            updateBlockSelection();
+            
             // Update HUD
             document.getElementById('pos').textContent = 
                 `${Math.floor(player.x)}, ${Math.floor(player.y)}, ${Math.floor(player.z)}`;
