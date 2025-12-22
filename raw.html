@@ -207,7 +207,7 @@
 <div>Position: <span id="pos">0, 0, 0</span></div>
 <div>Blocks: <span id="block-count">0</span></div>
 <div>Characters: <span id="char-count">21</span> 🧑‍🌾🐑🐷🧙🍄</div>
-<div>Buildings: <span id="building-count">3</span> 🏠🍔⛲</div>
+<div>Buildings: <span id="building-count">4</span> 🏠🍔⛲🏰</div>
 </div>
 <div id="mode-indicator">🤖 AUTO-EXPLORE MODE</div>
 <div id="crosshair"></div>
@@ -437,6 +437,218 @@
         createRestaurant(20, 15, '🍔 BURGER HUT', 0xFFD700);
         createRestaurant(-25, 20, '🍕 PIZZA PALACE', 0xFF4500);
         createRestaurant(15, -25, '🍜 NOODLE HOUSE', 0x00FF00);
+        
+        // === MARIO'S CASTLE (Peach's Castle) ===
+        function createMarioCastle() {
+            const cx = 30, cz = -10;
+            const baseY = Math.floor(noise(cx, cz)) + 6;
+            
+            // Castle materials
+            const pinkWall = new THREE.MeshLambertMaterial({color: 0xFFB6C1});
+            const redRoof = new THREE.MeshLambertMaterial({color: 0xCC0000});
+            const blueRoof = new THREE.MeshLambertMaterial({color: 0x4169E1});
+            const goldTrim = new THREE.MeshLambertMaterial({color: 0xFFD700});
+            const whiteTrim = new THREE.MeshLambertMaterial({color: 0xFFFFF0});
+            const stainedGlass = new THREE.MeshLambertMaterial({color: 0xFF69B4, transparent: true, opacity: 0.7});
+            const darkWood = new THREE.MeshLambertMaterial({color: 0x4A2810});
+            
+            // Foundation platform
+            for (let x = -8; x <= 8; x++) {
+                for (let z = -8; z <= 8; z++) {
+                    createBlock(cx + x, baseY, cz + z, materials.stone);
+                    createBlock(cx + x, baseY - 1, cz + z, materials.stone);
+                }
+            }
+            
+            // Main castle body
+            for (let y = 1; y <= 8; y++) {
+                for (let x = -6; x <= 6; x++) {
+                    for (let z = -6; z <= 6; z++) {
+                        // Walls only (hollow inside)
+                        if (Math.abs(x) >= 5 || Math.abs(z) >= 5) {
+                            // Windows on upper floors
+                            if (y >= 4 && y <= 6 && (x % 3 === 0 || z % 3 === 0) && Math.abs(x) < 6 && Math.abs(z) < 6) {
+                                createBlock(cx + x, baseY + y, cz + z, stainedGlass);
+                            } else {
+                                createBlock(cx + x, baseY + y, cz + z, pinkWall);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Grand entrance (front)
+            for (let x = -2; x <= 2; x++) {
+                for (let y = 1; y <= 5; y++) {
+                    // Create archway
+                    if (y <= 3 && Math.abs(x) <= 1) {
+                        // Door opening - remove blocks
+                    } else if (y === 4 && Math.abs(x) <= 1) {
+                        createBlock(cx + x, baseY + y, cz + 6, goldTrim);
+                    } else {
+                        createBlock(cx + x, baseY + y, cz + 6, whiteTrim);
+                    }
+                }
+            }
+            
+            // Main roof (red)
+            for (let y = 0; y <= 3; y++) {
+                const size = 7 - y;
+                for (let x = -size; x <= size; x++) {
+                    for (let z = -size; z <= size; z++) {
+                        createBlock(cx + x, baseY + 9 + y, cz + z, redRoof);
+                    }
+                }
+            }
+            
+            // Four corner towers
+            const towerPositions = [[-7, -7], [7, -7], [-7, 7], [7, 7]];
+            towerPositions.forEach(([tx, tz]) => {
+                // Tower body
+                for (let y = 1; y <= 12; y++) {
+                    for (let x = -1; x <= 1; x++) {
+                        for (let z = -1; z <= 1; z++) {
+                            if (Math.abs(x) === 1 || Math.abs(z) === 1) {
+                                createBlock(cx + tx + x, baseY + y, cz + tz + z, pinkWall);
+                            }
+                        }
+                    }
+                }
+                // Tower windows
+                for (let y = 6; y <= 10; y += 2) {
+                    createBlock(cx + tx, baseY + y, cz + tz + 1, stainedGlass);
+                    createBlock(cx + tx, baseY + y, cz + tz - 1, stainedGlass);
+                }
+                // Tower roof (cone shape with blue)
+                for (let y = 0; y <= 4; y++) {
+                    const rs = 2 - Math.floor(y / 2);
+                    for (let x = -rs; x <= rs; x++) {
+                        for (let z = -rs; z <= rs; z++) {
+                            createBlock(cx + tx + x, baseY + 13 + y, cz + tz + z, blueRoof);
+                        }
+                    }
+                }
+                // Gold flag pole and flag
+                createBlock(cx + tx, baseY + 18, cz + tz, goldTrim);
+                createBlock(cx + tx, baseY + 19, cz + tz, goldTrim);
+                // Red flag
+                const flagGeo = new THREE.PlaneGeometry(1.5, 1);
+                const flagMat = new THREE.MeshLambertMaterial({color: 0xFF0000, side: THREE.DoubleSide});
+                const flag = new THREE.Mesh(flagGeo, flagMat);
+                flag.position.set(cx + tx + 0.8, baseY + 19, cz + tz);
+                scene.add(flag);
+            });
+            
+            // Central tall tower
+            for (let y = 1; y <= 15; y++) {
+                for (let x = -2; x <= 2; x++) {
+                    for (let z = -2; z <= 2; z++) {
+                        if (Math.abs(x) >= 1 || Math.abs(z) >= 1) {
+                            createBlock(cx + x, baseY + y, cz + z, whiteTrim);
+                        }
+                    }
+                }
+            }
+            // Central tower dome
+            for (let y = 0; y <= 5; y++) {
+                const ds = 3 - Math.floor(y / 1.5);
+                for (let x = -ds; x <= ds; x++) {
+                    for (let z = -ds; z <= ds; z++) {
+                        if (Math.abs(x) + Math.abs(z) <= ds + 1) {
+                            createBlock(cx + x, baseY + 16 + y, cz + z, blueRoof);
+                        }
+                    }
+                }
+            }
+            // Star on top
+            const starGeo = new THREE.OctahedronGeometry(0.8);
+            const starMat = new THREE.MeshBasicMaterial({color: 0xFFD700});
+            const star = new THREE.Mesh(starGeo, starMat);
+            star.position.set(cx, baseY + 23, cz);
+            star.name = 'castleStar';
+            scene.add(star);
+            
+            // Stained glass window (large, front)
+            const windowGeo = new THREE.CircleGeometry(2, 8);
+            const windowMat = new THREE.MeshBasicMaterial({color: 0xFF69B4, transparent: true, opacity: 0.8, side: THREE.DoubleSide});
+            const bigWindow = new THREE.Mesh(windowGeo, windowMat);
+            bigWindow.position.set(cx, baseY + 6, cz + 6.1);
+            scene.add(bigWindow);
+            
+            // Peach portrait above entrance
+            const portraitCanvas = document.createElement('canvas');
+            portraitCanvas.width = 128;
+            portraitCanvas.height = 128;
+            const pCtx = portraitCanvas.getContext('2d');
+            pCtx.fillStyle = '#FFB6C1';
+            pCtx.fillRect(0, 0, 128, 128);
+            pCtx.fillStyle = '#FFD700';
+            pCtx.beginPath();
+            pCtx.arc(64, 50, 25, 0, Math.PI * 2);
+            pCtx.fill();
+            pCtx.fillStyle = '#FFDBAC';
+            pCtx.beginPath();
+            pCtx.arc(64, 60, 20, 0, Math.PI * 2);
+            pCtx.fill();
+            pCtx.fillStyle = '#FF69B4';
+            pCtx.fillRect(44, 80, 40, 40);
+            pCtx.fillStyle = '#000';
+            pCtx.font = 'bold 14px Arial';
+            pCtx.textAlign = 'center';
+            pCtx.fillText('👸 PEACH', 64, 120);
+            const portraitTex = new THREE.CanvasTexture(portraitCanvas);
+            const portraitMesh = new THREE.Mesh(
+                new THREE.PlaneGeometry(3, 3),
+                new THREE.MeshBasicMaterial({map: portraitTex})
+            );
+            portraitMesh.position.set(cx, baseY + 10, cz + 6.2);
+            scene.add(portraitMesh);
+            
+            // Castle sign
+            const signCanvas = document.createElement('canvas');
+            signCanvas.width = 256;
+            signCanvas.height = 64;
+            const sCtx = signCanvas.getContext('2d');
+            sCtx.fillStyle = '#FFD700';
+            sCtx.fillRect(0, 0, 256, 64);
+            sCtx.fillStyle = '#CC0000';
+            sCtx.font = 'bold 24px Arial';
+            sCtx.textAlign = 'center';
+            sCtx.fillText('🏰 PEACH\'S CASTLE 🏰', 128, 42);
+            const signTex = new THREE.CanvasTexture(signCanvas);
+            const signMesh = new THREE.Mesh(
+                new THREE.PlaneGeometry(8, 2),
+                new THREE.MeshBasicMaterial({map: signTex})
+            );
+            signMesh.position.set(cx, baseY + 14, cz + 8);
+            scene.add(signMesh);
+            
+            // Garden path to castle
+            for (let pz = 7; pz <= 15; pz++) {
+                for (let px = -1; px <= 1; px++) {
+                    createBlock(cx + px, baseY, cz + pz, materials.sand);
+                }
+            }
+            
+            // Decorative flowers around castle
+            const flowerColors = [0xFF69B4, 0xFFD700, 0xFF6347, 0x9370DB];
+            for (let i = 0; i < 20; i++) {
+                const angle = (i / 20) * Math.PI * 2;
+                const radius = 10 + Math.random() * 3;
+                const fx = cx + Math.cos(angle) * radius;
+                const fz = cz + Math.sin(angle) * radius;
+                const fy = Math.floor(noise(fx, fz)) + 6;
+                const flowerGeo = new THREE.SphereGeometry(0.3, 6, 6);
+                const flowerMat = new THREE.MeshLambertMaterial({color: flowerColors[i % 4]});
+                const flower = new THREE.Mesh(flowerGeo, flowerMat);
+                flower.position.set(fx, fy + 0.5, fz);
+                scene.add(flower);
+            }
+            
+            return {x: cx, z: cz, baseY: baseY};
+        }
+        
+        const marioCastle = createMarioCastle();
         
         // === CENTRAL FOUNTAIN ===
         function createFountain() {
@@ -1267,10 +1479,17 @@
                 // Auto-explore: smooth cinematic camera movement
                 autoTime += 0.003; // Slower for smoother movement
                 
-                // Figure-8 path for more interesting exploration
+                // Figure-8 path visiting the castle
                 const pathScale = 35;
-                player.targetX = Math.sin(autoTime) * pathScale * Math.cos(autoTime * 0.5);
-                player.targetZ = Math.cos(autoTime) * pathScale;
+                const castleVisit = Math.sin(autoTime * 0.3) > 0.5;
+                if (castleVisit) {
+                    // Orbit around the castle
+                    player.targetX = 30 + Math.sin(autoTime * 2) * 20;
+                    player.targetZ = -10 + Math.cos(autoTime * 2) * 20;
+                } else {
+                    player.targetX = Math.sin(autoTime) * pathScale * Math.cos(autoTime * 0.5);
+                    player.targetZ = Math.cos(autoTime) * pathScale;
+                }
                 
                 // Calculate terrain height and stay above it
                 const terrainY = getTerrainHeight(player.targetX, player.targetZ);
@@ -1347,6 +1566,14 @@
             
             // Update fountain animation
             updateFountain(autoTime * 10);
+            
+            // Rotate castle star
+            const castleStar = scene.getObjectByName('castleStar');
+            if (castleStar) {
+                castleStar.rotation.y += 0.02;
+                castleStar.rotation.x = Math.sin(autoTime * 5) * 0.2;
+                castleStar.position.y = marioCastle.baseY + 23 + Math.sin(autoTime * 8) * 0.3;
+            }
 
             renderer.render(scene, camera);
         }
