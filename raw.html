@@ -1839,7 +1839,28 @@ setInterval(() => {
 </div>
 <span class="music-label">CHILL<br/>BEATS</span>
 </div>
-<div class="cataclysm-scar" id="cataclysm-scar">⚠️ SITE SURVIVED CATACLYSM EVENT #1 • REBUILT FROM ASHES • STRONGER THAN BEFORE ⚠️</div>
+<div class="cataclysm-scar" id="cataclysm-scar">⚠️ AUTO-CATACLYSM ENABLED • NO CLICKS NEEDED • EXPLOSIONS EVERY 60s • ENJOY THE SHOW ⚠️</div>
+<div class="auto-explosion-indicator" id="auto-indicator">💥 AUTO-BOOM ACTIVE 💥</div>
+<style>
+.auto-explosion-indicator {
+    position: fixed;
+    top: 50px;
+    right: 20px;
+    background: rgba(255, 68, 0, 0.9);
+    color: white;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.5rem;
+    padding: 8px 15px;
+    border-radius: 20px;
+    z-index: 600;
+    animation: auto-boom-pulse 1s ease-in-out infinite;
+    box-shadow: 0 0 20px rgba(255, 68, 0, 0.6);
+}
+@keyframes auto-boom-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+}
+</style>
 <footer class="pixel-footer">
     ⟨ 2024 MATRIX_BAKE ⟩ | <a href="#">RECIPE.EXE</a> | <a href="#">FLOUR.DAT</a> | 🍪 COOKIES FRESHLY BAKED | POWERED BY SOURDOUGH STARTER
 </footer>
@@ -2552,15 +2573,43 @@ function triggerCataclysm() {
     console.log('%cThe site burns... but rises from the ashes! R\'AMEN 🍝', 'color: #00ff41; font-size: 14px;');
 }
 
-// Trigger cataclysm immediately on page load!
+// Trigger cataclysm immediately on page load - NO CLICK NEEDED!
 setTimeout(triggerCataclysm, 500);
 
-// Add bonus fireworks every 30 seconds as a reminder of the cataclysm
+// Second wave cataclysm after 10 seconds
+setTimeout(triggerCataclysm, 10000);
+
+// Add bonus fireworks every 15 seconds - FULLY AUTOMATIC
 setInterval(() => {
     const x = Math.random() * window.innerWidth;
     const y = Math.random() * (window.innerHeight / 2);
     createFirework(x, y);
-}, 30000);
+    // Random chance for mini explosion
+    if (Math.random() > 0.5) {
+        const colors = ['#ff4400', '#ffaa00', '#9146FF', '#00ff41'];
+        for (let i = 0; i < 20; i++) {
+            createExplosionParticle(
+                x + (Math.random() - 0.5) * 100,
+                y + (Math.random() - 0.5) * 100,
+                colors[Math.floor(Math.random() * colors.length)]
+            );
+        }
+    }
+}, 15000);
+
+// Auto-trigger full cataclysm every 60 seconds - THE CYCLE CONTINUES
+setInterval(triggerCataclysm, 60000);
+
+// Random firework bursts every 8 seconds for constant spectacle
+setInterval(() => {
+    const positions = [
+        [Math.random() * window.innerWidth, Math.random() * window.innerHeight * 0.6],
+        [Math.random() * window.innerWidth, Math.random() * window.innerHeight * 0.6]
+    ];
+    positions.forEach((pos, i) => {
+        setTimeout(() => createFirework(pos[0], pos[1]), i * 200);
+    });
+}, 8000);
 </script>
 </body>
 </html>
