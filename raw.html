@@ -554,6 +554,122 @@
         window.satan = satan;
         window.firePillars = firePillars;
         
+        // Helicopter
+        const helicopter = new THREE.Group();
+        
+        // Helicopter body
+        const heliBody = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.8, 1, 3, 16),
+            new THREE.MeshLambertMaterial({ color: 0x2F4F4F })
+        );
+        heliBody.rotation.z = Math.PI / 2;
+        helicopter.add(heliBody);
+        
+        // Cockpit
+        const cockpit = new THREE.Mesh(
+            new THREE.SphereGeometry(0.7, 16, 16),
+            new THREE.MeshLambertMaterial({ color: 0x87CEEB, transparent: true, opacity: 0.6 })
+        );
+        cockpit.position.set(1.5, 0.2, 0);
+        helicopter.add(cockpit);
+        
+        // Tail
+        const heliTail = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.2, 0.4, 2.5, 8),
+            new THREE.MeshLambertMaterial({ color: 0x2F4F4F })
+        );
+        heliTail.rotation.z = Math.PI / 2;
+        heliTail.position.set(-2.5, 0, 0);
+        helicopter.add(heliTail);
+        
+        // Main rotor
+        const rotorHub = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.15, 0.15, 0.3, 8),
+            new THREE.MeshLambertMaterial({ color: 0x333333 })
+        );
+        rotorHub.position.y = 1;
+        helicopter.add(rotorHub);
+        
+        const rotorBlades = new THREE.Group();
+        for (let i = 0; i < 4; i++) {
+            const blade = new THREE.Mesh(
+                new THREE.BoxGeometry(4, 0.05, 0.3),
+                new THREE.MeshLambertMaterial({ color: 0x444444 })
+            );
+            blade.rotation.y = (i * Math.PI) / 2;
+            rotorBlades.add(blade);
+        }
+        rotorBlades.position.y = 1.2;
+        helicopter.add(rotorBlades);
+        
+        // Tail rotor
+        const tailRotor = new THREE.Group();
+        for (let i = 0; i < 2; i++) {
+            const tBlade = new THREE.Mesh(
+                new THREE.BoxGeometry(0.8, 0.03, 0.1),
+                new THREE.MeshLambertMaterial({ color: 0x444444 })
+            );
+            tBlade.rotation.y = (i * Math.PI) / 2;
+            tailRotor.add(tBlade);
+        }
+        tailRotor.position.set(-3.5, 0.3, 0.3);
+        tailRotor.rotation.x = Math.PI / 2;
+        helicopter.add(tailRotor);
+        
+        // Skids
+        const skidMat = new THREE.MeshLambertMaterial({ color: 0x333333 });
+        const leftSkid = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 2.5, 8), skidMat);
+        leftSkid.rotation.z = Math.PI / 2;
+        leftSkid.position.set(0, -0.8, -0.5);
+        helicopter.add(leftSkid);
+        const rightSkid = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 2.5, 8), skidMat);
+        rightSkid.rotation.z = Math.PI / 2;
+        rightSkid.position.set(0, -0.8, 0.5);
+        helicopter.add(rightSkid);
+        
+        helicopter.position.set(0, 25, 45);
+        helicopter.visible = false;
+        scene.add(helicopter);
+        
+        // Parachutes for each family member
+        const parachutes = [];
+        const chuteColors = [0x97E5E5, 0xFFFF00, 0x5DADE2, 0xFFC0CB, 0x2E8B57];
+        for (let i = 0; i < 5; i++) {
+            const chute = new THREE.Group();
+            
+            // Canopy
+            const canopy = new THREE.Mesh(
+                new THREE.SphereGeometry(1.2, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2),
+                new THREE.MeshLambertMaterial({ color: chuteColors[i], side: THREE.DoubleSide, transparent: true, opacity: 0.85 })
+            );
+            canopy.rotation.x = Math.PI;
+            canopy.position.y = 2;
+            chute.add(canopy);
+            
+            // Strings
+            const stringMat = new THREE.LineBasicMaterial({ color: 0xffffff });
+            for (let j = 0; j < 8; j++) {
+                const angle = (j / 8) * Math.PI * 2;
+                const points = [
+                    new THREE.Vector3(Math.cos(angle) * 1, 2, Math.sin(angle) * 1),
+                    new THREE.Vector3(0, 0, 0)
+                ];
+                const stringGeo = new THREE.BufferGeometry().setFromPoints(points);
+                const string = new THREE.Line(stringGeo, stringMat);
+                chute.add(string);
+            }
+            
+            chute.visible = false;
+            chute.scale.set(0.5, 0.5, 0.5);
+            scene.add(chute);
+            parachutes.push(chute);
+        }
+        
+        window.helicopter = helicopter;
+        window.rotorBlades = rotorBlades;
+        window.tailRotor = tailRotor;
+        window.parachutes = parachutes;
+        
         // Grass ground
         const grassGround = new THREE.Mesh(
             new THREE.PlaneGeometry(100, 100),
@@ -677,7 +793,8 @@
             { text: "Portal gun explosion!", action: 'explode' },
             { text: "Time freeze!", action: 'matrix' },
             { text: "Get schwifty!", action: 'schwifty' },
-            { text: "THEY SUMMONED SOMETHING FROM DIMENSION 666!", action: 'satan' }
+            { text: "THEY SUMMONED SOMETHING FROM DIMENSION 666!", action: 'satan' },
+            { text: "JUMP! JUMP! JUMP!", action: 'skydive' }
         ];
         
         let currentGag = couchGags[0];
@@ -729,6 +846,15 @@
                 window.pentagramGroup.visible = false;
                 window.satan.visible = false;
                 window.satan.position.y = -3;
+            }
+            
+            // Reset helicopter and parachutes
+            if (window.helicopter) {
+                window.helicopter.visible = false;
+                window.parachutes.forEach(chute => {
+                    chute.visible = false;
+                    chute.scale.set(0.5, 0.5, 0.5);
+                });
             }
             renderer.setClearColor(0x0a0a2e);
             
@@ -900,6 +1026,68 @@
                     
                     // Red lighting effect
                     renderer.setClearColor(new THREE.Color(0.1 + Math.sin(time * 5) * 0.05, 0, 0));
+                    break;
+                case 'skydive':
+                    // Show helicopter
+                    window.helicopter.visible = true;
+                    window.rotorBlades.rotation.y += 0.5;
+                    window.tailRotor.rotation.y += 0.8;
+                    
+                    // Helicopter hovers and moves
+                    window.helicopter.position.x = Math.sin(time * 0.5) * 3;
+                    window.helicopter.position.y = 20 + Math.sin(time * 2) * 0.5;
+                    window.helicopter.rotation.z = Math.sin(time * 0.5) * 0.1;
+                    
+                    // Sky background
+                    renderer.setClearColor(new THREE.Color(0.4, 0.6, 0.9));
+                    
+                    // Family jumps and deploys chutes
+                    family.forEach((char, i) => {
+                        const jumpDelay = i * 0.5;
+                        const jumpTime = Math.max(0, time - jumpDelay);
+                        
+                        if (jumpTime > 0) {
+                            // Falling phase
+                            const fallSpeed = jumpTime < 1.5 ? 8 : 2;
+                            const targetY = Math.max(0.5, 20 - jumpTime * fallSpeed);
+                            
+                            char.position.x = -2 + i * 1.5 + Math.sin(jumpTime * 3 + i) * 0.5;
+                            char.position.y = targetY;
+                            char.position.z = 50 + jumpTime * 2;
+                            
+                            // Tumble while falling fast
+                            if (jumpTime < 1.5) {
+                                char.rotation.x = jumpTime * 5;
+                                char.rotation.z = Math.sin(jumpTime * 8) * 0.5;
+                            } else {
+                                char.rotation.x = 0;
+                                char.rotation.z = Math.sin(time * 2) * 0.1;
+                            }
+                            
+                            // Parachute deployment
+                            const chute = window.parachutes[i];
+                            if (jumpTime > 1.5) {
+                                chute.visible = true;
+                                chute.position.copy(char.position);
+                                chute.position.y += 1;
+                                
+                                // Chute sways
+                                const scale = Math.min(1, (jumpTime - 1.5) * 2);
+                                chute.scale.set(scale, scale, scale);
+                                chute.rotation.z = Math.sin(time * 2 + i) * 0.2;
+                            } else {
+                                chute.visible = false;
+                            }
+                        }
+                    });
+                    
+                    // Dynamic camera follows action
+                    camera.position.set(
+                        5 + Math.sin(time * 0.3) * 3,
+                        10 + Math.cos(time * 0.2) * 5,
+                        60 + time * 2
+                    );
+                    camera.lookAt(family[2].position);
                     break;
                 default:
                     family.forEach((char, i) => {
