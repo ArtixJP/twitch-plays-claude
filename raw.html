@@ -66,27 +66,37 @@
             width: 40px;
             height: 70px;
             position: relative;
+            transform-style: preserve-3d;
+            animation: walkerRotate 4s ease-in-out infinite;
+        }
+        
+        @keyframes walkerRotate {
+            0%, 100% { transform: rotateY(-15deg) rotateX(5deg); }
+            50% { transform: rotateY(15deg) rotateX(5deg); }
         }
         
         .walker-head {
             width: 18px;
             height: 18px;
-            background: #2c3e50;
+            background: linear-gradient(135deg, #3d566e 0%, #2c3e50 50%, #1a252f 100%);
             border-radius: 50%;
             position: absolute;
             top: 0;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translateX(-50%) translateZ(8px);
+            box-shadow: 3px 3px 8px rgba(0,0,0,0.4), inset -2px -2px 4px rgba(0,0,0,0.3), inset 2px 2px 4px rgba(255,255,255,0.1);
         }
         
         .walker-torso {
-            width: 4px;
+            width: 8px;
             height: 25px;
-            background: #2c3e50;
+            background: linear-gradient(90deg, #1a252f 0%, #2c3e50 30%, #3d566e 50%, #2c3e50 70%, #1a252f 100%);
+            border-radius: 3px;
             position: absolute;
             top: 16px;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translateX(-50%) translateZ(4px);
+            box-shadow: 2px 2px 6px rgba(0,0,0,0.4);
         }
         
         .walker-leg {
@@ -163,7 +173,14 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            animation: bounce 0.5s ease-in-out infinite;
+            animation: bounce 0.5s ease-in-out infinite, dancerSway 2s ease-in-out infinite;
+            transform-style: preserve-3d;
+            perspective: 200px;
+        }
+        
+        @keyframes dancerSway {
+            0%, 100% { transform: rotateY(-20deg); }
+            50% { transform: rotateY(20deg); }
         }
         
         .dancer:nth-child(2) { animation-delay: 0.1s; }
@@ -179,16 +196,20 @@
         }
         
         .dancer-head {
-            width: 12px;
-            height: 12px;
+            width: 14px;
+            height: 14px;
             border-radius: 50%;
             margin-bottom: 2px;
+            transform: translateZ(6px);
+            box-shadow: 2px 2px 6px rgba(0,0,0,0.4), inset -2px -2px 4px rgba(0,0,0,0.2), inset 2px 2px 4px rgba(255,255,255,0.3);
         }
         
         .dancer-body {
-            width: 14px;
-            height: 20px;
-            border-radius: 4px 4px 2px 2px;
+            width: 16px;
+            height: 22px;
+            border-radius: 6px 6px 3px 3px;
+            transform: translateZ(4px);
+            box-shadow: 3px 3px 8px rgba(0,0,0,0.4), inset -3px -3px 6px rgba(0,0,0,0.2), inset 3px 3px 6px rgba(255,255,255,0.2);
         }
         
         .dancer-arms {
@@ -268,26 +289,26 @@
             border-radius: 2px;
         }
         
-        .dancer.pink .dancer-head, .dancer.pink .dancer-body { background: #ff6b9d; }
-        .dancer.pink .dancer-arms, .dancer.pink .dancer-leg { background: #ff6b9d; }
+        .dancer.pink .dancer-head, .dancer.pink .dancer-body { background: linear-gradient(135deg, #ff8fb3 0%, #ff6b9d 40%, #e5527f 100%); }
+        .dancer.pink .dancer-arms, .dancer.pink .dancer-leg { background: linear-gradient(180deg, #ff8fb3, #e5527f); }
         
-        .dancer.blue .dancer-head, .dancer.blue .dancer-body { background: #4fc3f7; }
-        .dancer.blue .dancer-arms, .dancer.blue .dancer-leg { background: #4fc3f7; }
+        .dancer.blue .dancer-head, .dancer.blue .dancer-body { background: linear-gradient(135deg, #7fd4fb 0%, #4fc3f7 40%, #29a8e0 100%); }
+        .dancer.blue .dancer-arms, .dancer.blue .dancer-leg { background: linear-gradient(180deg, #7fd4fb, #29a8e0); }
         
-        .dancer.yellow .dancer-head, .dancer.yellow .dancer-body { background: #ffd54f; }
-        .dancer.yellow .dancer-arms, .dancer.yellow .dancer-leg { background: #ffd54f; }
+        .dancer.yellow .dancer-head, .dancer.yellow .dancer-body { background: linear-gradient(135deg, #ffe082 0%, #ffd54f 40%, #e6b800 100%); }
+        .dancer.yellow .dancer-arms, .dancer.yellow .dancer-leg { background: linear-gradient(180deg, #ffe082, #e6b800); }
         
-        .dancer.green .dancer-head, .dancer.green .dancer-body { background: #81c784; }
-        .dancer.green .dancer-arms, .dancer.green .dancer-leg { background: #81c784; }
+        .dancer.green .dancer-head, .dancer.green .dancer-body { background: linear-gradient(135deg, #a5d6a7 0%, #81c784 40%, #5cb85c 100%); }
+        .dancer.green .dancer-arms, .dancer.green .dancer-leg { background: linear-gradient(180deg, #a5d6a7, #5cb85c); }
         
-        .dancer.purple .dancer-head, .dancer.purple .dancer-body { background: #ba68c8; }
-        .dancer.purple .dancer-arms, .dancer.purple .dancer-leg { background: #ba68c8; }
+        .dancer.purple .dancer-head, .dancer.purple .dancer-body { background: linear-gradient(135deg, #ce93d8 0%, #ba68c8 40%, #9c4dcc 100%); }
+        .dancer.purple .dancer-arms, .dancer.purple .dancer-leg { background: linear-gradient(180deg, #ce93d8, #9c4dcc); }
         
-        .dancer.orange .dancer-head, .dancer.orange .dancer-body { background: #ffb74d; }
-        .dancer.orange .dancer-arms, .dancer.orange .dancer-leg { background: #ffb74d; }
+        .dancer.orange .dancer-head, .dancer.orange .dancer-body { background: linear-gradient(135deg, #ffcc80 0%, #ffb74d 40%, #f5a623 100%); }
+        .dancer.orange .dancer-arms, .dancer.orange .dancer-leg { background: linear-gradient(180deg, #ffcc80, #f5a623); }
         
-        .dancer.cyan .dancer-head, .dancer.cyan .dancer-body { background: #4dd0e1; }
-        .dancer.cyan .dancer-arms, .dancer.cyan .dancer-leg { background: #4dd0e1; }
+        .dancer.cyan .dancer-head, .dancer.cyan .dancer-body { background: linear-gradient(135deg, #80deea 0%, #4dd0e1 40%, #26c6da 100%); }
+        .dancer.cyan .dancer-arms, .dancer.cyan .dancer-leg { background: linear-gradient(180deg, #80deea, #26c6da); }
         h1 { font-size: 3rem; text-align: center; margin-bottom: 1rem; }
         .instruction {
             text-align: center;
@@ -327,7 +348,7 @@
 <div class="walker-reflection"></div>
 </div>
 </div>
-<div class="dance-crowd">
+<div class="dance-crowd" style="perspective: 800px;">
 <div class="dancer-pair">
 <div class="dancer pink">
 <div class="dancer-head"></div>
