@@ -76,6 +76,74 @@ body { font-family: 'Courier New', monospace; overflow: hidden; background: #1a0
 @keyframes ufo-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
 .alien-1 { bottom: 100px; left: 30px; }
 
+.commands-menu {
+    position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+    background: rgba(20, 10, 40, 0.85); backdrop-filter: blur(15px);
+    padding: 8px 15px; border-radius: 12px;
+    border: 1px solid rgba(255, 100, 100, 0.4);
+    color: #fff; font-size: 0.65rem; z-index: 200;
+    display: flex; gap: 15px; align-items: center;
+}
+.commands-menu .cmd-title {
+    color: #ff6b6b; font-weight: bold; font-size: 0.7rem;
+    text-shadow: 0 0 8px #ff4444;
+}
+.commands-menu .cmd-item {
+    background: rgba(255, 255, 255, 0.1); padding: 4px 10px;
+    border-radius: 8px; cursor: pointer; transition: all 0.3s;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.commands-menu .cmd-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+.commands-menu .cmd-item.dance { border-color: rgba(255, 200, 100, 0.5); }
+.commands-menu .cmd-item.war { border-color: rgba(255, 50, 50, 0.5); }
+.commands-menu .cmd-item code {
+    color: #bf94ff; background: rgba(145, 71, 255, 0.3);
+    padding: 1px 4px; border-radius: 3px;
+}
+.war-bench {
+    position: absolute; bottom: 160px; left: 10px; z-index: 130;
+    background: rgba(80, 20, 20, 0.8); backdrop-filter: blur(10px);
+    padding: 8px 10px; border-radius: 10px;
+    border: 1px solid rgba(255, 50, 50, 0.4);
+    font-size: 0.55rem; display: none;
+}
+.war-bench.active { display: block; }
+.war-bench .bench-title {
+    color: #ff6b6b; font-weight: bold; margin-bottom: 5px;
+    text-shadow: 0 0 5px #ff4444;
+}
+.war-bench .eliminated {
+    color: #888; margin: 2px 0; text-decoration: line-through;
+}
+.war-status {
+    position: absolute; top: 50px; left: 50%; transform: translateX(-50%);
+    background: rgba(255, 50, 50, 0.9); padding: 10px 20px;
+    border-radius: 15px; color: #fff; font-weight: bold;
+    font-size: 1rem; z-index: 250; display: none;
+    animation: war-pulse 0.5s ease-in-out infinite;
+    border: 2px solid #ff0000;
+}
+.war-status.active { display: block; }
+@keyframes war-pulse {
+    0%, 100% { transform: translateX(-50%) scale(1); }
+    50% { transform: translateX(-50%) scale(1.05); }
+}
+@keyframes villager-dance {
+    0%, 100% { transform: translateY(0) rotate(-10deg); }
+    25% { transform: translateY(-10px) rotate(10deg); }
+    50% { transform: translateY(0) rotate(-10deg); }
+    75% { transform: translateY(-5px) rotate(5deg); }
+}
+@keyframes villager-fight {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(10px) rotate(5deg); }
+    50% { transform: translateX(-10px) rotate(-5deg); }
+    75% { transform: translateX(5px); }
+}
+
 .stickman-home {
     position: absolute; bottom: 60px; right: 40px; z-index: 130;
     text-align: center;
@@ -175,6 +243,20 @@ body { font-family: 'Courier New', monospace; overflow: hidden; background: #1a0
 <div class="price" id="price">$67,432</div>
 <div class="change" id="change">▲ +2.34%</div>
 </div>
+<div class="commands-menu">
+<span class="cmd-title">⚡ VILLAGER COMMANDS</span>
+<div class="cmd-item dance" onclick="triggerDance()" title="Make all villagers dance!">
+        💃 <code>/dance</code> Party Time!
+    </div>
+<div class="cmd-item war" onclick="triggerWar()" title="Start a tournament!">
+        ⚔️ <code>/war</code> Tournament!
+    </div>
+</div>
+<div class="war-bench" id="war-bench">
+<div class="bench-title">💀 Eliminated</div>
+<div id="eliminated-list"></div>
+</div>
+<div class="war-status" id="war-status">⚔️ BATTLE IN PROGRESS!</div>
 <div class="time-display">🌅 Golden Hour</div>
 <div class="chill-message">
 <span class="emoji">🌴☀️🌊</span>
@@ -953,6 +1035,173 @@ function updateAbductionStatus(status) {
 document.body.addEventListener('click', () => {
     initUFOAudio();
 }, { once: true });
+
+// ========== VILLAGER BATCH COMMANDS ==========
+let isDancing = false;
+let isWarMode = false;
+let warFighters = [];
+let eliminatedVillagers = [];
+let currentBattle = null;
+
+const villagerNames = ['Maria', 'Jake', 'Luna', 'Max', 'Zara', 'Steve'];
+const villagerModels = [maria, jake, luna, max, zara, steve3D];
+
+// DANCE MODE - All villagers dance together!
+function triggerDance() {
+    if (isWarMode) return; // Can't dance during war
+    isDancing = !isDancing;
+    
+    if (isDancing) {
+        console.log('🎉 DANCE PARTY STARTED!');
+        // Make all 3D villagers dance
+        villagerModels.forEach((v, i) => {
+            v.userData.dancing = true;
+        });
+        // Update HUD villager roster to show dancing
+        document.querySelectorAll('.roster-item').forEach(el => {
+            el.style.animation = 'villager-dance 0.5s ease-in-out infinite';
+        });
+        document.getElementById('stickman-speech').textContent = '🕺 DANCE PARTY! 💃';
+    } else {
+        console.log('Dance party ended');
+        villagerModels.forEach(v => v.userData.dancing = false);
+        document.querySelectorAll('.roster-item').forEach(el => {
+            el.style.animation = '';
+        });
+    }
+}
+
+// WAR MODE - Tournament bracket!
+function triggerWar() {
+    if (isDancing) {
+        isDancing = false;
+        document.querySelectorAll('.roster-item').forEach(el => el.style.animation = '');
+    }
+    if (isWarMode) return; // Already in war
+    
+    isWarMode = true;
+    warFighters = [...villagerNames];
+    eliminatedVillagers = [];
+    
+    document.getElementById('war-bench').classList.add('active');
+    document.getElementById('war-status').classList.add('active');
+    document.getElementById('eliminated-list').innerHTML = '';
+    
+    console.log('⚔️ WAR TOURNAMENT STARTED!');
+    document.getElementById('stickman-speech').textContent = '⚔️ TO BATTLE!';
+    
+    // Start the tournament
+    runTournamentRound();
+}
+
+function runTournamentRound() {
+    if (warFighters.length <= 1) {
+        // We have a winner!
+        endWar(warFighters[0]);
+        return;
+    }
+    
+    // Pick two random fighters
+    const idx1 = Math.floor(Math.random() * warFighters.length);
+    let idx2 = Math.floor(Math.random() * warFighters.length);
+    while (idx2 === idx1) idx2 = Math.floor(Math.random() * warFighters.length);
+    
+    const fighter1 = warFighters[idx1];
+    const fighter2 = warFighters[idx2];
+    
+    document.getElementById('war-status').innerHTML = `⚔️ ${fighter1} VS ${fighter2}!`;
+    
+    // Animate the fighters
+    const model1 = villagerModels[villagerNames.indexOf(fighter1)];
+    const model2 = villagerModels[villagerNames.indexOf(fighter2)];
+    
+    if (model1) model1.userData.fighting = true;
+    if (model2) model2.userData.fighting = true;
+    
+    // Battle duration
+    setTimeout(() => {
+        // Random winner
+        const winner = Math.random() > 0.5 ? fighter1 : fighter2;
+        const loser = winner === fighter1 ? fighter2 : fighter1;
+        
+        // Eliminate loser
+        warFighters = warFighters.filter(f => f !== loser);
+        eliminatedVillagers.push(loser);
+        
+        // Update bench
+        const elimList = document.getElementById('eliminated-list');
+        elimList.innerHTML += `<div class="eliminated">💀 ${loser}</div>`;
+        
+        // Update roster visual
+        const rosterItems = document.querySelectorAll('.roster-item');
+        rosterItems.forEach(item => {
+            if (item.textContent.includes(loser.split(' ')[0])) {
+                item.style.opacity = '0.3';
+                item.style.textDecoration = 'line-through';
+            }
+        });
+        
+        document.getElementById('war-status').innerHTML = `🏆 ${winner} WINS! ${loser} eliminated!`;
+        
+        if (model1) model1.userData.fighting = false;
+        if (model2) model2.userData.fighting = false;
+        
+        // Next round after delay
+        setTimeout(runTournamentRound, 2000);
+    }, 2500);
+}
+
+function endWar(champion) {
+    isWarMode = false;
+    document.getElementById('war-status').innerHTML = `👑 ${champion} IS THE CHAMPION! 👑`;
+    document.getElementById('war-status').style.background = 'rgba(255, 215, 0, 0.9)';
+    
+    setTimeout(() => {
+        document.getElementById('war-bench').classList.remove('active');
+        document.getElementById('war-status').classList.remove('active');
+        document.getElementById('war-status').style.background = '';
+        
+        // Reset roster visuals
+        document.querySelectorAll('.roster-item').forEach(item => {
+            item.style.opacity = '1';
+            item.style.textDecoration = '';
+        });
+        
+        document.getElementById('stickman-speech').textContent = `${champion} is the champion! 👑`;
+    }, 4000);
+}
+
+// Enhanced animation loop for dance/war modes
+const originalAnimate = animate;
+function enhancedVillagerAnimations(t) {
+    villagerModels.forEach((v, i) => {
+        if (v.userData.dancing) {
+            // Exaggerated dance movements
+            v.rotation.y += 0.15;
+            v.position.y = 0.3 + Math.abs(Math.sin(t * 10 + i)) * 0.4;
+            if (v.userData.leftArm) v.userData.leftArm.rotation.z = Math.sin(t * 8 + i) * 1.2;
+            if (v.userData.rightArm) v.userData.rightArm.rotation.z = -Math.sin(t * 8 + i) * 1.2;
+        }
+        if (v.userData.fighting) {
+            // Fighting shake
+            v.position.x += (Math.random() - 0.5) * 0.1;
+            v.position.z += (Math.random() - 0.5) * 0.1;
+            v.rotation.y += (Math.random() - 0.5) * 0.2;
+        }
+    });
+}
+
+// Patch into main animation loop
+const _origAnimFrame = animate;
+setInterval(() => {
+    if (isDancing || isWarMode) {
+        enhancedVillagerAnimations(Date.now() * 0.001);
+    }
+}, 50);
+
+// Global commands for chat integration
+window.triggerDance = triggerDance;
+window.triggerWar = triggerWar;
 </script>
 </body>
 </html>
