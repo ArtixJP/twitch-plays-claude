@@ -205,6 +205,80 @@
         box-shadow: 0 0 30px var(--twitch-purple);
     }
     
+    /* Chill Music Controls */
+    .music-control {
+        position: fixed;
+        bottom: 80px;
+        right: 20px;
+        z-index: 500;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .music-btn {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: 3px solid var(--cyber-blue);
+        background: rgba(0, 0, 0, 0.9);
+        color: var(--cyber-blue);
+        font-size: 1.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        animation: music-pulse 2s ease-in-out infinite;
+    }
+    
+    .music-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 40px rgba(0, 255, 255, 0.6);
+    }
+    
+    .music-btn.playing {
+        border-color: var(--matrix-green);
+        color: var(--matrix-green);
+        box-shadow: 0 0 30px rgba(0, 255, 65, 0.5);
+        animation: music-playing 0.5s ease-in-out infinite;
+    }
+    
+    @keyframes music-pulse {
+        0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 255, 0.3); }
+        50% { box-shadow: 0 0 35px rgba(0, 255, 255, 0.5); }
+    }
+    
+    @keyframes music-playing {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+    
+    .music-label {
+        font-family: 'Press Start 2P', cursive;
+        font-size: 0.4rem;
+        color: var(--cyber-blue);
+        text-shadow: 0 0 10px var(--cyber-blue);
+        text-align: center;
+    }
+    
+    .music-visualizer {
+        display: flex;
+        gap: 3px;
+        height: 20px;
+        align-items: flex-end;
+    }
+    
+    .viz-bar {
+        width: 4px;
+        background: var(--matrix-green);
+        border-radius: 2px;
+        transition: height 0.1s ease;
+    }
+    
+    .music-btn:not(.playing) + .music-visualizer .viz-bar {
+        height: 3px !important;
+    }
+    
     @keyframes pulse-twitch {
         0%, 100% { box-shadow: 0 0 10px rgba(145,70,255,0.5); }
         50% { box-shadow: 0 0 25px rgba(145,70,255,0.8); }
@@ -718,6 +792,17 @@
 <span class="prompt">matrix@twitch:~$</span> <span class="cursor"></span>
 </div>
 </div>
+<div class="music-control">
+<button class="music-btn" id="music-toggle" title="Toggle Chill Beats">🎵</button>
+<div class="music-visualizer">
+<div class="viz-bar" style="height: 5px;"></div>
+<div class="viz-bar" style="height: 8px;"></div>
+<div class="viz-bar" style="height: 12px;"></div>
+<div class="viz-bar" style="height: 6px;"></div>
+<div class="viz-bar" style="height: 10px;"></div>
+</div>
+<span class="music-label">CHILL<br/>BEATS</span>
+</div>
 <footer class="pixel-footer">
     ⟨ 2024 MATRIX_BAKE ⟩ | <a href="#">RECIPE.EXE</a> | <a href="#">FLOUR.DAT</a> | 🍪 COOKIES FRESHLY BAKED | POWERED BY SOURDOUGH STARTER
 </footer>
@@ -903,6 +988,210 @@ function checkMonsterProximity() {
 }
 
 setInterval(checkMonsterProximity, 300);
+
+// ═══════════════════════════════════════════════════════
+// CHILL PROCEDURAL MUSIC GENERATOR
+// Lo-fi beats to code/bake to
+// ═══════════════════════════════════════════════════════
+
+class ChillMusicGenerator {
+    constructor() {
+        this.audioCtx = null;
+        this.isPlaying = false;
+        this.masterGain = null;
+        this.nodes = [];
+        this.intervals = [];
+        
+        // Musical scales (pentatonic for chill vibes)
+        this.scale = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25];
+        this.bassNotes = [65.41, 73.42, 82.41, 98.00]; // C2, D2, E2, G2
+    }
+    
+    init() {
+        this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        this.masterGain = this.audioCtx.createGain();
+        this.masterGain.gain.value = 0.3;
+        this.masterGain.connect(this.audioCtx.destination);
+        
+        // Add reverb-like effect
+        this.delay = this.audioCtx.createDelay();
+        this.delay.delayTime.value = 0.3;
+        this.delayGain = this.audioCtx.createGain();
+        this.delayGain.gain.value = 0.2;
+        this.delay.connect(this.delayGain);
+        this.delayGain.connect(this.masterGain);
+    }
+    
+    playNote(freq, duration, type = 'sine', volume = 0.1, delay = 0) {
+        if (!this.audioCtx) return;
+        
+        const osc = this.audioCtx.createOscillator();
+        const gain = this.audioCtx.createGain();
+        
+        osc.type = type;
+        osc.frequency.value = freq;
+        
+        gain.gain.setValueAtTime(0, this.audioCtx.currentTime + delay);
+        gain.gain.linearRampToValueAtTime(volume, this.audioCtx.currentTime + delay + 0.05);
+        gain.gain.linearRampToValueAtTime(volume * 0.7, this.audioCtx.currentTime + delay + duration * 0.3);
+        gain.gain.linearRampToValueAtTime(0, this.audioCtx.currentTime + delay + duration);
+        
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        gain.connect(this.delay);
+        
+        osc.start(this.audioCtx.currentTime + delay);
+        osc.stop(this.audioCtx.currentTime + delay + duration);
+    }
+    
+    playChord(notes, duration, volume = 0.05) {
+        notes.forEach(note => this.playNote(note, duration, 'sine', volume));
+    }
+    
+    playKick() {
+        if (!this.audioCtx) return;
+        const osc = this.audioCtx.createOscillator();
+        const gain = this.audioCtx.createGain();
+        osc.frequency.setValueAtTime(150, this.audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(0.01, this.audioCtx.currentTime + 0.5);
+        gain.gain.setValueAtTime(0.3, this.audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.audioCtx.currentTime + 0.5);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start();
+        osc.stop(this.audioCtx.currentTime + 0.5);
+    }
+    
+    playHiHat() {
+        if (!this.audioCtx) return;
+        const bufferSize = this.audioCtx.sampleRate * 0.05;
+        const buffer = this.audioCtx.createBuffer(1, bufferSize, this.audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
+        const noise = this.audioCtx.createBufferSource();
+        const gain = this.audioCtx.createGain();
+        const filter = this.audioCtx.createBiquadFilter();
+        filter.type = 'highpass';
+        filter.frequency.value = 8000;
+        noise.buffer = buffer;
+        gain.gain.setValueAtTime(0.05, this.audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.audioCtx.currentTime + 0.05);
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.masterGain);
+        noise.start();
+    }
+    
+    startBeat() {
+        let beat = 0;
+        const bpm = 70; // Chill tempo
+        const beatInterval = (60 / bpm) * 1000;
+        
+        this.intervals.push(setInterval(() => {
+            if (!this.isPlaying) return;
+            
+            // Kick on 1 and 3
+            if (beat % 4 === 0 || beat % 4 === 2) {
+                this.playKick();
+            }
+            
+            // Hi-hat pattern
+            if (beat % 2 === 1) {
+                this.playHiHat();
+            }
+            
+            beat = (beat + 1) % 16;
+        }, beatInterval / 2));
+    }
+    
+    startMelody() {
+        const playRandomMelody = () => {
+            if (!this.isPlaying) return;
+            
+            const note = this.scale[Math.floor(Math.random() * this.scale.length)];
+            const duration = 0.5 + Math.random() * 1;
+            this.playNote(note, duration, 'triangle', 0.08);
+            
+            setTimeout(playRandomMelody, (1 + Math.random() * 2) * 1000);
+        };
+        setTimeout(playRandomMelody, 500);
+    }
+    
+    startBass() {
+        let bassIndex = 0;
+        this.intervals.push(setInterval(() => {
+            if (!this.isPlaying) return;
+            
+            const note = this.bassNotes[bassIndex % this.bassNotes.length];
+            this.playNote(note, 1.5, 'sine', 0.15);
+            bassIndex++;
+        }, 2000));
+    }
+    
+    startPad() {
+        const playPad = () => {
+            if (!this.isPlaying) return;
+            
+            const root = this.scale[Math.floor(Math.random() * 4)];
+            this.playChord([root, root * 1.25, root * 1.5], 4, 0.03);
+            
+            setTimeout(playPad, 4000);
+        };
+        setTimeout(playPad, 1000);
+    }
+    
+    start() {
+        if (this.isPlaying) return;
+        
+        if (!this.audioCtx) this.init();
+        if (this.audioCtx.state === 'suspended') {
+            this.audioCtx.resume();
+        }
+        
+        this.isPlaying = true;
+        this.startBeat();
+        this.startMelody();
+        this.startBass();
+        this.startPad();
+    }
+    
+    stop() {
+        this.isPlaying = false;
+        this.intervals.forEach(i => clearInterval(i));
+        this.intervals = [];
+    }
+    
+    toggle() {
+        if (this.isPlaying) {
+            this.stop();
+        } else {
+            this.start();
+        }
+        return this.isPlaying;
+    }
+}
+
+const chillMusic = new ChillMusicGenerator();
+const musicBtn = document.getElementById('music-toggle');
+const vizBars = document.querySelectorAll('.viz-bar');
+
+musicBtn.addEventListener('click', () => {
+    const playing = chillMusic.toggle();
+    musicBtn.classList.toggle('playing', playing);
+    musicBtn.textContent = playing ? '🎶' : '🎵';
+});
+
+// Visualizer animation
+setInterval(() => {
+    if (chillMusic.isPlaying) {
+        vizBars.forEach(bar => {
+            bar.style.height = (5 + Math.random() * 15) + 'px';
+            bar.style.background = Math.random() > 0.7 ? 'var(--twitch-purple)' : 'var(--matrix-green)';
+        });
+    }
+}, 150);
 </script>
 </body>
 </html>
