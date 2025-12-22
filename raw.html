@@ -1974,6 +1974,14 @@ setInterval(() => {
 </div>
 </div>
 <div class="audio-status autoplay-waiting" id="audio-status">🎵 LOADING BEATS... TAP ANYWHERE! 🎵</div>
+<div class="autoplay-overlay" id="autoplay-overlay">
+<div class="autoplay-prompt">
+<div class="autoplay-icon">🎵</div>
+<div class="autoplay-text">CLICK ANYWHERE TO START THE VIBES</div>
+<div class="autoplay-subtext">Lo-fi beats to bake/code to</div>
+<div class="autoplay-pulse">👆 TAP 👆</div>
+</div>
+</div>
 <div class="music-control waiting-autoplay" id="music-control">
 <button class="music-btn" id="music-toggle" title="Toggle Chill Beats">🎵</button>
 <div class="music-visualizer">
@@ -1998,6 +2006,78 @@ setInterval(() => {
 <div class="auto-explosion-indicator" id="auto-indicator">💥 AUTO-BOOM: 10s 💥</div>
 <div class="bug-fix-badge">🐛→✨ BUGS SQUASHED</div>
 <style>
+.autoplay-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(26, 21, 37, 0.95);
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    animation: overlay-breathe 2s ease-in-out infinite;
+}
+
+@keyframes overlay-breathe {
+    0%, 100% { background: rgba(26, 21, 37, 0.95); }
+    50% { background: rgba(45, 31, 61, 0.95); }
+}
+
+.autoplay-overlay.hidden {
+    display: none;
+}
+
+.autoplay-prompt {
+    text-align: center;
+    animation: prompt-float 3s ease-in-out infinite;
+}
+
+@keyframes prompt-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.autoplay-icon {
+    font-size: 5rem;
+    margin-bottom: 20px;
+    animation: icon-pulse 1s ease-in-out infinite;
+}
+
+@keyframes icon-pulse {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 20px var(--twitch-purple)); }
+    50% { transform: scale(1.1); filter: drop-shadow(0 0 40px var(--matrix-green)); }
+}
+
+.autoplay-text {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 1rem;
+    color: var(--matrix-green);
+    text-shadow: 0 0 20px var(--matrix-green);
+    margin-bottom: 15px;
+}
+
+.autoplay-subtext {
+    font-family: 'VT323', monospace;
+    font-size: 1.3rem;
+    color: var(--cyber-blue);
+    margin-bottom: 25px;
+}
+
+.autoplay-pulse {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.8rem;
+    color: var(--neon-pink);
+    animation: pulse-tap 0.8s ease-in-out infinite;
+}
+
+@keyframes pulse-tap {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.1); }
+}
+
 .bug-fix-badge {
     position: fixed;
     bottom: 20px;
@@ -2433,6 +2513,10 @@ function autoplayOnInteraction(e) {
     if (hasAutoPlayed) return;
     hasAutoPlayed = true;
     
+    // Hide the overlay
+    const overlay = document.getElementById('autoplay-overlay');
+    if (overlay) overlay.classList.add('hidden');
+    
     console.log('%c🎵 AUTOPLAY TRIGGERED! 🎵', 'color: #00ff41; font-size: 16px; font-weight: bold;');
     
     // Initialize audio context fresh on user gesture
@@ -2473,6 +2557,25 @@ function autoplayOnInteraction(e) {
 document.addEventListener('click', autoplayOnInteraction, { once: false, capture: true });
 document.addEventListener('touchstart', autoplayOnInteraction, { once: false, capture: true });
 document.addEventListener('keydown', autoplayOnInteraction, { once: false, capture: true });
+
+// Attempt immediate autoplay (works if user has interacted with domain before)
+try {
+    chillMusic.init();
+    if (chillMusic.audioCtx && chillMusic.audioCtx.state === 'running') {
+        // Audio context already running! Start immediately
+        console.log('%c🎵 IMMEDIATE AUTOPLAY SUCCESS! 🎵', 'color: #00ff41; font-size: 16px;');
+        hasAutoPlayed = true;
+        chillMusic.start();
+        musicBtn.classList.add('playing');
+        musicBtn.textContent = '🎶';
+        musicControl.classList.remove('waiting-autoplay');
+        const overlay = document.getElementById('autoplay-overlay');
+        if (overlay) overlay.classList.add('hidden');
+        updateAudioStatus();
+    }
+} catch(e) {
+    console.log('Autoplay blocked by browser, waiting for user interaction');
+}
 
 musicBtn.addEventListener('click', (e) => {
     e.stopPropagation(); // Prevent double-trigger
