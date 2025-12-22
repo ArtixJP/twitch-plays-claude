@@ -778,6 +778,239 @@
         margin-top: 3px;
     }
     
+    .portal-nexus {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) translateZ(200px);
+        transform-style: preserve-3d;
+        animation: nexusRotate 30s linear infinite;
+    }
+    
+    @keyframes nexusRotate {
+        0% { transform: translate(-50%, -50%) translateZ(200px) rotateY(0deg) rotateX(10deg); }
+        100% { transform: translate(-50%, -50%) translateZ(200px) rotateY(360deg) rotateX(10deg); }
+    }
+    
+    .portal-window {
+        position: absolute;
+        background: linear-gradient(135deg, rgba(15,10,30,0.95) 0%, rgba(30,20,50,0.9) 100%);
+        border: 2px solid rgba(168, 85, 247, 0.6);
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 
+            0 0 30px rgba(168, 85, 247, 0.4),
+            inset 0 0 20px rgba(0,0,0,0.5);
+        transform-style: preserve-3d;
+        backface-visibility: visible;
+    }
+    
+    .portal-window::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 18px;
+        background: linear-gradient(90deg, #4c1d95, #7c3aed, #4c1d95);
+        display: flex;
+        align-items: center;
+        padding-left: 6px;
+    }
+    
+    .portal-window::after {
+        content: '● ● ●';
+        position: absolute;
+        top: 2px;
+        left: 6px;
+        font-size: 8px;
+        letter-spacing: 2px;
+        color: rgba(255,255,255,0.6);
+    }
+    
+    .portal-1 {
+        width: 140px;
+        height: 100px;
+        transform: translateX(-200px) translateY(-80px) translateZ(50px) rotateY(45deg) rotateX(-15deg);
+        animation: portalFloat1 8s ease-in-out infinite;
+    }
+    
+    .portal-2 {
+        width: 120px;
+        height: 90px;
+        transform: translateX(180px) translateY(-60px) translateZ(-30px) rotateY(-60deg) rotateX(20deg);
+        animation: portalFloat2 7s ease-in-out infinite;
+    }
+    
+    .portal-3 {
+        width: 100px;
+        height: 80px;
+        transform: translateX(-50px) translateY(120px) translateZ(100px) rotateY(180deg) rotateX(25deg) rotateZ(15deg);
+        animation: portalFloat3 9s ease-in-out infinite;
+    }
+    
+    .portal-4 {
+        width: 90px;
+        height: 70px;
+        transform: translateX(120px) translateY(100px) translateZ(-80px) rotateY(-120deg) rotateX(-30deg) rotateZ(-10deg);
+        animation: portalFloat4 6s ease-in-out infinite;
+    }
+    
+    .portal-5 {
+        width: 110px;
+        height: 85px;
+        transform: translateX(-180px) translateY(50px) translateZ(-60px) rotateY(90deg) rotateX(45deg);
+        animation: portalFloat5 10s ease-in-out infinite;
+    }
+    
+    @keyframes portalFloat1 {
+        0%, 100% { transform: translateX(-200px) translateY(-80px) translateZ(50px) rotateY(45deg) rotateX(-15deg); }
+        50% { transform: translateX(-200px) translateY(-100px) translateZ(70px) rotateY(50deg) rotateX(-10deg); }
+    }
+    
+    @keyframes portalFloat2 {
+        0%, 100% { transform: translateX(180px) translateY(-60px) translateZ(-30px) rotateY(-60deg) rotateX(20deg); }
+        50% { transform: translateX(180px) translateY(-40px) translateZ(-10px) rotateY(-55deg) rotateX(25deg); }
+    }
+    
+    @keyframes portalFloat3 {
+        0%, 100% { transform: translateX(-50px) translateY(120px) translateZ(100px) rotateY(180deg) rotateX(25deg) rotateZ(15deg); }
+        50% { transform: translateX(-50px) translateY(100px) translateZ(120px) rotateY(185deg) rotateX(20deg) rotateZ(10deg); }
+    }
+    
+    @keyframes portalFloat4 {
+        0%, 100% { transform: translateX(120px) translateY(100px) translateZ(-80px) rotateY(-120deg) rotateX(-30deg) rotateZ(-10deg); }
+        50% { transform: translateX(120px) translateY(80px) translateZ(-60px) rotateY(-115deg) rotateX(-25deg) rotateZ(-5deg); }
+    }
+    
+    @keyframes portalFloat5 {
+        0%, 100% { transform: translateX(-180px) translateY(50px) translateZ(-60px) rotateY(90deg) rotateX(45deg); }
+        50% { transform: translateX(-180px) translateY(30px) translateZ(-40px) rotateY(95deg) rotateX(40deg); }
+    }
+    
+    .mini-page {
+        padding-top: 18px;
+        width: 100%;
+        height: 100%;
+        font-size: 4px;
+        color: rgba(255,255,255,0.7);
+        overflow: hidden;
+    }
+    
+    .mini-header {
+        background: linear-gradient(90deg, #a855f7, #ec4899);
+        padding: 3px 5px;
+        font-weight: bold;
+        font-size: 5px;
+    }
+    
+    .mini-content {
+        padding: 4px;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+    
+    .mini-box {
+        background: rgba(168, 85, 247, 0.3);
+        border-radius: 2px;
+        height: 8px;
+    }
+    
+    .mini-text {
+        background: rgba(255,255,255,0.2);
+        height: 3px;
+        border-radius: 1px;
+    }
+    
+    .mini-text.short { width: 60%; }
+    .mini-text.medium { width: 80%; }
+    
+    .recursion-portal {
+        position: absolute;
+        width: 30px;
+        height: 25px;
+        background: linear-gradient(135deg, #1a0533, #2d1b4e);
+        border: 1px solid rgba(168, 85, 247, 0.5);
+        border-radius: 2px;
+        transform: scale(0.8) rotate(5deg);
+        box-shadow: inset 0 0 5px rgba(168, 85, 247, 0.3);
+    }
+    
+    .recursion-portal::before {
+        content: '∞';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 8px;
+        color: #a855f7;
+        animation: infinityPulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes infinityPulse {
+        0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+        50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+    }
+    
+    .escher-stairs {
+        position: absolute;
+        bottom: 15%;
+        right: 10%;
+        transform: translateZ(30px) rotateX(60deg) rotateY(-20deg);
+        transform-style: preserve-3d;
+    }
+    
+    .stair-step {
+        width: 30px;
+        height: 8px;
+        background: linear-gradient(90deg, #4c1d95, #7c3aed);
+        margin-bottom: -4px;
+        transform-style: preserve-3d;
+        box-shadow: 0 4px 0 #2d1b4e;
+    }
+    
+    .stair-step:nth-child(1) { transform: translateZ(0px) translateX(0px); }
+    .stair-step:nth-child(2) { transform: translateZ(8px) translateX(8px); }
+    .stair-step:nth-child(3) { transform: translateZ(16px) translateX(16px); }
+    .stair-step:nth-child(4) { transform: translateZ(24px) translateX(24px); }
+    .stair-step:nth-child(5) { transform: translateZ(32px) translateX(0px); }
+    
+    .impossible-triangle {
+        position: absolute;
+        top: 25%;
+        left: 8%;
+        transform: translateZ(80px);
+        animation: triangleRotate 12s linear infinite;
+    }
+    
+    @keyframes triangleRotate {
+        0% { transform: translateZ(80px) rotateY(0deg) rotateX(15deg); }
+        100% { transform: translateZ(80px) rotateY(360deg) rotateX(15deg); }
+    }
+    
+    .triangle-side {
+        position: absolute;
+        width: 40px;
+        height: 8px;
+        background: linear-gradient(90deg, #ec4899, #a855f7);
+        box-shadow: 0 0 10px rgba(236, 72, 153, 0.5);
+    }
+    
+    .triangle-side:nth-child(1) {
+        transform: rotate(0deg) translateX(10px);
+    }
+    
+    .triangle-side:nth-child(2) {
+        transform: rotate(120deg) translateX(10px) translateY(-20px);
+        transform-origin: left center;
+    }
+    
+    .triangle-side:nth-child(3) {
+        transform: rotate(240deg) translateX(10px) translateY(20px);
+        transform-origin: left center;
+    }
+    
     .particle {
         position: absolute;
         width: 4px;
@@ -920,6 +1153,71 @@
 <div class="dancer-arms"></div>
 <div class="dancer-legs"><div class="dancer-leg"></div><div class="dancer-leg"></div></div>
 </div>
+</div>
+<div class="portal-nexus">
+<div class="portal-window portal-1">
+<div class="mini-page">
+<div class="mini-header">PORTAL A</div>
+<div class="mini-content">
+<div class="mini-box"></div>
+<div class="mini-text medium"></div>
+<div class="mini-text short"></div>
+<div class="recursion-portal" style="right:5px;bottom:5px;"></div>
+</div>
+</div>
+</div>
+<div class="portal-window portal-2">
+<div class="mini-page">
+<div class="mini-header">DIMENSION X</div>
+<div class="mini-content">
+<div class="mini-text medium"></div>
+<div class="mini-box"></div>
+<div class="mini-text short"></div>
+<div class="recursion-portal" style="left:5px;bottom:5px;"></div>
+</div>
+</div>
+</div>
+<div class="portal-window portal-3">
+<div class="mini-page">
+<div class="mini-header">VOID.HTML</div>
+<div class="mini-content">
+<div class="mini-text short"></div>
+<div class="mini-text medium"></div>
+<div class="mini-box"></div>
+</div>
+</div>
+</div>
+<div class="portal-window portal-4">
+<div class="mini-page">
+<div class="mini-header">∞ LOOP</div>
+<div class="mini-content">
+<div class="mini-box"></div>
+<div class="mini-text medium"></div>
+</div>
+</div>
+</div>
+<div class="portal-window portal-5">
+<div class="mini-page">
+<div class="mini-header">TESSERACT</div>
+<div class="mini-content">
+<div class="mini-text short"></div>
+<div class="mini-box"></div>
+<div class="mini-text medium"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="escher-stairs">
+<div class="stair-step"></div>
+<div class="stair-step"></div>
+<div class="stair-step"></div>
+<div class="stair-step"></div>
+<div class="stair-step"></div>
+</div>
+<div class="impossible-triangle">
+<div class="triangle-side"></div>
+<div class="triangle-side"></div>
+<div class="triangle-side"></div>
 </div>
 <div class="snake-arcade">
 <div class="snake-title">🐍 Auto Snake AI 🐍</div>
