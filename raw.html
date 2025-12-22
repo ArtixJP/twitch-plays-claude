@@ -208,6 +208,7 @@
 <div>Blocks: <span id="block-count">0</span></div>
 <div>Characters: <span id="char-count">21</span> 🧑‍🌾🐑🐷🧙🍄</div>
 <div>Buildings: <span id="building-count">5</span> 🏠🍔⛲🏰🎉</div>
+<div>🎵 <span id="music-status">DISCO BEATS ON</span></div>
 </div>
 <div id="mode-indicator">🤖 AUTO-EXPLORE MODE</div>
 <div id="crosshair"></div>
@@ -221,7 +222,7 @@
 <div class="inv-slot" data-block="gold"><div class="block-preview" style="background: #FFD700;"></div></div>
 </div>
 <div id="action-hint"></div>
-<div id="screen-prompt">🎬 Press F to watch the movie!</div>
+<div id="screen-prompt">🎬 Press F to watch the movie! | 🎵 Disco auto-playing!</div>
 <div id="cinema-overlay">
 <span id="cinema-close">✕ ESC to close</span>
 <canvas height="360" id="cinema-canvas" width="640"></canvas>
@@ -943,6 +944,142 @@
                 p.material.opacity = 0.8 - d.height * 0.6;
             });
         }
+
+        // === DISCO SOUND SYSTEM ===
+        let audioContext = null;
+        let discoPlaying = false;
+        
+        function initDiscoAudio() {
+            if (audioContext) return;
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            
+            const masterGain = audioContext.createGain();
+            masterGain.gain.value = 0.3;
+            masterGain.connect(audioContext.destination);
+            
+            // Disco beat pattern
+            let beatTime = audioContext.currentTime;
+            const bpm = 120;
+            const beatInterval = 60 / bpm;
+            
+            function playKick(time) {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(150, time);
+                osc.frequency.exponentialRampToValueAtTime(40, time + 0.1);
+                gain.gain.setValueAtTime(0.8, time);
+                gain.gain.exponentialRampToValueAtTime(0.01, time + 0.3);
+                osc.connect(gain);
+                gain.connect(masterGain);
+                osc.start(time);
+                osc.stop(time + 0.3);
+            }
+            
+            function playHiHat(time) {
+                const bufferSize = audioContext.sampleRate * 0.05;
+                const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+                const noise = audioContext.createBufferSource();
+                noise.buffer = buffer;
+                const filter = audioContext.createBiquadFilter();
+                filter.type = 'highpass';
+                filter.frequency.value = 8000;
+                const gain = audioContext.createGain();
+                gain.gain.setValueAtTime(0.15, time);
+                gain.gain.exponentialRampToValueAtTime(0.01, time + 0.05);
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(masterGain);
+                noise.start(time);
+            }
+            
+            function playSynth(time, freq) {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.12, time);
+                gain.gain.exponentialRampToValueAtTime(0.01, time + 0.15);
+                const filter = audioContext.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(2000, time);
+                filter.frequency.exponentialRampToValueAtTime(500, time + 0.15);
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(masterGain);
+                osc.start(time);
+                osc.stop(time + 0.2);
+            }
+            
+            function playBass(time, freq) {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.25, time);
+                gain.gain.exponentialRampToValueAtTime(0.01, time + 0.2);
+                osc.connect(gain);
+                gain.connect(masterGain);
+                osc.start(time);
+                osc.stop(time + 0.25);
+            }
+            
+            const discoChord = [196, 247, 294, 370]; // G major funky
+            const bassNotes = [98, 110, 82, 98]; // Funky bass line
+            let barCount = 0;
+            
+            function scheduleDiscoBar() {
+                if (!discoPlaying) return;
+                
+                const currentBar = barCount % 4;
+                
+                for (let beat = 0; beat < 4; beat++) {
+                    const time = beatTime + beat * beatInterval;
+                    
+                    // Four on the floor kick
+                    playKick(time);
+                    
+                    // Hi-hats on off-beats
+                    playHiHat(time + beatInterval * 0.5);
+                    
+                    // Synth stabs
+                    if (beat === 0 || beat === 2) {
+                        const chordNote = discoChord[(currentBar + beat) % discoChord.length];
+                        playSynth(time + 0.02, chordNote);
+                        playSynth(time + 0.02, chordNote * 1.5);
+                    }
+                    
+                    // Funky bass
+                    playBass(time, bassNotes[(currentBar + beat) % bassNotes.length]);
+                }
+                
+                beatTime += beatInterval * 4;
+                barCount++;
+                
+                setTimeout(scheduleDiscoBar, beatInterval * 4 * 1000 * 0.9);
+            }
+            
+            discoPlaying = true;
+            scheduleDiscoBar();
+        }
+        
+        // Auto-start disco after a short delay (for viewer experience)
+        setTimeout(() => {
+            initDiscoAudio();
+            console.log('🎵 Disco music started!');
+        }, 2000);
+        
+        // Also start on any user interaction (required by some browsers)
+        document.addEventListener('click', () => {
+            if (!discoPlaying) initDiscoAudio();
+        }, { once: true });
+        document.addEventListener('keydown', () => {
+            if (!discoPlaying) initDiscoAudio();
+        }, { once: true });
 
         // === VOXEL CHARACTERS ===
         const characters = [];
