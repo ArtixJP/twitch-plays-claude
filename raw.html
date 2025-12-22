@@ -133,6 +133,7 @@
 <div class="menu-buttons">
 <button class="btn btn-host" onclick="hostGame()">🎄 Host Game</button>
 <button class="btn btn-join" onclick="showJoinInput()">🎁 Join Game</button>
+<button class="btn" onclick="autoPlayMode()" style="background: linear-gradient(135deg, #9c27b0, #673ab7); color: white;">🤖 Auto-Play Mode</button>
 </div>
 <div class="join-input" id="joinInput">
 <input id="codeInput" maxlength="4" onkeyup="this.value = this.value.toUpperCase()" placeholder="CODE" type="text"/>
@@ -430,6 +431,49 @@
             }
         }
         createSnowflakes();
+        
+        // Auto-Play Mode
+        let autoPlayEnabled = false;
+        
+        function autoPlayMode() {
+            autoPlayEnabled = true;
+            showAutoPlayIndicator();
+            hostGame();
+            // Auto-start after players join
+            setTimeout(() => {
+                if (autoPlayEnabled) startGame();
+            }, 6000);
+        }
+        
+        function showAutoPlayIndicator() {
+            const indicator = document.createElement('div');
+            indicator.id = 'autoPlayBadge';
+            indicator.innerHTML = '🤖 AUTO-PLAY MODE';
+            indicator.style.cssText = 'position:fixed;top:10px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#9c27b0,#673ab7);padding:8px 20px;border-radius:20px;font-weight:bold;z-index:1000;animation:pulse 1s infinite;box-shadow:0 0 20px rgba(156,39,176,0.6);';
+            document.body.appendChild(indicator);
+        }
+        
+        // Override selectAnswer for auto-play
+        const originalShowQuestion = showQuestion;
+        showQuestion = function() {
+            originalShowQuestion();
+            if (autoPlayEnabled) {
+                // Auto-select answer after random thinking time
+                const thinkTime = 1500 + Math.random() * 3000;
+                setTimeout(() => {
+                    if (autoPlayEnabled && document.getElementById('gameScreen').classList.contains('active')) {
+                        const buttons = document.querySelectorAll('.answer-btn:not([disabled])');
+                        if (buttons.length > 0) {
+                            // 70% chance to pick correct answer (smart AI!)
+                            const q = gameState.questions[gameState.currentQuestion];
+                            const pickCorrect = Math.random() < 0.7;
+                            const choice = pickCorrect ? q.correct : Math.floor(Math.random() * 4);
+                            selectAnswer(choice);
+                        }
+                    }
+                }, thinkTime);
+            }
+        };
         
         // Collatz Conjecture Visualization
         function showCollatz() {
