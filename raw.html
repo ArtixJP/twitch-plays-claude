@@ -207,7 +207,7 @@
 <div>Position: <span id="pos">0, 0, 0</span></div>
 <div>Blocks: <span id="block-count">0</span></div>
 <div>Characters: <span id="char-count">21</span> 🧑‍🌾🐑🐷🧙🍄</div>
-<div>Buildings: <span id="building-count">4</span> 🏠🍔⛲🏰</div>
+<div>Buildings: <span id="building-count">5</span> 🏠🍔⛲🏰🎉</div>
 </div>
 <div id="mode-indicator">🤖 AUTO-EXPLORE MODE</div>
 <div id="crosshair"></div>
@@ -650,6 +650,220 @@
         
         const marioCastle = createMarioCastle();
         
+        // === PARTY ZONE ===
+        function createPartyZone() {
+            const px = -8, pz = 8;
+            const terrainY = Math.floor(noise(px, pz)) + 6;
+            
+            // Dance floor (colorful blocks)
+            const danceColors = [0xFF0080, 0x00FFFF, 0xFFFF00, 0xFF00FF, 0x00FF00];
+            for (let x = -3; x <= 3; x++) {
+                for (let z = -3; z <= 3; z++) {
+                    const colorMat = new THREE.MeshLambertMaterial({color: danceColors[(x+z+6) % 5]});
+                    const tile = new THREE.Mesh(blockGeometry, colorMat);
+                    tile.position.set(px + x, terrainY, pz + z);
+                    tile.userData.isDanceFloor = true;
+                    tile.userData.originalColor = danceColors[(x+z+6) % 5];
+                    scene.add(tile);
+                    blocks.push(tile);
+                }
+            }
+            
+            // DJ Booth
+            const boothMat = new THREE.MeshLambertMaterial({color: 0x1a1a1a});
+            for (let x = -1; x <= 1; x++) {
+                createBlock(px + x, terrainY + 1, pz - 4, boothMat);
+                createBlock(px + x, terrainY + 2, pz - 4, boothMat);
+            }
+            
+            // DJ turntables
+            const turntable1 = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.1, 16), new THREE.MeshBasicMaterial({color: 0x333333}));
+            turntable1.position.set(px - 0.5, terrainY + 2.55, pz - 4);
+            turntable1.name = 'turntable1';
+            scene.add(turntable1);
+            
+            const turntable2 = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.1, 16), new THREE.MeshBasicMaterial({color: 0x333333}));
+            turntable2.position.set(px + 0.5, terrainY + 2.55, pz - 4);
+            turntable2.name = 'turntable2';
+            scene.add(turntable2);
+            
+            // Disco ball
+            const discoBallGeo = new THREE.SphereGeometry(0.8, 16, 16);
+            const discoBallMat = new THREE.MeshBasicMaterial({color: 0xC0C0C0});
+            const discoBall = new THREE.Mesh(discoBallGeo, discoBallMat);
+            discoBall.position.set(px, terrainY + 8, pz);
+            discoBall.name = 'discoBall';
+            scene.add(discoBall);
+            
+            // Disco ball string
+            const stringGeo = new THREE.CylinderGeometry(0.02, 0.02, 3, 8);
+            const stringMat = new THREE.MeshBasicMaterial({color: 0x888888});
+            const string = new THREE.Mesh(stringGeo, stringMat);
+            string.position.set(px, terrainY + 9.5, pz);
+            scene.add(string);
+            
+            // Party lights (poles with glowing tops)
+            const lightPositions = [[-4, -4], [4, -4], [-4, 4], [4, 4]];
+            const partyLights = [];
+            lightPositions.forEach(([lx, lz], i) => {
+                // Pole
+                for (let y = 1; y <= 5; y++) {
+                    createBlock(px + lx, terrainY + y, pz + lz, materials.stone);
+                }
+                // Light orb
+                const lightOrb = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.4, 8, 8),
+                    new THREE.MeshBasicMaterial({color: danceColors[i]})
+                );
+                lightOrb.position.set(px + lx, terrainY + 6, pz + lz);
+                lightOrb.userData.baseColor = danceColors[i];
+                lightOrb.userData.index = i;
+                scene.add(lightOrb);
+                partyLights.push(lightOrb);
+            });
+            
+            // Party banner
+            const bannerCanvas = document.createElement('canvas');
+            bannerCanvas.width = 256;
+            bannerCanvas.height = 64;
+            const bCtx = bannerCanvas.getContext('2d');
+            bCtx.fillStyle = '#FF1493';
+            bCtx.fillRect(0, 0, 256, 64);
+            bCtx.fillStyle = '#FFD700';
+            bCtx.font = 'bold 28px Arial';
+            bCtx.textAlign = 'center';
+            bCtx.fillText('🎉 VILLAGE PARTY! 🎉', 128, 42);
+            const bannerTex = new THREE.CanvasTexture(bannerCanvas);
+            const bannerMesh = new THREE.Mesh(
+                new THREE.PlaneGeometry(6, 1.5),
+                new THREE.MeshBasicMaterial({map: bannerTex, side: THREE.DoubleSide})
+            );
+            bannerMesh.position.set(px, terrainY + 7, pz + 5);
+            scene.add(bannerMesh);
+            
+            // Confetti particles
+            const confettiParticles = [];
+            const confettiColors = [0xFF0080, 0x00FFFF, 0xFFFF00, 0xFF00FF, 0x00FF00, 0xFF6600];
+            for (let i = 0; i < 50; i++) {
+                const confetti = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.1, 0.1, 0.02),
+                    new THREE.MeshBasicMaterial({color: confettiColors[i % confettiColors.length]})
+                );
+                confetti.position.set(
+                    px + (Math.random() - 0.5) * 10,
+                    terrainY + 5 + Math.random() * 5,
+                    pz + (Math.random() - 0.5) * 10
+                );
+                confetti.userData = {
+                    vx: (Math.random() - 0.5) * 0.05,
+                    vy: -0.02 - Math.random() * 0.03,
+                    vz: (Math.random() - 0.5) * 0.05,
+                    rotSpeed: (Math.random() - 0.5) * 0.2,
+                    baseY: terrainY
+                };
+                scene.add(confetti);
+                confettiParticles.push(confetti);
+            }
+            
+            // Music notes floating
+            const musicNotes = [];
+            const noteSymbols = ['♪', '♫', '♬'];
+            for (let i = 0; i < 8; i++) {
+                const noteCanvas = document.createElement('canvas');
+                noteCanvas.width = 64;
+                noteCanvas.height = 64;
+                const nCtx = noteCanvas.getContext('2d');
+                nCtx.fillStyle = ['#FF69B4', '#00FFFF', '#FFD700'][i % 3];
+                nCtx.font = '48px Arial';
+                nCtx.textAlign = 'center';
+                nCtx.fillText(noteSymbols[i % 3], 32, 48);
+                const noteTex = new THREE.CanvasTexture(noteCanvas);
+                const noteMesh = new THREE.Mesh(
+                    new THREE.PlaneGeometry(0.8, 0.8),
+                    new THREE.MeshBasicMaterial({map: noteTex, transparent: true, side: THREE.DoubleSide})
+                );
+                noteMesh.position.set(
+                    px + (Math.random() - 0.5) * 6,
+                    terrainY + 3 + Math.random() * 3,
+                    pz + (Math.random() - 0.5) * 6
+                );
+                noteMesh.userData = {
+                    baseX: noteMesh.position.x,
+                    baseY: noteMesh.position.y,
+                    baseZ: noteMesh.position.z,
+                    phase: Math.random() * Math.PI * 2,
+                    speed: 0.5 + Math.random() * 0.5
+                };
+                scene.add(noteMesh);
+                musicNotes.push(noteMesh);
+            }
+            
+            return {
+                x: px, z: pz, baseY: terrainY,
+                lights: partyLights,
+                confetti: confettiParticles,
+                notes: musicNotes,
+                discoBall: discoBall
+            };
+        }
+        
+        const partyZone = createPartyZone();
+        
+        function updatePartyZone(time) {
+            // Animate disco ball
+            if (partyZone.discoBall) {
+                partyZone.discoBall.rotation.y += 0.05;
+            }
+            
+            // Pulse party lights
+            partyZone.lights.forEach((light, i) => {
+                const pulse = Math.sin(time * 5 + i * 1.5) * 0.5 + 0.5;
+                const hue = (time * 0.1 + i * 0.25) % 1;
+                light.material.color.setHSL(hue, 1, 0.3 + pulse * 0.4);
+                light.scale.setScalar(0.8 + pulse * 0.4);
+            });
+            
+            // Animate confetti
+            partyZone.confetti.forEach(c => {
+                c.position.x += c.userData.vx;
+                c.position.y += c.userData.vy;
+                c.position.z += c.userData.vz;
+                c.rotation.x += c.userData.rotSpeed;
+                c.rotation.z += c.userData.rotSpeed * 0.7;
+                
+                // Reset when below ground
+                if (c.position.y < c.userData.baseY + 1) {
+                    c.position.y = c.userData.baseY + 10;
+                    c.position.x = partyZone.x + (Math.random() - 0.5) * 10;
+                    c.position.z = partyZone.z + (Math.random() - 0.5) * 10;
+                }
+            });
+            
+            // Float music notes
+            partyZone.notes.forEach(note => {
+                const d = note.userData;
+                note.position.x = d.baseX + Math.sin(time * d.speed + d.phase) * 1.5;
+                note.position.y = d.baseY + Math.sin(time * d.speed * 0.7 + d.phase) * 0.5 + Math.sin(time * 2) * 0.3;
+                note.position.z = d.baseZ + Math.cos(time * d.speed + d.phase) * 1.5;
+                note.rotation.y = time;
+                note.material.opacity = 0.7 + Math.sin(time * 3 + d.phase) * 0.3;
+            });
+            
+            // Animate turntables
+            const t1 = scene.getObjectByName('turntable1');
+            const t2 = scene.getObjectByName('turntable2');
+            if (t1) t1.rotation.y += 0.1;
+            if (t2) t2.rotation.y -= 0.1;
+            
+            // Pulse dance floor colors
+            blocks.forEach(block => {
+                if (block.userData && block.userData.isDanceFloor) {
+                    const hue = (time * 0.2 + block.position.x * 0.1 + block.position.z * 0.1) % 1;
+                    block.material.color.setHSL(hue, 1, 0.5);
+                }
+            });
+        }
+
         // === CENTRAL FOUNTAIN ===
         function createFountain() {
             const fx = 0, fz = 0;
@@ -975,7 +1189,10 @@
                 targetX: x,
                 targetZ: z,
                 wanderTimer: Math.random() * 100,
-                walkPhase: Math.random() * Math.PI * 2
+                walkPhase: Math.random() * Math.PI * 2,
+                isPartying: false,
+                partyTimer: Math.random() * 20,
+                dancePhase: Math.random() * Math.PI * 2
             };
             
             characterGroup.add(group);
@@ -1265,11 +1482,24 @@
             characters.forEach(char => {
                 const data = char.userData;
                 data.wanderTimer -= 0.016;
+                data.partyTimer -= 0.016;
+                
+                // Check if should go to party
+                if (data.partyTimer <= 0 && (data.type === 'villager' || data.type === 'mario')) {
+                    data.isPartying = !data.isPartying;
+                    data.partyTimer = 10 + Math.random() * 15;
+                }
                 
                 // Pick new target when timer runs out
                 if (data.wanderTimer <= 0) {
-                    data.targetX = char.position.x + (Math.random() - 0.5) * 10;
-                    data.targetZ = char.position.z + (Math.random() - 0.5) * 10;
+                    if (data.isPartying && partyZone) {
+                        // Go to party zone!
+                        data.targetX = partyZone.x + (Math.random() - 0.5) * 5;
+                        data.targetZ = partyZone.z + (Math.random() - 0.5) * 5;
+                    } else {
+                        data.targetX = char.position.x + (Math.random() - 0.5) * 10;
+                        data.targetZ = char.position.z + (Math.random() - 0.5) * 10;
+                    }
                     data.targetX = Math.max(-35, Math.min(35, data.targetX));
                     data.targetZ = Math.max(-35, Math.min(35, data.targetZ));
                     data.wanderTimer = 3 + Math.random() * 5;
@@ -1310,6 +1540,40 @@
                             part.material.color.setHSL((time * 0.1) % 1, 1, 0.6);
                         }
                     });
+                } else if (data.isPartying && partyZone) {
+                    // DANCE PARTY ANIMATIONS!
+                    const px = partyZone.x;
+                    const pz = partyZone.z;
+                    const distToParty = Math.sqrt(Math.pow(char.position.x - px, 2) + Math.pow(char.position.z - pz, 2));
+                    
+                    if (distToParty < 6) {
+                        data.dancePhase += 0.2;
+                        
+                        // Bouncing up and down
+                        const terrainY = Math.floor(noise(char.position.x, char.position.z)) + 6;
+                        char.position.y = terrainY + Math.abs(Math.sin(data.dancePhase)) * 0.5;
+                        
+                        // Spinning occasionally
+                        char.rotation.y += Math.sin(data.dancePhase * 0.3) * 0.1;
+                        
+                        // Arm waving
+                        char.children.forEach(part => {
+                            if (part.name === 'leftArm') {
+                                part.rotation.x = Math.sin(data.dancePhase * 2) * 1.2;
+                                part.rotation.z = Math.sin(data.dancePhase) * 0.5 - 0.5;
+                            }
+                            if (part.name === 'rightArm') {
+                                part.rotation.x = Math.sin(data.dancePhase * 2 + Math.PI) * 1.2;
+                                part.rotation.z = -Math.sin(data.dancePhase) * 0.5 + 0.5;
+                            }
+                            if (part.name === 'leftLeg' || part.name === 'leg0' || part.name === 'leg2') {
+                                part.rotation.x = Math.sin(data.dancePhase * 3) * 0.4;
+                            }
+                            if (part.name === 'rightLeg' || part.name === 'leg1' || part.name === 'leg3') {
+                                part.rotation.x = Math.sin(data.dancePhase * 3 + Math.PI) * 0.4;
+                            }
+                        });
+                    }
                 }
             });
         }
@@ -1566,6 +1830,9 @@
             
             // Update fountain animation
             updateFountain(autoTime * 10);
+            
+            // Update party zone
+            updatePartyZone(autoTime * 10);
             
             // Rotate castle star
             const castleStar = scene.getObjectByName('castleStar');
