@@ -15,7 +15,7 @@
             align-items: center; 
             min-height: 100vh; 
             margin: 0;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0a2342 100%);
+            background: linear-gradient(180deg, #87CEEB 0%, #5BB5E8 25%, #3DA4DB 50%, #1e90b0 75%, #0a2342 100%);
             color: white;
             overflow: hidden;
             position: relative;
@@ -325,9 +325,164 @@
             border-radius: 4px;
             color: #bf94ff;
         }
+        
+        .sun {
+            position: absolute;
+            top: 8%;
+            right: 15%;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #fff9c4 0%, #ffeb3b 30%, #ffc107 60%, #ff9800 100%);
+            border-radius: 50%;
+            box-shadow: 
+                0 0 60px 20px rgba(255, 235, 59, 0.6),
+                0 0 100px 40px rgba(255, 193, 7, 0.4),
+                0 0 150px 60px rgba(255, 152, 0, 0.2);
+            animation: sunPulse 4s ease-in-out infinite, sunFloat 8s ease-in-out infinite;
+            z-index: 1;
+        }
+        
+        .sun::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            right: -20px;
+            bottom: -20px;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: sunRays 3s linear infinite;
+        }
+        
+        .sun-rays {
+            position: absolute;
+            top: 8%;
+            right: 15%;
+            width: 80px;
+            height: 80px;
+            z-index: 0;
+        }
+        
+        .sun-ray {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 120px;
+            height: 4px;
+            background: linear-gradient(90deg, rgba(255,235,59,0.8) 0%, transparent 100%);
+            transform-origin: 0 50%;
+            animation: rayPulse 2s ease-in-out infinite;
+        }
+        
+        .sun-ray:nth-child(1) { transform: rotate(0deg); animation-delay: 0s; }
+        .sun-ray:nth-child(2) { transform: rotate(45deg); animation-delay: 0.25s; }
+        .sun-ray:nth-child(3) { transform: rotate(90deg); animation-delay: 0.5s; }
+        .sun-ray:nth-child(4) { transform: rotate(135deg); animation-delay: 0.75s; }
+        .sun-ray:nth-child(5) { transform: rotate(180deg); animation-delay: 1s; }
+        .sun-ray:nth-child(6) { transform: rotate(225deg); animation-delay: 1.25s; }
+        .sun-ray:nth-child(7) { transform: rotate(270deg); animation-delay: 1.5s; }
+        .sun-ray:nth-child(8) { transform: rotate(315deg); animation-delay: 1.75s; }
+        
+        @keyframes sunPulse {
+            0%, 100% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.05); filter: brightness(1.1); }
+        }
+        
+        @keyframes sunFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        @keyframes sunRays {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes rayPulse {
+            0%, 100% { opacity: 0.6; width: 100px; }
+            50% { opacity: 1; width: 130px; }
+        }
+        
+        .cloud {
+            position: absolute;
+            background: rgba(255,255,255,0.9);
+            border-radius: 50px;
+            animation: cloudFloat 20s linear infinite;
+            z-index: 2;
+        }
+        
+        .cloud::before, .cloud::after {
+            content: '';
+            position: absolute;
+            background: rgba(255,255,255,0.9);
+            border-radius: 50%;
+        }
+        
+        .cloud.c1 {
+            width: 60px;
+            height: 25px;
+            top: 12%;
+            left: -80px;
+            animation-duration: 25s;
+        }
+        
+        .cloud.c1::before {
+            width: 30px;
+            height: 30px;
+            top: -15px;
+            left: 10px;
+        }
+        
+        .cloud.c1::after {
+            width: 25px;
+            height: 25px;
+            top: -10px;
+            left: 30px;
+        }
+        
+        .cloud.c2 {
+            width: 45px;
+            height: 20px;
+            top: 18%;
+            left: -60px;
+            animation-duration: 30s;
+            animation-delay: -10s;
+        }
+        
+        .cloud.c2::before {
+            width: 22px;
+            height: 22px;
+            top: -12px;
+            left: 8px;
+        }
+        
+        .cloud.c2::after {
+            width: 18px;
+            height: 18px;
+            top: -8px;
+            left: 22px;
+        }
+        
+        @keyframes cloudFloat {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(calc(100vw + 100px)); }
+        }
     </style>
 </head>
 <body>
+<div class="sun-rays">
+<div class="sun-ray"></div>
+<div class="sun-ray"></div>
+<div class="sun-ray"></div>
+<div class="sun-ray"></div>
+<div class="sun-ray"></div>
+<div class="sun-ray"></div>
+<div class="sun-ray"></div>
+<div class="sun-ray"></div>
+</div>
+<div class="sun"></div>
+<div class="cloud c1"></div>
+<div class="cloud c2"></div>
 <h1>Hello World!</h1>
 <p class="instruction">
         Type <code>!idea &lt;your idea&gt;</code> in the Twitch chat to add to this page.<br/>
