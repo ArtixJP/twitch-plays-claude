@@ -401,6 +401,106 @@
     .dancer.cyan .dancer-head, .dancer.cyan .dancer-body { background: linear-gradient(135deg, #80deea 0%, #4dd0e1 40%, #26c6da 100%); color: #4dd0e1; }
     .dancer.cyan .dancer-arms, .dancer.cyan .dancer-leg { background: linear-gradient(180deg, #80deea, #26c6da); }
     
+    .dancer.potato .dancer-head, .dancer.potato .dancer-body { background: linear-gradient(135deg, #d4a574 0%, #c4956a 40%, #8b6914 100%); color: #c4956a; }
+    .dancer.potato .dancer-arms, .dancer.potato .dancer-leg { background: linear-gradient(180deg, #d4a574, #8b6914); }
+    
+    .flying-dragon {
+        position: absolute;
+        top: 25%;
+        left: 10%;
+        transform-style: preserve-3d;
+        animation: dragonFly 12s ease-in-out infinite;
+        z-index: 50;
+    }
+    
+    @keyframes dragonFly {
+        0% { transform: translateX(0) translateY(0) translateZ(100px) rotateY(0deg); }
+        25% { transform: translateX(200px) translateY(-30px) translateZ(150px) rotateY(15deg); }
+        50% { transform: translateX(400px) translateY(10px) translateZ(80px) rotateY(0deg); }
+        75% { transform: translateX(200px) translateY(-20px) translateZ(120px) rotateY(-15deg); }
+        100% { transform: translateX(0) translateY(0) translateZ(100px) rotateY(0deg); }
+    }
+    
+    .dragon-body {
+        position: relative;
+        width: 60px;
+        height: 25px;
+        background: linear-gradient(135deg, #9333ea 0%, #7c3aed 50%, #6d28d9 100%);
+        border-radius: 30px 15px 15px 25px;
+        box-shadow: 0 0 20px rgba(147, 51, 234, 0.6);
+    }
+    
+    .dragon-head {
+        position: absolute;
+        left: -15px;
+        top: 2px;
+        width: 22px;
+        height: 18px;
+        background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+        border-radius: 50% 30% 30% 50%;
+        box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
+    }
+    
+    .dragon-head::before {
+        content: '';
+        position: absolute;
+        right: 5px;
+        top: 5px;
+        width: 5px;
+        height: 5px;
+        background: #fbbf24;
+        border-radius: 50%;
+        box-shadow: 0 0 8px #fbbf24;
+    }
+    
+    .dragon-head::after {
+        content: '🔥';
+        position: absolute;
+        left: -12px;
+        top: 3px;
+        font-size: 10px;
+        animation: fireBreath 0.5s ease-in-out infinite alternate;
+    }
+    
+    @keyframes fireBreath {
+        0% { opacity: 0.5; transform: scale(0.8); }
+        100% { opacity: 1; transform: scale(1.2); }
+    }
+    
+    .dragon-wing {
+        position: absolute;
+        top: -20px;
+        left: 15px;
+        width: 35px;
+        height: 25px;
+        background: linear-gradient(180deg, rgba(192, 132, 252, 0.9) 0%, rgba(147, 51, 234, 0.7) 100%);
+        clip-path: polygon(0% 100%, 50% 0%, 100% 100%);
+        animation: wingFlap 0.3s ease-in-out infinite alternate;
+        transform-origin: bottom center;
+    }
+    
+    @keyframes wingFlap {
+        0% { transform: rotateX(30deg) scaleY(0.8); }
+        100% { transform: rotateX(-20deg) scaleY(1); }
+    }
+    
+    .dragon-tail {
+        position: absolute;
+        right: -25px;
+        top: 8px;
+        width: 30px;
+        height: 8px;
+        background: linear-gradient(90deg, #7c3aed 0%, #6d28d9 50%, #5b21b6 100%);
+        border-radius: 0 10px 10px 0;
+        animation: tailWag 1s ease-in-out infinite;
+        transform-origin: left center;
+    }
+    
+    @keyframes tailWag {
+        0%, 100% { transform: rotateZ(-10deg); }
+        50% { transform: rotateZ(10deg); }
+    }
+    
     .floating-orb {
         position: absolute;
         border-radius: 50%;
