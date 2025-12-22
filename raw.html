@@ -1335,6 +1335,235 @@
 <button class="pixel-btn twitch">📺 GO LIVE</button>
 </div>
 </section>
+<section class="twitch-plays-section">
+<div class="tpc-container">
+<div class="tpc-glitch-border"></div>
+<div class="tpc-header">
+<span class="tpc-live-badge">🔴 LIVE</span>
+<h2 class="tpc-title">⟨ TWITCH PLAYS CLAUDE ⟩</h2>
+<p class="tpc-subtitle">THE COLLECTIVE BUILDS THE SITE</p>
+</div>
+<div class="tpc-rules">
+<div class="tpc-rule">
+<span class="rule-icon">💬</span>
+<div class="rule-content">
+<h4>1. CHAT COMMANDS</h4>
+<p>Type your website changes in Twitch chat. Every message is a vote!</p>
+</div>
+</div>
+<div class="tpc-rule">
+<span class="rule-icon">🤖</span>
+<div class="rule-content">
+<h4>2. AI ARCHITECT</h4>
+<p>Claude reads the chaos and evolves the page in real-time.</p>
+</div>
+</div>
+<div class="tpc-rule">
+<span class="rule-icon">🗳️</span>
+<div class="rule-content">
+<h4>3. DEMOCRACY MODE</h4>
+<p>Popular requests get priority. Unite the chat for big changes!</p>
+</div>
+</div>
+<div class="tpc-rule">
+<span class="rule-icon">∞</span>
+<div class="rule-content">
+<h4>4. NEVER RESETS</h4>
+<p>Everything accumulates. Your mark stays forever... probably.</p>
+</div>
+</div>
+</div>
+<div class="tpc-cta">
+<p class="tpc-join-text">⚡ JOIN THE HIVE MIND ⚡</p>
+<a class="pixel-btn twitch tpc-join-btn" href="https://twitch.tv" target="_blank">📺 WATCH LIVE ON TWITCH</a>
+<p class="tpc-viewers"><span class="viewer-dot"></span> <span id="fake-viewers">1,337</span> ARCHITECTS ONLINE</p>
+</div>
+</div>
+</section>
+<style>
+.twitch-plays-section {
+    padding: 30px 20px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.tpc-container {
+    background: linear-gradient(135deg, rgba(145, 70, 255, 0.1) 0%, rgba(0, 0, 0, 0.8) 50%, rgba(145, 70, 255, 0.1) 100%);
+    border: 3px solid var(--twitch-purple);
+    border-radius: 20px;
+    padding: 30px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 40px rgba(145, 70, 255, 0.4), inset 0 0 60px rgba(145, 70, 255, 0.1);
+}
+
+.tpc-glitch-border {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 3px solid var(--matrix-green);
+    border-radius: 20px;
+    opacity: 0.5;
+    animation: tpc-glitch 3s infinite;
+    pointer-events: none;
+}
+
+@keyframes tpc-glitch {
+    0%, 90%, 100% { transform: translate(0); opacity: 0; }
+    92% { transform: translate(-3px, 2px); opacity: 0.7; }
+    94% { transform: translate(3px, -2px); opacity: 0.5; }
+    96% { transform: translate(-2px, -1px); opacity: 0.6; }
+}
+
+.tpc-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.tpc-live-badge {
+    display: inline-block;
+    background: #ff0000;
+    color: white;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.5rem;
+    padding: 5px 15px;
+    border-radius: 20px;
+    margin-bottom: 15px;
+    animation: live-pulse 1s ease-in-out infinite;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+}
+
+@keyframes live-pulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(255, 0, 0, 0.6); }
+    50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(255, 0, 0, 0.8); }
+}
+
+.tpc-title {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 1.1rem;
+    color: var(--twitch-purple);
+    text-shadow: 0 0 20px var(--twitch-purple), 0 0 40px var(--twitch-purple);
+    margin-bottom: 8px;
+}
+
+.tpc-subtitle {
+    font-family: 'VT323', monospace;
+    font-size: 1.3rem;
+    color: var(--matrix-green);
+    letter-spacing: 3px;
+}
+
+.tpc-rules {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.tpc-rule {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid rgba(145, 70, 255, 0.3);
+    transition: all 0.3s;
+}
+
+.tpc-rule:hover {
+    border-color: var(--twitch-purple);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(145, 70, 255, 0.3);
+}
+
+.rule-icon {
+    font-size: 1.8rem;
+    min-width: 40px;
+    text-align: center;
+}
+
+.rule-content h4 {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.5rem;
+    color: var(--cyber-blue);
+    margin-bottom: 5px;
+}
+
+.rule-content p {
+    font-size: 0.95rem;
+    color: rgba(184, 244, 184, 0.8);
+    line-height: 1.4;
+}
+
+.tpc-cta {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid rgba(145, 70, 255, 0.3);
+}
+
+.tpc-join-text {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.6rem;
+    color: var(--neon-pink);
+    margin-bottom: 15px;
+    animation: join-flash 1.5s ease-in-out infinite;
+}
+
+@keyframes join-flash {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.tpc-join-btn {
+    font-size: 0.8rem !important;
+    padding: 18px 35px !important;
+    display: inline-block;
+    text-decoration: none;
+    animation: btn-glow 2s ease-in-out infinite;
+}
+
+@keyframes btn-glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(145, 70, 255, 0.5); }
+    50% { box-shadow: 0 0 40px rgba(145, 70, 255, 0.8), 0 0 60px rgba(145, 70, 255, 0.4); }
+}
+
+.tpc-viewers {
+    margin-top: 15px;
+    font-size: 0.9rem;
+    color: rgba(184, 244, 184, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.viewer-dot {
+    width: 8px;
+    height: 8px;
+    background: #00ff41;
+    border-radius: 50%;
+    animation: dot-blink 1s ease-in-out infinite;
+}
+
+@keyframes dot-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+</style>
+<script>
+// Fake viewer count animation
+setInterval(() => {
+    const viewers = document.getElementById('fake-viewers');
+    if (viewers) {
+        const base = 1337;
+        const variance = Math.floor(Math.random() * 50) - 25;
+        viewers.textContent = (base + variance).toLocaleString();
+    }
+}, 3000);
+</script>
 <section class="features-grid">
 <div class="pixel-card">
 <span class="pixel-icon">🥐</span>
@@ -1442,7 +1671,6 @@
 <div class="prize-ladder" id="prize-ladder"></div>
 </div>
 <div id="quiz-content">
-
 </div>
 </div>
 </section>
