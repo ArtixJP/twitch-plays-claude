@@ -294,6 +294,20 @@
         animation: audio-pulse 1.5s ease-in-out infinite;
     }
     
+    .audio-status.autoplay-waiting {
+        animation: urgent-pulse 0.6s ease-in-out infinite;
+        border-color: #ffaa00;
+        color: #ffaa00;
+        font-size: 1rem;
+        padding: 12px 18px;
+        box-shadow: 0 0 30px rgba(255, 170, 0, 0.6);
+    }
+    
+    @keyframes urgent-pulse {
+        0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(255, 170, 0, 0.4); }
+        50% { transform: scale(1.08); box-shadow: 0 0 40px rgba(255, 170, 0, 0.8); }
+    }
+    
     .audio-status.playing {
         border-color: var(--matrix-green);
         color: var(--matrix-green);
@@ -1959,7 +1973,7 @@ setInterval(() => {
 <span class="prompt">matrix@twitch:~$</span> <span class="cursor"></span>
 </div>
 </div>
-<div class="audio-status" id="audio-status">🔇 CLICK ANYWHERE TO START VIBING</div>
+<div class="audio-status autoplay-waiting" id="audio-status">🎵 LOADING BEATS... TAP ANYWHERE! 🎵</div>
 <div class="music-control waiting-autoplay" id="music-control">
 <button class="music-btn" id="music-toggle" title="Toggle Chill Beats">🎵</button>
 <div class="music-visualizer">
@@ -2403,8 +2417,18 @@ const musicBtn = document.getElementById('music-toggle');
 const musicControl = document.getElementById('music-control');
 const vizBars = document.querySelectorAll('.viz-bar');
 
-// Autoplay on first user interaction (browsers require user gesture for audio)
+// AGGRESSIVE AUTOPLAY - triggers on ANY interaction
+// Browsers require user gesture for audio - we catch it ASAP
 let hasAutoPlayed = false;
+
+// Simulate loading state
+setTimeout(() => {
+    if (!hasAutoPlayed) {
+        const status = document.getElementById('audio-status');
+        if (status) status.textContent = '⚡ READY! CLICK ANYWHERE ⚡';
+    }
+}, 1500);
+
 function autoplayOnInteraction(e) {
     if (hasAutoPlayed) return;
     hasAutoPlayed = true;
@@ -2482,9 +2506,11 @@ function updateAudioStatus() {
     if (chillMusic.isPlaying) {
         audioStatus.textContent = '🔊 VIBING';
         audioStatus.classList.add('playing');
+        audioStatus.classList.remove('autoplay-waiting');
     } else if (hasAutoPlayed) {
         audioStatus.textContent = '🔇 PAUSED';
         audioStatus.classList.remove('playing');
+        audioStatus.classList.remove('autoplay-waiting');
     }
 }
 
