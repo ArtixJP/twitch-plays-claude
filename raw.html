@@ -41,6 +41,42 @@
             z-index: 100;
             letter-spacing: 2px;
         }
+        .gravity-btn {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            background: linear-gradient(135deg, rgba(100,50,150,0.4) 0%, rgba(50,100,180,0.4) 100%);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #eee;
+            padding: 12px 24px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(100,100,200,0.2);
+        }
+        .gravity-btn:hover {
+            background: linear-gradient(135deg, rgba(150,50,200,0.6) 0%, rgba(50,150,220,0.6) 100%);
+            box-shadow: 0 0 30px rgba(150,100,255,0.4);
+            transform: translateX(-50%) scale(1.05);
+        }
+        .gravity-btn.reversed {
+            background: linear-gradient(135deg, rgba(200,50,100,0.5) 0%, rgba(220,100,50,0.5) 100%);
+            box-shadow: 0 0 25px rgba(255,100,100,0.3);
+        }
+        .gravity-btn .arrow {
+            display: inline-block;
+            transition: transform 0.4s ease;
+        }
+        .gravity-btn.reversed .arrow {
+            transform: rotate(180deg);
+        }
         .void {
             position: relative;
             display: flex;
@@ -103,6 +139,7 @@
 </div>
 <canvas id="physics-canvas"></canvas>
 <div class="ball-counter">ORBS: <span id="ball-count">0</span></div>
+<button class="gravity-btn" id="gravity-toggle"><span class="arrow">↓</span> GRAVITY <span class="arrow">↓</span></button>
 <script>
 (function() {
     const canvas = document.getElementById('physics-canvas');
@@ -112,6 +149,17 @@
     const bounce = 0.7;
     const friction = 0.99;
     let ballCount = 0;
+    let gravityReversed = false;
+    
+    document.getElementById('gravity-toggle').addEventListener('click', (e) => {
+        e.stopPropagation();
+        gravityReversed = !gravityReversed;
+        const btn = document.getElementById('gravity-toggle');
+        btn.classList.toggle('reversed');
+        btn.innerHTML = gravityReversed ? 
+            '<span class="arrow">↑</span> ANTI-GRAV <span class="arrow">↑</span>' : 
+            '<span class="arrow">↓</span> GRAVITY <span class="arrow">↓</span>';
+    });
     
     function resize() {
         canvas.width = window.innerWidth;
@@ -133,13 +181,17 @@
         }
         
         update() {
-            this.vy += gravity;
+            this.vy += gravityReversed ? -gravity : gravity;
             this.vx *= friction;
             this.x += this.vx;
             this.y += this.vy;
             
             if (this.y + this.radius > canvas.height) {
                 this.y = canvas.height - this.radius;
+                this.vy *= -bounce;
+            }
+            if (this.y - this.radius < 0) {
+                this.y = this.radius;
                 this.vy *= -bounce;
             }
             if (this.x - this.radius < 0) {
