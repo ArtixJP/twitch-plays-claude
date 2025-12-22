@@ -279,6 +279,32 @@
         text-align: center;
     }
     
+    .audio-status {
+        position: fixed;
+        bottom: 160px;
+        right: 20px;
+        background: rgba(0, 0, 0, 0.9);
+        border: 2px solid var(--neon-pink);
+        border-radius: 10px;
+        padding: 8px 12px;
+        font-family: 'VT323', monospace;
+        font-size: 0.9rem;
+        color: var(--neon-pink);
+        z-index: 500;
+        animation: audio-pulse 1.5s ease-in-out infinite;
+    }
+    
+    .audio-status.playing {
+        border-color: var(--matrix-green);
+        color: var(--matrix-green);
+        animation: none;
+    }
+    
+    @keyframes audio-pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.7; transform: scale(1.05); }
+    }
+    
     .music-control.waiting-autoplay .music-btn {
         animation: autoplay-pulse 1s ease-in-out infinite;
         border-color: var(--neon-pink);
@@ -917,6 +943,37 @@
         opacity: 1;
     }
     
+    /* UMBRELLA PROTECTION FROM MATRIX RAIN */
+    .rain-umbrella {
+        position: absolute;
+        top: -45px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 2rem;
+        animation: umbrella-bob 2s ease-in-out infinite;
+        filter: drop-shadow(0 0 10px rgba(145, 70, 255, 0.5));
+    }
+    
+    @keyframes umbrella-bob {
+        0%, 100% { transform: translateX(-50%) rotate(-5deg); }
+        50% { transform: translateX(-50%) rotate(5deg); }
+    }
+    
+    .rain-drops {
+        position: absolute;
+        top: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 0.8rem;
+        opacity: 0.6;
+        animation: rain-fall 0.5s linear infinite;
+    }
+    
+    @keyframes rain-fall {
+        0% { transform: translateX(-50%) translateY(-10px); opacity: 0.8; }
+        100% { transform: translateX(-50%) translateY(10px); opacity: 0; }
+    }
+    
     @keyframes coffee-steam {
         0%, 100% { transform: translateY(0); }
         50% { transform: translateY(-3px); }
@@ -1003,6 +1060,218 @@
         100% { opacity: 0; transform: translateY(-20px); }
     }
     
+    /* WHO WANTS TO BE A MILLIONAIRE QUIZ */
+    .quiz-section {
+        padding: 50px 20px;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .quiz-container {
+        background: linear-gradient(180deg, #0a0a2e 0%, #1a1a4a 50%, #0a0a2e 100%);
+        border: 4px solid #ffd700;
+        border-radius: 20px;
+        padding: 30px;
+        position: relative;
+        box-shadow: 0 0 50px rgba(255, 215, 0, 0.3), inset 0 0 30px rgba(0, 0, 100, 0.5);
+        overflow: hidden;
+    }
+    
+    .quiz-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 50, 0.8) 100%);
+        pointer-events: none;
+    }
+    
+    .quiz-header {
+        text-align: center;
+        margin-bottom: 25px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .quiz-title {
+        font-family: 'Press Start 2P', cursive;
+        font-size: 0.8rem;
+        color: #ffd700;
+        text-shadow: 0 0 20px #ffd700, 0 0 40px #ff8c00;
+        margin-bottom: 10px;
+        animation: title-glow 2s ease-in-out infinite;
+    }
+    
+    @keyframes title-glow {
+        0%, 100% { text-shadow: 0 0 20px #ffd700, 0 0 40px #ff8c00; }
+        50% { text-shadow: 0 0 30px #ffd700, 0 0 60px #ff8c00, 0 0 80px #ffd700; }
+    }
+    
+    .prize-ladder {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+    
+    .prize-level {
+        padding: 5px 12px;
+        border: 1px solid #4a4a8a;
+        border-radius: 5px;
+        font-size: 0.8rem;
+        color: #8888aa;
+        transition: all 0.3s;
+    }
+    
+    .prize-level.current {
+        border-color: #ffd700;
+        color: #ffd700;
+        background: rgba(255, 215, 0, 0.2);
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        animation: current-pulse 1s ease-in-out infinite;
+    }
+    
+    .prize-level.won {
+        border-color: #00ff41;
+        color: #00ff41;
+        background: rgba(0, 255, 65, 0.1);
+    }
+    
+    @keyframes current-pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+    
+    .question-display {
+        background: linear-gradient(90deg, transparent, rgba(0, 50, 150, 0.5), transparent);
+        border: 2px solid #4169e1;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 25px;
+        text-align: center;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .question-number {
+        color: #ffd700;
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+    }
+    
+    .question-text {
+        font-family: 'VT323', monospace;
+        font-size: 1.4rem;
+        color: #ffffff;
+        line-height: 1.5;
+    }
+    
+    .answers-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    @media (max-width: 600px) {
+        .answers-grid { grid-template-columns: 1fr; }
+    }
+    
+    .answer-btn {
+        background: linear-gradient(180deg, #1a1a4a 0%, #0a0a2e 100%);
+        border: 2px solid #4169e1;
+        border-radius: 10px;
+        padding: 15px 20px;
+        color: #ffffff;
+        font-family: 'VT323', monospace;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-align: left;
+    }
+    
+    .answer-btn:hover {
+        border-color: #ffd700;
+        background: linear-gradient(180deg, #2a2a6a 0%, #1a1a4a 100%);
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+    }
+    
+    .answer-btn.selected {
+        border-color: #ff8c00;
+        background: linear-gradient(180deg, #4a3a0a 0%, #2a2a0a 100%);
+        animation: selected-flash 0.5s ease-in-out;
+    }
+    
+    .answer-btn.correct {
+        border-color: #00ff41;
+        background: linear-gradient(180deg, #0a4a0a 0%, #0a2a0a 100%);
+        box-shadow: 0 0 30px rgba(0, 255, 65, 0.5);
+    }
+    
+    .answer-btn.wrong {
+        border-color: #ff4444;
+        background: linear-gradient(180deg, #4a0a0a 0%, #2a0a0a 100%);
+        box-shadow: 0 0 30px rgba(255, 68, 68, 0.5);
+    }
+    
+    .answer-btn.disabled {
+        pointer-events: none;
+        opacity: 0.6;
+    }
+    
+    @keyframes selected-flash {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+    
+    .answer-letter {
+        color: #ffd700;
+        font-weight: bold;
+        min-width: 25px;
+    }
+    
+    .quiz-result {
+        text-align: center;
+        padding: 30px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .result-emoji {
+        font-size: 4rem;
+        margin-bottom: 15px;
+        animation: result-bounce 0.5s ease-out;
+    }
+    
+    @keyframes result-bounce {
+        0% { transform: scale(0); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
+    
+    .result-text {
+        font-family: 'Press Start 2P', cursive;
+        font-size: 0.7rem;
+        color: #ffd700;
+        margin-bottom: 10px;
+    }
+    
+    .result-prize {
+        font-size: 1.5rem;
+        color: #00ff41;
+    }
+    
+    .quiz-restart {
+        margin-top: 20px;
+    }
+    
     @keyframes float {
         0%, 100% { transform: translateY(0) rotate(0deg); }
         50% { transform: translateY(-20px) rotate(5deg); }
@@ -1032,6 +1301,8 @@
 </div>
 <div class="fsm-blessing">R'AMEN</div>
 <div class="coffee-cup">☕</div>
+<div class="rain-umbrella">☂️</div>
+<div class="rain-drops">💧💧💧</div>
 </div>
 <div class="meatball-golem-container">
 <div class="meatball-golem">
@@ -1043,6 +1314,8 @@
 <div class="coffee-cup">☕</div>
 </div>
 <div class="golem-title">MEATBALL KING</div>
+<div class="rain-umbrella" style="top: -55px;">🌂</div>
+<div class="rain-drops">💧💧</div>
 </div>
 <div class="monster-chat-bubble" id="chat-bubble"></div>
 <nav class="pixel-nav">
@@ -1160,6 +1433,19 @@
 </div>
 </div>
 </section>
+<section class="quiz-section">
+<h2 class="section-title">⟨ KNOWLEDGE_PROTOCOL ⟩</h2>
+<p class="pricing-subtitle">&gt; TEST YOUR BAKERY EXPERTISE</p>
+<div class="quiz-container" id="quiz-container">
+<div class="quiz-header">
+<div class="quiz-title">🎯 WHO WANTS TO BE A CROISSANTAIRE? 🥐</div>
+<div class="prize-ladder" id="prize-ladder"></div>
+</div>
+<div id="quiz-content">
+
+</div>
+</div>
+</section>
 <div class="terminal-section">
 <div class="terminal-header">
 <span class="terminal-dot red"></span>
@@ -1178,6 +1464,7 @@
 <span class="prompt">matrix@twitch:~$</span> <span class="cursor"></span>
 </div>
 </div>
+<div class="audio-status" id="audio-status">🔇 CLICK ANYWHERE FOR SOUND</div>
 <div class="music-control waiting-autoplay" id="music-control">
 <button class="music-btn" id="music-toggle" title="Toggle Chill Beats">🎵</button>
 <div class="music-visualizer">
@@ -1605,6 +1892,199 @@ setInterval(() => {
         });
     }
 }, 150);
+
+// Update audio status indicator
+const audioStatus = document.getElementById('audio-status');
+function updateAudioStatus() {
+    if (chillMusic.isPlaying) {
+        audioStatus.textContent = '🔊 VIBING';
+        audioStatus.classList.add('playing');
+    } else if (hasAutoPlayed) {
+        audioStatus.textContent = '🔇 PAUSED';
+        audioStatus.classList.remove('playing');
+    }
+}
+
+const originalAutoplay = autoplayOnInteraction;
+autoplayOnInteraction = function() {
+    originalAutoplay();
+    updateAudioStatus();
+};
+
+musicBtn.addEventListener('click', updateAudioStatus);
+
+// ═══════════════════════════════════════════════════════
+// WHO WANTS TO BE A CROISSANTAIRE - QUIZ GAME
+// ═══════════════════════════════════════════════════════
+
+const quizQuestions = [
+    {
+        question: "How many layers does a Matrix_Bake croissant have?",
+        answers: ["12 layers", "27 layers", "100 layers", "It's classified"],
+        correct: 1,
+        prize: "$100"
+    },
+    {
+        question: "What is the butter content of our European-grade pastries?",
+        answers: ["50%", "69%", "82%", "Yes"],
+        correct: 2,
+        prize: "$500"
+    },
+    {
+        question: "How many bakers founded Matrix_Bake?",
+        answers: ["1 genius", "2 partners", "3 in a trenchcoat", "A sourdough starter"],
+        correct: 2,
+        prize: "$1,000"
+    },
+    {
+        question: "What did the founders have in their laptop bag at the crypto conference?",
+        answers: ["Bitcoin wallet", "Sourdough starter", "Croissant blueprints", "A tiny oven"],
+        correct: 1,
+        prize: "$5,000"
+    },
+    {
+        question: "What blessing does the Flying Spaghetti Monster bestow?",
+        answers: ["Marinara", "R'AMEN", "Pasta la vista", "Carb-o-loading"],
+        correct: 1,
+        prize: "$10,000"
+    },
+    {
+        question: "How much flour has Matrix_Bake raised?",
+        answers: ["$420K", "$4.2M", "∞ cups", "Enough"],
+        correct: 1,
+        prize: "$50,000"
+    },
+    {
+        question: "Who is the Meatball Golem's official title?",
+        answers: ["Meatball Duke", "Sphere Lord", "Meatball King", "The Round One"],
+        correct: 2,
+        prize: "$100,000"
+    },
+    {
+        question: "What does the UNICORN tier include?",
+        answers: ["Blockchain receipts", "Free hugs", "Actual unicorn", "Gluten"],
+        correct: 0,
+        prize: "$1 MILLION 🥐"
+    }
+];
+
+let currentQuestion = 0;
+let quizActive = true;
+let autoPlayTimer = null;
+
+function renderPrizeLadder() {
+    const ladder = document.getElementById('prize-ladder');
+    ladder.innerHTML = quizQuestions.map((q, i) => {
+        let className = 'prize-level';
+        if (i < currentQuestion) className += ' won';
+        if (i === currentQuestion) className += ' current';
+        return `<span class="${className}">${q.prize}</span>`;
+    }).join('');
+}
+
+function renderQuestion() {
+    const content = document.getElementById('quiz-content');
+    const q = quizQuestions[currentQuestion];
+    const letters = ['A', 'B', 'C', 'D'];
+    
+    content.innerHTML = `
+        <div class="question-display">
+            <div class="question-number">Question ${currentQuestion + 1} of ${quizQuestions.length}</div>
+            <div class="question-text">${q.question}</div>
+        </div>
+        <div class="answers-grid">
+            ${q.answers.map((a, i) => `
+                <button class="answer-btn" data-index="${i}">
+                    <span class="answer-letter">${letters[i]}:</span>
+                    <span>${a}</span>
+                </button>
+            `).join('')}
+        </div>
+    `;
+    
+    renderPrizeLadder();
+    
+    // Add click handlers
+    content.querySelectorAll('.answer-btn').forEach(btn => {
+        btn.addEventListener('click', () => selectAnswer(parseInt(btn.dataset.index)));
+    });
+    
+    // Autoplay: select random answer after 5 seconds
+    clearTimeout(autoPlayTimer);
+    if (quizActive) {
+        autoPlayTimer = setTimeout(() => {
+            const randomIndex = Math.floor(Math.random() * 4);
+            selectAnswer(randomIndex);
+        }, 5000);
+    }
+}
+
+function selectAnswer(index) {
+    if (!quizActive) return;
+    clearTimeout(autoPlayTimer);
+    
+    const q = quizQuestions[currentQuestion];
+    const buttons = document.querySelectorAll('.answer-btn');
+    
+    // Disable all buttons
+    buttons.forEach(btn => btn.classList.add('disabled'));
+    
+    // Show selected
+    buttons[index].classList.add('selected');
+    
+    setTimeout(() => {
+        // Reveal correct answer
+        buttons[q.correct].classList.add('correct');
+        
+        if (index !== q.correct) {
+            buttons[index].classList.remove('selected');
+            buttons[index].classList.add('wrong');
+            
+            setTimeout(() => showResult(false), 1500);
+        } else {
+            setTimeout(() => {
+                currentQuestion++;
+                if (currentQuestion >= quizQuestions.length) {
+                    showResult(true);
+                } else {
+                    renderQuestion();
+                }
+            }, 1500);
+        }
+    }, 1000);
+}
+
+function showResult(won) {
+    quizActive = false;
+    const content = document.getElementById('quiz-content');
+    const prize = won ? quizQuestions[quizQuestions.length - 1].prize : 
+                 (currentQuestion > 0 ? quizQuestions[currentQuestion - 1].prize : '$0');
+    
+    content.innerHTML = `
+        <div class="quiz-result">
+            <div class="result-emoji">${won ? '🏆🥐🎉' : '😅🥐'}</div>
+            <div class="result-text">${won ? 'CONGRATULATIONS! YOU ARE A CROISSANTAIRE!' : 'GAME OVER!'}</div>
+            <div class="result-prize">You won: ${prize}</div>
+            <div class="quiz-restart">
+                <button class="pixel-btn twitch" onclick="restartQuiz()">[ PLAY AGAIN ]</button>
+            </div>
+        </div>
+    `;
+    
+    renderPrizeLadder();
+    
+    // Auto restart after 8 seconds
+    setTimeout(restartQuiz, 8000);
+}
+
+function restartQuiz() {
+    currentQuestion = 0;
+    quizActive = true;
+    renderQuestion();
+}
+
+// Initialize quiz
+renderQuestion();
 </script>
 </body>
 </html>
