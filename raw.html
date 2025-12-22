@@ -113,7 +113,7 @@
 </head>
 <body>
 <div id="scene-container"></div>
-<div id="graphics-badge">🕳️ BLACK HOLE SINGULARITY SIMULATOR - Everything Gets Sucked In</div>
+<div id="graphics-badge">🌀 Rick &amp; Morty 3D Portal Scene</div>
 <div id="episode-counter">Episode: <span id="ep-num">1</span></div>
 <div id="gag-text"></div>
 <p class="instruction">Type <code>!idea your idea</code> in chat to modify the show!</p>
@@ -319,44 +319,20 @@
         document.getElementById('scene-container').appendChild(renderer.domElement);
         
         // Advanced Lighting System
-        // Photorealistic Lighting Setup
-        const ambientLight = new THREE.AmbientLight(0xffffff, 1.2); // SUPER Bright ambient - lights on everywhere
+        // Simplified Lighting Setup
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
         scene.add(ambientLight);
         
-        // Hemisphere light for natural sky/ground bounce
-        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x88aa88, 1.0); // Bright hemisphere light
+        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x88aa88, 0.6);
         hemiLight.position.set(0, 50, 0);
         scene.add(hemiLight);
         
-        // Main key light - simulating sun/studio light
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 4.0); // ULTRA bright sun
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
         directionalLight.position.set(10, 25, 15);
         directionalLight.castShadow = true;
-        directionalLight.shadow.mapSize.width = 4096;
-        directionalLight.shadow.mapSize.height = 4096;
-        directionalLight.shadow.camera.near = 0.5;
-        directionalLight.shadow.camera.far = 100;
-        directionalLight.shadow.camera.left = -30;
-        directionalLight.shadow.camera.right = 30;
-        directionalLight.shadow.camera.top = 30;
-        directionalLight.shadow.camera.bottom = -30;
-        directionalLight.shadow.bias = -0.0001;
+        directionalLight.shadow.mapSize.width = 2048;
+        directionalLight.shadow.mapSize.height = 2048;
         scene.add(directionalLight);
-        
-        // Rim light for dramatic edge lighting
-        const rimLight = new THREE.DirectionalLight(0x88ccff, 0.8);
-        rimLight.position.set(-15, 8, -15);
-        scene.add(rimLight);
-        
-        // Fill light to soften shadows
-        const fillLight = new THREE.DirectionalLight(0x4466aa, 0.4);
-        fillLight.position.set(-10, 5, 10);
-        scene.add(fillLight);
-        
-        // Bounce light from floor
-        const bounceLight = new THREE.DirectionalLight(0x333344, 0.2);
-        bounceLight.position.set(0, -10, 0);
-        scene.add(bounceLight);
         
         // Portal glow light with realistic falloff
         const portalLight = new THREE.PointLight(0x00ff00, 50, 20, 2);
@@ -1467,20 +1443,7 @@
         grassGround.receiveShadow = true;
         scene.add(grassGround);
         
-        // Secondary bright ground layer for visibility - EXTRA BRIGHT
-        const groundBase = new THREE.Mesh(
-            new THREE.PlaneGeometry(300, 300),
-            new THREE.MeshStandardMaterial({ 
-                color: 0x55aa44, 
-                roughness: 0.7,
-                emissive: 0x335522,
-                emissiveIntensity: 0.35
-            })
-        );
-        groundBase.rotation.x = -Math.PI / 2;
-        groundBase.position.y = -0.6;
-        groundBase.receiveShadow = true;
-        scene.add(groundBase);
+        // Ground base removed - using single grass layer
         
         // Add subtle ground displacement for realism
         const grassPositions = grassGround.geometry.attributes.position;
@@ -1517,7 +1480,7 @@
         }
         
         // Animation state
-        let phase = 'continuous'; // Single continuous scene mode
+        let phase = 'continuous';
         let animationTime = 0;
         let episodeCount = 0;
         
@@ -1659,7 +1622,6 @@
             
             livingRoom.visible = false;
             grassGround.visible = true;
-                groundBase.visible = true;
             
             // Reset camera
             camera.position.set(0, 5, 15);
@@ -2280,12 +2242,7 @@
         console.log('Audio system: White noise + ambient drone + random SFX active!');
         playTheme(); // Play theme once
         
-        // Additional ground visibility boost - add extra light pointing down
-        const groundBoostLight = new THREE.DirectionalLight(0xaaffaa, 2.0);
-        groundBoostLight.position.set(0, 50, 0);
-        groundBoostLight.target.position.set(0, 0, 0);
-        scene.add(groundBoostLight);
-        scene.add(groundBoostLight.target);
+        // Scene initialized successfully
     </script>
 </body>
 </html>
