@@ -147,6 +147,95 @@
             border-radius: 50%;
             filter: blur(3px);
         }
+        
+        .dance-crowd {
+            position: absolute;
+            bottom: 38%;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            padding: 0 10%;
+            z-index: 5;
+        }
+        
+        .dancer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: bounce 0.5s ease-in-out infinite;
+        }
+        
+        .dancer:nth-child(2) { animation-delay: 0.1s; }
+        .dancer:nth-child(3) { animation-delay: 0.2s; }
+        .dancer:nth-child(4) { animation-delay: 0.15s; }
+        .dancer:nth-child(5) { animation-delay: 0.25s; }
+        .dancer:nth-child(6) { animation-delay: 0.05s; }
+        .dancer:nth-child(7) { animation-delay: 0.3s; }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0) scaleY(1); }
+            50% { transform: translateY(-10px) scaleY(0.95); }
+        }
+        
+        .dancer-head {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-bottom: 2px;
+        }
+        
+        .dancer-body {
+            width: 14px;
+            height: 20px;
+            border-radius: 4px 4px 2px 2px;
+        }
+        
+        .dancer-arms {
+            position: relative;
+            width: 30px;
+            height: 3px;
+            margin-top: -18px;
+            animation: armWave 0.5s ease-in-out infinite alternate;
+        }
+        
+        @keyframes armWave {
+            0% { transform: rotate(-15deg); }
+            100% { transform: rotate(15deg); }
+        }
+        
+        .dancer-legs {
+            display: flex;
+            gap: 4px;
+            margin-top: 15px;
+        }
+        
+        .dancer-leg {
+            width: 3px;
+            height: 15px;
+            border-radius: 2px;
+        }
+        
+        .dancer.pink .dancer-head, .dancer.pink .dancer-body { background: #ff6b9d; }
+        .dancer.pink .dancer-arms, .dancer.pink .dancer-leg { background: #ff6b9d; }
+        
+        .dancer.blue .dancer-head, .dancer.blue .dancer-body { background: #4fc3f7; }
+        .dancer.blue .dancer-arms, .dancer.blue .dancer-leg { background: #4fc3f7; }
+        
+        .dancer.yellow .dancer-head, .dancer.yellow .dancer-body { background: #ffd54f; }
+        .dancer.yellow .dancer-arms, .dancer.yellow .dancer-leg { background: #ffd54f; }
+        
+        .dancer.green .dancer-head, .dancer.green .dancer-body { background: #81c784; }
+        .dancer.green .dancer-arms, .dancer.green .dancer-leg { background: #81c784; }
+        
+        .dancer.purple .dancer-head, .dancer.purple .dancer-body { background: #ba68c8; }
+        .dancer.purple .dancer-arms, .dancer.purple .dancer-leg { background: #ba68c8; }
+        
+        .dancer.orange .dancer-head, .dancer.orange .dancer-body { background: #ffb74d; }
+        .dancer.orange .dancer-arms, .dancer.orange .dancer-leg { background: #ffb74d; }
+        
+        .dancer.cyan .dancer-head, .dancer.cyan .dancer-body { background: #4dd0e1; }
+        .dancer.cyan .dancer-arms, .dancer.cyan .dancer-leg { background: #4dd0e1; }
         h1 { font-size: 3rem; text-align: center; margin-bottom: 1rem; }
         .instruction {
             text-align: center;
@@ -184,6 +273,50 @@
 <div class="walker-leg left"></div>
 <div class="walker-leg right"></div>
 <div class="walker-reflection"></div>
+</div>
+</div>
+<div class="dance-crowd">
+<div class="dancer pink">
+<div class="dancer-head"></div>
+<div class="dancer-body"></div>
+<div class="dancer-arms"></div>
+<div class="dancer-legs"><div class="dancer-leg"></div><div class="dancer-leg"></div></div>
+</div>
+<div class="dancer blue">
+<div class="dancer-head"></div>
+<div class="dancer-body"></div>
+<div class="dancer-arms"></div>
+<div class="dancer-legs"><div class="dancer-leg"></div><div class="dancer-leg"></div></div>
+</div>
+<div class="dancer yellow">
+<div class="dancer-head"></div>
+<div class="dancer-body"></div>
+<div class="dancer-arms"></div>
+<div class="dancer-legs"><div class="dancer-leg"></div><div class="dancer-leg"></div></div>
+</div>
+<div class="dancer green">
+<div class="dancer-head"></div>
+<div class="dancer-body"></div>
+<div class="dancer-arms"></div>
+<div class="dancer-legs"><div class="dancer-leg"></div><div class="dancer-leg"></div></div>
+</div>
+<div class="dancer purple">
+<div class="dancer-head"></div>
+<div class="dancer-body"></div>
+<div class="dancer-arms"></div>
+<div class="dancer-legs"><div class="dancer-leg"></div><div class="dancer-leg"></div></div>
+</div>
+<div class="dancer orange">
+<div class="dancer-head"></div>
+<div class="dancer-body"></div>
+<div class="dancer-arms"></div>
+<div class="dancer-legs"><div class="dancer-leg"></div><div class="dancer-leg"></div></div>
+</div>
+<div class="dancer cyan">
+<div class="dancer-head"></div>
+<div class="dancer-body"></div>
+<div class="dancer-arms"></div>
+<div class="dancer-legs"><div class="dancer-leg"></div><div class="dancer-leg"></div></div>
 </div>
 </div>
 </body>
