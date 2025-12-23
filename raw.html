@@ -309,10 +309,12 @@ let commandQueue = [];
 let lastCommands = [];
 
 // Load saved commands from localStorage
+let savedCommandsForReplay = [];
 try {
     const savedCommands = localStorage.getItem('marioParisCommands');
     if (savedCommands) {
         lastCommands = JSON.parse(savedCommands);
+        savedCommandsForReplay = [...lastCommands].reverse(); // Reverse to get oldest first for replay
         console.log('📂 Loaded', lastCommands.length, 'commands from localStorage');
     }
 } catch (e) {
@@ -461,6 +463,29 @@ if (lastCommands.length > 0) {
 
 // Try to connect to chat
 initChatControls();
+
+// Fallback: If no tpc available after 500ms, replay from localStorage
+setTimeout(() => {
+    if (!initialSyncDone && savedCommandsForReplay.length > 0) {
+        console.log('🔄 No Twitch chat detected, replaying from localStorage...');
+        initialSyncDone = true;
+        showSyncMessage(savedCommandsForReplay.length);
+        
+        // Queue commands for animated replay from localStorage
+        window.syncCommandQueue = savedCommandsForReplay.map((cmd, index) => ({
+            username: cmd.user,
+            action: cmd.action,
+            index: index
+        }));
+        
+        window.syncIndex = 0;
+        window.syncActive = true;
+        window.syncFrameCount = 0;
+        
+        console.log('🎬 Starting localStorage sync with', window.syncCommandQueue.length, 'commands...');
+    }
+}, 500);
+
 setInterval(() => {
     if (!window.tpc) return;
     if (!window.tpc.onChatMessage) initChatControls();
@@ -480,9 +505,11 @@ function processCommands() {
             // Show floating text for the command
             showSyncCommand(syncCmd.username, syncCmd.action);
             
-            if (syncCmd.action === 'JUMP' && mario.onGround) {
-                mario.vy = JUMP_FORCE;
-                mario.onGround = false;
+            if (syncCmd.action === 'JUMP' || syncCmd.action === 'UP') {
+                if (mario.onGround) {
+                    mario.vy = JUMP_FORCE;
+                    mario.onGround = false;
+                }
             }
             if (syncCmd.action === 'LEFT') {
                 mario.vx = -MOVE_SPEED * 1.5;
