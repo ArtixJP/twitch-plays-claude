@@ -157,7 +157,7 @@
 <div class="control-item"><span class="control-key">UP</span> Jump!</div>
 <div class="control-item"><span class="control-key">LEFT</span> Go left</div>
 <div class="control-item"><span class="control-key">RIGHT</span> Go right</div>
-<div style="margin-top:15px;font-size:0.75rem;color:#90EE90;text-align:center;font-weight:bold;animation:pulse 1.5s infinite;">🎮 100% CHAT CONTROLLED!<br/>No keyboard - ONLY chat!<br/>⬆️ Type UP/LEFT/RIGHT ⬆️</div>
+<div style="margin-top:15px;font-size:0.75rem;color:#90EE90;text-align:center;font-weight:bold;">🎮 100% CHAT CONTROLLED!<br/>Take your time! 🌿<br/>⬆️ Type UP/LEFT/RIGHT ⬆️</div>
 </div>
 <div class="chat-commands">
 <h4>💬 Recent Commands</h4>
@@ -314,20 +314,10 @@ function processCommands() {
     }
 }
 
-// AUTO-PLAY COMPLETELY REMOVED BY COMMUNITY REQUEST
-// Mario waits patiently for chat commands!
-let waitingMessageTimer = 0;
+// PEACEFUL MODE - Mario moves at his own pace!
+// No pressure, no rushing, just chill vibes 🌿
 function showWaitingMessage() {
-    waitingMessageTimer++;
-    if (waitingMessageTimer > 300 && commandQueue.length === 0 && lastCommands.length < 3) {
-        // Show a subtle hint after 5 seconds of no commands
-        if (!lastCommands.find(c => c.user === '💬 Hint')) {
-            lastCommands.unshift({ user: '💬 Hint', action: 'Type UP/LEFT/RIGHT!' });
-            if (lastCommands.length > 8) lastCommands.pop();
-            updateCommandLog();
-        }
-        waitingMessageTimer = 0;
-    }
+    // Removed hint timer - let players take their time!
 }
 
 // Physics update
@@ -526,8 +516,8 @@ function gameLoop() {
     // Show waiting hint if no commands for a while
     showWaitingMessage();
     
-    // Spawn baguettes periodically
-    if (gameTime % 180 === 0) {
+    // Spawn baguettes less often - let Mario move at his own pace!
+    if (gameTime % 400 === 0) {
         spawnBaguette();
     }
     
