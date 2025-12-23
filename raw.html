@@ -420,47 +420,24 @@ function initChatControls() {
             updateCommandLog();
             console.log('📋 Command log populated with', lastCommands.length, 'commands');
             
-            // Execute commands in order: oldest first (index 0 = oldest)
-            console.log('📜 Executing commands in order (oldest → newest):');
-            recentCommands.forEach((m, index) => {
+            // Execute commands in order with VISIBLE animation: oldest first (index 0 = oldest)
+            console.log('📜 Executing commands in order (oldest → newest) with animation:');
+            
+            // Queue commands for animated replay
+            window.syncCommandQueue = recentCommands.map((m, index) => {
                 const msg = m.message.toUpperCase().trim();
-                let action = '?';
-                
-                // Determine action type
-                if (msg.includes('UP') || msg.includes('JUMP') || msg.includes('SAUT')) {
-                    action = 'JUMP';
-                    // Simulate complete jump arc
-                    mario.vy = JUMP_FORCE;
-                    mario.onGround = false;
-                    for (let i = 0; i < 35; i++) {
-                        mario.vy += GRAVITY;
-                        mario.y += mario.vy;
-                        // Check all platforms
-                        for (const plat of platforms) {
-                            if (mario.x + mario.width > plat.x && 
-                                mario.x < plat.x + plat.width &&
-                                mario.y + mario.height > plat.y &&
-                                mario.y + mario.height < plat.y + plat.height + 10) {
-                                mario.y = plat.y - mario.height;
-                                mario.vy = 0;
-                                mario.onGround = true;
-                            }
-                        }
-                    }
-                }
-                if (msg.includes('LEFT') || msg.includes('GAUCHE')) {
-                    action = 'LEFT';
-                    mario.x -= MOVE_SPEED * 10;
-                    mario.direction = -1;
-                }
-                if (msg.includes('RIGHT') || msg.includes('DROITE')) {
-                    action = 'RIGHT';
-                    mario.x += MOVE_SPEED * 10;
-                    mario.direction = 1;
-                }
-                
-                console.log(`  ${index + 1}. [${m.username}] ${action} → Mario at (${mario.x.toFixed(0)}, ${mario.y.toFixed(0)})`);
-            });
+                let action = 'UNKNOWN';
+                if (msg.includes('UP') || msg.includes('JUMP') || msg.includes('SAUT')) action = 'JUMP';
+                else if (msg.includes('LEFT') || msg.includes('GAUCHE')) action = 'LEFT';
+                else if (msg.includes('RIGHT') || msg.includes('DROITE')) action = 'RIGHT';
+                return { username: m.username, action: action, index: index };
+            }).filter(c => c.action !== 'UNKNOWN');
+            
+            window.syncIndex = 0;
+            window.syncActive = true;
+            window.syncFrameCount = 0;
+            
+            console.log('🎬 Starting animated sync with', window.syncCommandQueue.length, 'commands...');
             
             // Clamp Mario to screen bounds after sync
             if (mario.x < 0) mario.x = 50;
@@ -491,6 +468,41 @@ setInterval(() => {
 
 // Process command queue
 function processCommands() {
+    // Handle animated sync replay first
+    if (window.syncActive && window.syncCommandQueue && window.syncCommandQueue.length > 0) {
+        window.syncFrameCount++;
+        
+        // Execute a command every 20 frames (visible movement)
+        if (window.syncFrameCount % 20 === 0 && window.syncIndex < window.syncCommandQueue.length) {
+            const syncCmd = window.syncCommandQueue[window.syncIndex];
+            console.log(`🎮 Sync ${window.syncIndex + 1}/${window.syncCommandQueue.length}: [${syncCmd.username}] ${syncCmd.action}`);
+            
+            // Show floating text for the command
+            showSyncCommand(syncCmd.username, syncCmd.action);
+            
+            if (syncCmd.action === 'JUMP' && mario.onGround) {
+                mario.vy = JUMP_FORCE;
+                mario.onGround = false;
+            }
+            if (syncCmd.action === 'LEFT') {
+                mario.vx = -MOVE_SPEED * 1.5;
+                mario.direction = -1;
+            }
+            if (syncCmd.action === 'RIGHT') {
+                mario.vx = MOVE_SPEED * 1.5;
+                mario.direction = 1;
+            }
+            
+            window.syncIndex++;
+            
+            if (window.syncIndex >= window.syncCommandQueue.length) {
+                window.syncActive = false;
+                console.log('✅ Sync animation complete! Mario is now at:', mario.x.toFixed(0), mario.y.toFixed(0));
+            }
+        }
+        return; // Don't process regular commands during sync
+    }
+    
     while (commandQueue.length > 0) {
         const cmd = commandQueue.shift();
         if (cmd.type === 'jump' && mario.onGround) {
@@ -505,6 +517,53 @@ function processCommands() {
             mario.vx = MOVE_SPEED;
             mario.direction = 1;
         }
+    }
+}
+
+// Floating command indicator during sync
+let syncFloaters = [];
+function showSyncCommand(username, action) {
+    const emoji = action === 'JUMP' ? '⬆️' : action === 'LEFT' ? '⬅️' : '➡️';
+    syncFloaters.push({
+        x: mario.x + mario.width/2,
+        y: mario.y - 20,
+        text: `${emoji} ${username}`,
+        life: 60,
+        vy: -1
+    });
+}
+
+function updateSyncFloaters() {
+    syncFloaters = syncFloaters.filter(f => {
+        f.y += f.vy;
+        f.life--;
+        return f.life > 0;
+    });
+}
+
+function drawSyncFloaters() {
+    ctx.font = 'bold 14px Arial';
+    ctx.textAlign = 'center';
+    syncFloaters.forEach(f => {
+        ctx.globalAlpha = f.life / 60;
+        ctx.fillStyle = '#ffd700';
+        ctx.fillText(f.text, f.x, f.y);
+    });
+    ctx.globalAlpha = 1;
+    ctx.textAlign = 'left';
+    
+    // Draw sync progress bar if active
+    if (window.syncActive && window.syncCommandQueue) {
+        const progress = window.syncIndex / window.syncCommandQueue.length;
+        ctx.fillStyle = 'rgba(0,0,0,0.7)';
+        ctx.fillRect(canvas.width/2 - 100, 10, 200, 25);
+        ctx.fillStyle = '#ffd700';
+        ctx.fillRect(canvas.width/2 - 98, 12, 196 * progress, 21);
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 12px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(`🔄 Syncing: ${window.syncIndex}/${window.syncCommandQueue.length}`, canvas.width/2, 27);
+        ctx.textAlign = 'left';
     }
 }
 
@@ -761,6 +820,9 @@ function gameLoop() {
     drawMysteryBlock();
     updateFireworks();
     drawFireworks();
+    
+    updateSyncFloaters();
+    drawSyncFloaters();
     
     requestAnimationFrame(gameLoop);
 }
