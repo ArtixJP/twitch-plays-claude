@@ -15,7 +15,7 @@
             align-items: center; 
             min-height: 100vh; 
             margin: 0;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 50%, #16213e 100%);
             color: white;
             overflow: hidden;
             position: relative;
@@ -143,13 +143,151 @@
             color: #bf94ff;
             margin-top: 0;
         }
+        .alice {
+            position: absolute;
+            font-size: 3.5rem;
+            animation: fall-spin 8s ease-in-out infinite;
+            filter: drop-shadow(0 0 15px rgba(135, 206, 250, 0.7));
+            z-index: 3;
+            left: 50%;
+        }
+        .alice::after {
+            content: '"Curiouser and curiouser!"';
+            position: absolute;
+            font-size: 0.7rem;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            color: #87CEEB;
+            font-style: italic;
+        }
+        @keyframes fall-spin {
+            0% { top: -10%; transform: translateX(-50%) rotate(0deg); }
+            25% { transform: translateX(-30%) rotate(90deg); }
+            50% { top: 80%; transform: translateX(-70%) rotate(180deg); }
+            75% { transform: translateX(-50%) rotate(270deg); }
+            100% { top: -10%; transform: translateX(-50%) rotate(360deg); }
+        }
+        .cheshire-cat {
+            position: absolute;
+            font-size: 4rem;
+            right: 15%;
+            top: 20%;
+            animation: cheshire-appear 6s ease-in-out infinite;
+            z-index: 2;
+        }
+        .cheshire-cat::before {
+            content: '😸';
+            position: absolute;
+            animation: grin 3s ease-in-out infinite;
+        }
+        @keyframes cheshire-appear {
+            0%, 100% { opacity: 1; filter: drop-shadow(0 0 20px rgba(255, 105, 180, 0.8)); }
+            40% { opacity: 0.3; filter: drop-shadow(0 0 5px rgba(255, 105, 180, 0.3)); }
+            50% { opacity: 0; }
+            60% { opacity: 0.3; }
+        }
+        @keyframes grin {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2) rotate(5deg); }
+        }
+        .playing-card {
+            position: absolute;
+            font-size: 2.5rem;
+            animation: card-float 10s linear infinite;
+            z-index: 1;
+        }
+        .card-1 { left: 10%; animation-delay: 0s; }
+        .card-2 { left: 30%; animation-delay: 2s; }
+        .card-3 { left: 70%; animation-delay: 4s; }
+        .card-4 { left: 85%; animation-delay: 6s; }
+        @keyframes card-float {
+            0% { top: -10%; transform: rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 110%; transform: rotate(720deg); opacity: 0; }
+        }
+        .mushroom {
+            position: absolute;
+            bottom: 5%;
+            font-size: 3rem;
+            animation: mushroom-pulse 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 10px rgba(255, 0, 128, 0.5));
+        }
+        .mushroom-1 { left: 5%; animation-delay: 0s; }
+        .mushroom-2 { left: 20%; animation-delay: 0.5s; font-size: 2rem; }
+        .mushroom-3 { right: 8%; animation-delay: 1s; }
+        .mushroom-4 { right: 22%; animation-delay: 1.5s; font-size: 2.5rem; }
+        @keyframes mushroom-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); filter: drop-shadow(0 0 20px rgba(255, 0, 128, 0.8)); }
+        }
+        .teacup {
+            position: absolute;
+            font-size: 2rem;
+            animation: teacup-spin 5s linear infinite;
+            z-index: 2;
+        }
+        .teacup-1 { top: 15%; left: 25%; }
+        .teacup-2 { top: 60%; right: 20%; animation-direction: reverse; }
+        @keyframes teacup-spin {
+            0% { transform: rotate(0deg) translateY(0); }
+            25% { transform: rotate(90deg) translateY(-10px); }
+            50% { transform: rotate(180deg) translateY(0); }
+            75% { transform: rotate(270deg) translateY(10px); }
+            100% { transform: rotate(360deg) translateY(0); }
+        }
+        .drink-me {
+            position: absolute;
+            bottom: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+            background: linear-gradient(180deg, #4a0080, #800040);
+            padding: 5px 15px;
+            border-radius: 20px 20px 5px 5px;
+            animation: bottle-glow 2s ease-in-out infinite alternate;
+            z-index: 5;
+            cursor: pointer;
+        }
+        .drink-me::after {
+            content: 'DRINK ME';
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.6rem;
+            background: #ffd700;
+            color: #000;
+            padding: 2px 8px;
+            border-radius: 3px;
+            white-space: nowrap;
+        }
+        @keyframes bottle-glow {
+            0% { box-shadow: 0 0 10px rgba(128, 0, 128, 0.5); }
+            100% { box-shadow: 0 0 30px rgba(128, 0, 128, 1), 0 0 60px rgba(255, 0, 128, 0.5); }
+        }
     </style>
 </head>
 <body>
 <div class="stars" id="stars"></div>
 <div class="space-cat">🐱🚀</div>
 <div class="white-rabbit">🐰</div>
-<h1>Hello World!</h1>
+<div class="alice">👧🏼👗</div>
+<div class="cheshire-cat"></div>
+<div class="playing-card card-1">🂡</div>
+<div class="playing-card card-2">🂱</div>
+<div class="playing-card card-3">🃁</div>
+<div class="playing-card card-4">🃑</div>
+<div class="mushroom mushroom-1">🍄</div>
+<div class="mushroom mushroom-2">🍄</div>
+<div class="mushroom mushroom-3">🍄</div>
+<div class="mushroom mushroom-4">🍄</div>
+<div class="teacup teacup-1">🫖☕</div>
+<div class="teacup teacup-2">☕🫖</div>
+<div class="drink-me">🧪</div>
+<h1>✨ Welcome to Wonderland! ✨</h1>
 <p class="instruction">
         Type <code>!idea &lt;your idea&gt;</code> in the Twitch chat to add to this page.<br/>
         Example: <code>!idea Add a space cat floating in the background</code>
