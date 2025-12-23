@@ -128,6 +128,10 @@
         0% { background: rgba(255, 215, 0, 0.5); }
         100% { background: rgba(255, 255, 255, 0.1); }
     }
+    @keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.8; transform: scale(1.02); }
+    }
     .game-info {
         margin-top: 15px;
         text-align: center;
@@ -153,15 +157,15 @@
 <div class="control-item"><span class="control-key">UP</span> Jump!</div>
 <div class="control-item"><span class="control-key">LEFT</span> Go left</div>
 <div class="control-item"><span class="control-key">RIGHT</span> Go right</div>
-<div style="margin-top:15px;font-size:0.75rem;color:#90EE90;text-align:center;font-weight:bold;">🎮 100% CHAT CONTROLLED!<br/>No auto-play - YOU decide!</div>
+<div style="margin-top:15px;font-size:0.75rem;color:#90EE90;text-align:center;font-weight:bold;animation:pulse 1.5s infinite;">🎮 100% CHAT CONTROLLED!<br/>No keyboard - ONLY chat!<br/>⬆️ Type UP/LEFT/RIGHT ⬆️</div>
 </div>
 <div class="chat-commands">
 <h4>💬 Recent Commands</h4>
 <div id="commandLog"></div>
 </div>
 <p class="game-info">
-    Type <code>UP</code>, <code>LEFT</code>, or <code>RIGHT</code> in chat to control Mario!<br/>
-    ⚡ Auto-play DISABLED - Chat has FULL control! ⚡
+    Type <code>UP</code>, <code>LEFT</code>, or <code>RIGHT</code> in Twitch chat to control Mario!<br/>
+    🚫 No keyboard • No auto-play • <span style="color:#ffd700;font-weight:bold;">CHAT ONLY!</span> 🎮
 </p>
 <script>
 // Game Setup
@@ -310,28 +314,19 @@ function processCommands() {
     }
 }
 
-// Auto-play mode (when no commands)
-let autoPlayTimer = 0;
-function autoPlay() {
-    autoPlayTimer++;
-    if (autoPlayTimer > 60) { // Every ~1 second
-        autoPlayTimer = 0;
-        const rand = Math.random();
-        if (rand < 0.3 && mario.onGround) {
-            mario.vy = JUMP_FORCE;
-            mario.onGround = false;
-            lastCommands.unshift({ user: '🤖 Auto', action: 'JUMP' });
-        } else if (rand < 0.5) {
-            mario.vx = -MOVE_SPEED;
-            mario.direction = -1;
-            lastCommands.unshift({ user: '🤖 Auto', action: 'LEFT' });
-        } else if (rand < 0.7) {
-            mario.vx = MOVE_SPEED;
-            mario.direction = 1;
-            lastCommands.unshift({ user: '🤖 Auto', action: 'RIGHT' });
+// AUTO-PLAY COMPLETELY REMOVED BY COMMUNITY REQUEST
+// Mario waits patiently for chat commands!
+let waitingMessageTimer = 0;
+function showWaitingMessage() {
+    waitingMessageTimer++;
+    if (waitingMessageTimer > 300 && commandQueue.length === 0 && lastCommands.length < 3) {
+        // Show a subtle hint after 5 seconds of no commands
+        if (!lastCommands.find(c => c.user === '💬 Hint')) {
+            lastCommands.unshift({ user: '💬 Hint', action: 'Type UP/LEFT/RIGHT!' });
+            if (lastCommands.length > 8) lastCommands.pop();
+            updateCommandLog();
         }
-        if (lastCommands.length > 8) lastCommands.pop();
-        updateCommandLog();
+        waitingMessageTimer = 0;
     }
 }
 
@@ -528,8 +523,8 @@ function gameLoop() {
     // Process chat commands
     processCommands();
     
-    // Auto-play DISABLED by community request
-    // Mario is now 100% chat-controlled!
+    // Show waiting hint if no commands for a while
+    showWaitingMessage();
     
     // Spawn baguettes periodically
     if (gameTime % 180 === 0) {
@@ -553,23 +548,10 @@ function gameLoop() {
 // Start game
 gameLoop();
 
-// Keyboard controls for testing
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowUp' || e.key === ' ') {
-        commandQueue.push({ type: 'jump' });
-        lastCommands.unshift({ user: '⌨️ Keyboard', action: 'JUMP' });
-    }
-    if (e.key === 'ArrowLeft') {
-        commandQueue.push({ type: 'left' });
-        lastCommands.unshift({ user: '⌨️ Keyboard', action: 'LEFT' });
-    }
-    if (e.key === 'ArrowRight') {
-        commandQueue.push({ type: 'right' });
-        lastCommands.unshift({ user: '⌨️ Keyboard', action: 'RIGHT' });
-    }
-    if (lastCommands.length > 8) lastCommands.pop();
-    updateCommandLog();
-});
+// KEYBOARD CONTROLS DISABLED BY COMMUNITY REQUEST
+// Mario is now 100% controlled by Twitch chat!
+// Type UP, LEFT, or RIGHT in chat to play!
+console.log('🎮 Chat-only mode active! Type commands in Twitch chat!');
 </script>
 </body>
 </html>
