@@ -383,6 +383,24 @@ function initChatControls() {
                 showSyncMessage(recentCommands.length);
             }
             
+            // First, populate the command log with the last 8 commands (BEFORE physics sync)
+            const displayCommands = recentCommands.slice(-8);
+            displayCommands.forEach(m => {
+                const msg = m.message.toUpperCase().trim();
+                let action = null;
+                if (msg.includes('UP') || msg.includes('JUMP') || msg.includes('SAUT')) action = 'JUMP';
+                else if (msg.includes('LEFT') || msg.includes('GAUCHE')) action = 'LEFT';
+                else if (msg.includes('RIGHT') || msg.includes('DROITE')) action = 'RIGHT';
+                
+                if (action) {
+                    lastCommands.push({ user: m.username, action: action });
+                }
+            });
+            // Reverse to show newest first, then trim to 8
+            lastCommands = lastCommands.slice(-8).reverse();
+            updateCommandLog();
+            console.log('📋 Command log populated with', lastCommands.length, 'commands');
+            
             // Rapidly apply all commands to sync Mario's position
             recentCommands.forEach(m => {
                 const msg = m.message.toUpperCase().trim();
@@ -418,11 +436,6 @@ function initChatControls() {
             if (mario.x < 0) mario.x = 50;
             if (mario.x > canvas.width - mario.width) mario.x = canvas.width - mario.width - 50;
             if (mario.y > GROUND_Y - mario.height) mario.y = GROUND_Y - mario.height;
-            
-            // Update command log with recent commands (show last 8)
-            recentCommands.slice(-8).forEach(m => {
-                processCommand(m.username, m.message);
-            });
             
             console.log('✅ Mario synced! Position:', mario.x.toFixed(0), mario.y.toFixed(0));
         }
