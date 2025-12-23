@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Mario à Paris! 🎮🗼</title>
+<title>Homer in Springfield! 🍩⚛️</title>
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { 
@@ -30,7 +30,7 @@
     }
     #gameCanvas {
         display: block;
-        background: linear-gradient(180deg, #87CEEB 0%, #E0F6FF 60%, #90EE90 60%, #228B22 100%);
+        background: linear-gradient(180deg, #FFE135 0%, #87CEEB 40%, #90EE90 70%, #228B22 100%);
     }
     .game-title {
         font-size: 2.5rem;
@@ -152,10 +152,10 @@
 </style>
 </head>
 <body>
-<h1 class="game-title">🍄 Mario à Paris! 🗼</h1>
+<h1 class="game-title">🍩 Homer in Springfield! ⚛️</h1>
 <div id="gameContainer">
 <canvas height="500" id="gameCanvas" width="900"></canvas>
-<div class="score-display">🥐 Score: <span id="score">0</span></div>
+<div class="score-display">🍩 Donuts: <span id="score">0</span></div>
 </div>
 <div class="controls-panel">
 <h3>🎮 Chat Controls</h3>
@@ -169,9 +169,9 @@
 <div id="commandLog"></div>
 </div>
 <p class="game-info">
-    Type <code>UP</code>, <code>LEFT</code>, or <code>RIGHT</code> in Twitch chat to control Mario!<br/>
-    🚫 No keyboard • No auto-play • <span style="color:#ffd700;font-weight:bold;">CHAT ONLY!</span> 🎮<br/>
-<span style="color:#90EE90;font-size:0.8rem;">🔄 Mario syncs with recent commands on page load!</span>
+    Type <code>UP</code>, <code>LEFT</code>, or <code>RIGHT</code> in Twitch chat to control Homer!<br/>
+    🚫 No keyboard • No auto-play • <span style="color:#ffd700;font-weight:bold;">CHAT ONLY!</span> 🍩<br/>
+<span style="color:#90EE90;font-size:0.8rem;">🔄 Homer syncs with recent commands on page load! D'OH!</span>
 </p>
 <script>
 // Game Setup
@@ -184,7 +184,7 @@ const commandLog = document.getElementById('commandLog');
 let score = 0;
 let gameTime = 0;
 
-// Mario
+// Homer Simpson!
 const mario = {
     x: 100,
     y: 350,
@@ -215,7 +215,7 @@ const platforms = [
     { x: 250, y: 140, width: 80, height: 20 }
 ];
 
-// Collectibles (croissants)
+// Collectibles (donuts - Homer's favorite!)
 let croissants = [];
 
 // Mystery Block (fireworks!)
@@ -301,8 +301,8 @@ function spawnCroissant() {
 // Initial spawns
 for (let i = 0; i < 5; i++) spawnCroissant();
 
-// Eiffel Tower background position
-const eiffel = { x: 750, y: 150 };
+// Springfield Nuclear Power Plant background position
+const powerPlant = { x: 720, y: 120 };
 
 // Command queue from chat
 let commandQueue = [];
@@ -691,8 +691,33 @@ function drawBackground() {
     ctx.fill();
     
     // Eiffel Tower (background)
-    ctx.font = '120px Arial';
-    ctx.fillText('🗼', eiffel.x, eiffel.y + 120);
+    // Draw Nuclear Power Plant cooling towers
+    ctx.fillStyle = '#808080';
+    // Left tower
+    ctx.beginPath();
+    ctx.moveTo(powerPlant.x, powerPlant.y + 180);
+    ctx.lineTo(powerPlant.x + 20, powerPlant.y);
+    ctx.lineTo(powerPlant.x + 60, powerPlant.y);
+    ctx.lineTo(powerPlant.x + 80, powerPlant.y + 180);
+    ctx.fill();
+    // Right tower
+    ctx.beginPath();
+    ctx.moveTo(powerPlant.x + 90, powerPlant.y + 180);
+    ctx.lineTo(powerPlant.x + 110, powerPlant.y + 20);
+    ctx.lineTo(powerPlant.x + 150, powerPlant.y + 20);
+    ctx.lineTo(powerPlant.x + 170, powerPlant.y + 180);
+    ctx.fill();
+    // Radioactive glow
+    ctx.fillStyle = '#39FF14';
+    ctx.globalAlpha = 0.5 + Math.sin(gameTime * 0.1) * 0.3;
+    ctx.beginPath();
+    ctx.arc(powerPlant.x + 40, powerPlant.y - 10, 15, 0, Math.PI * 2);
+    ctx.arc(powerPlant.x + 130, powerPlant.y + 10, 12, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    // ⚛️ symbol
+    ctx.font = '40px Arial';
+    ctx.fillText('⚛️', powerPlant.x + 60, powerPlant.y + 100);
 }
 
 function drawMysteryBlock() {
@@ -771,51 +796,90 @@ function drawMario() {
     ctx.translate(mario.x + mario.width / 2, mario.y + mario.height / 2);
     ctx.scale(mario.direction, 1);
     
-    // Body (red)
-    ctx.fillStyle = '#E74C3C';
-    ctx.fillRect(-15, -5, 30, 25);
+    // Homer's Body (white shirt)
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(-18, -5, 36, 30);
     
-    // Head (skin)
-    ctx.fillStyle = '#FDBF6F';
+    // Homer's big belly bulge
+    ctx.fillStyle = '#FFFFFF';
     ctx.beginPath();
-    ctx.arc(0, -15, 15, 0, Math.PI * 2);
+    ctx.ellipse(0, 15, 20, 15, 0, 0, Math.PI * 2);
     ctx.fill();
     
-    // Hat (red)
-    ctx.fillStyle = '#C0392B';
-    ctx.fillRect(-15, -28, 30, 10);
-    ctx.fillRect(-10, -32, 20, 5);
+    // Homer's Head (yellow Simpson skin!)
+    ctx.fillStyle = '#FFD90F';
+    ctx.beginPath();
+    ctx.ellipse(0, -18, 18, 20, 0, 0, Math.PI * 2);
+    ctx.fill();
     
-    // Mustache
-    ctx.fillStyle = '#4A3728';
-    ctx.fillRect(-8, -8, 16, 4);
+    // Homer's signature hair strands (just 2!)
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(-5, -38);
+    ctx.quadraticCurveTo(-3, -42, 0, -38);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(3, -38);
+    ctx.quadraticCurveTo(6, -43, 8, -38);
+    ctx.stroke();
     
-    // Eyes
+    // Homer's ear
+    ctx.fillStyle = '#FFD90F';
+    ctx.beginPath();
+    ctx.ellipse(16, -15, 5, 7, 0, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Homer's 5 o'clock shadow
+    ctx.fillStyle = 'rgba(100, 100, 100, 0.3)';
+    ctx.beginPath();
+    ctx.ellipse(0, -2, 12, 8, 0, 0, Math.PI);
+    ctx.fill();
+    
+    // Homer's big round eyes
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath();
+    ctx.arc(-6, -20, 8, 0, Math.PI * 2);
+    ctx.arc(6, -20, 8, 0, Math.PI * 2);
+    ctx.fill();
     ctx.fillStyle = '#000';
     ctx.beginPath();
-    ctx.arc(-5, -15, 2, 0, Math.PI * 2);
-    ctx.arc(5, -15, 2, 0, Math.PI * 2);
+    ctx.arc(-6, -19, 3, 0, Math.PI * 2);
+    ctx.arc(6, -19, 3, 0, Math.PI * 2);
     ctx.fill();
     
-    // Legs animation
-    const legOffset = mario.onGround ? Math.sin(gameTime * 0.3) * 5 : 5;
-    ctx.fillStyle = '#2E86AB';
-    ctx.fillRect(-12, 20, 10, 15);
-    ctx.fillRect(2 + legOffset, 20, 10, 15);
+    // Homer's nose
+    ctx.fillStyle = '#FFD90F';
+    ctx.beginPath();
+    ctx.ellipse(0, -12, 6, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
     
-    // Shoes
+    // Homer's mouth (open, drooling for donuts)
     ctx.fillStyle = '#8B4513';
-    ctx.fillRect(-14, 32, 12, 6);
-    ctx.fillRect(legOffset, 32, 12, 6);
+    ctx.beginPath();
+    ctx.ellipse(0, -3, 8, 4, 0, 0, Math.PI);
+    ctx.fill();
+    
+    // Blue pants
+    const legOffset = mario.onGround ? Math.sin(gameTime * 0.3) * 5 : 5;
+    ctx.fillStyle = '#2E5090';
+    ctx.fillRect(-15, 25, 14, 18);
+    ctx.fillRect(1 + legOffset, 25, 14, 18);
+    
+    // Gray shoes
+    ctx.fillStyle = '#555555';
+    ctx.fillRect(-17, 40, 16, 6);
+    ctx.fillRect(legOffset - 1, 40, 16, 6);
     
     ctx.restore();
 }
 
 function drawCroissants() {
-    ctx.font = '30px Arial';
+    ctx.font = '35px Arial';
     croissants.forEach(c => {
         if (!c.collected) {
-            ctx.fillText('🥐', c.x, c.y + 25);
+            // Pink frosted donut with sprinkles!
+            ctx.fillText('🍩', c.x, c.y + 28);
         }
     });
 }
@@ -860,7 +924,7 @@ gameLoop();
 // KEYBOARD CONTROLS DISABLED BY COMMUNITY REQUEST
 // Mario is now 100% controlled by Twitch chat!
 // Type UP, LEFT, or RIGHT in chat to play!
-console.log('🎮 Chat-only mode active! Type commands in Twitch chat!');
+console.log('🍩 Mmm... donuts! Chat-only mode active! Help Homer collect donuts!');
 </script>
 </body>
 </html>
