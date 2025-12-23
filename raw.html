@@ -498,8 +498,13 @@
         // Chat display integration
         const chatMessagesContainer = document.getElementById('chatMessages');
         const maxMessages = 15;
+        let chatConnected = false;
         
         function addChatMessage(msg) {
+            // Remove loading message if present
+            const loading = chatMessagesContainer.querySelector('.loading-msg');
+            if (loading) loading.remove();
+            
             const messageDiv = document.createElement('div');
             messageDiv.className = 'chat-message';
             messageDiv.innerHTML = `<span class="username">${msg.username}:</span><span class="text">${msg.message}</span>`;
@@ -514,15 +519,51 @@
             chatMessagesContainer.parentElement.scrollTop = chatMessagesContainer.parentElement.scrollHeight;
         }
         
-        // Load existing messages
-        if (window.tpc && window.tpc.chatMessages) {
-            window.tpc.chatMessages.slice(-maxMessages).forEach(addChatMessage);
+        function initChat() {
+            if (window.tpc) {
+                chatConnected = true;
+                
+                // Load existing messages
+                if (window.tpc.chatMessages && window.tpc.chatMessages.length > 0) {
+                    chatMessagesContainer.innerHTML = '';
+                    window.tpc.chatMessages.slice(-maxMessages).forEach(addChatMessage);
+                }
+                
+                // Listen for new messages
+                window.tpc.onChatMessage = addChatMessage;
+                
+                console.log('Chat connected!');
+            }
         }
         
-        // Listen for new messages
-        if (window.tpc) {
-            window.tpc.onChatMessage = addChatMessage;
-        }
+        // Show loading state
+        chatMessagesContainer.innerHTML = '<div class="loading-msg" style="color:#bf94ff;text-align:center;padding:20px;">🔄 Connecting to chat...</div>';
+        
+        // Try to connect immediately
+        initChat();
+        
+        // Retry connection every 2 seconds if not connected
+        const chatRetry = setInterval(() => {
+            if (!chatConnected && window.tpc) {
+                initChat();
+            }
+            if (chatConnected) {
+                clearInterval(chatRetry);
+            }
+        }, 2000);
+        
+        // Also refresh messages periodically to catch any missed ones
+        setInterval(() => {
+            if (window.tpc && window.tpc.chatMessages) {
+                const currentCount = chatMessagesContainer.querySelectorAll('.chat-message').length;
+                const newCount = window.tpc.chatMessages.length;
+                if (newCount > currentCount) {
+                    // New messages available, refresh
+                    chatMessagesContainer.innerHTML = '';
+                    window.tpc.chatMessages.slice(-maxMessages).forEach(addChatMessage);
+                }
+            }
+        }, 3000);
     </script>
 </body>
 </html>
