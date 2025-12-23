@@ -211,6 +211,76 @@ const platforms = [
 
 // Collectibles (croissants)
 let croissants = [];
+
+// Mystery Block (fireworks!)
+const mysteryBlock = {
+    x: 380,
+    y: 260,
+    width: 40,
+    height: 40,
+    active: true,
+    hitCooldown: 0
+};
+
+// Fireworks particles
+let fireworks = [];
+
+function createFirework(x, y) {
+    const colors = ['#ff0000', '#ffd700', '#00ff00', '#00bfff', '#ff69b4', '#ff8c00', '#9400d3'];
+    for (let i = 0; i < 50; i++) {
+        const angle = (Math.PI * 2 / 50) * i + Math.random() * 0.5;
+        const speed = 3 + Math.random() * 5;
+        fireworks.push({
+            x: x,
+            y: y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            life: 60 + Math.random() * 40,
+            size: 3 + Math.random() * 4
+        });
+    }
+    // Add sparkle burst
+    for (let i = 0; i < 20; i++) {
+        fireworks.push({
+            x: x,
+            y: y,
+            vx: (Math.random() - 0.5) * 10,
+            vy: (Math.random() - 0.5) * 10,
+            color: '#ffffff',
+            life: 30 + Math.random() * 20,
+            size: 2
+        });
+    }
+}
+
+function updateFireworks() {
+    fireworks = fireworks.filter(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.15; // gravity
+        p.life--;
+        p.size *= 0.98;
+        return p.life > 0 && p.size > 0.5;
+    });
+}
+
+function drawFireworks() {
+    fireworks.forEach(p => {
+        ctx.globalAlpha = p.life / 60;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+        // Trail effect
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = p.life / 120;
+        ctx.beginPath();
+        ctx.arc(p.x - p.vx, p.y - p.vy, p.size * 0.7, 0, Math.PI * 2);
+        ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+}
 function spawnCroissant() {
     const plat = platforms[Math.floor(Math.random() * (platforms.length - 1)) + 1];
     croissants.push({
@@ -353,6 +423,22 @@ function updatePhysics() {
         mario.vy = 0;
     }
     
+    // Mystery block collision (hit from below!)
+    if (mysteryBlock.hitCooldown > 0) mysteryBlock.hitCooldown--;
+    if (mysteryBlock.active && mysteryBlock.hitCooldown === 0 &&
+        mario.x + mario.width > mysteryBlock.x && mario.x < mysteryBlock.x + mysteryBlock.width &&
+        mario.y < mysteryBlock.y + mysteryBlock.height && mario.y > mysteryBlock.y &&
+        mario.vy < 0) {
+        // Hit the block from below!
+        mario.vy = 2; // Bounce down
+        createFirework(mysteryBlock.x + mysteryBlock.width/2, mysteryBlock.y - 50);
+        createFirework(mysteryBlock.x + mysteryBlock.width/2 - 30, mysteryBlock.y - 80);
+        createFirework(mysteryBlock.x + mysteryBlock.width/2 + 30, mysteryBlock.y - 80);
+        score += 50;
+        scoreEl.textContent = score;
+        mysteryBlock.hitCooldown = 120; // 2 second cooldown
+    }
+    
     // Collect croissants
     croissants.forEach((c, i) => {
         if (!c.collected &&
@@ -411,6 +497,49 @@ function drawBackground() {
     // Eiffel Tower (background)
     ctx.font = '120px Arial';
     ctx.fillText('🗼', eiffel.x, eiffel.y + 120);
+}
+
+function drawMysteryBlock() {
+    const b = mysteryBlock;
+    const bounce = mysteryBlock.hitCooldown > 100 ? Math.sin(mysteryBlock.hitCooldown * 0.5) * 5 : 0;
+    
+    // Block shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.fillRect(b.x + 4, b.y + 4 - bounce, b.width, b.height);
+    
+    // Main block (golden)
+    const goldGrad = ctx.createLinearGradient(b.x, b.y - bounce, b.x, b.y + b.height - bounce);
+    if (mysteryBlock.hitCooldown > 0) {
+        goldGrad.addColorStop(0, '#888');
+        goldGrad.addColorStop(0.5, '#666');
+        goldGrad.addColorStop(1, '#444');
+    } else {
+        goldGrad.addColorStop(0, '#ffd700');
+        goldGrad.addColorStop(0.5, '#ffed4a');
+        goldGrad.addColorStop(1, '#f59e0b');
+    }
+    ctx.fillStyle = goldGrad;
+    ctx.fillRect(b.x, b.y - bounce, b.width, b.height);
+    
+    // Border
+    ctx.strokeStyle = mysteryBlock.hitCooldown > 0 ? '#555' : '#b45309';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(b.x, b.y - bounce, b.width, b.height);
+    
+    // Question mark
+    ctx.fillStyle = mysteryBlock.hitCooldown > 0 ? '#444' : '#7c2d12';
+    ctx.font = 'bold 28px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('?', b.x + b.width/2, b.y + b.height - 10 - bounce);
+    ctx.textAlign = 'left';
+    
+    // Sparkle effect when active
+    if (mysteryBlock.hitCooldown === 0 && gameTime % 30 < 15) {
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(b.x + 8, b.y + 8, 3, 0, Math.PI * 2);
+        ctx.fill();
+    }
 }
 
 function drawPlatforms() {
@@ -531,6 +660,9 @@ function gameLoop() {
     drawCroissants();
     drawBaguettes();
     drawMario();
+    drawMysteryBlock();
+    updateFireworks();
+    drawFireworks();
     
     requestAnimationFrame(gameLoop);
 }
