@@ -153,7 +153,7 @@
 <div class="control-item"><span class="control-key">UP</span> Jump!</div>
 <div class="control-item"><span class="control-key">LEFT</span> Go left</div>
 <div class="control-item"><span class="control-key">RIGHT</span> Go right</div>
-<div style="margin-top:15px;font-size:0.75rem;color:#a0aec0;text-align:center;">Type in Twitch chat to control Mario!</div>
+<div style="margin-top:15px;font-size:0.75rem;color:#90EE90;text-align:center;font-weight:bold;">🎮 100% CHAT CONTROLLED!<br/>No auto-play - YOU decide!</div>
 </div>
 <div class="chat-commands">
 <h4>💬 Recent Commands</h4>
@@ -161,7 +161,7 @@
 </div>
 <p class="game-info">
     Type <code>UP</code>, <code>LEFT</code>, or <code>RIGHT</code> in chat to control Mario!<br/>
-    Collect 🥐 croissants and avoid 🥖 baguettes!
+    ⚡ Auto-play DISABLED - Chat has FULL control! ⚡
 </p>
 <script>
 // Game Setup
@@ -528,10 +528,8 @@ function gameLoop() {
     // Process chat commands
     processCommands();
     
-    // Auto-play if no recent commands
-    if (commandQueue.length === 0) {
-        autoPlay();
-    }
+    // Auto-play DISABLED by community request
+    // Mario is now 100% chat-controlled!
     
     // Spawn baguettes periodically
     if (gameTime % 180 === 0) {
