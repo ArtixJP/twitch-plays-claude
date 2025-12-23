@@ -161,15 +161,15 @@
 <div class="control-item"><span class="control-key">UP</span> Jump!</div>
 <div class="control-item"><span class="control-key">LEFT</span> Go left</div>
 <div class="control-item"><span class="control-key">RIGHT</span> Go right</div>
-<div style="margin-top:15px;font-size:0.75rem;color:#90EE90;text-align:center;font-weight:bold;">🎮 100% CHAT CONTROLLED!<br/>Take your time! 🌿<br/>⬆️ Type UP/LEFT/RIGHT ⬆️</div>
+<div style="margin-top:15px;font-size:0.75rem;color:#90EE90;text-align:center;font-weight:bold;">🎮 NOW PLAYABLE!<br/>⌨️ Arrow Keys / WASD<br/>💬 OR Chat Commands!</div>
 </div>
 <div class="chat-commands">
 <h4>💬 Recent Commands</h4>
 <div id="commandLog"></div>
 </div>
 <p class="game-info">
-    Type <code>UP</code>, <code>LEFT</code>, or <code>RIGHT</code> in Twitch chat to control Homer!<br/>
-    🚫 No keyboard • No auto-play • <span style="color:#ffd700;font-weight:bold;">CHAT ONLY!</span> 🍩<br/>
+    🎮 <span style="color:#ffd700;font-weight:bold;">HOMER IS PLAYABLE!</span> Use <code>Arrow Keys</code> / <code>WASD</code> or type commands in chat!<br/>
+    ⌨️ Keyboard + 💬 Chat both work! 🍩<br/>
 <span style="color:#90EE90;font-size:0.8rem;">🔄 Homer syncs with recent commands on page load! D'OH!</span>
 </p>
 <script>
@@ -1105,10 +1105,32 @@ function gameLoop() {
 // Start game
 gameLoop();
 
-// KEYBOARD CONTROLS DISABLED BY COMMUNITY REQUEST
-// Mario is now 100% controlled by Twitch chat!
-// Type UP, LEFT, or RIGHT in chat to play!
-console.log('🍩 Mmm... donuts! 🍫 Chocolate donuts worth +25! Chat-only mode active!');
+// KEYBOARD CONTROLS ENABLED - Homer is now fully playable!
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W' || e.key === ' ') {
+        if (mario.onGround) {
+            mario.vy = JUMP_FORCE;
+            mario.onGround = false;
+            // Homer says something!
+            homerSpeech.text = homerQuotes[Math.floor(Math.random() * homerQuotes.length)];
+            homerSpeech.timer = 90;
+            homerSpeech.active = true;
+        }
+        e.preventDefault();
+    }
+    if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        mario.vx = -MOVE_SPEED;
+        mario.direction = -1;
+        e.preventDefault();
+    }
+    if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        mario.vx = MOVE_SPEED;
+        mario.direction = 1;
+        e.preventDefault();
+    }
+});
+
+console.log('🍩 Homer is now PLAYABLE! Use Arrow Keys/WASD or Chat commands! 🎮');
 </script>
 </body>
 </html>
