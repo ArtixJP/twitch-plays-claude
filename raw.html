@@ -91,6 +91,33 @@
             0% { transform: rotate(-15deg); }
             100% { transform: rotate(15deg); }
         }
+        .french-dog {
+            position: absolute;
+            font-size: 3rem;
+            animation: dog-walk 12s linear infinite;
+            filter: drop-shadow(0 0 15px rgba(255, 182, 193, 0.7));
+            z-index: 2;
+        }
+        .french-dog::after {
+            content: '🦴';
+            position: absolute;
+            font-size: 1rem;
+            animation: bone-bounce 0.5s ease-in-out infinite alternate;
+        }
+        .corgi { animation-delay: 0s; }
+        .dachshund { animation-delay: 4s; }
+        .bulldog { animation-delay: 8s; }
+        @keyframes dog-walk {
+            0% { left: -10%; bottom: 8%; transform: scaleX(1); }
+            45% { left: 85%; bottom: 12%; transform: scaleX(1); }
+            50% { left: 90%; bottom: 10%; transform: scaleX(-1); }
+            95% { left: -5%; bottom: 8%; transform: scaleX(-1); }
+            100% { left: -10%; bottom: 8%; transform: scaleX(1); }
+        }
+        @keyframes bone-bounce {
+            0% { transform: translateY(0) rotate(-10deg); }
+            100% { transform: translateY(-5px) rotate(10deg); }
+        }
         .space-cat::after {
             content: '🥖';
             position: absolute;
@@ -383,7 +410,10 @@
 <h4>💬 Chat Parisien</h4>
 <div id="chatMessages"></div>
 </div>
-<div class="space-cat">🐩🎀</div>
+<div class="space-cat">🐕🎀</div>
+<div class="french-dog corgi">🐕‍🦺</div>
+<div class="french-dog dachshund">🦮</div>
+<div class="french-dog bulldog">🐶</div>
 <div class="white-rabbit">🥖</div>
 <div class="alice">👩🏻‍🎨🧣</div>
 <div class="cheshire-cat"></div>
@@ -399,7 +429,7 @@
 <div class="teacup teacup-1">🍷🧀</div>
 <div class="teacup teacup-2">🧀🍷</div>
 <div class="drink-me">🍾</div>
-<h1>✨ Bienvenue à Paris! ✨</h1>
+<h1>✨ Bienvenue à Paris! 🐕 ✨</h1>
 <p class="instruction">
         Type <code>!idea &lt;your idea&gt;</code> in the Twitch chat to add to this page.<br/>
         Example: <code>!idea Add a space cat floating in the background</code>
