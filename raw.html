@@ -152,7 +152,7 @@
 </style>
 </head>
 <body>
-<h1 class="game-title">🍩 Homer in Springfield! ⚛️💙</h1>
+<h1 class="game-title">🍩 Homer in Springfield! ⚛️🍺</h1>
 <div id="gameContainer">
 <canvas height="500" id="gameCanvas" width="900"></canvas>
 </div>
@@ -548,6 +548,13 @@ function processCommands() {
         if (cmd.type === 'jump' && mario.onGround) {
             mario.vy = JUMP_FORCE;
             mario.onGround = false;
+            // Homer says something on jump!
+            if (gameTime - lastJumpTime > 60) {
+                homerSpeech.text = homerQuotes[Math.floor(Math.random() * homerQuotes.length)];
+                homerSpeech.timer = 90;
+                homerSpeech.active = true;
+                lastJumpTime = gameTime;
+            }
         }
         if (cmd.type === 'left') {
             mario.vx = -MOVE_SPEED;
@@ -564,7 +571,9 @@ function processCommands() {
 let syncFloaters = [];
 
 // Homer speech bubble
-let homerSpeech = { text: "Remove what? D'OH!", timer: 180, active: true };
+let homerSpeech = { text: "Mmm... donuts!", timer: 180, active: true };
+let lastJumpTime = 0;
+const homerQuotes = ["D'OH!", "Mmm... donuts!", "Woohoo!", "Why you little--!", "Stupid gravity!", "Beer... need beer..."];
 
 function drawHomerSpeech() {
     if (homerSpeech.active && homerSpeech.timer > 0) {
@@ -794,6 +803,32 @@ function drawBackground() {
     // ⚛️ symbol
     ctx.font = '40px Arial';
     ctx.fillText('⚛️', powerPlant.x + 60, powerPlant.y + 100);
+    
+    // Moe's Tavern in background
+    ctx.fillStyle = '#4a3728';
+    ctx.fillRect(200, 300, 70, 100);
+    ctx.fillStyle = '#2d1f14';
+    ctx.fillRect(205, 280, 60, 25);
+    ctx.fillStyle = '#FFD700';
+    ctx.font = 'bold 9px Arial';
+    ctx.fillText("MOE'S", 215, 295);
+    // Neon sign flicker
+    if (gameTime % 60 < 45) {
+        ctx.fillStyle = '#ff6b6b';
+        ctx.font = '12px Arial';
+        ctx.fillText('🍺', 225, 340);
+    }
+    
+    // Kwik-E-Mart
+    ctx.fillStyle = '#32CD32';
+    ctx.fillRect(600, 310, 80, 90);
+    ctx.fillStyle = '#FF4500';
+    ctx.fillRect(605, 290, 70, 25);
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 8px Arial';
+    ctx.fillText('KWIK-E-MART', 610, 305);
+    ctx.font = '14px Arial';
+    ctx.fillText('🥤', 630, 350);
     
     // Chocolate factory in background
     ctx.fillStyle = '#5D3A1A';
