@@ -306,6 +306,58 @@
             80% { opacity: 1; }
             100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
         }
+        .chat-display {
+            position: fixed;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 280px;
+            max-height: 400px;
+            background: rgba(13, 27, 42, 0.85);
+            border: 2px solid rgba(255, 215, 0, 0.4);
+            border-radius: 15px;
+            padding: 15px;
+            overflow-y: auto;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 30px rgba(147, 112, 219, 0.3);
+        }
+        .chat-display::-webkit-scrollbar {
+            width: 6px;
+        }
+        .chat-display::-webkit-scrollbar-thumb {
+            background: rgba(255, 215, 0, 0.5);
+            border-radius: 3px;
+        }
+        .chat-display h4 {
+            margin: 0 0 10px 0;
+            color: #ffd700;
+            font-size: 1rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+            padding-bottom: 8px;
+        }
+        .chat-message {
+            margin-bottom: 8px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            animation: message-appear 0.3s ease-out;
+            font-size: 0.85rem;
+        }
+        .chat-message .username {
+            color: #bf94ff;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        .chat-message .text {
+            color: #e0e0e0;
+            word-wrap: break-word;
+        }
+        @keyframes message-appear {
+            0% { opacity: 0; transform: translateX(-20px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
         .eiffel-tower {
             position: absolute;
             font-size: 8rem;
@@ -327,6 +379,10 @@
 </head>
 <body>
 <div class="stars" id="stars"></div>
+<div class="chat-display" id="chatDisplay">
+<h4>💬 Chat Parisien</h4>
+<div id="chatMessages"></div>
+</div>
 <div class="space-cat">🐱🎨</div>
 <div class="white-rabbit">🥖</div>
 <div class="alice">👩🏻‍🎨🧣</div>
@@ -408,6 +464,35 @@
         setTimeout(() => {
             drinkMe.click();
         }, 5000);
+        
+        // Chat display integration
+        const chatMessagesContainer = document.getElementById('chatMessages');
+        const maxMessages = 15;
+        
+        function addChatMessage(msg) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chat-message';
+            messageDiv.innerHTML = `<span class="username">${msg.username}:</span><span class="text">${msg.message}</span>`;
+            chatMessagesContainer.appendChild(messageDiv);
+            
+            // Keep only last N messages
+            while (chatMessagesContainer.children.length > maxMessages) {
+                chatMessagesContainer.removeChild(chatMessagesContainer.firstChild);
+            }
+            
+            // Auto-scroll to bottom
+            chatMessagesContainer.parentElement.scrollTop = chatMessagesContainer.parentElement.scrollHeight;
+        }
+        
+        // Load existing messages
+        if (window.tpc && window.tpc.chatMessages) {
+            window.tpc.chatMessages.slice(-maxMessages).forEach(addChatMessage);
+        }
+        
+        // Listen for new messages
+        if (window.tpc) {
+            window.tpc.onChatMessage = addChatMessage;
+        }
     </script>
 </body>
 </html>
