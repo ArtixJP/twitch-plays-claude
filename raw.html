@@ -290,15 +290,7 @@ function spawnCroissant() {
     });
 }
 
-// Obstacles (baguettes)
-let baguettes = [];
-function spawnBaguette() {
-    baguettes.push({
-        x: 900,
-        y: GROUND_Y - 40,
-        vx: -3 - Math.random() * 2
-    });
-}
+// Obstacles removed by community - Mario roams free! 🌿
 
 // Initial spawns
 for (let i = 0; i < 5; i++) spawnCroissant();
@@ -454,21 +446,7 @@ function updatePhysics() {
         }
     });
     
-    // Update baguettes
-    baguettes.forEach((b, i) => {
-        b.x += b.vx;
-        if (b.x < -50) baguettes.splice(i, 1);
-        
-        // Collision with mario
-        if (mario.x < b.x + 40 && mario.x + mario.width > b.x &&
-            mario.y < b.y + 30 && mario.y + mario.height > b.y) {
-            // Bounce mario
-            mario.vy = JUMP_FORCE * 0.7;
-            mario.vx = -mario.direction * 8;
-            score = Math.max(0, score - 5);
-            scoreEl.textContent = score;
-        }
-    });
+    // No obstacles - pure exploration mode! 🎮
 }
 
 // Drawing
@@ -624,16 +602,7 @@ function drawCroissants() {
     });
 }
 
-function drawBaguettes() {
-    ctx.font = '35px Arial';
-    baguettes.forEach(b => {
-        ctx.save();
-        ctx.translate(b.x + 20, b.y + 15);
-        ctx.rotate(Math.sin(gameTime * 0.1) * 0.3);
-        ctx.fillText('🥖', -20, 15);
-        ctx.restore();
-    });
-}
+// Baguettes function removed - peaceful Paris! 🗼
 
 // Game loop
 function gameLoop() {
@@ -645,10 +614,7 @@ function gameLoop() {
     // Show waiting hint if no commands for a while
     showWaitingMessage();
     
-    // Spawn baguettes less often - let Mario move at his own pace!
-    if (gameTime % 400 === 0) {
-        spawnBaguette();
-    }
+    // Baguettes disabled by community request - peaceful mode! 🌿
     
     // Update physics
     updatePhysics();
@@ -658,7 +624,7 @@ function gameLoop() {
     drawBackground();
     drawPlatforms();
     drawCroissants();
-    drawBaguettes();
+    // Baguettes removed - no more obstacles! 🎮
     drawMario();
     drawMysteryBlock();
     updateFireworks();
