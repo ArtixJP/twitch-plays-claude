@@ -45,6 +45,52 @@
             filter: drop-shadow(0 0 20px rgba(147, 112, 219, 0.8));
             z-index: 1;
         }
+        .white-rabbit {
+            position: absolute;
+            font-size: 3rem;
+            animation: rabbit-hop 8s ease-in-out infinite, rabbit-run 12s linear infinite;
+            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.6));
+            z-index: 2;
+        }
+        .white-rabbit::before {
+            content: '⏰';
+            position: absolute;
+            font-size: 1.2rem;
+            top: -10px;
+            right: -15px;
+            animation: swing 0.5s ease-in-out infinite alternate;
+        }
+        .white-rabbit::after {
+            content: '"I\'m late!"';
+            position: absolute;
+            font-size: 0.8rem;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            color: #f0e6ff;
+            font-style: italic;
+            opacity: 0.8;
+        }
+        @keyframes rabbit-hop {
+            0%, 100% { transform: translateY(0) scaleX(1); }
+            15% { transform: translateY(-25px) scaleX(1); }
+            30% { transform: translateY(0) scaleX(1); }
+            45% { transform: translateY(-20px) scaleX(1); }
+            60% { transform: translateY(0) scaleX(1); }
+        }
+        @keyframes rabbit-run {
+            0% { right: -15%; bottom: 25%; }
+            25% { bottom: 45%; }
+            50% { right: 110%; bottom: 35%; }
+            50.1% { right: -15%; bottom: 55%; }
+            75% { bottom: 40%; }
+            100% { right: 110%; bottom: 50%; }
+        }
+        @keyframes swing {
+            0% { transform: rotate(-15deg); }
+            100% { transform: rotate(15deg); }
+        }
         .space-cat::after {
             content: '✨';
             position: absolute;
@@ -102,6 +148,7 @@
 <body>
 <div class="stars" id="stars"></div>
 <div class="space-cat">🐱🚀</div>
+<div class="white-rabbit">🐰</div>
 <h1>Hello World!</h1>
 <p class="instruction">
         Type <code>!idea &lt;your idea&gt;</code> in the Twitch chat to add to this page.<br/>
