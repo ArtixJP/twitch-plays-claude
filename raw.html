@@ -392,17 +392,18 @@ function initChatControls() {
                        msg.includes('RIGHT') || msg.includes('DROITE');
             });
             
-            // Get last 30 command messages for sync
-            const recentCommands = commandMessages.slice(-30);
+            // Get last 10 command messages for sync (oldest first for proper replay)
+            const recentCommands = commandMessages.slice(-10);
             
-            console.log('🔄 Syncing Mario with', recentCommands.length, 'recent commands from', allMessages.length, 'total messages...');
+            console.log('🔄 Syncing Mario with last', recentCommands.length, 'commands (oldest→newest) from', allMessages.length, 'total messages...');
             
             if (recentCommands.length > 0) {
                 showSyncMessage(recentCommands.length);
+                console.log('🎮 Replaying', recentCommands.length, 'commands oldest→newest for sync...');
             }
             
-            // First, populate the command log with the last 8 commands (BEFORE physics sync)
-            const displayCommands = recentCommands.slice(-8);
+            // First, populate the command log with the commands (BEFORE physics sync)
+            const displayCommands = recentCommands.slice(-8); // Show last 8 in log
             displayCommands.forEach(m => {
                 const msg = m.message.toUpperCase().trim();
                 let action = null;
@@ -419,35 +420,46 @@ function initChatControls() {
             updateCommandLog();
             console.log('📋 Command log populated with', lastCommands.length, 'commands');
             
-            // Rapidly apply all commands to sync Mario's position
-            recentCommands.forEach(m => {
+            // Execute commands in order: oldest first (index 0 = oldest)
+            console.log('📜 Executing commands in order (oldest → newest):');
+            recentCommands.forEach((m, index) => {
                 const msg = m.message.toUpperCase().trim();
+                let action = '?';
                 
-                // Direct physics application (no queue, instant sync)
+                // Determine action type
                 if (msg.includes('UP') || msg.includes('JUMP') || msg.includes('SAUT')) {
-                    if (mario.onGround) {
-                        mario.vy = JUMP_FORCE;
-                        mario.onGround = false;
-                    }
-                    // Simulate jump physics quickly
-                    for (let i = 0; i < 30; i++) {
+                    action = 'JUMP';
+                    // Simulate complete jump arc
+                    mario.vy = JUMP_FORCE;
+                    mario.onGround = false;
+                    for (let i = 0; i < 35; i++) {
                         mario.vy += GRAVITY;
                         mario.y += mario.vy;
-                        if (mario.y > GROUND_Y - mario.height) {
-                            mario.y = GROUND_Y - mario.height;
-                            mario.vy = 0;
-                            mario.onGround = true;
+                        // Check all platforms
+                        for (const plat of platforms) {
+                            if (mario.x + mario.width > plat.x && 
+                                mario.x < plat.x + plat.width &&
+                                mario.y + mario.height > plat.y &&
+                                mario.y + mario.height < plat.y + plat.height + 10) {
+                                mario.y = plat.y - mario.height;
+                                mario.vy = 0;
+                                mario.onGround = true;
+                            }
                         }
                     }
                 }
                 if (msg.includes('LEFT') || msg.includes('GAUCHE')) {
-                    mario.x -= MOVE_SPEED * 8; // Apply movement boost
+                    action = 'LEFT';
+                    mario.x -= MOVE_SPEED * 10;
                     mario.direction = -1;
                 }
                 if (msg.includes('RIGHT') || msg.includes('DROITE')) {
-                    mario.x += MOVE_SPEED * 8; // Apply movement boost
+                    action = 'RIGHT';
+                    mario.x += MOVE_SPEED * 10;
                     mario.direction = 1;
                 }
+                
+                console.log(`  ${index + 1}. [${m.username}] ${action} → Mario at (${mario.x.toFixed(0)}, ${mario.y.toFixed(0)})`);
             });
             
             // Clamp Mario to screen bounds after sync
