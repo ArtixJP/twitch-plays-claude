@@ -308,6 +308,17 @@ const eiffel = { x: 750, y: 150 };
 let commandQueue = [];
 let lastCommands = [];
 
+// Load saved commands from localStorage
+try {
+    const savedCommands = localStorage.getItem('marioParisCommands');
+    if (savedCommands) {
+        lastCommands = JSON.parse(savedCommands);
+        console.log('📂 Loaded', lastCommands.length, 'commands from localStorage');
+    }
+} catch (e) {
+    console.log('Could not load saved commands');
+}
+
 // Process chat messages for commands
 function processCommand(username, message) {
     const msg = message.toUpperCase().trim();
@@ -337,6 +348,13 @@ function updateCommandLog() {
     commandLog.innerHTML = lastCommands.map(c => 
         `<div class="chat-cmd"><span class="user">${c.user}:</span> <span class="action">${c.action}</span></div>`
     ).join('');
+    
+    // Save commands to localStorage for persistence
+    try {
+        localStorage.setItem('marioParisCommands', JSON.stringify(lastCommands));
+    } catch (e) {
+        console.log('Could not save commands');
+    }
 }
 
 // Chat integration
@@ -445,6 +463,11 @@ function initChatControls() {
         };
         console.log('Chat controls connected!');
     }
+}
+
+// Initialize command log from localStorage on page load
+if (lastCommands.length > 0) {
+    updateCommandLog();
 }
 
 // Try to connect to chat
