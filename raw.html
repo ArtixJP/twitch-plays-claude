@@ -151,7 +151,7 @@
     }
 </style>
 </head>
-<body>
+<body style="outline: none;" tabindex="0">
 <h1 class="game-title">🍩 Homer in Springfield! ⚛️🍺</h1>
 <div id="gameContainer">
 <canvas height="500" id="gameCanvas" width="900"></canvas>
@@ -1106,6 +1106,29 @@ function gameLoop() {
 // Start game
 gameLoop();
 
+// AUTO-FOCUS: Make sure keyboard works without console!
+// Focus the document body so keyboard events work immediately
+document.body.tabIndex = 0;
+document.body.focus();
+
+// Also focus when clicking anywhere on the page
+document.addEventListener('click', () => {
+    document.body.focus();
+});
+
+// Focus on page load/visibility change
+window.addEventListener('focus', () => {
+    document.body.focus();
+});
+
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+        document.body.focus();
+    }
+});
+
+console.log('🎮 Keyboard auto-focus enabled! Click anywhere if controls stop working.');
+
 // KEYBOARD CONTROLS ENABLED - Homer is now fully playable!
 document.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W' || e.key === ' ') {
@@ -1132,6 +1155,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 console.log('🍩 Homer is now PLAYABLE! Use Arrow Keys/WASD or Chat commands! 🎮');
+console.log('💡 TIP: If controls stop working, click on the game!');
 </script>
 </body>
 </html>
