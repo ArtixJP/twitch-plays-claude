@@ -128,6 +128,11 @@
         0% { background: rgba(255, 215, 0, 0.5); }
         100% { background: rgba(255, 255, 255, 0.1); }
     }
+    @keyframes syncPulse {
+        0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+        50% { transform: translate(-50%, -50%) scale(1.05); }
+        100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
     @keyframes pulse {
         0%, 100% { opacity: 1; transform: scale(1); }
         50% { opacity: 0.8; transform: scale(1.02); }
@@ -336,16 +341,47 @@ function updateCommandLog() {
 
 // Chat integration
 let initialSyncDone = false;
+let syncMessageShown = false;
+
+function showSyncMessage(count) {
+    if (syncMessageShown) return;
+    syncMessageShown = true;
+    const syncDiv = document.createElement('div');
+    syncDiv.id = 'syncNotification';
+    syncDiv.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.9);color:#ffd700;padding:20px 40px;border-radius:15px;border:3px solid #ffd700;font-size:1.2rem;text-align:center;z-index:1000;animation:syncPulse 0.5s ease;';
+    syncDiv.innerHTML = `🔄 Syncing with <span style="color:#90EE90;font-weight:bold;">${count}</span> recent commands...`;
+    document.getElementById('gameContainer').appendChild(syncDiv);
+    
+    setTimeout(() => {
+        syncDiv.innerHTML = `✅ Mario synced! <span style="color:#90EE90;">Ready to play!</span>`;
+        syncDiv.style.borderColor = '#90EE90';
+        setTimeout(() => syncDiv.remove(), 1500);
+    }, 800);
+}
 
 function initChatControls() {
     if (window.tpc) {
         // Process existing messages - apply them rapidly on first load!
         if (window.tpc.chatMessages && !initialSyncDone) {
             initialSyncDone = true;
-            console.log('🔄 Syncing Mario with', window.tpc.chatMessages.length, 'recent commands...');
             
-            // Get last 20 commands for sync
-            const recentCommands = window.tpc.chatMessages.slice(-20);
+            // Filter only command messages
+            const allMessages = window.tpc.chatMessages;
+            const commandMessages = allMessages.filter(m => {
+                const msg = m.message.toUpperCase();
+                return msg.includes('UP') || msg.includes('JUMP') || msg.includes('SAUT') ||
+                       msg.includes('LEFT') || msg.includes('GAUCHE') ||
+                       msg.includes('RIGHT') || msg.includes('DROITE');
+            });
+            
+            // Get last 30 command messages for sync
+            const recentCommands = commandMessages.slice(-30);
+            
+            console.log('🔄 Syncing Mario with', recentCommands.length, 'recent commands from', allMessages.length, 'total messages...');
+            
+            if (recentCommands.length > 0) {
+                showSyncMessage(recentCommands.length);
+            }
             
             // Rapidly apply all commands to sync Mario's position
             recentCommands.forEach(m => {
@@ -383,8 +419,8 @@ function initChatControls() {
             if (mario.x > canvas.width - mario.width) mario.x = canvas.width - mario.width - 50;
             if (mario.y > GROUND_Y - mario.height) mario.y = GROUND_Y - mario.height;
             
-            // Update command log with recent commands
-            recentCommands.slice(-5).forEach(m => {
+            // Update command log with recent commands (show last 8)
+            recentCommands.slice(-8).forEach(m => {
                 processCommand(m.username, m.message);
             });
             
