@@ -5,565 +5,573 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Bienvenue à Paris! ✨</title>
+<title>Mario à Paris! 🎮🗼</title>
 <style>
-        body { 
-            font-family: system-ui, sans-serif; 
-            display: flex; 
-            flex-direction: column;
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
-            margin: 0;
-            background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 50%, #2c3e50 100%);
-            color: white;
-            overflow: hidden;
-            position: relative;
-        }
-        h1 { font-size: 3rem; text-align: center; margin-bottom: 1rem; z-index: 10; }
-        .instruction {
-            text-align: center;
-            font-size: 1.2rem;
-            color: #a0aec0;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 0 20px;
-            line-height: 1.6;
-            z-index: 10;
-            position: relative;
-        }
-        .instruction code {
-            background: rgba(145, 71, 255, 0.2);
-            padding: 2px 8px;
-            border-radius: 4px;
-            color: #bf94ff;
-        }
-        .space-cat {
-            position: absolute;
-            font-size: 4rem;
-            animation: float 15s ease-in-out infinite, drift 20s linear infinite;
-            filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8));
-            z-index: 1;
-        }
-        .white-rabbit {
-            position: absolute;
-            font-size: 3rem;
-            animation: rabbit-hop 8s ease-in-out infinite, rabbit-run 12s linear infinite;
-            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.6));
-            z-index: 2;
-        }
-        .white-rabbit::before {
-            content: '⏰';
-            position: absolute;
-            font-size: 1.2rem;
-            top: -10px;
-            right: -15px;
-            animation: swing 0.5s ease-in-out infinite alternate;
-        }
-        .white-rabbit::after {
-            content: '"Ooh la la!"';
-            position: absolute;
-            font-size: 0.8rem;
-            bottom: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            white-space: nowrap;
-            color: #f0e6ff;
-            font-style: italic;
-            opacity: 0.8;
-        }
-        @keyframes rabbit-hop {
-            0%, 100% { transform: translateY(0) scaleX(1); }
-            15% { transform: translateY(-25px) scaleX(1); }
-            30% { transform: translateY(0) scaleX(1); }
-            45% { transform: translateY(-20px) scaleX(1); }
-            60% { transform: translateY(0) scaleX(1); }
-        }
-        @keyframes rabbit-run {
-            0% { right: -15%; bottom: 25%; }
-            25% { bottom: 45%; }
-            50% { right: 110%; bottom: 35%; }
-            50.1% { right: -15%; bottom: 55%; }
-            75% { bottom: 40%; }
-            100% { right: 110%; bottom: 50%; }
-        }
-        @keyframes swing {
-            0% { transform: rotate(-15deg); }
-            100% { transform: rotate(15deg); }
-        }
-        .french-dog {
-            position: absolute;
-            font-size: 3rem;
-            animation: dog-walk 12s linear infinite;
-            filter: drop-shadow(0 0 15px rgba(255, 182, 193, 0.7));
-            z-index: 2;
-        }
-        .french-dog::after {
-            content: '🦴';
-            position: absolute;
-            font-size: 1rem;
-            animation: bone-bounce 0.5s ease-in-out infinite alternate;
-        }
-        .corgi { animation-delay: 0s; }
-        .dachshund { animation-delay: 4s; }
-        .bulldog { animation-delay: 8s; }
-        @keyframes dog-walk {
-            0% { left: -10%; bottom: 8%; transform: scaleX(1); }
-            45% { left: 85%; bottom: 12%; transform: scaleX(1); }
-            50% { left: 90%; bottom: 10%; transform: scaleX(-1); }
-            95% { left: -5%; bottom: 8%; transform: scaleX(-1); }
-            100% { left: -10%; bottom: 8%; transform: scaleX(1); }
-        }
-        @keyframes bone-bounce {
-            0% { transform: translateY(0) rotate(-10deg); }
-            100% { transform: translateY(-5px) rotate(10deg); }
-        }
-        .space-cat::after {
-            content: '🥖';
-            position: absolute;
-            font-size: 1.5rem;
-            animation: sparkle 1s ease-in-out infinite;
-        }
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(-5deg); }
-            50% { transform: translateY(-30px) rotate(5deg); }
-        }
-        @keyframes drift {
-            0% { left: -10%; top: 30%; }
-            25% { top: 60%; }
-            50% { left: 90%; top: 40%; }
-            75% { top: 20%; }
-            100% { left: -10%; top: 30%; }
-        }
-        @keyframes sparkle {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(0.8); }
-        }
-        .stars {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
-        .star {
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-            animation: twinkle 2s ease-in-out infinite;
-        }
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 1; }
-        }
-        .help-box {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(147, 112, 219, 0.3);
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 20px;
-            backdrop-filter: blur(10px);
-            z-index: 10;
-            position: relative;
-        }
-        .help-box h3 {
-            color: #bf94ff;
-            margin-top: 0;
-        }
-        .alice {
-            position: absolute;
-            font-size: 3.5rem;
-            animation: fall-spin 8s ease-in-out infinite;
-            filter: drop-shadow(0 0 15px rgba(135, 206, 250, 0.7));
-            z-index: 3;
-            left: 50%;
-        }
-        .alice::after {
-            content: '"C\'est magnifique!"';
-            position: absolute;
-            font-size: 0.7rem;
-            bottom: -25px;
-            left: 50%;
-            transform: translateX(-50%);
-            white-space: nowrap;
-            color: #87CEEB;
-            font-style: italic;
-        }
-        @keyframes fall-spin {
-            0% { top: -10%; transform: translateX(-50%) rotate(0deg); }
-            25% { transform: translateX(-30%) rotate(90deg); }
-            50% { top: 80%; transform: translateX(-70%) rotate(180deg); }
-            75% { transform: translateX(-50%) rotate(270deg); }
-            100% { top: -10%; transform: translateX(-50%) rotate(360deg); }
-        }
-        .cheshire-cat {
-            position: absolute;
-            font-size: 4rem;
-            right: 15%;
-            top: 20%;
-            animation: cheshire-appear 6s ease-in-out infinite;
-            z-index: 2;
-        }
-        .cheshire-cat::before {
-            content: '😸';
-            position: absolute;
-            animation: grin 3s ease-in-out infinite;
-        }
-        @keyframes cheshire-appear {
-            0%, 100% { opacity: 1; filter: drop-shadow(0 0 20px rgba(255, 105, 180, 0.8)); }
-            40% { opacity: 0.3; filter: drop-shadow(0 0 5px rgba(255, 105, 180, 0.3)); }
-            50% { opacity: 0; }
-            60% { opacity: 0.3; }
-        }
-        @keyframes grin {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.2) rotate(5deg); }
-        }
-        .playing-card {
-            position: absolute;
-            font-size: 2.5rem;
-            animation: card-float 10s linear infinite;
-            z-index: 1;
-        }
-        .card-1 { left: 10%; animation-delay: 0s; }
-        .card-2 { left: 30%; animation-delay: 2s; }
-        .card-3 { left: 70%; animation-delay: 4s; }
-        .card-4 { left: 85%; animation-delay: 6s; }
-        @keyframes card-float {
-            0% { top: -10%; transform: rotate(0deg); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { top: 110%; transform: rotate(720deg); opacity: 0; }
-        }
-        .mushroom {
-            position: absolute;
-            bottom: 5%;
-            font-size: 3rem;
-            animation: mushroom-pulse 2s ease-in-out infinite;
-            filter: drop-shadow(0 0 10px rgba(255, 0, 128, 0.5));
-        }
-        .mushroom-1 { left: 5%; animation-delay: 0s; }
-        .mushroom-2 { left: 20%; animation-delay: 0.5s; font-size: 2rem; }
-        .mushroom-3 { right: 8%; animation-delay: 1s; }
-        .mushroom-4 { right: 22%; animation-delay: 1.5s; font-size: 2.5rem; }
-        @keyframes mushroom-pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); filter: drop-shadow(0 0 20px rgba(255, 0, 128, 0.8)); }
-        }
-        .teacup {
-            position: absolute;
-            font-size: 2rem;
-            animation: teacup-spin 5s linear infinite;
-            z-index: 2;
-        }
-        .teacup-1 { top: 15%; left: 25%; }
-        .teacup-2 { top: 60%; right: 20%; animation-direction: reverse; }
-        @keyframes teacup-spin {
-            0% { transform: rotate(0deg) translateY(0); }
-            25% { transform: rotate(90deg) translateY(-10px); }
-            50% { transform: rotate(180deg) translateY(0); }
-            75% { transform: rotate(270deg) translateY(10px); }
-            100% { transform: rotate(360deg) translateY(0); }
-        }
-        .drink-me {
-            position: absolute;
-            bottom: 15%;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 1.5rem;
-            background: linear-gradient(180deg, #4a0080, #800040);
-            padding: 5px 15px;
-            border-radius: 20px 20px 5px 5px;
-            animation: bottle-glow 2s ease-in-out infinite alternate;
-            z-index: 5;
-            cursor: pointer;
-        }
-        .drink-me::after {
-            content: 'CHAMPAGNE!';
-            position: absolute;
-            top: -25px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.6rem;
-            background: #ffd700;
-            color: #000;
-            padding: 2px 8px;
-            border-radius: 3px;
-            white-space: nowrap;
-        }
-        .drink-me:hover {
-            transform: translateX(-50%) scale(1.2);
-            transition: transform 0.3s ease;
-        }
-        @keyframes shrink-world {
-            0% { transform: scale(1); filter: hue-rotate(0deg); }
-            25% { transform: scale(0.5); filter: hue-rotate(90deg); }
-            50% { transform: scale(0.3); filter: hue-rotate(180deg) saturate(2); }
-            75% { transform: scale(0.5); filter: hue-rotate(270deg); }
-            100% { transform: scale(1); filter: hue-rotate(360deg); }
-        }
-        @keyframes grow-world {
-            0% { transform: scale(1); filter: hue-rotate(0deg); }
-            25% { transform: scale(1.5); filter: hue-rotate(-90deg); }
-            50% { transform: scale(2); filter: hue-rotate(-180deg) saturate(0.5); }
-            75% { transform: scale(1.5); filter: hue-rotate(-270deg); }
-            100% { transform: scale(1); filter: hue-rotate(-360deg); }
-        }
-        .shrinking {
-            animation: shrink-world 3s ease-in-out forwards;
-        }
-        .growing {
-            animation: grow-world 3s ease-in-out forwards;
-        }
-        .magic-text {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 3rem;
-            color: #ffd700;
-            text-shadow: 0 0 20px #ff00ff, 0 0 40px #00ffff;
-            z-index: 1000;
-            animation: magic-fade 3s ease-in-out forwards;
-            pointer-events: none;
-        }
-        @keyframes magic-fade {
-            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
-            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
-            80% { opacity: 1; }
-            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
-        }
-        .chat-display {
-            position: fixed;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 280px;
-            max-height: 400px;
-            background: rgba(13, 27, 42, 0.85);
-            border: 2px solid rgba(255, 215, 0, 0.4);
-            border-radius: 15px;
-            padding: 15px;
-            overflow-y: auto;
-            z-index: 100;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 0 30px rgba(147, 112, 219, 0.3);
-        }
-        .chat-display::-webkit-scrollbar {
-            width: 6px;
-        }
-        .chat-display::-webkit-scrollbar-thumb {
-            background: rgba(255, 215, 0, 0.5);
-            border-radius: 3px;
-        }
-        .chat-display h4 {
-            margin: 0 0 10px 0;
-            color: #ffd700;
-            font-size: 1rem;
-            text-align: center;
-            border-bottom: 1px solid rgba(255, 215, 0, 0.3);
-            padding-bottom: 8px;
-        }
-        .chat-message {
-            margin-bottom: 8px;
-            padding: 8px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            animation: message-appear 0.3s ease-out;
-            font-size: 0.85rem;
-        }
-        .chat-message .username {
-            color: #bf94ff;
-            font-weight: bold;
-            margin-right: 5px;
-        }
-        .chat-message .text {
-            color: #e0e0e0;
-            word-wrap: break-word;
-        }
-        @keyframes message-appear {
-            0% { opacity: 0; transform: translateX(-20px); }
-            100% { opacity: 1; transform: translateX(0); }
-        }
-        .eiffel-tower {
-            position: absolute;
-            font-size: 8rem;
-            bottom: 10%;
-            right: 10%;
-            animation: tower-glow 3s ease-in-out infinite alternate;
-            filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.8));
-            z-index: 1;
-        }
-        @keyframes tower-glow {
-            0% { filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.5)); transform: scale(1); }
-            100% { filter: drop-shadow(0 0 50px rgba(255, 215, 0, 1)); transform: scale(1.02); }
-        }
-        @keyframes bottle-glow {
-            0% { box-shadow: 0 0 10px rgba(128, 0, 128, 0.5); }
-            100% { box-shadow: 0 0 30px rgba(128, 0, 128, 1), 0 0 60px rgba(255, 0, 128, 0.5); }
-        }
-    </style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+        font-family: system-ui, sans-serif; 
+        display: flex; 
+        flex-direction: column;
+        justify-content: center; 
+        align-items: center; 
+        min-height: 100vh; 
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        color: white;
+        overflow: hidden;
+    }
+    #gameContainer {
+        position: relative;
+        width: 900px;
+        height: 500px;
+        border: 4px solid #ffd700;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 0 50px rgba(255, 215, 0, 0.3);
+    }
+    #gameCanvas {
+        display: block;
+        background: linear-gradient(180deg, #87CEEB 0%, #E0F6FF 60%, #90EE90 60%, #228B22 100%);
+    }
+    .game-title {
+        font-size: 2.5rem;
+        text-align: center;
+        margin-bottom: 15px;
+        text-shadow: 3px 3px 0 #ff6b6b, 6px 6px 0 rgba(0,0,0,0.3);
+        animation: title-bounce 1s ease-in-out infinite;
+    }
+    @keyframes title-bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+    }
+    .controls-panel {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(0, 0, 0, 0.8);
+        border: 2px solid #ffd700;
+        border-radius: 12px;
+        padding: 15px;
+        width: 200px;
+        z-index: 100;
+    }
+    .controls-panel h3 {
+        color: #ffd700;
+        font-size: 1rem;
+        margin-bottom: 10px;
+        text-align: center;
+        border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+        padding-bottom: 8px;
+    }
+    .control-item {
+        display: flex;
+        align-items: center;
+        margin: 8px 0;
+        font-size: 0.85rem;
+    }
+    .control-key {
+        background: linear-gradient(145deg, #e74c3c, #c0392b);
+        color: white;
+        padding: 4px 10px;
+        border-radius: 5px;
+        font-weight: bold;
+        margin-right: 10px;
+        min-width: 60px;
+        text-align: center;
+        box-shadow: 0 3px 0 #922b21;
+    }
+    .score-display {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 10px 20px;
+        border-radius: 10px;
+        border: 2px solid #ffd700;
+        font-size: 1.2rem;
+    }
+    .score-display span {
+        color: #ffd700;
+        font-weight: bold;
+    }
+    .chat-commands {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(0, 0, 0, 0.8);
+        border: 2px solid #bf94ff;
+        border-radius: 12px;
+        padding: 15px;
+        width: 220px;
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: 100;
+    }
+    .chat-commands h4 {
+        color: #bf94ff;
+        margin-bottom: 10px;
+        text-align: center;
+        font-size: 0.9rem;
+    }
+    .chat-cmd {
+        padding: 5px 8px;
+        margin: 4px 0;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 5px;
+        font-size: 0.75rem;
+        animation: cmd-flash 0.3s ease;
+    }
+    .chat-cmd .user { color: #ffd700; font-weight: bold; }
+    .chat-cmd .action { color: #90EE90; }
+    @keyframes cmd-flash {
+        0% { background: rgba(255, 215, 0, 0.5); }
+        100% { background: rgba(255, 255, 255, 0.1); }
+    }
+    .game-info {
+        margin-top: 15px;
+        text-align: center;
+        color: #a0aec0;
+        font-size: 0.9rem;
+    }
+    .game-info code {
+        background: rgba(145, 71, 255, 0.2);
+        padding: 2px 8px;
+        border-radius: 4px;
+        color: #bf94ff;
+    }
+</style>
 </head>
 <body>
-<div class="stars" id="stars"></div>
-<div class="chat-display" id="chatDisplay">
-<h4>💬 Chat Parisien</h4>
-<div id="chatMessages"></div>
+<h1 class="game-title">🍄 Mario à Paris! 🗼</h1>
+<div id="gameContainer">
+<canvas height="500" id="gameCanvas" width="900"></canvas>
+<div class="score-display">🥐 Score: <span id="score">0</span></div>
 </div>
-<div class="space-cat">🐕🎀</div>
-<div class="french-dog corgi">🐕‍🦺</div>
-<div class="french-dog dachshund">🦮</div>
-<div class="french-dog bulldog">🐶</div>
-<div class="white-rabbit">🥖</div>
-<div class="alice">👩🏻‍🎨🧣</div>
-<div class="cheshire-cat"></div>
-<div class="eiffel-tower">🗼</div>
-<div class="playing-card card-1">🗼</div>
-<div class="playing-card card-2">🎭</div>
-<div class="playing-card card-3">🎨</div>
-<div class="playing-card card-4">💐</div>
-<div class="mushroom mushroom-1">🥐</div>
-<div class="mushroom mushroom-2">🥐</div>
-<div class="mushroom mushroom-3">🥐</div>
-<div class="mushroom mushroom-4">🥐</div>
-<div class="teacup teacup-1">🍷🧀</div>
-<div class="teacup teacup-2">🧀🍷</div>
-<div class="drink-me">🍾</div>
-<h1>✨ Bienvenue à Paris! 🐕 ✨</h1>
-<p class="instruction">
-        Type <code>!idea &lt;your idea&gt;</code> in the Twitch chat to add to this page.<br/>
-        Example: <code>!idea Add a space cat floating in the background</code>
+<div class="controls-panel">
+<h3>🎮 Chat Controls</h3>
+<div class="control-item"><span class="control-key">UP</span> Jump!</div>
+<div class="control-item"><span class="control-key">LEFT</span> Go left</div>
+<div class="control-item"><span class="control-key">RIGHT</span> Go right</div>
+<div style="margin-top:15px;font-size:0.75rem;color:#a0aec0;text-align:center;">Type in Twitch chat to control Mario!</div>
+</div>
+<div class="chat-commands">
+<h4>💬 Recent Commands</h4>
+<div id="commandLog"></div>
+</div>
+<p class="game-info">
+    Type <code>UP</code>, <code>LEFT</code>, or <code>RIGHT</code> in chat to control Mario!<br/>
+    Collect 🥐 croissants and avoid 🥖 baguettes!
 </p>
-<div class="help-box">
-<h3>🗼 Quick Help</h3>
-<p style="margin: 0; color: #a0aec0;">This page evolves with YOUR ideas! The community shapes everything you see.<br/>Be creative, be weird, be wonderful! 🎨</p>
-</div>
 <script>
-        // Generate twinkling stars
-        const starsContainer = document.getElementById('stars');
-        for (let i = 0; i < 50; i++) {
-            const star = document.createElement('div');
-            star.className = 'star';
-            star.style.left = Math.random() * 100 + '%';
-            star.style.top = Math.random() * 100 + '%';
-            star.style.width = (Math.random() * 3 + 1) + 'px';
-            star.style.height = star.style.width;
-            star.style.animationDelay = Math.random() * 2 + 's';
-            starsContainer.appendChild(star);
+// Game Setup
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const scoreEl = document.getElementById('score');
+const commandLog = document.getElementById('commandLog');
+
+// Game State
+let score = 0;
+let gameTime = 0;
+
+// Mario
+const mario = {
+    x: 100,
+    y: 350,
+    width: 40,
+    height: 50,
+    vx: 0,
+    vy: 0,
+    onGround: false,
+    direction: 1,
+    frame: 0
+};
+
+// Physics
+const GRAVITY = 0.6;
+const JUMP_FORCE = -14;
+const MOVE_SPEED = 6;
+const FRICTION = 0.85;
+const GROUND_Y = 400;
+
+// Platforms
+const platforms = [
+    { x: 0, y: GROUND_Y, width: 900, height: 100 },
+    { x: 150, y: 320, width: 120, height: 20 },
+    { x: 350, y: 260, width: 150, height: 20 },
+    { x: 550, y: 320, width: 120, height: 20 },
+    { x: 700, y: 220, width: 100, height: 20 },
+    { x: 50, y: 180, width: 100, height: 20 },
+    { x: 250, y: 140, width: 80, height: 20 }
+];
+
+// Collectibles (croissants)
+let croissants = [];
+function spawnCroissant() {
+    const plat = platforms[Math.floor(Math.random() * (platforms.length - 1)) + 1];
+    croissants.push({
+        x: plat.x + Math.random() * (plat.width - 30),
+        y: plat.y - 35,
+        collected: false
+    });
+}
+
+// Obstacles (baguettes)
+let baguettes = [];
+function spawnBaguette() {
+    baguettes.push({
+        x: 900,
+        y: GROUND_Y - 40,
+        vx: -3 - Math.random() * 2
+    });
+}
+
+// Initial spawns
+for (let i = 0; i < 5; i++) spawnCroissant();
+
+// Eiffel Tower background position
+const eiffel = { x: 750, y: 150 };
+
+// Command queue from chat
+let commandQueue = [];
+let lastCommands = [];
+
+// Process chat messages for commands
+function processCommand(username, message) {
+    const msg = message.toUpperCase().trim();
+    let action = null;
+    
+    if (msg.includes('UP') || msg.includes('JUMP') || msg.includes('SAUT')) {
+        action = 'JUMP';
+        commandQueue.push({ type: 'jump' });
+    }
+    if (msg.includes('LEFT') || msg.includes('GAUCHE')) {
+        action = 'LEFT';
+        commandQueue.push({ type: 'left' });
+    }
+    if (msg.includes('RIGHT') || msg.includes('DROITE')) {
+        action = 'RIGHT';
+        commandQueue.push({ type: 'right' });
+    }
+    
+    if (action) {
+        lastCommands.unshift({ user: username, action: action });
+        if (lastCommands.length > 8) lastCommands.pop();
+        updateCommandLog();
+    }
+}
+
+function updateCommandLog() {
+    commandLog.innerHTML = lastCommands.map(c => 
+        `<div class="chat-cmd"><span class="user">${c.user}:</span> <span class="action">${c.action}</span></div>`
+    ).join('');
+}
+
+// Chat integration
+function initChatControls() {
+    if (window.tpc) {
+        // Process existing messages
+        if (window.tpc.chatMessages) {
+            window.tpc.chatMessages.slice(-5).forEach(m => {
+                processCommand(m.username, m.message);
+            });
         }
-        
-        // Drink Me magic!
-        let drinkState = 0; // 0 = normal, 1 = shrunk, 2 = grown
-        const drinkMe = document.querySelector('.drink-me');
-        
-        drinkMe.addEventListener('click', () => {
-            const body = document.body;
-            body.classList.remove('shrinking', 'growing');
-            
-            // Create magic text
-            const existingText = document.querySelector('.magic-text');
-            if (existingText) existingText.remove();
-            
-            const magicText = document.createElement('div');
-            magicText.className = 'magic-text';
-            
-            if (drinkState === 0) {
-                magicText.textContent = '🥐 Très petit... 🥐';
-                void body.offsetWidth; // Force reflow
-                body.classList.add('shrinking');
-                drinkState = 1;
-            } else if (drinkState === 1) {
-                magicText.textContent = '🥖 Très grand! 🥖';
-                void body.offsetWidth;
-                body.classList.add('growing');
-                drinkState = 2;
-            } else {
-                magicText.textContent = '✨ C\'est normal! ✨';
-                drinkState = 0;
-            }
-            
-            document.body.appendChild(magicText);
-            
+        // Listen for new messages
+        window.tpc.onChatMessage = (msg) => {
+            processCommand(msg.username, msg.message);
+        };
+        console.log('Chat controls connected!');
+    }
+}
+
+// Try to connect to chat
+initChatControls();
+setInterval(() => {
+    if (!window.tpc) return;
+    if (!window.tpc.onChatMessage) initChatControls();
+}, 1000);
+
+// Process command queue
+function processCommands() {
+    while (commandQueue.length > 0) {
+        const cmd = commandQueue.shift();
+        if (cmd.type === 'jump' && mario.onGround) {
+            mario.vy = JUMP_FORCE;
+            mario.onGround = false;
+        }
+        if (cmd.type === 'left') {
+            mario.vx = -MOVE_SPEED;
+            mario.direction = -1;
+        }
+        if (cmd.type === 'right') {
+            mario.vx = MOVE_SPEED;
+            mario.direction = 1;
+        }
+    }
+}
+
+// Auto-play mode (when no commands)
+let autoPlayTimer = 0;
+function autoPlay() {
+    autoPlayTimer++;
+    if (autoPlayTimer > 60) { // Every ~1 second
+        autoPlayTimer = 0;
+        const rand = Math.random();
+        if (rand < 0.3 && mario.onGround) {
+            mario.vy = JUMP_FORCE;
+            mario.onGround = false;
+            lastCommands.unshift({ user: '🤖 Auto', action: 'JUMP' });
+        } else if (rand < 0.5) {
+            mario.vx = -MOVE_SPEED;
+            mario.direction = -1;
+            lastCommands.unshift({ user: '🤖 Auto', action: 'LEFT' });
+        } else if (rand < 0.7) {
+            mario.vx = MOVE_SPEED;
+            mario.direction = 1;
+            lastCommands.unshift({ user: '🤖 Auto', action: 'RIGHT' });
+        }
+        if (lastCommands.length > 8) lastCommands.pop();
+        updateCommandLog();
+    }
+}
+
+// Physics update
+function updatePhysics() {
+    // Apply gravity
+    mario.vy += GRAVITY;
+    
+    // Apply friction
+    mario.vx *= FRICTION;
+    
+    // Update position
+    mario.x += mario.vx;
+    mario.y += mario.vy;
+    
+    // Platform collision
+    mario.onGround = false;
+    for (const plat of platforms) {
+        if (mario.x + mario.width > plat.x && 
+            mario.x < plat.x + plat.width &&
+            mario.y + mario.height > plat.y &&
+            mario.y + mario.height < plat.y + plat.height + mario.vy + 5) {
+            mario.y = plat.y - mario.height;
+            mario.vy = 0;
+            mario.onGround = true;
+        }
+    }
+    
+    // Screen bounds
+    if (mario.x < 0) mario.x = 0;
+    if (mario.x > canvas.width - mario.width) mario.x = canvas.width - mario.width;
+    if (mario.y > canvas.height) {
+        mario.y = 100;
+        mario.vy = 0;
+    }
+    
+    // Collect croissants
+    croissants.forEach((c, i) => {
+        if (!c.collected &&
+            mario.x < c.x + 30 && mario.x + mario.width > c.x &&
+            mario.y < c.y + 30 && mario.y + mario.height > c.y) {
+            c.collected = true;
+            score += 10;
+            scoreEl.textContent = score;
             setTimeout(() => {
-                magicText.remove();
-                body.classList.remove('shrinking', 'growing');
-            }, 3000);
-        });
-        
-        // Auto-click after 5 seconds for stream viewers
-        setTimeout(() => {
-            drinkMe.click();
-        }, 5000);
-        
-        // Chat display integration
-        const chatMessagesContainer = document.getElementById('chatMessages');
-        const maxMessages = 15;
-        let chatConnected = false;
-        
-        function addChatMessage(msg) {
-            // Remove loading message if present
-            const loading = chatMessagesContainer.querySelector('.loading-msg');
-            if (loading) loading.remove();
-            
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'chat-message';
-            messageDiv.innerHTML = `<span class="username">${msg.username}:</span><span class="text">${msg.message}</span>`;
-            chatMessagesContainer.appendChild(messageDiv);
-            
-            // Keep only last N messages
-            while (chatMessagesContainer.children.length > maxMessages) {
-                chatMessagesContainer.removeChild(chatMessagesContainer.firstChild);
-            }
-            
-            // Auto-scroll to bottom
-            chatMessagesContainer.parentElement.scrollTop = chatMessagesContainer.parentElement.scrollHeight;
+                croissants.splice(i, 1);
+                spawnCroissant();
+            }, 100);
         }
+    });
+    
+    // Update baguettes
+    baguettes.forEach((b, i) => {
+        b.x += b.vx;
+        if (b.x < -50) baguettes.splice(i, 1);
         
-        function initChat() {
-            if (window.tpc) {
-                chatConnected = true;
-                
-                // Load existing messages
-                if (window.tpc.chatMessages && window.tpc.chatMessages.length > 0) {
-                    chatMessagesContainer.innerHTML = '';
-                    window.tpc.chatMessages.slice(-maxMessages).forEach(addChatMessage);
-                }
-                
-                // Listen for new messages
-                window.tpc.onChatMessage = addChatMessage;
-                
-                console.log('Chat connected!');
+        // Collision with mario
+        if (mario.x < b.x + 40 && mario.x + mario.width > b.x &&
+            mario.y < b.y + 30 && mario.y + mario.height > b.y) {
+            // Bounce mario
+            mario.vy = JUMP_FORCE * 0.7;
+            mario.vx = -mario.direction * 8;
+            score = Math.max(0, score - 5);
+            scoreEl.textContent = score;
+        }
+    });
+}
+
+// Drawing
+function drawBackground() {
+    // Sky gradient
+    const skyGrad = ctx.createLinearGradient(0, 0, 0, GROUND_Y);
+    skyGrad.addColorStop(0, '#87CEEB');
+    skyGrad.addColorStop(1, '#E0F6FF');
+    ctx.fillStyle = skyGrad;
+    ctx.fillRect(0, 0, canvas.width, GROUND_Y);
+    
+    // Clouds
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    ctx.beginPath();
+    ctx.arc(100 + Math.sin(gameTime * 0.01) * 20, 80, 30, 0, Math.PI * 2);
+    ctx.arc(130 + Math.sin(gameTime * 0.01) * 20, 70, 40, 0, Math.PI * 2);
+    ctx.arc(160 + Math.sin(gameTime * 0.01) * 20, 80, 30, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.beginPath();
+    ctx.arc(500 + Math.sin(gameTime * 0.008) * 30, 60, 25, 0, Math.PI * 2);
+    ctx.arc(530 + Math.sin(gameTime * 0.008) * 30, 50, 35, 0, Math.PI * 2);
+    ctx.arc(560 + Math.sin(gameTime * 0.008) * 30, 60, 25, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Eiffel Tower (background)
+    ctx.font = '120px Arial';
+    ctx.fillText('🗼', eiffel.x, eiffel.y + 120);
+}
+
+function drawPlatforms() {
+    platforms.forEach((plat, i) => {
+        if (i === 0) {
+            // Ground - grass
+            ctx.fillStyle = '#228B22';
+            ctx.fillRect(plat.x, plat.y, plat.width, 20);
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(plat.x, plat.y + 20, plat.width, plat.height - 20);
+        } else {
+            // Floating platforms - brick style
+            ctx.fillStyle = '#CD853F';
+            ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+            ctx.strokeStyle = '#8B4513';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(plat.x, plat.y, plat.width, plat.height);
+            
+            // Brick lines
+            ctx.strokeStyle = '#A0522D';
+            for (let bx = plat.x + 20; bx < plat.x + plat.width; bx += 20) {
+                ctx.beginPath();
+                ctx.moveTo(bx, plat.y);
+                ctx.lineTo(bx, plat.y + plat.height);
+                ctx.stroke();
             }
         }
-        
-        // Show loading state
-        chatMessagesContainer.innerHTML = '<div class="loading-msg" style="color:#bf94ff;text-align:center;padding:20px;">🔄 Connecting to chat...</div>';
-        
-        // Try to connect immediately
-        initChat();
-        
-        // Retry connection every 2 seconds if not connected
-        const chatRetry = setInterval(() => {
-            if (!chatConnected && window.tpc) {
-                initChat();
-            }
-            if (chatConnected) {
-                clearInterval(chatRetry);
-            }
-        }, 2000);
-        
-        // Also refresh messages periodically to catch any missed ones
-        setInterval(() => {
-            if (window.tpc && window.tpc.chatMessages) {
-                const currentCount = chatMessagesContainer.querySelectorAll('.chat-message').length;
-                const newCount = window.tpc.chatMessages.length;
-                if (newCount > currentCount) {
-                    // New messages available, refresh
-                    chatMessagesContainer.innerHTML = '';
-                    window.tpc.chatMessages.slice(-maxMessages).forEach(addChatMessage);
-                }
-            }
-        }, 3000);
-    </script>
+    });
+}
+
+function drawMario() {
+    ctx.save();
+    ctx.translate(mario.x + mario.width / 2, mario.y + mario.height / 2);
+    ctx.scale(mario.direction, 1);
+    
+    // Body (red)
+    ctx.fillStyle = '#E74C3C';
+    ctx.fillRect(-15, -5, 30, 25);
+    
+    // Head (skin)
+    ctx.fillStyle = '#FDBF6F';
+    ctx.beginPath();
+    ctx.arc(0, -15, 15, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Hat (red)
+    ctx.fillStyle = '#C0392B';
+    ctx.fillRect(-15, -28, 30, 10);
+    ctx.fillRect(-10, -32, 20, 5);
+    
+    // Mustache
+    ctx.fillStyle = '#4A3728';
+    ctx.fillRect(-8, -8, 16, 4);
+    
+    // Eyes
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.arc(-5, -15, 2, 0, Math.PI * 2);
+    ctx.arc(5, -15, 2, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Legs animation
+    const legOffset = mario.onGround ? Math.sin(gameTime * 0.3) * 5 : 5;
+    ctx.fillStyle = '#2E86AB';
+    ctx.fillRect(-12, 20, 10, 15);
+    ctx.fillRect(2 + legOffset, 20, 10, 15);
+    
+    // Shoes
+    ctx.fillStyle = '#8B4513';
+    ctx.fillRect(-14, 32, 12, 6);
+    ctx.fillRect(legOffset, 32, 12, 6);
+    
+    ctx.restore();
+}
+
+function drawCroissants() {
+    ctx.font = '30px Arial';
+    croissants.forEach(c => {
+        if (!c.collected) {
+            ctx.fillText('🥐', c.x, c.y + 25);
+        }
+    });
+}
+
+function drawBaguettes() {
+    ctx.font = '35px Arial';
+    baguettes.forEach(b => {
+        ctx.save();
+        ctx.translate(b.x + 20, b.y + 15);
+        ctx.rotate(Math.sin(gameTime * 0.1) * 0.3);
+        ctx.fillText('🥖', -20, 15);
+        ctx.restore();
+    });
+}
+
+// Game loop
+function gameLoop() {
+    gameTime++;
+    
+    // Process chat commands
+    processCommands();
+    
+    // Auto-play if no recent commands
+    if (commandQueue.length === 0) {
+        autoPlay();
+    }
+    
+    // Spawn baguettes periodically
+    if (gameTime % 180 === 0) {
+        spawnBaguette();
+    }
+    
+    // Update physics
+    updatePhysics();
+    
+    // Clear and draw
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawBackground();
+    drawPlatforms();
+    drawCroissants();
+    drawBaguettes();
+    drawMario();
+    
+    requestAnimationFrame(gameLoop);
+}
+
+// Start game
+gameLoop();
+
+// Keyboard controls for testing
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowUp' || e.key === ' ') {
+        commandQueue.push({ type: 'jump' });
+        lastCommands.unshift({ user: '⌨️ Keyboard', action: 'JUMP' });
+    }
+    if (e.key === 'ArrowLeft') {
+        commandQueue.push({ type: 'left' });
+        lastCommands.unshift({ user: '⌨️ Keyboard', action: 'LEFT' });
+    }
+    if (e.key === 'ArrowRight') {
+        commandQueue.push({ type: 'right' });
+        lastCommands.unshift({ user: '⌨️ Keyboard', action: 'RIGHT' });
+    }
+    if (lastCommands.length > 8) lastCommands.pop();
+    updateCommandLog();
+});
+</script>
 </body>
 </html>
