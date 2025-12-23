@@ -562,6 +562,42 @@ function processCommands() {
 
 // Floating command indicator during sync
 let syncFloaters = [];
+
+// Homer speech bubble
+let homerSpeech = { text: "Remove what? D'OH!", timer: 180, active: true };
+
+function drawHomerSpeech() {
+    if (homerSpeech.active && homerSpeech.timer > 0) {
+        homerSpeech.timer--;
+        const alpha = Math.min(1, homerSpeech.timer / 30);
+        ctx.globalAlpha = alpha;
+        
+        // Speech bubble
+        const bubbleX = mario.x + mario.width + 10;
+        const bubbleY = mario.y - 40;
+        
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.ellipse(bubbleX + 60, bubbleY, 70, 25, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Bubble tail
+        ctx.beginPath();
+        ctx.moveTo(bubbleX + 10, bubbleY + 15);
+        ctx.lineTo(bubbleX - 5, bubbleY + 30);
+        ctx.lineTo(bubbleX + 25, bubbleY + 18);
+        ctx.fill();
+        
+        // Text
+        ctx.fillStyle = '#000';
+        ctx.font = 'bold 11px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(homerSpeech.text, bubbleX + 60, bubbleY + 4);
+        ctx.textAlign = 'left';
+        
+        ctx.globalAlpha = 1;
+    }
+}
 function showSyncCommand(username, action) {
     const emoji = action === 'JUMP' ? '⬆️' : action === 'LEFT' ? '⬅️' : '➡️';
     syncFloaters.push({
@@ -1021,6 +1057,7 @@ function gameLoop() {
     // Baguettes removed - no more obstacles! 🎮
     drawMario();
     drawMysteryBlock();
+    drawHomerSpeech();
     updateFireworks();
     drawFireworks();
     
