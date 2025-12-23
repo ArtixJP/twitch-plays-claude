@@ -264,6 +264,48 @@
             border-radius: 3px;
             white-space: nowrap;
         }
+        .drink-me:hover {
+            transform: translateX(-50%) scale(1.2);
+            transition: transform 0.3s ease;
+        }
+        @keyframes shrink-world {
+            0% { transform: scale(1); filter: hue-rotate(0deg); }
+            25% { transform: scale(0.5); filter: hue-rotate(90deg); }
+            50% { transform: scale(0.3); filter: hue-rotate(180deg) saturate(2); }
+            75% { transform: scale(0.5); filter: hue-rotate(270deg); }
+            100% { transform: scale(1); filter: hue-rotate(360deg); }
+        }
+        @keyframes grow-world {
+            0% { transform: scale(1); filter: hue-rotate(0deg); }
+            25% { transform: scale(1.5); filter: hue-rotate(-90deg); }
+            50% { transform: scale(2); filter: hue-rotate(-180deg) saturate(0.5); }
+            75% { transform: scale(1.5); filter: hue-rotate(-270deg); }
+            100% { transform: scale(1); filter: hue-rotate(-360deg); }
+        }
+        .shrinking {
+            animation: shrink-world 3s ease-in-out forwards;
+        }
+        .growing {
+            animation: grow-world 3s ease-in-out forwards;
+        }
+        .magic-text {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            color: #ffd700;
+            text-shadow: 0 0 20px #ff00ff, 0 0 40px #00ffff;
+            z-index: 1000;
+            animation: magic-fade 3s ease-in-out forwards;
+            pointer-events: none;
+        }
+        @keyframes magic-fade {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            80% { opacity: 1; }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+        }
         @keyframes bottle-glow {
             0% { box-shadow: 0 0 10px rgba(128, 0, 128, 0.5); }
             100% { box-shadow: 0 0 30px rgba(128, 0, 128, 1), 0 0 60px rgba(255, 0, 128, 0.5); }
@@ -309,6 +351,49 @@
             star.style.animationDelay = Math.random() * 2 + 's';
             starsContainer.appendChild(star);
         }
+        
+        // Drink Me magic!
+        let drinkState = 0; // 0 = normal, 1 = shrunk, 2 = grown
+        const drinkMe = document.querySelector('.drink-me');
+        
+        drinkMe.addEventListener('click', () => {
+            const body = document.body;
+            body.classList.remove('shrinking', 'growing');
+            
+            // Create magic text
+            const existingText = document.querySelector('.magic-text');
+            if (existingText) existingText.remove();
+            
+            const magicText = document.createElement('div');
+            magicText.className = 'magic-text';
+            
+            if (drinkState === 0) {
+                magicText.textContent = '🍄 Shrinking... 🍄';
+                void body.offsetWidth; // Force reflow
+                body.classList.add('shrinking');
+                drinkState = 1;
+            } else if (drinkState === 1) {
+                magicText.textContent = '🍰 EAT ME! Growing... 🍰';
+                void body.offsetWidth;
+                body.classList.add('growing');
+                drinkState = 2;
+            } else {
+                magicText.textContent = '✨ Back to normal! ✨';
+                drinkState = 0;
+            }
+            
+            document.body.appendChild(magicText);
+            
+            setTimeout(() => {
+                magicText.remove();
+                body.classList.remove('shrinking', 'growing');
+            }, 3000);
+        });
+        
+        // Auto-click after 5 seconds for stream viewers
+        setTimeout(() => {
+            drinkMe.click();
+        }, 5000);
     </script>
 </body>
 </html>
