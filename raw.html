@@ -165,7 +165,8 @@
 </div>
 <p class="game-info">
     Type <code>UP</code>, <code>LEFT</code>, or <code>RIGHT</code> in Twitch chat to control Mario!<br/>
-    🚫 No keyboard • No auto-play • <span style="color:#ffd700;font-weight:bold;">CHAT ONLY!</span> 🎮
+    🚫 No keyboard • No auto-play • <span style="color:#ffd700;font-weight:bold;">CHAT ONLY!</span> 🎮<br/>
+<span style="color:#90EE90;font-size:0.8rem;">🔄 Mario syncs with recent commands on page load!</span>
 </p>
 <script>
 // Game Setup
@@ -334,13 +335,60 @@ function updateCommandLog() {
 }
 
 // Chat integration
+let initialSyncDone = false;
+
 function initChatControls() {
     if (window.tpc) {
-        // Process existing messages
-        if (window.tpc.chatMessages) {
-            window.tpc.chatMessages.slice(-5).forEach(m => {
+        // Process existing messages - apply them rapidly on first load!
+        if (window.tpc.chatMessages && !initialSyncDone) {
+            initialSyncDone = true;
+            console.log('🔄 Syncing Mario with', window.tpc.chatMessages.length, 'recent commands...');
+            
+            // Get last 20 commands for sync
+            const recentCommands = window.tpc.chatMessages.slice(-20);
+            
+            // Rapidly apply all commands to sync Mario's position
+            recentCommands.forEach(m => {
+                const msg = m.message.toUpperCase().trim();
+                
+                // Direct physics application (no queue, instant sync)
+                if (msg.includes('UP') || msg.includes('JUMP') || msg.includes('SAUT')) {
+                    if (mario.onGround) {
+                        mario.vy = JUMP_FORCE;
+                        mario.onGround = false;
+                    }
+                    // Simulate jump physics quickly
+                    for (let i = 0; i < 30; i++) {
+                        mario.vy += GRAVITY;
+                        mario.y += mario.vy;
+                        if (mario.y > GROUND_Y - mario.height) {
+                            mario.y = GROUND_Y - mario.height;
+                            mario.vy = 0;
+                            mario.onGround = true;
+                        }
+                    }
+                }
+                if (msg.includes('LEFT') || msg.includes('GAUCHE')) {
+                    mario.x -= MOVE_SPEED * 8; // Apply movement boost
+                    mario.direction = -1;
+                }
+                if (msg.includes('RIGHT') || msg.includes('DROITE')) {
+                    mario.x += MOVE_SPEED * 8; // Apply movement boost
+                    mario.direction = 1;
+                }
+            });
+            
+            // Clamp Mario to screen bounds after sync
+            if (mario.x < 0) mario.x = 50;
+            if (mario.x > canvas.width - mario.width) mario.x = canvas.width - mario.width - 50;
+            if (mario.y > GROUND_Y - mario.height) mario.y = GROUND_Y - mario.height;
+            
+            // Update command log with recent commands
+            recentCommands.slice(-5).forEach(m => {
                 processCommand(m.username, m.message);
             });
+            
+            console.log('✅ Mario synced! Position:', mario.x.toFixed(0), mario.y.toFixed(0));
         }
         // Listen for new messages
         window.tpc.onChatMessage = (msg) => {
