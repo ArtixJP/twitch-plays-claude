@@ -7,6 +7,22 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Twitch plays Claude</title>
 <style>
+        .red-rectangle {
+            position: absolute;
+            left: 961px;
+            top: 418px;
+            width: 54px;
+            height: 66px;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+            animation: red-pulse 2s ease-in-out infinite;
+            animation-delay: 0.5s;
+        }
+        @keyframes red-pulse {
+            0%, 100% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.05); opacity: 1; }
+        }
         .green-rectangle {
             position: absolute;
             left: 365px;
@@ -53,6 +69,7 @@
 </head>
 <body>
 <div class="green-rectangle" title="The first shape!"></div>
+<div class="red-rectangle" title="A fiery red companion!"></div>
 <h1>Hello World!</h1>
 <p class="instruction">
         Type <code>!idea &lt;your idea&gt;</code> in the Twitch chat to add to this page.<br/>
