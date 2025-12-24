@@ -153,7 +153,18 @@
 <div id="score-display">🍩 Donuts: <span id="score">0</span> | 🍎 Apples: +3pts | High Score: <span id="high-score">0</span></div>
 <div style="font-size:0.9rem;color:#4CAF50;margin-top:5px;">🐍 Watch out for the rival snake!</div>
 </div>
-<div id="mode-indicator">🤖 AUTO-PLAY MODE</div>
+<div id="mode-indicator">💬 CHAT CONTROL MODE</div>
+<div id="chat-controls" style="position:absolute;top:50px;right:10px;background:rgba(0,0,0,0.8);padding:10px 15px;border-radius:8px;color:#fff;font-size:0.85rem;z-index:100;max-width:180px;">
+<div style="color:#bf94ff;font-weight:bold;margin-bottom:8px;">📺 CHAT COMMANDS:</div>
+<div style="color:#76FF03;">⬆️ up / w</div>
+<div style="color:#76FF03;">⬇️ down / s</div>
+<div style="color:#76FF03;">⬅️ left / a</div>
+<div style="color:#76FF03;">➡️ right / d</div>
+<div style="margin-top:10px;border-top:1px solid #444;padding-top:8px;">
+<div style="color:#FFD700;font-size:0.75rem;">Last command:</div>
+<div id="last-command" style="color:#00FFFF;font-weight:bold;">waiting...</div>
+</div>
+</div>
 <div id="game-wrapper">
 <canvas height="600" id="game-canvas" width="600"></canvas>
 </div>
@@ -162,7 +173,7 @@
 <p>Homer ate <span id="final-score">0</span> donuts!</p>
 <button id="restart-btn">🍩 TRY AGAIN</button>
 </div>
-<div id="instruction">Type <code>!idea &lt;your idea&gt;</code> to modify this world!</div>
+<div id="instruction">Type <code>up</code> <code>down</code> <code>left</code> <code>right</code> in chat to control Homer! | <code>!idea</code> to modify the world!</div>
 <div class="power-plant">☢️🏭</div>
 <div class="fountain" style="position:absolute;left:60px;top:150px;z-index:50;animation:fountainBubble 2s ease-in-out infinite;">
 <div style="font-size:3rem;text-align:center;filter:drop-shadow(2px 2px 0 #000);">⛲</div>
@@ -257,8 +268,10 @@
         let gameOver = false;
         let gameSpeed = 100;
         
-        // Auto-play AI state
-        let autoPlay = true;
+        // Chat control state
+        let autoPlay = false;
+        let chatControlled = true;
+        let lastCommandUser = '';
         
         // Create donut rain effect
         function createDonutRain() {
@@ -525,7 +538,8 @@
             if (gameOver) return;
             
             updateRivalSnake();
-            autoPlayAI();
+            // AI only runs if not chat controlled
+            if (autoPlay && !chatControlled) autoPlayAI();
             direction = nextDirection;
             
             const head = {x: snake[0].x + direction.x, y: snake[0].y + direction.y};
@@ -645,6 +659,58 @@
         
         spawnFood();
         spawnApple();
+        
+        // Chat control system
+        function processCommand(cmd, username) {
+            const command = cmd.toLowerCase().trim();
+            let moved = false;
+            
+            if ((command === 'up' || command === 'w') && direction.y !== 1) {
+                nextDirection = {x: 0, y: -1};
+                moved = true;
+            } else if ((command === 'down' || command === 's') && direction.y !== -1) {
+                nextDirection = {x: 0, y: 1};
+                moved = true;
+            } else if ((command === 'left' || command === 'a') && direction.x !== 1) {
+                nextDirection = {x: -1, y: 0};
+                moved = true;
+            } else if ((command === 'right' || command === 'd') && direction.x !== -1) {
+                nextDirection = {x: 1, y: 0};
+                moved = true;
+            }
+            
+            if (moved) {
+                lastCommandUser = username;
+                const lastCmdEl = document.getElementById('last-command');
+                if (lastCmdEl) {
+                    lastCmdEl.innerHTML = '<span style="color:#a78bfa;">' + username + '</span>: ' + command;
+                }
+            }
+        }
+        
+        // Listen for chat messages
+        if (window.tpc && window.tpc.chatMessages) {
+            window.tpc.onChatMessage = function(msg) {
+                if (chatControlled && !gameOver) {
+                    processCommand(msg.message, msg.username);
+                }
+            };
+            
+            // Also check existing messages periodically
+            let lastProcessedIndex = window.tpc.chatMessages.length;
+            setInterval(function() {
+                if (window.tpc.chatMessages.length > lastProcessedIndex) {
+                    for (let i = lastProcessedIndex; i < window.tpc.chatMessages.length; i++) {
+                        const msg = window.tpc.chatMessages[i];
+                        if (chatControlled && !gameOver) {
+                            processCommand(msg.message, msg.username);
+                        }
+                    }
+                    lastProcessedIndex = window.tpc.chatMessages.length;
+                }
+            }, 100);
+        }
+        
         gameLoop();
     </script>
 </body>
