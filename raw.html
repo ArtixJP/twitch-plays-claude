@@ -95,7 +95,7 @@
 <div class="floating-symbol" style="top: 15%; left: 45%; animation-delay: 1.5s;">🐱</div>
 <div class="floating-symbol" style="bottom: 10%; left: 30%; animation-delay: 2.5s;">🦴</div>
 <div class="floating-symbol" style="top: 50%; right: 5%; animation-delay: 3.5s;">🐶</div>
-<div class="floating-symbol ghost-cat" style="top: 25%; left: 8%; animation-delay: 2s; opacity: 0.15; font-size: 1.5rem;">👻🐱</div>
+<div class="floating-symbol ghost-cat-memory" style="top: 25%; left: 8%; animation: ghost-farewell 3s forwards; opacity: 0.15; font-size: 1.5rem;">💨✨</div>
 <div class="floating-dog" style="position: absolute; bottom: 40%; left: 50%; transform: translateX(-50%); animation: dog-float 4s ease-in-out infinite;">
 <svg height="180" style="filter: drop-shadow(0 0 20px rgba(255, 200, 100, 0.6));" viewbox="0 0 130 100" width="240">
 <style>
@@ -151,6 +151,11 @@
     }
     .ghost-cat {
         animation: ghost-drift 8s ease-in-out infinite !important;
+    }
+    @keyframes ghost-farewell {
+        0% { opacity: 0.15; transform: translateY(0) scale(1); filter: blur(0); }
+        50% { opacity: 0.3; transform: translateY(-20px) scale(1.2); filter: blur(2px); }
+        100% { opacity: 0; transform: translateY(-50px) scale(0.5); filter: blur(8px); }
     }
     @keyframes ghost-drift {
         0%, 100% { transform: translateY(0) translateX(0); opacity: 0.1; }
