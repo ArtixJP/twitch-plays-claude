@@ -153,7 +153,7 @@
 <div id="score-display">🍩 Donuts: <span id="score">0</span> | 🍎 Apples: +3pts | High Score: <span id="high-score">0</span></div>
 <div style="font-size:0.9rem;color:#4CAF50;margin-top:5px;">🐍 Watch out for the rival snake!</div>
 </div>
-<div id="mode-indicator">💬 CHAT CONTROL MODE</div>
+<div id="mode-indicator">💬 CHAT CONTROL <span style="font-size:0.8em;color:#FFD700;">⏳ connecting...</span></div>
 <div id="chat-controls" style="position:absolute;top:50px;right:10px;background:rgba(0,0,0,0.8);padding:10px 15px;border-radius:8px;color:#fff;font-size:0.85rem;z-index:100;max-width:180px;">
 <div style="color:#bf94ff;font-weight:bold;margin-bottom:8px;">📺 CHAT COMMANDS:</div>
 <div style="color:#76FF03;">⬆️ up / w</div>
@@ -162,7 +162,13 @@
 <div style="color:#76FF03;">➡️ right / d</div>
 <div style="margin-top:10px;border-top:1px solid #444;padding-top:8px;">
 <div style="color:#FFD700;font-size:0.75rem;">Last command:</div>
-<div id="last-command" style="color:#00FFFF;font-weight:bold;">waiting...</div>
+<div id="last-command" style="color:#00FFFF;font-weight:bold;transition:all 0.2s;">waiting...</div>
+<style>
+@keyframes cmdFlash {
+0% { background: rgba(118,255,3,0.5); transform: scale(1.1); }
+100% { background: transparent; transform: scale(1); }
+}
+</style>
 </div>
 </div>
 <div id="game-wrapper">
@@ -661,55 +667,104 @@
         spawnApple();
         
         // Chat control system
+        let commandCount = 0;
+        
         function processCommand(cmd, username) {
             const command = cmd.toLowerCase().trim();
             let moved = false;
+            let dirName = '';
             
             if ((command === 'up' || command === 'w') && direction.y !== 1) {
                 nextDirection = {x: 0, y: -1};
                 moved = true;
+                dirName = '⬆️ UP';
             } else if ((command === 'down' || command === 's') && direction.y !== -1) {
                 nextDirection = {x: 0, y: 1};
                 moved = true;
+                dirName = '⬇️ DOWN';
             } else if ((command === 'left' || command === 'a') && direction.x !== 1) {
                 nextDirection = {x: -1, y: 0};
                 moved = true;
+                dirName = '⬅️ LEFT';
             } else if ((command === 'right' || command === 'd') && direction.x !== -1) {
                 nextDirection = {x: 1, y: 0};
                 moved = true;
+                dirName = '➡️ RIGHT';
             }
             
             if (moved) {
+                commandCount++;
                 lastCommandUser = username;
                 const lastCmdEl = document.getElementById('last-command');
                 if (lastCmdEl) {
-                    lastCmdEl.innerHTML = '<span style="color:#a78bfa;">' + username + '</span>: ' + command;
+                    lastCmdEl.innerHTML = '<span style="color:#a78bfa;">' + username + '</span>: ' + dirName;
+                    lastCmdEl.style.animation = 'none';
+                    lastCmdEl.offsetHeight; // Trigger reflow
+                    lastCmdEl.style.animation = 'cmdFlash 0.3s ease';
                 }
+                // Update mode indicator to show it's working
+                const modeEl = document.getElementById('mode-indicator');
+                if (modeEl) {
+                    modeEl.innerHTML = '💬 CHAT CONTROL <span style="font-size:0.8em;color:#4CAF50;">(' + commandCount + ' cmds)</span>';
+                }
+                console.log('[CHAT CONTROL] ' + username + ' moved: ' + dirName);
             }
         }
         
-        // Listen for chat messages
-        if (window.tpc && window.tpc.chatMessages) {
+        // Enhanced chat message listener with better initialization
+        function initChatControl() {
+            console.log('[SNAKE] Initializing chat control...');
+            
+            // Check if tpc exists
+            if (typeof window.tpc === 'undefined') {
+                console.log('[SNAKE] window.tpc not found, retrying in 500ms...');
+                setTimeout(initChatControl, 500);
+                return;
+            }
+            
+            console.log('[SNAKE] window.tpc found! Setting up listeners...');
+            
+            // Set up the callback for new messages
             window.tpc.onChatMessage = function(msg) {
+                console.log('[SNAKE] New chat message:', msg.username, msg.message);
                 if (chatControlled && !gameOver) {
                     processCommand(msg.message, msg.username);
                 }
             };
             
-            // Also check existing messages periodically
-            let lastProcessedIndex = window.tpc.chatMessages.length;
+            // Process existing messages
+            let lastProcessedIndex = 0;
+            if (window.tpc.chatMessages && window.tpc.chatMessages.length > 0) {
+                lastProcessedIndex = window.tpc.chatMessages.length;
+                console.log('[SNAKE] Found ' + lastProcessedIndex + ' existing messages');
+            }
+            
+            // Poll for new messages as backup
             setInterval(function() {
+                if (!window.tpc || !window.tpc.chatMessages) return;
+                
                 if (window.tpc.chatMessages.length > lastProcessedIndex) {
                     for (let i = lastProcessedIndex; i < window.tpc.chatMessages.length; i++) {
                         const msg = window.tpc.chatMessages[i];
+                        console.log('[SNAKE] Processing polled message:', msg.username, msg.message);
                         if (chatControlled && !gameOver) {
                             processCommand(msg.message, msg.username);
                         }
                     }
                     lastProcessedIndex = window.tpc.chatMessages.length;
                 }
-            }, 100);
+            }, 50); // Faster polling for responsiveness
+            
+            // Visual confirmation
+            const modeEl = document.getElementById('mode-indicator');
+            if (modeEl) {
+                modeEl.innerHTML = '💬 CHAT CONTROL <span style="font-size:0.8em;color:#4CAF50;">✓ CONNECTED</span>';
+            }
+            console.log('[SNAKE] Chat control initialized successfully!');
         }
+        
+        // Start initialization
+        initChatControl();
         
         gameLoop();
     </script>
