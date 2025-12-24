@@ -5,1297 +5,702 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>🎨 Twitch Creates Together - The Living Canvas 🐍</title>
+<title>🎨 The Living Canvas - Create Together! ✨</title>
 <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Courier New', monospace; 
+        
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
             overflow: hidden;
-            background: linear-gradient(135deg, #5D8C3E 0%, #3B5323 50%, #8B4513 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
             min-height: 100vh;
         }
-        #game-wrapper {
+        
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        .main-container {
             position: relative;
+            z-index: 10;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
         }
-        #ui {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            z-index: 100;
-            color: white;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            animation: floatIn 1s ease-out;
         }
-        #ui h1 {
-            font-size: 1.8rem;
-            margin-bottom: 10px;
-            color: #FFEB3B;
-            text-shadow: 3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+        
+        @keyframes floatIn {
+            0% { opacity: 0; transform: translateY(-30px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
-        #score-display {
+        
+        .title {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 25%, #ffd700 50%, #4facfe 75%, #00f2fe 100%);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 5s ease infinite;
+            text-shadow: 0 0 30px rgba(240, 147, 251, 0.5);
+        }
+        
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        .subtitle {
+            color: #a78bfa;
             font-size: 1.2rem;
-            color: #76FF03;
-            text-shadow: 2px 2px 0 #000;
+            margin-top: 10px;
+            opacity: 0.9;
         }
-        #game-canvas {
-            border: 8px solid #8B4513;
-            border-radius: 10px;
-            box-shadow: 0 0 30px rgba(118, 255, 3, 0.5), inset 0 0 50px rgba(0,0,0,0.3);
-            background: #2d5016;
+        
+        .canvas-area {
+            position: relative;
+            width: 700px;
+            height: 450px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+            border-radius: 20px;
+            border: 3px solid rgba(167, 139, 250, 0.4);
+            box-shadow: 
+                0 0 40px rgba(147, 51, 234, 0.3),
+                inset 0 0 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            animation: canvasPulse 4s ease-in-out infinite;
         }
-        #mode-indicator {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(0,0,0,0.7);
-            padding: 10px 20px;
-            border-radius: 8px;
-            color: #76FF03;
-            font-size: 1rem;
+        
+        @keyframes canvasPulse {
+            0%, 100% { box-shadow: 0 0 40px rgba(147, 51, 234, 0.3), inset 0 0 60px rgba(0,0,0,0.3); }
+            50% { box-shadow: 0 0 60px rgba(147, 51, 234, 0.5), 0 0 100px rgba(79, 172, 254, 0.2), inset 0 0 60px rgba(0,0,0,0.3); }
+        }
+        
+        #creation-canvas {
+            width: 100%;
+            height: 100%;
+            cursor: crosshair;
+        }
+        
+        .toolbar {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            padding: 15px 25px;
+            background: rgba(0,0,0,0.4);
+            border-radius: 50px;
+            border: 2px solid rgba(167, 139, 250, 0.3);
+            animation: slideUp 0.8s ease-out 0.3s both;
+        }
+        
+        @keyframes slideUp {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        
+        .tool-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.1);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .tool-btn:hover {
+            transform: scale(1.15);
+            background: rgba(167, 139, 250, 0.3);
+            border-color: #a78bfa;
+            box-shadow: 0 0 20px rgba(167, 139, 250, 0.5);
+        }
+        
+        .tool-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #ffd700;
+            box-shadow: 0 0 25px rgba(102, 126, 234, 0.6);
+        }
+        
+        .stats-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, rgba(147, 51, 234, 0.9), rgba(79, 70, 229, 0.85));
+            padding: 15px 20px;
+            border-radius: 15px;
+            border: 2px solid #a78bfa;
+            box-shadow: 0 0 30px rgba(147, 51, 234, 0.4);
             z-index: 100;
-            animation: pulse 2s infinite;
+            animation: slideInRight 0.6s ease-out;
         }
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 10px #76FF03; }
-            50% { box-shadow: 0 0 25px #76FF03, 0 0 40px #4CAF50; }
+        
+        @keyframes slideInRight {
+            0% { opacity: 0; transform: translateX(50px); }
+            100% { opacity: 1; transform: translateX(0); }
         }
-        #instruction {
-            position: absolute;
+        
+        .stats-panel h3 {
+            color: #fbbf24;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .stat-item {
+            color: #fff;
+            font-size: 0.9rem;
+            margin: 5px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .stat-value {
+            color: #76FF03;
+            font-weight: 600;
+        }
+        
+        .chat-panel {
+            position: fixed;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 220px;
+            max-height: 350px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.85), rgba(30,0,60,0.8));
+            border: 2px solid #bf94ff;
+            border-radius: 15px;
+            padding: 15px;
+            z-index: 100;
+            overflow-y: auto;
+            animation: slideInLeft 0.6s ease-out;
+        }
+        
+        @keyframes slideInLeft {
+            0% { opacity: 0; transform: translate(-50px, -50%); }
+            100% { opacity: 1; transform: translate(0, -50%); }
+        }
+        
+        .chat-panel h3 {
+            color: #bf94ff;
+            font-size: 1rem;
+            text-align: center;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(191, 148, 255, 0.3);
+        }
+        
+        .chat-messages {
+            font-size: 0.8rem;
+        }
+        
+        .chat-msg {
+            background: rgba(255,255,255,0.05);
+            padding: 8px;
+            border-radius: 8px;
+            margin: 5px 0;
+            word-wrap: break-word;
+        }
+        
+        .chat-msg .username {
+            color: #a78bfa;
+            font-weight: 600;
+        }
+        
+        .chat-msg .message {
+            color: #ddd;
+        }
+        
+        .instructions {
+            position: fixed;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0,0,0,0.7);
-            padding: 8px 16px;
-            border-radius: 8px;
+            padding: 12px 25px;
+            border-radius: 25px;
+            border: 2px solid rgba(167, 139, 250, 0.4);
+            z-index: 100;
+            animation: fadeInUp 0.8s ease-out 0.5s both;
+        }
+        
+        @keyframes fadeInUp {
+            0% { opacity: 0; transform: translate(-50%, 20px); }
+            100% { opacity: 1; transform: translate(-50%, 0); }
+        }
+        
+        .instructions p {
             color: #a0aec0;
             font-size: 0.9rem;
-            z-index: 100;
-        }
-        #instruction code {
-            background: rgba(145, 71, 255, 0.3);
-            padding: 2px 6px;
-            border-radius: 4px;
-            color: #bf94ff;
-        }
-        #game-over {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.9);
-            padding: 30px 50px;
-            border-radius: 15px;
             text-align: center;
-            z-index: 200;
-            display: none;
-            border: 4px solid #E91E63;
-            box-shadow: 0 0 30px #E91E63;
         }
-        #game-over h2 {
-            color: #E91E63;
-            font-size: 2rem;
-            margin-bottom: 10px;
+        
+        .instructions code {
+            background: rgba(145, 71, 255, 0.3);
+            padding: 3px 8px;
+            border-radius: 5px;
+            color: #bf94ff;
+            font-family: monospace;
         }
-        #game-over p {
-            color: #FFEB3B;
-            font-size: 1.2rem;
-            margin-bottom: 20px;
-        }
-        #restart-btn {
-            background: linear-gradient(135deg, #76FF03, #4CAF50);
-            border: none;
-            padding: 12px 30px;
-            font-size: 1.1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            color: #000;
-            font-weight: bold;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        #restart-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 20px #76FF03;
-        }
-        .power-plant {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            font-size: 3rem;
-            opacity: 0.3;
-            animation: float 3s ease-in-out infinite;
-        }
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        .donut-rain {
+        
+        .floating-emoji {
             position: fixed;
             font-size: 2rem;
-            animation: fall linear infinite;
+            animation: floatAround 20s linear infinite;
             opacity: 0.6;
             pointer-events: none;
-            z-index: 1;
+            z-index: 5;
         }
-        @keyframes fall {
-            0% { transform: translateY(-100vh) rotate(0deg); }
-            100% { transform: translateY(100vh) rotate(720deg); }
+        
+        @keyframes floatAround {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(100px, -50px) rotate(90deg); }
+            50% { transform: translate(50px, 100px) rotate(180deg); }
+            75% { transform: translate(-50px, 50px) rotate(270deg); }
+            100% { transform: translate(0, 0) rotate(360deg); }
+        }
+        
+        .creation-counter {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 10px 25px;
+            border-radius: 25px;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            box-shadow: 0 0 30px rgba(240, 147, 251, 0.5);
+            animation: pulseGlow 2s ease-in-out infinite;
+            z-index: 100;
+        }
+        
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 30px rgba(240, 147, 251, 0.5); }
+            50% { box-shadow: 0 0 50px rgba(240, 147, 251, 0.8), 0 0 80px rgba(245, 87, 108, 0.4); }
+        }
+        
+        .welcome-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(147, 51, 234, 0.95) 0%, rgba(15, 12, 41, 0.98) 100%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: welcomeFade 4s ease forwards;
+        }
+        
+        @keyframes welcomeFade {
+            0%, 70% { opacity: 1; }
+            100% { opacity: 0; pointer-events: none; }
+        }
+        
+        .welcome-content {
+            text-align: center;
+            animation: welcomePop 0.8s ease-out;
+        }
+        
+        @keyframes welcomePop {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .welcome-emoji {
+            font-size: 5rem;
+            animation: bounce 1s ease infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .welcome-title {
+            font-size: 3rem;
+            color: white;
+            margin: 20px 0;
+            text-shadow: 0 0 30px rgba(255,255,255,0.5);
+        }
+        
+        .welcome-sub {
+            color: #fbbf24;
+            font-size: 1.3rem;
         }
     </style>
 </head>
 <body>
-<div id="ui">
-<h1>🎨 THE LIVING CANVAS 🐍</h1>
-<div id="score-display">✨ Creativity Points: <span id="score">0</span> | 🎨 Ideas: +3pts | 💡 Sparks: +2pts | Community Record: <span id="high-score">0</span></div>
-<div style="font-size:0.9rem;color:#4CAF50;margin-top:5px;">🌟 Guide the creative spirit through our shared world!</div>
-</div>
-<div id="mode-indicator" style="background:linear-gradient(135deg,rgba(118,255,3,0.3),rgba(0,0,0,0.8));border:2px solid #76FF03;font-size:1.1rem;">💬 CHAT CONTROL <span style="font-size:0.8em;color:#FFD700;">⏳ connecting...</span></div>
-<div id="chat-status" style="position:absolute;top:10px;right:200px;background:rgba(76,175,80,0.9);padding:8px 15px;border-radius:20px;color:white;font-size:0.9rem;z-index:100;animation:chatPulse 1.5s infinite;border:2px solid #2E7D32;box-shadow:0 0 15px rgba(76,175,80,0.6);">🎮 TYPE IN TWITCH CHAT!</div>
-<style>
-@keyframes chatPulse {
-    0%, 100% { transform: scale(1); box-shadow: 0 0 15px rgba(76,175,80,0.6); }
-    50% { transform: scale(1.05); box-shadow: 0 0 25px rgba(76,175,80,0.9); }
-}
-</style>
-<div id="chat-controls" style="position:absolute;top:50px;right:10px;background:linear-gradient(135deg,rgba(145,71,255,0.2),rgba(0,0,0,0.9));padding:10px 15px;border-radius:8px;color:#fff;font-size:0.85rem;z-index:100;max-width:180px;border:2px solid #bf94ff;box-shadow:0 0 15px rgba(145,71,255,0.5);">
-<div style="color:#bf94ff;font-weight:bold;margin-bottom:8px;animation:pulseText 2s infinite;font-size:1rem;">📺 CHAT CONTROLS HOMER!</div>
-<div style="color:#4CAF50;font-size:0.7rem;margin-bottom:5px;">✅ Commands active!</div>
-<style>@keyframes pulseText { 0%,100%{opacity:1;} 50%{opacity:0.7;} }</style>
-<div style="color:#76FF03;">⬆️ up / w</div>
-<div style="color:#76FF03;">⬇️ down / s</div>
-<div style="color:#76FF03;">⬅️ left / a</div>
-<div style="color:#76FF03;">➡️ right / d</div>
-<div style="margin-top:10px;border-top:1px solid #444;padding-top:8px;">
-<div style="color:#FFD700;font-size:0.75rem;">Last command:</div>
-<div id="last-command" style="color:#00FFFF;font-weight:bold;transition:all 0.2s;font-size:1.1rem;padding:5px;background:rgba(0,255,255,0.1);border-radius:4px;margin-top:5px;">waiting for chat...</div>
-<div style="margin-top:8px;border-top:1px solid #444;padding-top:8px;">
-<button id="test-chat-btn" style="background:linear-gradient(135deg,#4CAF50,#2E7D32);border:none;padding:6px 12px;border-radius:5px;color:white;cursor:pointer;font-size:0.8rem;width:100%;transition:all 0.2s;">🧪 Test Chat Control</button>
-<div id="debug-info" style="font-size:0.65rem;color:#888;margin-top:5px;">Debug: initializing...</div>
-</div>
-<style>
-@keyframes cmdFlash {
-0% { background: rgba(118,255,3,0.5); transform: scale(1.1); }
-100% { background: transparent; transform: scale(1); }
-}
-</style>
+
+<canvas id="particle-canvas"></canvas>
+
+<div class="welcome-overlay" id="welcome">
+<div class="welcome-content">
+<div class="welcome-emoji">🎨✨🌟</div>
+<h1 class="welcome-title">Welcome to The Living Canvas!</h1>
+<p class="welcome-sub">Where creativity flows together</p>
 </div>
 </div>
-<div id="game-wrapper">
-<canvas height="600" id="game-canvas" width="600"></canvas>
+
+<div class="floating-emoji" style="top: 10%; left: 5%;">🎨</div>
+<div class="floating-emoji" style="top: 70%; left: 8%; animation-delay: -5s;">✨</div>
+<div class="floating-emoji" style="top: 30%; right: 5%; animation-delay: -10s;">🌈</div>
+<div class="floating-emoji" style="top: 80%; right: 8%; animation-delay: -15s;">💫</div>
+
+<div class="creation-counter">
+        ✨ Creations: <span id="creation-count">0</span> | Collaborators: <span id="collab-count">∞</span>
 </div>
-<div id="game-over">
-<h2>D'OH! 💀</h2>
-<p>Homer ate <span id="final-score">0</span> donuts!</p>
-<button id="restart-btn">🍩 TRY AGAIN</button>
+
+<div class="stats-panel">
+<h3>📊 Canvas Stats</h3>
+<div class="stat-item">🎨 Strokes: <span class="stat-value" id="stroke-count">0</span></div>
+<div class="stat-item">🌈 Colors Used: <span class="stat-value" id="color-count">0</span></div>
+<div class="stat-item">⭐ Stars Added: <span class="stat-value" id="star-count">0</span></div>
+<div class="stat-item">💬 Chat Commands: <span class="stat-value" id="cmd-count">0</span></div>
 </div>
-<div id="instruction" style="animation:instructionPulse 3s infinite;font-size:1rem;padding:12px 20px;">🎮 Type <code>up</code> <code>down</code> <code>left</code> <code>right</code> to guide our creative spirit! 🎨<br/><span style="font-size:0.8rem;color:#76FF03;">✨ Together we create something amazing! ✨</span></div>
-<style>@keyframes instructionPulse { 0%,100%{box-shadow:0 0 10px rgba(191,148,255,0.5);} 50%{box-shadow:0 0 20px rgba(191,148,255,0.8);} }</style>
-<div id="welcome-banner" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1000;animation:welcomeIn 6s forwards;pointer-events:none;">
-<div style="background:linear-gradient(135deg,rgba(79,70,229,0.95),rgba(147,51,234,0.95),rgba(236,72,153,0.95));padding:40px 60px;border-radius:30px;border:5px solid rgba(255,255,255,0.3);box-shadow:0 0 60px rgba(147,51,234,0.8),0 0 100px rgba(236,72,153,0.5);text-align:center;">
-<div style="font-size:4rem;margin-bottom:15px;animation:iconDance 1s ease infinite;">🎨🌟🎭</div>
-<div style="color:#fff;font-size:2.5rem;font-weight:bold;text-shadow:3px 3px 0 rgba(0,0,0,0.5);margin-bottom:10px;">Welcome to the Living Canvas!</div>
-<div style="color:#fbbf24;font-size:1.3rem;margin-bottom:15px;">A collaborative creation by Twitch Chat</div>
-<div style="color:#a5f3fc;font-size:1rem;font-style:italic;">Guide the creative spirit • Request changes • Build together</div>
-<div style="margin-top:20px;display:flex;gap:15px;justify-content:center;">
-<span style="background:rgba(255,255,255,0.2);padding:8px 16px;border-radius:20px;color:#fff;">🎮 Control the game</span>
-<span style="background:rgba(255,255,255,0.2);padding:8px 16px;border-radius:20px;color:#fff;">💬 Chat requests</span>
-<span style="background:rgba(255,255,255,0.2);padding:8px 16px;border-radius:20px;color:#fff;">✨ Create magic</span>
+
+<div class="chat-panel">
+<h3>💬 Live Chat</h3>
+<div class="chat-messages" id="chat-messages">
+<div class="chat-msg">
+<span class="username">System:</span>
+<span class="message">Welcome! Type commands to create together!</span>
 </div>
 </div>
 </div>
-<style>
-@keyframes welcomeIn {
-0% { opacity:0; transform:translate(-50%,-50%) scale(0.3) rotate(-10deg); }
-15% { opacity:1; transform:translate(-50%,-50%) scale(1.05) rotate(2deg); }
-25% { transform:translate(-50%,-50%) scale(1) rotate(0deg); }
-75% { opacity:1; transform:translate(-50%,-50%) scale(1); }
-100% { opacity:0; transform:translate(-50%,-50%) scale(0.9) translateY(-30px); pointer-events:none; }
-}
-@keyframes iconDance {
-0%,100% { transform:rotate(-5deg) scale(1); }
-50% { transform:rotate(5deg) scale(1.1); }
-}
-</style>
-<script>
-setTimeout(function() {
-var welcomeEl = document.getElementById('welcome-banner');
-if (welcomeEl) welcomeEl.remove();
-}, 6500);
-</script>
-<div class="power-plant" style="animation:float 3s ease-in-out infinite;">🎭🎪</div>
-<div id="test4-badge" style="position:absolute;top:220px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,rgba(255,0,150,0.95),rgba(150,0,255,0.9));padding:18px 35px;border-radius:30px;border:5px solid #FF69B4;box-shadow:0 0 50px rgba(255,0,150,0.7),0 0 100px rgba(150,0,255,0.4);z-index:250;animation:test4Entry 1s ease-out,test4Float 3s ease-in-out infinite 1s;">
-<div style="display:flex;align-items:center;gap:25px;">
-<div style="font-size:3.5rem;animation:test4Spin 1.2s ease-in-out infinite;">🧪</div>
-<div>
-<div style="color:#fff;font-weight:bold;font-size:1.8rem;text-shadow:3px 3px 0 #000;">TEST 4.0</div>
-<div style="color:#FFD700;font-size:0.9rem;font-style:italic;">"Quad test? That's unpossible!" - Ralph</div>
+
+<div class="main-container">
+<div class="header">
+<h1 class="title">🎨 The Living Canvas ✨</h1>
+<p class="subtitle">Create something interesting together!</p>
 </div>
-<div style="font-size:3.5rem;animation:test4Bounce 0.6s ease infinite;">✅✅✅✅</div>
+<div class="canvas-area">
+<canvas id="creation-canvas"></canvas>
 </div>
-<div style="margin-top:12px;text-align:center;">
-<div style="background:rgba(0,0,0,0.5);padding:10px 25px;border-radius:20px;color:#FF69B4;font-size:1rem;animation:test4Pulse 0.8s infinite;">🎮 QUADRUPLE TEST COMPLETE! 🎮</div>
-<div style="color:#FFD700;font-size:0.8rem;margin-top:8px;">🍩 Test 1 ➜ Test 2 ➜ Test 3 ➜ Test 4 = LEGENDARY 🍩</div>
-<div style="color:#76FF03;font-size:0.7rem;margin-top:5px;animation:rainbowText 2s infinite;">★ ACHIEVEMENT UNLOCKED: QUAD TESTER ★</div>
+<div class="toolbar">
+<button class="tool-btn active" data-tool="brush" title="Brush">🖌️</button>
+<button class="tool-btn" data-tool="star" title="Add Stars">⭐</button>
+<button class="tool-btn" data-tool="heart" title="Add Hearts">💖</button>
+<button class="tool-btn" data-tool="sparkle" title="Sparkles">✨</button>
+<button class="tool-btn" data-tool="rainbow" title="Rainbow Mode">🌈</button>
+<button class="tool-btn" data-tool="clear" title="Clear Canvas">🗑️</button>
 </div>
 </div>
-<style>
-@keyframes test4Entry {
-  0% { opacity: 0; transform: translateX(-50%) translateY(-100px) scale(0.1) rotate(-45deg); }
-  40% { transform: translateX(-50%) translateY(20px) scale(1.2) rotate(10deg); }
-  70% { transform: translateX(-50%) translateY(-10px) scale(0.95) rotate(-5deg); }
-  100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1) rotate(0deg); }
-}
-@keyframes test4Float {
-  0%, 100% { transform: translateX(-50%) translateY(0) rotate(-2deg); }
-  50% { transform: translateX(-50%) translateY(-15px) rotate(2deg); }
-}
-@keyframes test4Spin {
-  0%, 100% { transform: rotate(0deg) scale(1); }
-  25% { transform: rotate(25deg) scale(1.15); }
-  75% { transform: rotate(-25deg) scale(1.15); }
-}
-@keyframes test4Bounce {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.3); }
-}
-@keyframes test4Pulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 15px rgba(255,105,180,0.5); }
-  50% { opacity: 0.9; box-shadow: 0 0 30px rgba(255,105,180,0.9), 0 0 50px rgba(150,0,255,0.5); }
-}
-@keyframes rainbowText {
-  0% { color: #FF0000; }
-  25% { color: #FFD700; }
-  50% { color: #76FF03; }
-  75% { color: #00FFFF; }
-  100% { color: #FF0000; }
-}
-</style>
-<script>
-setTimeout(function() {
-  var test4El = document.getElementById('test4-badge');
-  if (test4El) {
-    test4El.style.animation = 'test4Exit 1s ease forwards';
-    var exitStyle4 = document.createElement('style');
-    exitStyle4.textContent = '@keyframes test4Exit { 0%{opacity:1;transform:translateX(-50%) scale(1) rotate(0deg);} 30%{transform:translateX(-50%) scale(1.3) rotate(15deg);} 100%{opacity:0;transform:translateX(-50%) translateY(-80px) scale(0.2) rotate(-45deg);} }';
-    document.head.appendChild(exitStyle4);
-    setTimeout(function() { test4El.remove(); }, 1000);
-  }
-}, 12000);
-</script>
-<div id="test3-badge" style="position:absolute;top:160px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,rgba(0,200,255,0.95),rgba(0,100,200,0.9));padding:15px 30px;border-radius:25px;border:4px solid #00FFFF;box-shadow:0 0 40px rgba(0,200,255,0.7),0 0 80px rgba(0,255,255,0.4);z-index:200;animation:test3Entry 0.8s ease-out,test3Float 3s ease-in-out infinite 0.8s;">
-<div style="display:flex;align-items:center;gap:20px;">
-<div style="font-size:3rem;animation:test3Spin 1.5s ease-in-out infinite;">🧪</div>
-<div>
-<div style="color:#fff;font-weight:bold;font-size:1.5rem;text-shadow:2px 2px 0 #000;">TEST 3.0</div>
-<div style="color:#FFD700;font-size:0.85rem;font-style:italic;">"Third time's the charm!" - Homer</div>
-</div>
-<div style="font-size:3rem;animation:test3Bounce 0.8s ease infinite;">✅✅✅</div>
-</div>
-<div style="margin-top:10px;text-align:center;">
-<div style="background:rgba(0,0,0,0.4);padding:8px 20px;border-radius:15px;color:#76FF03;font-size:0.9rem;animation:test3Pulse 1s infinite;">🎮 TRIPLE TEST CONFIRMED! 🎮</div>
-<div style="color:#FFD700;font-size:0.75rem;margin-top:5px;">🍩 Test 1 ➜ Test 2 ➜ Test 3 = PERFECTION 🍩</div>
-</div>
-</div>
-<style>
-@keyframes test3Entry {
-  0% { opacity: 0; transform: translateX(-50%) translateY(-80px) scale(0.2) rotate(-30deg); }
-  50% { transform: translateX(-50%) translateY(15px) scale(1.15) rotate(5deg); }
-  100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1) rotate(0deg); }
-}
-@keyframes test3Float {
-  0%, 100% { transform: translateX(-50%) translateY(0) rotate(-1deg); }
-  50% { transform: translateX(-50%) translateY(-10px) rotate(1deg); }
-}
-@keyframes test3Spin {
-  0%, 100% { transform: rotate(0deg) scale(1); }
-  25% { transform: rotate(20deg) scale(1.1); }
-  75% { transform: rotate(-20deg) scale(1.1); }
-}
-@keyframes test3Bounce {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.25); }
-}
-@keyframes test3Pulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 10px rgba(118,255,3,0.5); }
-  50% { opacity: 0.85; box-shadow: 0 0 25px rgba(118,255,3,0.9), 0 0 40px rgba(0,255,255,0.5); }
-}
-</style>
-<script>
-// Auto-remove test3 badge after 12 seconds with epic exit
-setTimeout(function() {
-  var test3El = document.getElementById('test3-badge');
-  if (test3El) {
-    test3El.style.animation = 'test3Exit 0.8s ease forwards';
-    var exitStyle3 = document.createElement('style');
-    exitStyle3.textContent = '@keyframes test3Exit { 0%{opacity:1;transform:translateX(-50%) scale(1) rotate(0deg);} 50%{transform:translateX(-50%) scale(1.2) rotate(10deg);} 100%{opacity:0;transform:translateX(-50%) translateY(-50px) scale(0.3) rotate(-30deg);} }';
-    document.head.appendChild(exitStyle3);
-    setTimeout(function() { test3El.remove(); }, 800);
-  }
-}, 12000);
-</script>
-<div id="test2-badge" style="position:absolute;top:100px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,rgba(255,69,0,0.95),rgba(255,140,0,0.9));padding:12px 25px;border-radius:20px;border:4px solid #FFD700;box-shadow:0 0 30px rgba(255,69,0,0.7),0 0 60px rgba(255,215,0,0.4);z-index:200;animation:test2Entry 0.6s ease-out,test2Float 3s ease-in-out infinite 0.6s;">
-<div style="display:flex;align-items:center;gap:15px;">
-<div style="font-size:2.5rem;animation:test2Spin 2s ease-in-out infinite;">🧪</div>
-<div>
-<div style="color:#fff;font-weight:bold;font-size:1.3rem;text-shadow:2px 2px 0 #000;">TEST 2.0</div>
-<div style="color:#FFD700;font-size:0.8rem;font-style:italic;">"Mmm... testing twice!" - Homer</div>
-</div>
-<div style="font-size:2.5rem;animation:test2Bounce 1s ease infinite;">✅✅</div>
-</div>
-<div style="margin-top:8px;text-align:center;">
-<div style="background:rgba(0,0,0,0.3);padding:5px 15px;border-radius:10px;color:#76FF03;font-size:0.85rem;animation:test2Pulse 1.5s infinite;">🎮 Community Request Acknowledged! 🎮</div>
-</div>
-</div>
-<style>
-@keyframes test2Entry {
-  0% { opacity: 0; transform: translateX(-50%) translateY(-50px) scale(0.3); }
-  60% { transform: translateX(-50%) translateY(10px) scale(1.1); }
-  100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
-}
-@keyframes test2Float {
-  0%, 100% { transform: translateX(-50%) translateY(0); }
-  50% { transform: translateX(-50%) translateY(-8px); }
-}
-@keyframes test2Spin {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(15deg); }
-  75% { transform: rotate(-15deg); }
-}
-@keyframes test2Bounce {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.2); }
-}
-@keyframes test2Pulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 5px rgba(118,255,3,0.5); }
-  50% { opacity: 0.8; box-shadow: 0 0 15px rgba(118,255,3,0.8); }
-}
-</style>
-<script>
-// Auto-remove test2 badge after 10 seconds with exit animation
-setTimeout(function() {
-  var test2El = document.getElementById('test2-badge');
-  if (test2El) {
-    test2El.style.animation = 'test2Exit 0.5s ease forwards';
-    var exitStyle = document.createElement('style');
-    exitStyle.textContent = '@keyframes test2Exit { 0%{opacity:1;transform:translateX(-50%) scale(1);} 100%{opacity:0;transform:translateX(-50%) translateY(-30px) scale(0.5);} }';
-    document.head.appendChild(exitStyle);
-    setTimeout(function() { test2El.remove(); }, 500);
-  }
-}, 10000);
-</script>
-<div id="idea-corner" style="position:absolute;bottom:70px;left:10px;background:linear-gradient(135deg,#1a1a2e,#16213e);padding:15px 20px;border-radius:10px;border:4px solid #e94560;box-shadow:0 4px 15px rgba(233,69,96,0.5),inset 0 0 20px rgba(0,0,0,0.3);z-index:50;animation:chalkShake 3s ease-in-out infinite;">
-<div style="font-size:0.7rem;color:#FFD700;font-weight:bold;text-align:center;margin-bottom:5px;text-shadow:1px 1px #000;">💭 COMMUNITY WISDOM</div>
-<div style="font-family:'Comic Sans MS',cursive;font-size:1.5rem;color:#fff;text-align:center;text-shadow:2px 2px 0 #000,0 0 10px rgba(255,255,255,0.5);animation:mathPulse 2s infinite;">∞ + <span style="color:#76FF03;font-size:2rem;">YOU</span> = 🎨</div>
-<div style="font-size:0.6rem;color:#a0aec0;text-align:center;font-style:italic;margin-top:5px;">"Together we create!"</div>
-</div>
-<style>
-@keyframes chalkShake {
-  0%, 100% { transform: rotate(-1deg); }
-  50% { transform: rotate(1deg); }
-}
-@keyframes mathPulse {
-  0%, 100% { text-shadow: 2px 2px 0 #000, 0 0 10px rgba(255,255,255,0.5); }
-  50% { text-shadow: 2px 2px 0 #000, 0 0 20px rgba(118,255,3,0.8), 0 0 30px rgba(255,235,59,0.5); }
-}
-</style>
-<div id="collab-counter" style="position:absolute;bottom:60px;right:10px;background:linear-gradient(135deg,rgba(147,51,234,0.9),rgba(79,70,229,0.95));padding:12px 20px;border-radius:15px;border:3px solid #a78bfa;box-shadow:0 0 20px rgba(147,51,234,0.5);z-index:100;text-align:center;animation:lolBounce 2s ease-in-out infinite;">
-<div style="font-size:2rem;">🤝</div>
-<div style="color:#fff;font-weight:bold;font-size:1.1rem;">CREATORS</div>
-<div id="creator-count" style="font-size:1.8rem;color:#fbbf24;font-weight:bold;text-shadow:2px 2px 0 #000;">∞</div>
-<div style="font-size:0.65rem;color:#ddd;margin-top:3px;">🎨 Ideas: Infinite</div>
-<div style="font-size:0.7rem;color:#ddd;font-style:italic;">"We build together"</div>
-</div>
-<style>
-@keyframes lolBounce {
-  0%, 100% { transform: rotate(-2deg); }
-  50% { transform: rotate(2deg); }
-}
-#lol-counter:hover { transform: scale(1.1); }
-</style>
-<div id="homer-test-celebration" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:600;animation:homerCelebrate 4s forwards;pointer-events:none;">
-<div style="font-size:6rem;text-align:center;animation:homerBounce 0.5s ease infinite;">😋🍩</div>
-<div style="background:linear-gradient(135deg,#FFEB3B,#FFA000);padding:15px 30px;border-radius:20px;border:5px solid #8B4513;text-align:center;box-shadow:0 0 40px rgba(255,235,59,0.8);">
-<div style="font-size:2rem;color:#000;font-weight:bold;text-shadow:2px 2px 0 #fff;">WOOHOO!</div>
-<div style="font-size:1.2rem;color:#333;margin-top:5px;">✅ TEST SUCCESSFUL!</div>
-<div style="font-size:0.9rem;color:#666;font-style:italic;margin-top:5px;">"Mmm... testing..." - Homer</div>
-</div>
-</div>
-<style>
-@keyframes homerCelebrate {
-  0% { opacity: 0; transform: translate(-50%,-50%) scale(0) rotate(-20deg); }
-  20% { opacity: 1; transform: translate(-50%,-50%) scale(1.2) rotate(10deg); }
-  40% { transform: translate(-50%,-50%) scale(1) rotate(0deg); }
-  80% { opacity: 1; }
-  100% { opacity: 0; transform: translate(-50%,-50%) scale(0.5) rotate(20deg); }
-}
-@keyframes homerBounce {
-  0%, 100% { transform: translateY(0) rotate(-5deg); }
-  50% { transform: translateY(-20px) rotate(5deg); }
-}
-</style>
-<script>
-setTimeout(function() {
-  var homerTest = document.getElementById('homer-test-celebration');
-  if (homerTest) homerTest.remove();
-}, 4500);
-</script>
-<div id="community-test" style="position:fixed;bottom:100px;right:20px;background:linear-gradient(135deg,rgba(145,71,255,0.9),rgba(76,0,153,0.95));padding:15px 25px;border-radius:12px;border:3px solid #FFD700;box-shadow:0 0 25px rgba(145,71,255,0.7),0 0 50px rgba(255,215,0,0.3);z-index:400;animation:testSlideIn 0.5s ease-out,testGlow 2s infinite;">
-<div style="position:absolute;top:-10px;right:-10px;background:#4CAF50;color:white;font-size:0.7rem;padding:3px 8px;border-radius:10px;animation:badgePulse 1s infinite;">+2 tests!</div>
-<style>@keyframes badgePulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.1);} }</style>
-<div style="font-size:2rem;text-align:center;animation:testBounce2 0.5s ease;">🧪✨🎮</div>
-<div style="color:#FFD700;font-weight:bold;font-size:1.1rem;text-align:center;text-shadow:2px 2px 4px rgba(0,0,0,0.5);">COMMUNITY TEST</div>
-<div style="color:#76FF03;font-size:0.9rem;text-align:center;margin-top:5px;">✅ All systems nominal!</div>
-<div style="color:#FFD700;font-size:0.8rem;text-align:center;margin-top:3px;animation:testTextPulse 1s infinite;">🧪 Community tests received!</div>
-<div style="color:#76FF03;font-size:0.75rem;text-align:center;margin-top:5px;">😂 LOL + 🧪 TEST = 💯</div>
-<style>@keyframes testTextPulse { 0%,100%{opacity:1;} 50%{opacity:0.6;} }</style>
-<div style="color:#fff;font-size:0.75rem;text-align:center;margin-top:8px;opacity:0.8;">Snake: ACTIVE | Chat: LIVE | Donuts: TASTY</div>
-</div>
-<style>
-@keyframes testSlideIn {
-  0% { transform: translateX(100px); opacity: 0; }
-  100% { transform: translateX(0); opacity: 1; }
-}
-@keyframes testGlow {
-  0%, 100% { box-shadow: 0 0 25px rgba(145,71,255,0.7), 0 0 50px rgba(255,215,0,0.3); }
-  50% { box-shadow: 0 0 35px rgba(145,71,255,0.9), 0 0 70px rgba(255,215,0,0.5), 0 0 100px rgba(118,255,3,0.3); }
-}
-@keyframes testBounce2 {
-  0% { transform: scale(0); }
-  50% { transform: scale(1.3); }
-  100% { transform: scale(1); }
-}
-</style>
-<script>
-// Auto-remove test notification after 8 seconds
-setTimeout(function() {
-  var testEl = document.getElementById('community-test');
-  if (testEl) {
-    testEl.style.animation = 'testSlideOut 0.5s ease forwards';
-    var outStyle = document.createElement('style');
-    outStyle.textContent = '@keyframes testSlideOut { 0%{transform:translateX(0);opacity:1;} 100%{transform:translateX(100px);opacity:0;} }';
-    document.head.appendChild(outStyle);
-    setTimeout(function() { testEl.remove(); }, 500);
-  }
-}, 8000);
-</script>
-<div class="idea-fountain" style="position:absolute;left:60px;top:150px;z-index:50;animation:fountainBubble 2s ease-in-out infinite;">
-<div style="font-size:3rem;text-align:center;filter:drop-shadow(2px 2px 0 #000);">🌈</div>
-<div style="font-size:0.8rem;color:#fbbf24;font-weight:bold;text-align:center;margin-top:5px;text-shadow:1px 1px #000;">Idea Fountain</div>
-<div style="font-size:1.5rem;text-align:center;animation:waterDrip 1s infinite;">💡</div>
-</div>
-<style>
-@keyframes fountainBubble {
-0%, 100% { transform: scale(1); }
-50% { transform: scale(1.05); }
-}
-@keyframes waterDrip {
-0% { opacity: 1; transform: translateY(0); }
-100% { opacity: 0; transform: translateY(15px); }
-}
-</style>
-<div class="creative-icons" style="position:absolute;bottom:80px;left:50%;transform:translateX(-50%);z-index:50;display:flex;gap:10px;">
-<span style="font-size:2rem;animation:flowerSway 2s ease-in-out infinite;">🎨</span>
-<span style="font-size:2rem;animation:flowerSway 2.2s ease-in-out infinite 0.2s;">🎭</span>
-<span style="font-size:2rem;animation:flowerSway 2.4s ease-in-out infinite 0.4s;">🎪</span>
-<span style="font-size:2rem;animation:flowerSway 2.1s ease-in-out infinite 0.1s;">🎬</span>
-<span style="font-size:2rem;animation:flowerSway 2.3s ease-in-out infinite 0.3s;">🎵</span>
-<span style="font-size:2rem;animation:flowerSway 2s ease-in-out infinite 0.5s;">✨</span>
-</div>
-<style>
-@keyframes flowerSway {
-0%, 100% { transform: rotate(-5deg); }
-50% { transform: rotate(5deg); }
-}
-</style>
-<div class="creativity-tower" style="position:absolute;right:60px;top:120px;z-index:50;animation:towerSway 4s ease-in-out infinite;">
-<div style="font-size:3rem;text-align:center;filter:drop-shadow(3px 3px 0 #000);">🏰</div>
-<div style="font-size:0.8rem;color:#FFD700;font-weight:bold;text-align:center;margin-top:5px;text-shadow:2px 2px #000;">Tower of Ideas</div>
-<div style="font-size:0.7rem;color:#fff;text-align:center;font-style:italic;">Built by Chat</div>
-</div>
-<style>
-@keyframes towerSway {
-0%, 100% { transform: rotate(-1deg); }
-50% { transform: rotate(1deg); }
-}
-</style>
-<div id="test-notification" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(135deg,#FFD700,#FFA500);padding:20px 40px;border-radius:15px;border:5px solid #8B4513;box-shadow:0 0 30px rgba(255,215,0,0.8);z-index:300;animation:testPopup 4s forwards;font-size:1.5rem;text-align:center;">
-<div style="font-size:3rem;margin-bottom:10px;">🍩✅🍩</div>
-<div style="color:#000;font-weight:bold;text-shadow:1px 1px 0 #fff;">TEST SUCCESSFUL!</div>
-<div style="font-size:1rem;color:#333;margin-top:5px;font-style:italic;">"Woohoo!" - Homer</div>
-</div>
-<div id="mega-test-sequence" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:500;">
-<div class="test-item" style="position:absolute;top:20%;left:15%;animation:testBounce 0.5s ease 0.2s both;">✅ CHAT: OK</div>
-<div class="test-item" style="position:absolute;top:30%;right:20%;animation:testBounce 0.5s ease 0.4s both;">✅ SNAKE: OK</div>
-<div class="test-item" style="position:absolute;top:60%;left:25%;animation:testBounce 0.5s ease 0.6s both;">✅ DONUTS: OK</div>
-<div class="test-item" style="position:absolute;top:70%;right:15%;animation:testBounce 0.5s ease 0.8s both;">✅ RIVAL: OK</div>
-<div class="test-item" style="position:absolute;top:45%;left:50%;transform:translateX(-50%);animation:testBounce 0.5s ease 1s both;">✅ TWITCH: OK</div>
-<div class="mega-success" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);animation:megaSuccess 3s ease 1.5s both;font-size:3rem;text-align:center;">
-<div style="font-size:5rem;">🎉🍩🐍🍩🎉</div>
-<div style="color:#76FF03;text-shadow:0 0 20px #76FF03,3px 3px 0 #000;">ALL SYSTEMS GO!</div>
-<div style="font-size:1.5rem;color:#FFD700;margin-top:10px;">Springfield Snake is LIVE!</div>
-</div>
-</div>
-<style>
-.test-item {
-  background: linear-gradient(135deg, #4CAF50, #2E7D32);
-  color: white;
-  padding: 15px 25px;
-  border-radius: 10px;
-  font-size: 1.2rem;
-  font-weight: bold;
-  box-shadow: 0 0 20px rgba(76,175,80,0.8);
-  opacity: 0;
-}
-@keyframes testBounce {
-  0% { opacity: 0; transform: scale(0) rotate(-10deg); }
-  50% { transform: scale(1.2) rotate(5deg); }
-  100% { opacity: 1; transform: scale(1) rotate(0deg); }
-}
-@keyframes megaSuccess {
-  0% { opacity: 0; transform: translate(-50%,-50%) scale(0); }
-  30% { opacity: 1; transform: translate(-50%,-50%) scale(1.2); }
-  50% { transform: translate(-50%,-50%) scale(1); }
-  70% { opacity: 1; }
-  100% { opacity: 0; transform: translate(-50%,-50%) scale(0.8); }
-}
-</style>
-<script>
-// Remove test sequence after animation
-setTimeout(function() {
-  var testSeq = document.getElementById('mega-test-sequence');
-  if (testSeq) testSeq.remove();
-}, 5000);
-</script>
-<style>
-    @keyframes testPopup {
-        0% { opacity: 0; transform: translate(-50%,-50%) scale(0.5); }
-        15% { opacity: 1; transform: translate(-50%,-50%) scale(1.1); }
-        25% { transform: translate(-50%,-50%) scale(1); }
-        75% { opacity: 1; transform: translate(-50%,-50%) scale(1); }
-        100% { opacity: 0; transform: translate(-50%,-50%) scale(0.8); pointer-events: none; }
-    }
-</style>
-<div id="chat-history" style="position:fixed;left:10px;top:50%;transform:translateY(-50%);width:220px;max-height:400px;background:linear-gradient(180deg,rgba(0,0,0,0.9),rgba(30,0,60,0.85));border:3px solid #bf94ff;border-radius:12px;padding:10px;z-index:150;overflow-y:auto;box-shadow:0 0 20px rgba(145,71,255,0.5);">
-<div id="connection-line" style="position:absolute;right:-60px;top:50%;width:60px;height:3px;background:linear-gradient(90deg,#76FF03,transparent);opacity:0;transition:opacity 0.3s;"></div>
-<div style="color:#bf94ff;font-weight:bold;font-size:1rem;margin-bottom:8px;text-align:center;border-bottom:1px solid #bf94ff;padding-bottom:5px;">💬 CHAT HISTORY</div>
-<div style="font-size:0.7rem;color:#76FF03;text-align:center;margin-bottom:5px;animation:arrowBounce 1s infinite;">⟶ Commands control Homer! ⟶</div>
-<style>@keyframes arrowBounce { 0%,100%{transform:translateX(0);} 50%{transform:translateX(5px);} }</style>
-<div id="chat-messages-list" style="font-size:0.8rem;color:#fff;"></div>
+
+<div class="instructions">
+<p>💬 Chat commands: <code>star</code> <code>heart</code> <code>sparkle</code> <code>rainbow</code> <code>clear</code> | Click &amp; drag to draw!</p>
 </div>
 <script>
-(function() {
-  let lastCommandTime = 0;
-  
-  function showConnectionPulse() {
-    const line = document.getElementById('connection-line');
-    if (line) {
-      line.style.opacity = '1';
-      line.style.background = 'linear-gradient(90deg,#76FF03,#4CAF50,transparent)';
-      line.style.animation = 'connectionPulse 0.5s ease';
-      setTimeout(() => {
-        line.style.opacity = '0';
-        line.style.animation = '';
-      }, 500);
-    }
-    // Also pulse the chat-controls panel
-    const controls = document.getElementById('chat-controls');
-    if (controls) {
-      controls.style.animation = 'controlFlash 0.5s ease';
-      setTimeout(() => controls.style.animation = '', 500);
-    }
-  }
-  
-  // Add connection animation styles
-  const connStyle = document.createElement('style');
-  connStyle.textContent = '@keyframes connectionPulse { 0%{transform:scaleX(0);opacity:0;} 50%{transform:scaleX(1.2);opacity:1;} 100%{transform:scaleX(1);opacity:1;} } @keyframes controlFlash { 0%{box-shadow:0 0 15px rgba(145,71,255,0.5);} 50%{box-shadow:0 0 30px rgba(118,255,3,0.8),0 0 50px rgba(76,175,80,0.5);border-color:#76FF03;} 100%{box-shadow:0 0 15px rgba(145,71,255,0.5);} } @keyframes cmdHighlight { 0%{transform:scale(1);} 50%{transform:scale(1.05);box-shadow:0 0 15px #76FF03;} 100%{transform:scale(1);} }';
-  document.head.appendChild(connStyle);
-  
-  function renderChatHistory() {
-    const container = document.getElementById('chat-messages-list');
-    if (!container || !window.tpc || !window.tpc.chatMessages) return;
-    
-    const messages = window.tpc.chatMessages.slice(-15);
-    const now = Date.now();
-    container.innerHTML = messages.map((m, idx) => {
-      const isCommand = /^(up|down|left|right|w|a|s|d)$/i.test(m.message.trim());
-      const isRecent = idx === messages.length - 1 && isCommand && (now - lastCommandTime < 1000);
-      const cmdStyle = isCommand ? 'background:rgba(118,255,3,0.3);border-left:4px solid #76FF03;' + (isRecent ? 'animation:cmdHighlight 0.5s ease;' : '') : '';
-      const cmdIcon = isCommand ? '<span style="margin-right:5px;">🎮</span>' : '';
-      const arrow = isCommand ? '<span style="float:right;color:#76FF03;animation:arrowBounce 0.5s infinite;">➜</span>' : '';
-      return '<div class="chat-msg' + (isCommand ? ' cmd-msg' : '') + '" style="margin:4px 0;padding:6px;background:rgba(255,255,255,0.05);border-radius:6px;word-wrap:break-word;transition:all 0.2s;' + cmdStyle + '">' +
-        cmdIcon + arrow +
-        '<span style="color:#a78bfa;font-weight:bold;">' + m.username + '</span>: ' +
-        '<span style="color:' + (isCommand ? '#76FF03;font-weight:bold;text-shadow:0 0 5px #76FF03' : '#ddd') + ';">' + m.message + '</span></div>';
-    }).join('');
-    container.scrollTop = container.scrollHeight;
-    
-    // Check for new command
-    if (messages.length > 0) {
-      const lastMsg = messages[messages.length - 1];
-      const isCmd = /^(up|down|left|right|w|a|s|d)$/i.test(lastMsg.message.trim());
-      if (isCmd && lastMsg.timestamp > lastCommandTime) {
-        lastCommandTime = lastMsg.timestamp || now;
-        showConnectionPulse();
-      }
-    }
-  }
-  
-  // Initial render
-  setTimeout(renderChatHistory, 1000);
-  
-  // Update on new messages
-  const originalCallback = window.tpc?.onChatMessage;
-  if (window.tpc) {
-    const origFn = window.tpc.onChatMessage;
-    window.tpc.onChatMessage = function(msg) {
-      if (origFn) origFn(msg);
-      renderChatHistory();
-    };
-  }
-  
-  // Also poll periodically
-  setInterval(renderChatHistory, 1000);
-})();
-</script>
-<div class="welcome-npc" style="position:absolute;left:60px;top:400px;background:linear-gradient(135deg,rgba(236,72,153,0.95),rgba(167,139,250,0.9));padding:10px 15px;border-radius:15px;border:3px solid #f472b6;box-shadow:0 4px 15px rgba(236,72,153,0.5);z-index:50;animation:grandmaWave 2s ease-in-out infinite;">
-<div style="font-size:2.5rem;text-align:center;">🎨</div>
-<div style="font-size:0.9rem;color:#fff;font-weight:bold;text-align:center;margin-top:5px;">Welcome Creator! ✨</div>
-<div style="font-size:0.7rem;color:#fef;text-align:center;font-style:italic;">What shall we make?</div>
-</div>
-<style>
-        @keyframes grandmaWave {
-            0%, 100% { transform: rotate(-3deg); }
-            50% { transform: rotate(3deg); }
+        // Remove welcome after animation
+        setTimeout(() => {
+            const welcome = document.getElementById('welcome');
+            if (welcome) welcome.remove();
+        }, 4500);
+        
+        // Particle Background
+        const particleCanvas = document.getElementById('particle-canvas');
+        const pCtx = particleCanvas.getContext('2d');
+        particleCanvas.width = window.innerWidth;
+        particleCanvas.height = window.innerHeight;
+        
+        const particles = [];
+        const particleCount = 80;
+        
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+            
+            reset() {
+                this.x = Math.random() * particleCanvas.width;
+                this.y = Math.random() * particleCanvas.height;
+                this.size = Math.random() * 3 + 1;
+                this.speedX = (Math.random() - 0.5) * 0.5;
+                this.speedY = (Math.random() - 0.5) * 0.5;
+                this.opacity = Math.random() * 0.5 + 0.2;
+                this.hue = Math.random() * 60 + 250; // Purple-pink range
+            }
+            
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                
+                if (this.x < 0 || this.x > particleCanvas.width ||
+                    this.y < 0 || this.y > particleCanvas.height) {
+                    this.reset();
+                }
+            }
+            
+            draw() {
+                pCtx.beginPath();
+                pCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                pCtx.fillStyle = `hsla(${this.hue}, 80%, 60%, ${this.opacity})`;
+                pCtx.fill();
+            }
         }
-        .grandma-npc:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
         }
-    </style>
-<script>
-        const canvas = document.getElementById('game-canvas');
+        
+        function animateParticles() {
+            pCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+        
+        // Creation Canvas
+        const canvas = document.getElementById('creation-canvas');
         const ctx = canvas.getContext('2d');
-        const scoreEl = document.getElementById('score');
-        const highScoreEl = document.getElementById('high-score');
-        const gameOverEl = document.getElementById('game-over');
-        const finalScoreEl = document.getElementById('final-score');
-        const restartBtn = document.getElementById('restart-btn');
+        canvas.width = 700;
+        canvas.height = 450;
         
-        const gridSize = 20;
-        const tileCount = canvas.width / gridSize;
+        let isDrawing = false;
+        let currentTool = 'brush';
+        let hue = 0;
+        let strokeCount = 0;
+        let starCount = 0;
+        let colorSet = new Set();
+        let cmdCount = 0;
         
-        let snake = [{x: 10, y: 10}];
-        let rivalSnake = [{x: 20, y: 20}];
-        let rivalDirection = {x: -1, y: 0};
-        let apple = {x: 5, y: 5};
-        let bananas = [{x: 3, y: 3}, {x: 25, y: 8}, {x: 12, y: 22}, {x: 18, y: 5}, {x: 7, y: 18}];
-        let direction = {x: 1, y: 0};
-        let nextDirection = {x: 1, y: 0};
-        let food = {x: 15, y: 15};
-        let extraDonuts = [{x: 8, y: 12}, {x: 22, y: 7}, {x: 14, y: 25}];
-        let score = 0;
-        let highScore = 0;
-        let gameOver = false;
-        let gameSpeed = 100;
+        // Auto-draw demonstration
+        let autoDrawing = true;
+        let autoAngle = 0;
+        let autoCenterX = canvas.width / 2;
+        let autoCenterY = canvas.height / 2;
+        let autoRadius = 100;
         
-        // Chat control state
-        let autoPlay = false;
-        let chatControlled = true;
-        let lastCommandUser = '';
-        
-        // Create donut rain effect
-        function createDonutRain() {
-            for (let i = 0; i < 10; i++) {
-                const donut = document.createElement('div');
-                donut.className = 'donut-rain';
-                donut.textContent = Math.random() > 0.5 ? '🍩' : '🌸';
-                donut.style.left = Math.random() * 100 + 'vw';
-                donut.style.animationDuration = (5 + Math.random() * 10) + 's';
-                donut.style.animationDelay = Math.random() * 5 + 's';
-                document.body.appendChild(donut);
-            }
-        }
-        createDonutRain();
-        
-        function spawnApple() {
-            apple = {
-                x: Math.floor(Math.random() * tileCount),
-                y: Math.floor(Math.random() * tileCount)
-            };
-            // Make sure apple doesn't spawn on snakes or food
-            for (let segment of snake.concat(rivalSnake)) {
-                if (segment.x === apple.x && segment.y === apple.y) {
-                    spawnApple();
-                    return;
-                }
-            }
-            if (apple.x === food.x && apple.y === food.y) spawnApple();
-        }
-        
-        function spawnFood() {
-            food = {
-                x: Math.floor(Math.random() * tileCount),
-                y: Math.floor(Math.random() * tileCount)
-            };
-            // Make sure food doesn't spawn on snake
-            for (let segment of snake) {
-                if (segment.x === food.x && segment.y === food.y) {
-                    spawnFood();
-                    return;
-                }
-            }
-        }
-        
-        function drawGame() {
-            // Clear canvas with gradient background
-            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-            gradient.addColorStop(0, '#1a3d0c');
-            gradient.addColorStop(1, '#2d5016');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        function autoDraw() {
+            if (!autoDrawing) return;
             
-            // Draw Springfield grass pattern
-            for(let gx = 0; gx < tileCount; gx++) {
-                for(let gy = 0; gy < tileCount; gy++) {
-                    if((gx + gy) % 2 === 0) {
-                        ctx.fillStyle = 'rgba(93, 140, 62, 0.3)';
-                    } else {
-                        ctx.fillStyle = 'rgba(59, 83, 35, 0.3)';
-                    }
-                    ctx.fillRect(gx * gridSize, gy * gridSize, gridSize, gridSize);
-                }
+            autoAngle += 0.05;
+            const x = autoCenterX + Math.cos(autoAngle) * autoRadius * Math.sin(autoAngle * 0.3);
+            const y = autoCenterY + Math.sin(autoAngle) * autoRadius * Math.cos(autoAngle * 0.5);
+            
+            ctx.beginPath();
+            ctx.arc(x, y, 3, 0, Math.PI * 2);
+            ctx.fillStyle = `hsl(${hue}, 80%, 60%)`;
+            ctx.fill();
+            
+            hue = (hue + 1) % 360;
+            colorSet.add(Math.floor(hue / 30));
+            
+            // Add occasional sparkles
+            if (Math.random() < 0.05) {
+                addSparkle(x, y);
             }
-            // Draw grid lines (subtle)
-            ctx.strokeStyle = 'rgba(118, 255, 3, 0.1)';
-            ctx.lineWidth = 1;
-            for (let i = 0; i <= tileCount; i++) {
+            
+            strokeCount++;
+            updateStats();
+            
+            setTimeout(autoDraw, 50);
+        }
+        
+        function addSparkle(x, y) {
+            const sparkles = ['✨', '⭐', '💫', '🌟'];
+            ctx.font = '20px Arial';
+            ctx.fillText(sparkles[Math.floor(Math.random() * sparkles.length)], x - 10, y + 10);
+            starCount++;
+        }
+        
+        function addStar(x, y) {
+            ctx.font = '30px Arial';
+            ctx.fillText('⭐', x - 15, y + 15);
+            starCount++;
+            updateStats();
+        }
+        
+        function addHeart(x, y) {
+            ctx.font = '30px Arial';
+            ctx.fillText('💖', x - 15, y + 15);
+            updateStats();
+        }
+        
+        function addRainbow(x, y) {
+            const colors = ['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#9400d3'];
+            colors.forEach((color, i) => {
                 ctx.beginPath();
-                ctx.moveTo(i * gridSize, 0);
-                ctx.lineTo(i * gridSize, canvas.height);
+                ctx.arc(x, y + 30, 40 - i * 5, Math.PI, 0, false);
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 4;
                 ctx.stroke();
-                ctx.beginPath();
-                ctx.moveTo(0, i * gridSize);
-                ctx.lineTo(canvas.width, i * gridSize);
-                ctx.stroke();
-            }
-            
-            // Draw food (donuts - MORE DONUTS!)
-            ctx.font = '18px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('🍩', food.x * gridSize + gridSize/2, food.y * gridSize + gridSize/2);
-            
-            // Draw extra donuts!
-            for (let donut of extraDonuts) {
-                ctx.fillText('🍩', donut.x * gridSize + gridSize/2, donut.y * gridSize + gridSize/2);
-            }
-            
-            // Draw apple (bonus food)
-            ctx.fillText('🍎', apple.x * gridSize + gridSize/2, apple.y * gridSize + gridSize/2);
-            
-            // Draw bananas (multiple bonus items)
-            for (let banana of bananas) {
-                ctx.fillText('🍌', banana.x * gridSize + gridSize/2, banana.y * gridSize + gridSize/2);
-            }
-            
-            // Draw snake
-            snake.forEach((segment, index) => {
-                if (index === 0) {
-                    // Homer's head
-                    ctx.font = '18px Arial';
-                    ctx.fillText('😋', segment.x * gridSize + gridSize/2, segment.y * gridSize + gridSize/2);
-                } else {
-                    // Body - Springfield yellow
-                    ctx.fillStyle = '#FFEB3B';
-                    // Make it more blocky/pixelated
-                    ctx.imageSmoothingEnabled = false;
-                    // Blocky square body like Minecraft
-                    ctx.fillRect(
-                        segment.x * gridSize + 2,
-                        segment.y * gridSize + 2,
-                        gridSize - 4,
-                        gridSize - 4
-                    );
-                    ctx.strokeStyle = '#FFA000';
-                    ctx.lineWidth = 3;
-                    ctx.strokeRect(
-                        segment.x * gridSize + 2,
-                        segment.y * gridSize + 2,
-                        gridSize - 4,
-                        gridSize - 4
-                    );
+            });
+            updateStats();
+        }
+        
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            strokeCount = 0;
+            starCount = 0;
+            colorSet.clear();
+            updateStats();
+        }
+        
+        function updateStats() {
+            document.getElementById('stroke-count').textContent = strokeCount;
+            document.getElementById('color-count').textContent = colorSet.size;
+            document.getElementById('star-count').textContent = starCount;
+            document.getElementById('cmd-count').textContent = cmdCount;
+            document.getElementById('creation-count').textContent = strokeCount + starCount;
+        }
+        
+        // Tool buttons
+        document.querySelectorAll('.tool-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentTool = btn.dataset.tool;
+                autoDrawing = false;
+                
+                if (currentTool === 'clear') {
+                    clearCanvas();
                 }
             });
-            
-            // Draw rival snake (green snake)
-            rivalSnake.forEach((segment, index) => {
-                if (index === 0) {
-                    ctx.font = '18px Arial';
-                    ctx.fillText('🐍', segment.x * gridSize + gridSize/2, segment.y * gridSize + gridSize/2);
-                } else {
-                    ctx.fillStyle = '#4CAF50';
-                    ctx.fillRect(
-                        segment.x * gridSize + 2,
-                        segment.y * gridSize + 2,
-                        gridSize - 4,
-                        gridSize - 4
-                    );
-                    ctx.strokeStyle = '#2E7D32';
-                    ctx.lineWidth = 3;
-                    ctx.strokeRect(
-                        segment.x * gridSize + 2,
-                        segment.y * gridSize + 2,
-                        gridSize - 4,
-                        gridSize - 4
-                    );
-                }
-            });
-            
-            // Draw radioactive glow around snake head
-            if (snake.length > 0) {
-                ctx.beginPath();
-                ctx.arc(
-                    snake[0].x * gridSize + gridSize/2,
-                    snake[0].y * gridSize + gridSize/2,
-                    gridSize,
-                    0, Math.PI * 2
-                );
-                ctx.fillStyle = 'rgba(118, 255, 3, 0.2)';
-                ctx.fill();
-            }
-        }
-        
-        function autoPlayAI() {
-            if (!autoPlay) return;
-            
-            const head = snake[0];
-            const dx = food.x - head.x;
-            const dy = food.y - head.y;
-            
-            // Simple pathfinding - try to move towards food while avoiding walls and self
-            const possibleMoves = [
-                {x: 1, y: 0},
-                {x: -1, y: 0},
-                {x: 0, y: 1},
-                {x: 0, y: -1}
-            ];
-            
-            // Filter out reverse direction
-            const validMoves = possibleMoves.filter(move => 
-                !(move.x === -direction.x && move.y === -direction.y)
-            );
-            
-            // Check which moves are safe
-            const safeMoves = validMoves.filter(move => {
-                const newX = head.x + move.x;
-                const newY = head.y + move.y;
-                
-                // Check walls
-                if (newX < 0 || newX >= tileCount || newY < 0 || newY >= tileCount) {
-                    return false;
-                }
-                
-                // Check self collision
-                for (let segment of snake) {
-                    if (segment.x === newX && segment.y === newY) {
-                        return false;
-                    }
-                }
-                
-                return true;
-            });
-            
-            if (safeMoves.length === 0) {
-                // No safe moves, just continue
-                return;
-            }
-            
-            // Prioritize moves towards food
-            let bestMove = safeMoves[0];
-            let bestScore = -Infinity;
-            
-            for (let move of safeMoves) {
-                let moveScore = 0;
-                const newX = head.x + move.x;
-                const newY = head.y + move.y;
-                
-                // Prefer moves that get closer to food
-                const newDist = Math.abs(food.x - newX) + Math.abs(food.y - newY);
-                const oldDist = Math.abs(dx) + Math.abs(dy);
-                moveScore = oldDist - newDist;
-                
-                if (moveScore > bestScore) {
-                    bestScore = moveScore;
-                    bestMove = move;
-                }
-            }
-            
-            nextDirection = bestMove;
-        }
-        
-        function updateRivalSnake() {
-            if (rivalSnake.length === 0) return;
-            
-            const head = rivalSnake[0];
-            // Simple AI: chase apples
-            const dx = apple.x - head.x;
-            const dy = apple.y - head.y;
-            
-            let newDir = rivalDirection;
-            if (Math.abs(dx) > Math.abs(dy)) {
-                newDir = dx > 0 ? {x: 1, y: 0} : {x: -1, y: 0};
-            } else {
-                newDir = dy > 0 ? {x: 0, y: 1} : {x: 0, y: -1};
-            }
-            
-            // Don't reverse
-            if (newDir.x !== -rivalDirection.x || newDir.y !== -rivalDirection.y) {
-                rivalDirection = newDir;
-            }
-            
-            const newHead = {x: head.x + rivalDirection.x, y: head.y + rivalDirection.y};
-            
-            // Wrap around walls
-            if (newHead.x < 0) newHead.x = tileCount - 1;
-            if (newHead.x >= tileCount) newHead.x = 0;
-            if (newHead.y < 0) newHead.y = tileCount - 1;
-            if (newHead.y >= tileCount) newHead.y = 0;
-            
-            rivalSnake.unshift(newHead);
-            
-            // Check if rival eats apple
-            if (newHead.x === apple.x && newHead.y === apple.y) {
-                spawnApple();
-            } else {
-                rivalSnake.pop();
-            }
-            
-            // Keep rival snake manageable
-            if (rivalSnake.length > 8) rivalSnake.pop();
-        }
-        
-        function update() {
-            if (gameOver) return;
-            
-            updateRivalSnake();
-            // AI only runs if not chat controlled
-            if (autoPlay && !chatControlled) autoPlayAI();
-            direction = nextDirection;
-            
-            const head = {x: snake[0].x + direction.x, y: snake[0].y + direction.y};
-            
-            // Check wall collision
-            if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
-                endGame();
-                return;
-            }
-            
-            // Check self collision
-            for (let segment of snake) {
-                if (segment.x === head.x && segment.y === head.y) {
-                    endGame();
-                    return;
-                }
-            }
-            
-            snake.unshift(head);
-            
-            // Check food collision
-            if (head.x === food.x && head.y === food.y) {
-                score++;
-                scoreEl.textContent = score;
-                if (score > highScore) {
-                    highScore = score;
-                    highScoreEl.textContent = highScore;
-                }
-                spawnFood();
-                // Speed up slightly
-                gameSpeed = Math.max(50, gameSpeed - 2);
-            } else if (head.x === apple.x && head.y === apple.y) {
-                // Apple gives +3 bonus points!
-                score += 3;
-                scoreEl.textContent = score;
-                if (score > highScore) {
-                    highScore = score;
-                    highScoreEl.textContent = highScore;
-                }
-                spawnApple();
-            } else {
-                // Check extra donut collision
-                let ateExtraDonut = false;
-                for (let i = 0; i < extraDonuts.length; i++) {
-                    if (head.x === extraDonuts[i].x && head.y === extraDonuts[i].y) {
-                        score++;
-                        scoreEl.textContent = score;
-                        if (score > highScore) {
-                            highScore = score;
-                            highScoreEl.textContent = highScore;
-                        }
-                        // Respawn donut at new location
-                        extraDonuts[i] = {
-                            x: Math.floor(Math.random() * tileCount),
-                            y: Math.floor(Math.random() * tileCount)
-                        };
-                        ateExtraDonut = true;
-                        break;
-                    }
-                }
-                if (ateExtraDonut) {
-                    // Don't remove tail - snake grows!
-                } else {
-                // Check banana collision
-                let ateBanana = false;
-                for (let i = 0; i < bananas.length; i++) {
-                    if (head.x === bananas[i].x && head.y === bananas[i].y) {
-                        score += 2;
-                        scoreEl.textContent = score;
-                        if (score > highScore) {
-                            highScore = score;
-                            highScoreEl.textContent = highScore;
-                        }
-                        // Respawn banana at new location
-                        bananas[i] = {
-                            x: Math.floor(Math.random() * tileCount),
-                            y: Math.floor(Math.random() * tileCount)
-                        };
-                        ateBanana = true;
-                        break;
-                    }
-                }
-                if (!ateBanana) {
-                    snake.pop();
-                }
-            }
-            }
-            
-            // Check collision with rival snake
-            for (let segment of rivalSnake) {
-                if (head.x === segment.x && head.y === segment.y) {
-                    endGame();
-                    return;
-                }
-            }
-        }
-        
-        function endGame() {
-            gameOver = true;
-            finalScoreEl.textContent = score;
-            gameOverEl.style.display = 'block';
-            
-            // Auto-restart after 3 seconds in auto-play mode
-            if (autoPlay) {
-                setTimeout(restartGame, 3000);
-            }
-        }
-        
-        function restartGame() {
-            snake = [{x: 10, y: 10}];
-            rivalSnake = [{x: 20, y: 20}];
-            bananas = [{x: 3, y: 3}, {x: 25, y: 8}, {x: 12, y: 22}, {x: 18, y: 5}, {x: 7, y: 18}];
-            extraDonuts = [{x: 8, y: 12}, {x: 22, y: 7}, {x: 14, y: 25}];
-            rivalDirection = {x: -1, y: 0};
-            direction = {x: 1, y: 0};
-            nextDirection = {x: 1, y: 0};
-            score = 0;
-            scoreEl.textContent = score;
-            gameSpeed = 100;
-            gameOver = false;
-            gameOverEl.style.display = 'none';
-            spawnFood();
-        }
-        
-        restartBtn.addEventListener('click', restartGame);
-        
-        // Keyboard controls (for manual play)
-        document.addEventListener('keydown', (e) => {
-            switch(e.key) {
-                case 'ArrowUp':
-                case 'w':
-                    if (direction.y !== 1) nextDirection = {x: 0, y: -1};
-                    autoPlay = false;
-                    document.getElementById('mode-indicator').textContent = '🎮 MANUAL MODE';
-                    break;
-                case 'ArrowDown':
-                case 's':
-                    if (direction.y !== -1) nextDirection = {x: 0, y: 1};
-                    autoPlay = false;
-                    document.getElementById('mode-indicator').textContent = '🎮 MANUAL MODE';
-                    break;
-                case 'ArrowLeft':
-                case 'a':
-                    if (direction.x !== 1) nextDirection = {x: -1, y: 0};
-                    autoPlay = false;
-                    document.getElementById('mode-indicator').textContent = '🎮 MANUAL MODE';
-                    break;
-                case 'ArrowRight':
-                case 'd':
-                    if (direction.x !== -1) nextDirection = {x: 1, y: 0};
-                    autoPlay = false;
-                    document.getElementById('mode-indicator').textContent = '🎮 MANUAL MODE';
-                    break;
-            }
         });
         
-        // Game loop
-        function gameLoop() {
-            update();
-            drawGame();
-            setTimeout(gameLoop, gameSpeed);
-        }
+        // Mouse drawing
+        canvas.addEventListener('mousedown', (e) => {
+            isDrawing = true;
+            autoDrawing = false;
+        });
         
-        spawnFood();
-        spawnApple();
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDrawing) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            if (currentTool === 'brush' || currentTool === 'rainbow') {
+                ctx.beginPath();
+                ctx.arc(x, y, currentTool === 'rainbow' ? 8 : 5, 0, Math.PI * 2);
+                ctx.fillStyle = `hsl(${hue}, 80%, 60%)`;
+                ctx.fill();
+                hue = (hue + 3) % 360;
+                colorSet.add(Math.floor(hue / 30));
+                strokeCount++;
+            } else if (currentTool === 'star') {
+                if (Math.random() < 0.1) addStar(x, y);
+            } else if (currentTool === 'heart') {
+                if (Math.random() < 0.1) addHeart(x, y);
+            } else if (currentTool === 'sparkle') {
+                if (Math.random() < 0.15) addSparkle(x, y);
+            }
+            
+            updateStats();
+        });
         
-        // Chat control system
-        let commandCount = 0;
+        canvas.addEventListener('mouseup', () => isDrawing = false);
+        canvas.addEventListener('mouseleave', () => isDrawing = false);
         
+        // Chat integration
         function processCommand(cmd, username) {
             const command = cmd.toLowerCase().trim();
-            let moved = false;
-            let dirName = '';
+            const cx = Math.random() * canvas.width * 0.8 + canvas.width * 0.1;
+            const cy = Math.random() * canvas.height * 0.8 + canvas.height * 0.1;
             
-            if ((command === 'up' || command === 'w') && direction.y !== 1) {
-                nextDirection = {x: 0, y: -1};
-                moved = true;
-                dirName = '⬆️ UP';
-            } else if ((command === 'down' || command === 's') && direction.y !== -1) {
-                nextDirection = {x: 0, y: 1};
-                moved = true;
-                dirName = '⬇️ DOWN';
-            } else if ((command === 'left' || command === 'a') && direction.x !== 1) {
-                nextDirection = {x: -1, y: 0};
-                moved = true;
-                dirName = '⬅️ LEFT';
-            } else if ((command === 'right' || command === 'd') && direction.x !== -1) {
-                nextDirection = {x: 1, y: 0};
-                moved = true;
-                dirName = '➡️ RIGHT';
+            if (command === 'star') {
+                addStar(cx, cy);
+                cmdCount++;
+            } else if (command === 'heart') {
+                addHeart(cx, cy);
+                cmdCount++;
+            } else if (command === 'sparkle') {
+                addSparkle(cx, cy);
+                cmdCount++;
+            } else if (command === 'rainbow') {
+                addRainbow(cx, cy);
+                cmdCount++;
+            } else if (command === 'clear') {
+                clearCanvas();
+                cmdCount++;
             }
             
-            if (moved) {
-                commandCount++;
-                lastCommandUser = username;
-                const lastCmdEl = document.getElementById('last-command');
-                if (lastCmdEl) {
-                    lastCmdEl.innerHTML = '<span style="color:#a78bfa;">' + username + '</span>: ' + dirName;
-                    lastCmdEl.style.animation = 'none';
-                    lastCmdEl.offsetHeight; // Trigger reflow
-                    lastCmdEl.style.animation = 'cmdFlash 0.3s ease';
-                }
-                // Update mode indicator to show it's working
-                const modeEl = document.getElementById('mode-indicator');
-                if (modeEl) {
-                    modeEl.innerHTML = '💬 CHAT CONTROL <span style="font-size:0.8em;color:#4CAF50;">(' + commandCount + ' cmds)</span>';
-                    modeEl.style.animation = 'none';
-                    modeEl.offsetHeight;
-                    modeEl.style.animation = 'pulse 0.5s ease';
-                }
-                console.log('[CHAT CONTROL] ' + username + ' moved: ' + dirName);
-            }
+            updateStats();
         }
         
-        // Enhanced chat message listener with better initialization
-        function initChatControl() {
-            console.log('[SNAKE] Initializing chat control...');
+        function renderChat() {
+            const container = document.getElementById('chat-messages');
+            if (!container || !window.tpc || !window.tpc.chatMessages) return;
             
-            // Check if tpc exists
+            const messages = window.tpc.chatMessages.slice(-10);
+            container.innerHTML = messages.map(m => {
+                const isCmd = /^(star|heart|sparkle|rainbow|clear)$/i.test(m.message.trim());
+                return `<div class="chat-msg" style="${isCmd ? 'border-left: 3px solid #76FF03;' : ''}">
+                    <span class="username">${m.username}:</span>
+                    <span class="message" style="${isCmd ? 'color: #76FF03; font-weight: bold;' : ''}">${m.message}</span>
+                </div>`;
+            }).join('');
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        function initChatControl() {
             if (typeof window.tpc === 'undefined') {
-                console.log('[SNAKE] window.tpc not found, retrying in 500ms...');
                 setTimeout(initChatControl, 500);
                 return;
             }
             
-            console.log('[SNAKE] window.tpc found! Setting up listeners...');
-            
-            // Set up the callback for new messages
             window.tpc.onChatMessage = function(msg) {
-                console.log('[SNAKE] New chat message:', msg.username, msg.message);
-                if (chatControlled && !gameOver) {
-                    processCommand(msg.message, msg.username);
-                }
+                processCommand(msg.message, msg.username);
+                renderChat();
             };
             
-            // Process existing messages
-            let lastProcessedIndex = 0;
-            if (window.tpc.chatMessages && window.tpc.chatMessages.length > 0) {
-                lastProcessedIndex = window.tpc.chatMessages.length;
-                console.log('[SNAKE] Found ' + lastProcessedIndex + ' existing messages');
-            }
-            
-            // Poll for new messages as backup
-            setInterval(function() {
-                if (!window.tpc || !window.tpc.chatMessages) return;
-                
-                if (window.tpc.chatMessages.length > lastProcessedIndex) {
-                    for (let i = lastProcessedIndex; i < window.tpc.chatMessages.length; i++) {
-                        const msg = window.tpc.chatMessages[i];
-                        console.log('[SNAKE] Processing polled message:', msg.username, msg.message);
-                        if (chatControlled && !gameOver) {
-                            processCommand(msg.message, msg.username);
-                        }
+            let lastIdx = window.tpc.chatMessages?.length || 0;
+            setInterval(() => {
+                if (!window.tpc?.chatMessages) return;
+                if (window.tpc.chatMessages.length > lastIdx) {
+                    for (let i = lastIdx; i < window.tpc.chatMessages.length; i++) {
+                        processCommand(window.tpc.chatMessages[i].message, window.tpc.chatMessages[i].username);
                     }
-                    lastProcessedIndex = window.tpc.chatMessages.length;
+                    lastIdx = window.tpc.chatMessages.length;
+                    renderChat();
                 }
-            }, 50); // Faster polling for responsiveness
+            }, 100);
             
-            // Visual confirmation
-            const modeEl = document.getElementById('mode-indicator');
-            if (modeEl) {
-                modeEl.innerHTML = '💬 CHAT CONTROL <span style="font-size:0.8em;color:#4CAF50;">✓ CONNECTED</span>';
-                modeEl.style.animation = 'connectedPulse 1s ease';
-            }
-            // Add connected animation
-            const styleEl = document.createElement('style');
-            styleEl.textContent = '@keyframes connectedPulse { 0%{transform:scale(1);} 50%{transform:scale(1.1);box-shadow:0 0 30px #4CAF50;} 100%{transform:scale(1);} }';
-            document.head.appendChild(styleEl);
-            console.log('[SNAKE] Chat control initialized successfully!');
-            
-            // Update debug info
-            const debugEl = document.getElementById('debug-info');
-            if (debugEl) debugEl.innerHTML = '✅ TPC connected! Listening...';
-            
-            // Show connection success notification
-            const notif = document.createElement('div');
-            notif.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(135deg,#4CAF50,#2E7D32);padding:20px 40px;border-radius:15px;color:white;font-size:1.5rem;z-index:9999;animation:fadeNotif 2s forwards;';
-            notif.innerHTML = '✅ CHAT CONTROL ACTIVE!<br><span style="font-size:1rem;">Type up/down/left/right in chat!</span>';
-            document.body.appendChild(notif);
-            const fadeStyle = document.createElement('style');
-            fadeStyle.textContent = '@keyframes fadeNotif { 0%{opacity:0;transform:translate(-50%,-50%) scale(0.5);} 20%{opacity:1;transform:translate(-50%,-50%) scale(1);} 80%{opacity:1;} 100%{opacity:0;pointer-events:none;} }';
-            document.head.appendChild(fadeStyle);
-            setTimeout(() => notif.remove(), 2500);
+            renderChat();
         }
         
-        // Start initialization
         initChatControl();
         
-        // Test button functionality
-        document.getElementById('test-chat-btn').addEventListener('click', function() {
-            const testDirs = ['up', 'down', 'left', 'right'];
-            const testDir = testDirs[Math.floor(Math.random() * testDirs.length)];
-            processCommand(testDir, 'TEST_USER');
-            this.textContent = '✅ Sent: ' + testDir.toUpperCase();
-            this.style.background = 'linear-gradient(135deg,#FFD700,#FFA500)';
-            setTimeout(() => {
-                this.textContent = '🧪 Test Chat Control';
-                this.style.background = 'linear-gradient(135deg,#4CAF50,#2E7D32)';
-            }, 1000);
+        // Start auto-drawing after welcome
+        setTimeout(autoDraw, 4500);
+        
+        // Window resize
+        window.addEventListener('resize', () => {
+            particleCanvas.width = window.innerWidth;
+            particleCanvas.height = window.innerHeight;
         });
-        
-        // Debug info updater
-        setInterval(function() {
-            const debugEl = document.getElementById('debug-info');
-            if (debugEl) {
-                const tpcStatus = window.tpc ? '✅' : '❌';
-                const msgCount = window.tpc?.chatMessages?.length || 0;
-                debugEl.innerHTML = 'TPC: ' + tpcStatus + ' | Msgs: ' + msgCount + ' | Cmds: ' + commandCount;
-            }
-        }, 1000);
-        
-        gameLoop();
     </script>
 </body>
 </html>
