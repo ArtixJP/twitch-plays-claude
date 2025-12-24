@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Twitch Plays Springfield Snake</title>
+<title>🎨 Twitch Creates Together - The Living Canvas 🐍</title>
 <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
@@ -149,9 +149,9 @@
 </head>
 <body>
 <div id="ui">
-<h1>🍩 SPRINGFIELD SNAKE 🐍</h1>
-<div id="score-display">🍩🍩🍩🍩 Donuts: <span id="score">0</span> | 🍎 Apples: +3pts | 🍌 Bananas: +2pts | High Score: <span id="high-score">0</span></div>
-<div style="font-size:0.9rem;color:#4CAF50;margin-top:5px;">🐍 Watch out for the rival snake!</div>
+<h1>🎨 THE LIVING CANVAS 🐍</h1>
+<div id="score-display">✨ Creativity Points: <span id="score">0</span> | 🎨 Ideas: +3pts | 💡 Sparks: +2pts | Community Record: <span id="high-score">0</span></div>
+<div style="font-size:0.9rem;color:#4CAF50;margin-top:5px;">🌟 Guide the creative spirit through our shared world!</div>
 </div>
 <div id="mode-indicator" style="background:linear-gradient(135deg,rgba(118,255,3,0.3),rgba(0,0,0,0.8));border:2px solid #76FF03;font-size:1.1rem;">💬 CHAT CONTROL <span style="font-size:0.8em;color:#FFD700;">⏳ connecting...</span></div>
 <div id="chat-status" style="position:absolute;top:10px;right:200px;background:rgba(76,175,80,0.9);padding:8px 15px;border-radius:20px;color:white;font-size:0.9rem;z-index:100;animation:chatPulse 1.5s infinite;border:2px solid #2E7D32;box-shadow:0 0 15px rgba(76,175,80,0.6);">🎮 TYPE IN TWITCH CHAT!</div>
@@ -192,9 +192,41 @@
 <p>Homer ate <span id="final-score">0</span> donuts!</p>
 <button id="restart-btn">🍩 TRY AGAIN</button>
 </div>
-<div id="instruction" style="animation:instructionPulse 3s infinite;font-size:1rem;padding:12px 20px;">🎮 Type <code>up</code> <code>down</code> <code>left</code> <code>right</code> (or <code>w</code> <code>a</code> <code>s</code> <code>d</code>) in Twitch chat to control Homer! 🍩<br/><span style="font-size:0.8rem;color:#76FF03;">✨ Chat commands are LIVE! ✨</span></div>
+<div id="instruction" style="animation:instructionPulse 3s infinite;font-size:1rem;padding:12px 20px;">🎮 Type <code>up</code> <code>down</code> <code>left</code> <code>right</code> to guide our creative spirit! 🎨<br/><span style="font-size:0.8rem;color:#76FF03;">✨ Together we create something amazing! ✨</span></div>
 <style>@keyframes instructionPulse { 0%,100%{box-shadow:0 0 10px rgba(191,148,255,0.5);} 50%{box-shadow:0 0 20px rgba(191,148,255,0.8);} }</style>
-<div class="power-plant">☢️🏭</div>
+<div id="welcome-banner" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1000;animation:welcomeIn 6s forwards;pointer-events:none;">
+<div style="background:linear-gradient(135deg,rgba(79,70,229,0.95),rgba(147,51,234,0.95),rgba(236,72,153,0.95));padding:40px 60px;border-radius:30px;border:5px solid rgba(255,255,255,0.3);box-shadow:0 0 60px rgba(147,51,234,0.8),0 0 100px rgba(236,72,153,0.5);text-align:center;">
+<div style="font-size:4rem;margin-bottom:15px;animation:iconDance 1s ease infinite;">🎨🌟🎭</div>
+<div style="color:#fff;font-size:2.5rem;font-weight:bold;text-shadow:3px 3px 0 rgba(0,0,0,0.5);margin-bottom:10px;">Welcome to the Living Canvas!</div>
+<div style="color:#fbbf24;font-size:1.3rem;margin-bottom:15px;">A collaborative creation by Twitch Chat</div>
+<div style="color:#a5f3fc;font-size:1rem;font-style:italic;">Guide the creative spirit • Request changes • Build together</div>
+<div style="margin-top:20px;display:flex;gap:15px;justify-content:center;">
+<span style="background:rgba(255,255,255,0.2);padding:8px 16px;border-radius:20px;color:#fff;">🎮 Control the game</span>
+<span style="background:rgba(255,255,255,0.2);padding:8px 16px;border-radius:20px;color:#fff;">💬 Chat requests</span>
+<span style="background:rgba(255,255,255,0.2);padding:8px 16px;border-radius:20px;color:#fff;">✨ Create magic</span>
+</div>
+</div>
+</div>
+<style>
+@keyframes welcomeIn {
+0% { opacity:0; transform:translate(-50%,-50%) scale(0.3) rotate(-10deg); }
+15% { opacity:1; transform:translate(-50%,-50%) scale(1.05) rotate(2deg); }
+25% { transform:translate(-50%,-50%) scale(1) rotate(0deg); }
+75% { opacity:1; transform:translate(-50%,-50%) scale(1); }
+100% { opacity:0; transform:translate(-50%,-50%) scale(0.9) translateY(-30px); pointer-events:none; }
+}
+@keyframes iconDance {
+0%,100% { transform:rotate(-5deg) scale(1); }
+50% { transform:rotate(5deg) scale(1.1); }
+}
+</style>
+<script>
+setTimeout(function() {
+var welcomeEl = document.getElementById('welcome-banner');
+if (welcomeEl) welcomeEl.remove();
+}, 6500);
+</script>
+<div class="power-plant" style="animation:float 3s ease-in-out infinite;">🎭🎪</div>
 <div id="test4-badge" style="position:absolute;top:220px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,rgba(255,0,150,0.95),rgba(150,0,255,0.9));padding:18px 35px;border-radius:30px;border:5px solid #FF69B4;box-shadow:0 0 50px rgba(255,0,150,0.7),0 0 100px rgba(150,0,255,0.4);z-index:250;animation:test4Entry 1s ease-out,test4Float 3s ease-in-out infinite 1s;">
 <div style="display:flex;align-items:center;gap:25px;">
 <div style="font-size:3.5rem;animation:test4Spin 1.2s ease-in-out infinite;">🧪</div>
@@ -355,10 +387,10 @@ setTimeout(function() {
   }
 }, 10000);
 </script>
-<div id="math-corner" style="position:absolute;bottom:70px;left:10px;background:linear-gradient(135deg,#2d5016,#1a3d0c);padding:15px 20px;border-radius:10px;border:4px solid #8B4513;box-shadow:0 4px 15px rgba(0,0,0,0.5),inset 0 0 20px rgba(0,0,0,0.3);z-index:50;animation:chalkShake 3s ease-in-out infinite;">
-<div style="font-size:0.7rem;color:#FFD700;font-weight:bold;text-align:center;margin-bottom:5px;text-shadow:1px 1px #000;">📝 BART'S MATH</div>
-<div style="font-family:'Comic Sans MS',cursive;font-size:2rem;color:#fff;text-align:center;text-shadow:2px 2px 0 #000,0 0 10px rgba(255,255,255,0.5);animation:mathPulse 2s infinite;">1+1=<span style="color:#76FF03;font-size:2.5rem;">2</span></div>
-<div style="font-size:0.6rem;color:#a0aec0;text-align:center;font-style:italic;margin-top:5px;">"Eat my shorts!" - Bart</div>
+<div id="idea-corner" style="position:absolute;bottom:70px;left:10px;background:linear-gradient(135deg,#1a1a2e,#16213e);padding:15px 20px;border-radius:10px;border:4px solid #e94560;box-shadow:0 4px 15px rgba(233,69,96,0.5),inset 0 0 20px rgba(0,0,0,0.3);z-index:50;animation:chalkShake 3s ease-in-out infinite;">
+<div style="font-size:0.7rem;color:#FFD700;font-weight:bold;text-align:center;margin-bottom:5px;text-shadow:1px 1px #000;">💭 COMMUNITY WISDOM</div>
+<div style="font-family:'Comic Sans MS',cursive;font-size:1.5rem;color:#fff;text-align:center;text-shadow:2px 2px 0 #000,0 0 10px rgba(255,255,255,0.5);animation:mathPulse 2s infinite;">∞ + <span style="color:#76FF03;font-size:2rem;">YOU</span> = 🎨</div>
+<div style="font-size:0.6rem;color:#a0aec0;text-align:center;font-style:italic;margin-top:5px;">"Together we create!"</div>
 </div>
 <style>
 @keyframes chalkShake {
@@ -370,12 +402,12 @@ setTimeout(function() {
   50% { text-shadow: 2px 2px 0 #000, 0 0 20px rgba(118,255,3,0.8), 0 0 30px rgba(255,235,59,0.5); }
 }
 </style>
-<div id="lol-counter" style="position:absolute;bottom:60px;right:10px;background:linear-gradient(135deg,rgba(255,215,0,0.9),rgba(255,165,0,0.95));padding:12px 20px;border-radius:15px;border:3px solid #8B4513;box-shadow:0 0 20px rgba(255,215,0,0.5);z-index:100;text-align:center;animation:lolBounce 2s ease-in-out infinite;">
-<div style="font-size:2rem;">😂</div>
-<div style="color:#333;font-weight:bold;font-size:1.1rem;">LOL COUNT</div>
-<div id="lol-count" style="font-size:1.8rem;color:#E91E63;font-weight:bold;text-shadow:2px 2px 0 #fff;">1</div>
-<div style="font-size:0.65rem;color:#666;margin-top:3px;">🧪 Tests: 3</div>
-<div style="font-size:0.7rem;color:#666;font-style:italic;">"D'oh!" moments</div>
+<div id="collab-counter" style="position:absolute;bottom:60px;right:10px;background:linear-gradient(135deg,rgba(147,51,234,0.9),rgba(79,70,229,0.95));padding:12px 20px;border-radius:15px;border:3px solid #a78bfa;box-shadow:0 0 20px rgba(147,51,234,0.5);z-index:100;text-align:center;animation:lolBounce 2s ease-in-out infinite;">
+<div style="font-size:2rem;">🤝</div>
+<div style="color:#fff;font-weight:bold;font-size:1.1rem;">CREATORS</div>
+<div id="creator-count" style="font-size:1.8rem;color:#fbbf24;font-weight:bold;text-shadow:2px 2px 0 #000;">∞</div>
+<div style="font-size:0.65rem;color:#ddd;margin-top:3px;">🎨 Ideas: Infinite</div>
+<div style="font-size:0.7rem;color:#ddd;font-style:italic;">"We build together"</div>
 </div>
 <style>
 @keyframes lolBounce {
@@ -450,10 +482,10 @@ setTimeout(function() {
   }
 }, 8000);
 </script>
-<div class="fountain" style="position:absolute;left:60px;top:150px;z-index:50;animation:fountainBubble 2s ease-in-out infinite;">
-<div style="font-size:3rem;text-align:center;filter:drop-shadow(2px 2px 0 #000);">⛲</div>
-<div style="font-size:0.8rem;color:#64B5F6;font-weight:bold;text-align:center;margin-top:5px;text-shadow:1px 1px #000;">Town Fountain</div>
-<div style="font-size:1.5rem;text-align:center;animation:waterDrip 1s infinite;">💧</div>
+<div class="idea-fountain" style="position:absolute;left:60px;top:150px;z-index:50;animation:fountainBubble 2s ease-in-out infinite;">
+<div style="font-size:3rem;text-align:center;filter:drop-shadow(2px 2px 0 #000);">🌈</div>
+<div style="font-size:0.8rem;color:#fbbf24;font-weight:bold;text-align:center;margin-top:5px;text-shadow:1px 1px #000;">Idea Fountain</div>
+<div style="font-size:1.5rem;text-align:center;animation:waterDrip 1s infinite;">💡</div>
 </div>
 <style>
 @keyframes fountainBubble {
@@ -465,13 +497,13 @@ setTimeout(function() {
 100% { opacity: 0; transform: translateY(15px); }
 }
 </style>
-<div class="flowers" style="position:absolute;bottom:80px;left:50%;transform:translateX(-50%);z-index:50;display:flex;gap:10px;">
-<span style="font-size:2rem;animation:flowerSway 2s ease-in-out infinite;">🌷</span>
-<span style="font-size:2rem;animation:flowerSway 2.2s ease-in-out infinite 0.2s;">🌻</span>
-<span style="font-size:2rem;animation:flowerSway 2.4s ease-in-out infinite 0.4s;">🌸</span>
-<span style="font-size:2rem;animation:flowerSway 2.1s ease-in-out infinite 0.1s;">🌺</span>
-<span style="font-size:2rem;animation:flowerSway 2.3s ease-in-out infinite 0.3s;">🌼</span>
-<span style="font-size:2rem;animation:flowerSway 2s ease-in-out infinite 0.5s;">🌷</span>
+<div class="creative-icons" style="position:absolute;bottom:80px;left:50%;transform:translateX(-50%);z-index:50;display:flex;gap:10px;">
+<span style="font-size:2rem;animation:flowerSway 2s ease-in-out infinite;">🎨</span>
+<span style="font-size:2rem;animation:flowerSway 2.2s ease-in-out infinite 0.2s;">🎭</span>
+<span style="font-size:2rem;animation:flowerSway 2.4s ease-in-out infinite 0.4s;">🎪</span>
+<span style="font-size:2rem;animation:flowerSway 2.1s ease-in-out infinite 0.1s;">🎬</span>
+<span style="font-size:2rem;animation:flowerSway 2.3s ease-in-out infinite 0.3s;">🎵</span>
+<span style="font-size:2rem;animation:flowerSway 2s ease-in-out infinite 0.5s;">✨</span>
 </div>
 <style>
 @keyframes flowerSway {
@@ -479,10 +511,10 @@ setTimeout(function() {
 50% { transform: rotate(5deg); }
 }
 </style>
-<div class="springfield-tower" style="position:absolute;right:60px;top:120px;z-index:50;animation:towerSway 4s ease-in-out infinite;">
-<div style="font-size:3rem;text-align:center;filter:drop-shadow(3px 3px 0 #000);">🗼</div>
-<div style="font-size:0.8rem;color:#FFD700;font-weight:bold;text-align:center;margin-top:5px;text-shadow:2px 2px #000;">Springfield Tower</div>
-<div style="font-size:0.7rem;color:#fff;text-align:center;font-style:italic;">Est. 1989</div>
+<div class="creativity-tower" style="position:absolute;right:60px;top:120px;z-index:50;animation:towerSway 4s ease-in-out infinite;">
+<div style="font-size:3rem;text-align:center;filter:drop-shadow(3px 3px 0 #000);">🏰</div>
+<div style="font-size:0.8rem;color:#FFD700;font-weight:bold;text-align:center;margin-top:5px;text-shadow:2px 2px #000;">Tower of Ideas</div>
+<div style="font-size:0.7rem;color:#fff;text-align:center;font-style:italic;">Built by Chat</div>
 </div>
 <style>
 @keyframes towerSway {
@@ -629,10 +661,10 @@ setTimeout(function() {
   setInterval(renderChatHistory, 1000);
 })();
 </script>
-<div class="grandma-npc" style="position:absolute;left:60px;top:400px;background:rgba(255,255,255,0.9);padding:10px 15px;border-radius:15px;border:3px solid #8B4513;box-shadow:0 4px 15px rgba(0,0,0,0.3);z-index:50;animation:grandmaWave 2s ease-in-out infinite;">
-<div style="font-size:2.5rem;text-align:center;">👵</div>
-<div style="font-size:0.9rem;color:#333;font-weight:bold;text-align:center;margin-top:5px;">Coucou mamie! 💕</div>
-<div style="font-size:0.7rem;color:#666;text-align:center;font-style:italic;">Go Homer!</div>
+<div class="welcome-npc" style="position:absolute;left:60px;top:400px;background:linear-gradient(135deg,rgba(236,72,153,0.95),rgba(167,139,250,0.9));padding:10px 15px;border-radius:15px;border:3px solid #f472b6;box-shadow:0 4px 15px rgba(236,72,153,0.5);z-index:50;animation:grandmaWave 2s ease-in-out infinite;">
+<div style="font-size:2.5rem;text-align:center;">🎨</div>
+<div style="font-size:0.9rem;color:#fff;font-weight:bold;text-align:center;margin-top:5px;">Welcome Creator! ✨</div>
+<div style="font-size:0.7rem;color:#fef;text-align:center;font-style:italic;">What shall we make?</div>
 </div>
 <style>
         @keyframes grandmaWave {
