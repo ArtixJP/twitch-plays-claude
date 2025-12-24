@@ -201,6 +201,31 @@
             pointer-events: none;
         }
         
+        #controls-hint {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.5rem;
+            background: rgba(255,255,255,0.9);
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .key {
+            display: inline-block;
+            background: #333;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.6rem;
+            min-width: 20px;
+            text-align: center;
+        }
+        
         #time-indicator {
             position: absolute;
             top: 10px;
@@ -220,12 +245,18 @@
 <div class="stat">🏃 Trainer: <span id="trainer-name">Ash</span></div>
 <div class="stat">⭐ Caught: <span id="caught-count">0</span>/<span id="total-pokemon">0</span></div>
 <div class="stat">🎯 Pokeballs: <span id="pokeball-count">∞</span></div>
+<div class="stat">🎮 <span id="control-mode">AUTO</span></div>
 </div>
 </div>
 <div id="main-area">
 <div id="game-world">
 <canvas id="game-canvas"></canvas>
 <div id="time-indicator">☀️</div>
+<div id="controls-hint">
+<span><span class="key">W</span><span class="key">A</span><span class="key">S</span><span class="key">D</span> or <span class="key">↑</span><span class="key">←</span><span class="key">↓</span><span class="key">→</span> to move</span>
+<span>|</span>
+<span>Auto-walk resumes after 3s</span>
+</div>
 </div>
 <div id="sidebar">
 <div class="panel" id="pokedex">
@@ -263,11 +294,15 @@
         
         // Game state
         const state = {
-            trainer: { x: 0, y: 0, targetX: 0, targetY: 0, emoji: '🧢' },
+            trainer: { x: 0, y: 0, targetX: 0, targetY: 0, emoji: '🧢', speed: 4 },
             wildPokemon: [],
             caughtPokemon: new Set(),
             isNight: false,
-            logs: []
+            logs: [],
+            keys: { up: false, down: false, left: false, right: false },
+            manualControl: false,
+            lastKeyTime: 0,
+            autoResumeDelay: 3000
         };
         
         // Canvas setup
@@ -283,6 +318,33 @@
         }
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
+        
+        // Keyboard controls
+        function handleKeyDown(e) {
+            let moved = false;
+            if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') { state.keys.up = true; moved = true; }
+            if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') { state.keys.down = true; moved = true; }
+            if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') { state.keys.left = true; moved = true; }
+            if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') { state.keys.right = true; moved = true; }
+            
+            if (moved) {
+                e.preventDefault();
+                state.manualControl = true;
+                state.lastKeyTime = Date.now();
+                document.getElementById('control-mode').textContent = 'MANUAL';
+                document.getElementById('control-mode').style.color = '#4caf50';
+            }
+        }
+        
+        function handleKeyUp(e) {
+            if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') state.keys.up = false;
+            if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') state.keys.down = false;
+            if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') state.keys.left = false;
+            if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') state.keys.right = false;
+        }
+        
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);
         
         // Initialize Pokedex
         function initPokedex() {
@@ -350,18 +412,52 @@
         
         // Game loop
         function update() {
-            // Move trainer towards target
-            const dx = state.trainer.targetX - state.trainer.x;
-            const dy = state.trainer.targetY - state.trainer.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
+            // Check if should return to auto mode
+            if (state.manualControl && Date.now() - state.lastKeyTime > state.autoResumeDelay) {
+                if (!state.keys.up && !state.keys.down && !state.keys.left && !state.keys.right) {
+                    state.manualControl = false;
+                    document.getElementById('control-mode').textContent = 'AUTO';
+                    document.getElementById('control-mode').style.color = '';
+                    // Set new target from current position
+                    state.trainer.targetX = Math.random() * (canvas.width - 100) + 50;
+                    state.trainer.targetY = Math.random() * (canvas.height - 100) + 50;
+                }
+            }
             
-            if (dist > 5) {
-                state.trainer.x += (dx / dist) * 3;
-                state.trainer.y += (dy / dist) * 3;
+            if (state.manualControl) {
+                // Manual keyboard control
+                let moveX = 0, moveY = 0;
+                if (state.keys.up) moveY -= 1;
+                if (state.keys.down) moveY += 1;
+                if (state.keys.left) moveX -= 1;
+                if (state.keys.right) moveX += 1;
+                
+                // Normalize diagonal movement
+                if (moveX !== 0 && moveY !== 0) {
+                    moveX *= 0.707;
+                    moveY *= 0.707;
+                }
+                
+                state.trainer.x += moveX * state.trainer.speed;
+                state.trainer.y += moveY * state.trainer.speed;
+                
+                // Keep trainer in bounds
+                state.trainer.x = Math.max(30, Math.min(canvas.width - 30, state.trainer.x));
+                state.trainer.y = Math.max(30, Math.min(canvas.height - 30, state.trainer.y));
             } else {
-                // Pick new random target
-                state.trainer.targetX = Math.random() * (canvas.width - 100) + 50;
-                state.trainer.targetY = Math.random() * (canvas.height - 100) + 50;
+                // Auto-walk mode
+                const dx = state.trainer.targetX - state.trainer.x;
+                const dy = state.trainer.targetY - state.trainer.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                
+                if (dist > 5) {
+                    state.trainer.x += (dx / dist) * 3;
+                    state.trainer.y += (dy / dist) * 3;
+                } else {
+                    // Pick new random target
+                    state.trainer.targetX = Math.random() * (canvas.width - 100) + 50;
+                    state.trainer.targetY = Math.random() * (canvas.height - 100) + 50;
+                }
             }
             
             // Move wild Pokemon
