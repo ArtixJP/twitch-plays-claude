@@ -1,361 +1,41 @@
 <!DOCTYPE html>
-
 <html>
 <head>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
-<title>TEST AGAIN - Iteration Lab</title>
-<style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@700&display=swap');
-        
+    <title>New Epoch Starting...</title>
+    <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        :root {
-            --primary: #00ff88;
-            --secondary: #ff6b35;
-            --bg-dark: #0a0a0f;
-            --bg-mid: #12121a;
-            --text: #e0e0e0;
-            --glitch: #ff0080;
-        }
-        
         body {
             min-height: 100vh;
-            background: var(--bg-dark);
-            color: var(--text);
-            font-family: 'JetBrains Mono', monospace;
-            overflow: hidden;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            position: relative;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            font-family: system-ui, -apple-system, sans-serif;
+            text-align: center;
         }
-        
-        /* Scanlines overlay */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: repeating-linear-gradient(
-                0deg,
-                transparent,
-                transparent 2px,
-                rgba(0, 255, 136, 0.03) 2px,
-                rgba(0, 255, 136, 0.03) 4px
-            );
-            pointer-events: none;
-            z-index: 100;
+        .container {
+            animation: fadeIn 1s ease-out;
         }
-        
-        /* Grid background */
-        .grid-bg {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-image: 
-                linear-gradient(rgba(0, 255, 136, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 255, 136, 0.05) 1px, transparent 1px);
-            background-size: 50px 50px;
-            animation: gridMove 20s linear infinite;
+        h1 { 
+            font-size: 2.5rem; 
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        
-        @keyframes gridMove {
-            0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
-            100% { transform: perspective(500px) rotateX(60deg) translateY(50px); }
+        p { font-size: 1.1rem; opacity: 0.8; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        
-        .main-container {
-            position: relative;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 30px;
-            padding: 20px;
-        }
-        
-        /* Main title with glitch effect */
-        .title-container {
-            position: relative;
-        }
-        
-        h1 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: clamp(3rem, 8vw, 6rem);
-            color: var(--primary);
-            text-shadow: 
-                0 0 10px var(--primary),
-                0 0 20px var(--primary),
-                0 0 40px var(--primary);
-            animation: glitchText 3s infinite;
-            position: relative;
-        }
-        
-        h1::before, h1::after {
-            content: 'TEST AGAIN';
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-        }
-        
-        h1::before {
-            color: var(--glitch);
-            animation: glitchBefore 3s infinite;
-            clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
-        }
-        
-        h1::after {
-            color: #00d4ff;
-            animation: glitchAfter 3s infinite;
-            clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
-        }
-        
-        @keyframes glitchText {
-            0%, 90%, 100% { transform: none; }
-            91% { transform: skew(-2deg); }
-            92% { transform: skew(2deg); }
-        }
-        
-        @keyframes glitchBefore {
-            0%, 90%, 100% { transform: translateX(0); }
-            91% { transform: translateX(-5px); }
-            92% { transform: translateX(5px); }
-        }
-        
-        @keyframes glitchAfter {
-            0%, 90%, 100% { transform: translateX(0); }
-            91% { transform: translateX(5px); }
-            92% { transform: translateX(-5px); }
-        }
-        
-        /* Test counter display */
-        .counter-panel {
-            background: var(--bg-mid);
-            border: 2px solid var(--primary);
-            border-radius: 10px;
-            padding: 25px 50px;
-            box-shadow: 
-                0 0 20px rgba(0, 255, 136, 0.2),
-                inset 0 0 30px rgba(0, 0, 0, 0.5);
-        }
-        
-        .counter-label {
-            font-size: 0.9rem;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            margin-bottom: 10px;
-        }
-        
-        .counter-value {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 4rem;
-            color: var(--secondary);
-            text-shadow: 0 0 20px var(--secondary);
-            animation: countPulse 1s ease-in-out infinite;
-        }
-        
-        @keyframes countPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        
-        /* Status messages */
-        .status-container {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            font-size: 0.85rem;
-        }
-        
-        .status-line {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            opacity: 0;
-            animation: typeIn 0.5s forwards;
-        }
-        
-        .status-line:nth-child(1) { animation-delay: 0.5s; }
-        .status-line:nth-child(2) { animation-delay: 1s; }
-        .status-line:nth-child(3) { animation-delay: 1.5s; }
-        .status-line:nth-child(4) { animation-delay: 2s; }
-        
-        @keyframes typeIn {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        
-        .status-icon {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            animation: blink 1s infinite;
-        }
-        
-        .status-icon.success { background: var(--primary); }
-        .status-icon.warning { background: #ffcc00; }
-        .status-icon.error { background: #ff3366; }
-        .status-icon.loading { background: #00d4ff; }
-        
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-        
-        /* Retry button */
-        .retry-btn {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1.2rem;
-            padding: 15px 40px;
-            background: transparent;
-            border: 2px solid var(--secondary);
-            color: var(--secondary);
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-        
-        .retry-btn::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 100%; height: 100%;
-            background: var(--secondary);
-            transition: left 0.3s;
-            z-index: -1;
-        }
-        
-        .retry-btn:hover {
-            color: var(--bg-dark);
-        }
-        
-        .retry-btn:hover::before {
-            left: 0;
-        }
-        
-        /* Floating particles */
-        .particle {
-            position: fixed;
-            width: 4px;
-            height: 4px;
-            background: var(--primary);
-            border-radius: 50%;
-            pointer-events: none;
-            animation: float 10s infinite;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
-        }
-        
-        /* Console output */
-        .console {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid #333;
-            border-radius: 5px;
-            padding: 15px;
-            font-size: 0.75rem;
-            color: #888;
-            max-width: 300px;
-        }
-        
-        .console-line {
-            margin: 3px 0;
-        }
-        
-        .console-line .time { color: #555; }
-        .console-line .msg { color: var(--primary); }
     </style>
 </head>
 <body>
-<div class="grid-bg"></div>
-
-<div class="particle" style="left: 10%; animation-delay: 0s;"></div>
-<div class="particle" style="left: 25%; animation-delay: 2s;"></div>
-<div class="particle" style="left: 40%; animation-delay: 4s;"></div>
-<div class="particle" style="left: 55%; animation-delay: 1s;"></div>
-<div class="particle" style="left: 70%; animation-delay: 3s;"></div>
-<div class="particle" style="left: 85%; animation-delay: 5s;"></div>
-<div class="particle" style="left: 95%; animation-delay: 2.5s;"></div>
-<div class="main-container">
-<div class="title-container">
-<h1>TEST AGAIN</h1>
-</div>
-<div class="counter-panel">
-<div class="counter-label">Iteration Count</div>
-<div class="counter-value" id="counter">001</div>
-</div>
-<div class="status-container">
-<div class="status-line">
-<span class="status-icon success"></span>
-<span>Environment initialized</span>
-</div>
-<div class="status-line">
-<span class="status-icon success"></span>
-<span>Parameters loaded</span>
-</div>
-<div class="status-line">
-<span class="status-icon loading"></span>
-<span>Awaiting community input...</span>
-</div>
-<div class="status-line">
-<span class="status-icon warning"></span>
-<span>Ready to iterate</span>
-</div>
-</div>
-<button class="retry-btn" id="retryBtn">▶ RUN TEST</button>
-</div>
-<div class="console">
-<div class="console-line"><span class="time">[00:00:00]</span> <span class="msg">System boot complete</span></div>
-<div class="console-line"><span class="time">[00:00:01]</span> <span class="msg">Test framework ready</span></div>
-<div class="console-line"><span class="time">[00:00:02]</span> <span class="msg">Waiting for instructions...</span></div>
-</div>
-<script>
-        // Counter animation
-        let count = 1;
-        const counterEl = document.getElementById('counter');
-        const retryBtn = document.getElementById('retryBtn');
-        
-        function incrementCounter() {
-            count++;
-            counterEl.textContent = String(count).padStart(3, '0');
-            counterEl.style.transform = 'scale(1.2)';
-            setTimeout(() => counterEl.style.transform = 'scale(1)', 200);
-            
-            // Add glitch effect
-            document.body.style.filter = 'hue-rotate(20deg)';
-            setTimeout(() => document.body.style.filter = 'none', 100);
-        }
-        
-        retryBtn.addEventListener('click', incrementCounter);
-        
-        // Auto-click every 5 seconds for viewers
-        setInterval(() => {
-            retryBtn.click();
-        }, 5000);
-        
-        // Initial click after 2 seconds
-        setTimeout(() => retryBtn.click(), 2000);
-        
-        // Random glitch effect
-        setInterval(() => {
-            if (Math.random() > 0.7) {
-                const h1 = document.querySelector('h1');
-                h1.style.textShadow = '3px 0 #ff0080, -3px 0 #00d4ff';
-                setTimeout(() => {
-                    h1.style.textShadow = '0 0 10px var(--primary), 0 0 20px var(--primary), 0 0 40px var(--primary)';
-                }, 100);
-            }
-        }, 2000);
-    </script>
+    <div class="container">
+        <h1>🌅 New Epoch Starting</h1>
+        <p>AI is generating a fresh page based on the new theme...</p>
+    </div>
 </body>
 </html>
