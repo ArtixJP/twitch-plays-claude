@@ -150,7 +150,8 @@
 <body>
 <div id="ui">
 <h1>🍩 SPRINGFIELD SNAKE ⛏️</h1>
-<div id="score-display">Donuts: <span id="score">0</span> | High Score: <span id="high-score">0</span></div>
+<div id="score-display">🍩 Donuts: <span id="score">0</span> | 🍎 Apples: +3pts | High Score: <span id="high-score">0</span></div>
+<div style="font-size:0.9rem;color:#4CAF50;margin-top:5px;">🐍 Watch out for the rival snake!</div>
 </div>
 <div id="mode-indicator">🤖 AUTO-PLAY MODE</div>
 <div id="game-wrapper">
@@ -217,6 +218,9 @@
         const tileCount = canvas.width / gridSize;
         
         let snake = [{x: 10, y: 10}];
+        let rivalSnake = [{x: 20, y: 20}];
+        let rivalDirection = {x: -1, y: 0};
+        let apple = {x: 5, y: 5};
         let direction = {x: 1, y: 0};
         let nextDirection = {x: 1, y: 0};
         let food = {x: 15, y: 15};
@@ -241,6 +245,21 @@
             }
         }
         createDonutRain();
+        
+        function spawnApple() {
+            apple = {
+                x: Math.floor(Math.random() * tileCount),
+                y: Math.floor(Math.random() * tileCount)
+            };
+            // Make sure apple doesn't spawn on snakes or food
+            for (let segment of snake.concat(rivalSnake)) {
+                if (segment.x === apple.x && segment.y === apple.y) {
+                    spawnApple();
+                    return;
+                }
+            }
+            if (apple.x === food.x && apple.y === food.y) spawnApple();
+        }
         
         function spawnFood() {
             food = {
@@ -295,6 +314,9 @@
             ctx.textBaseline = 'middle';
             ctx.fillText('🍩', food.x * gridSize + gridSize/2, food.y * gridSize + gridSize/2);
             
+            // Draw apple (bonus food)
+            ctx.fillText('🍎', apple.x * gridSize + gridSize/2, apple.y * gridSize + gridSize/2);
+            
             // Draw snake
             snake.forEach((segment, index) => {
                 if (index === 0) {
@@ -314,6 +336,30 @@
                         gridSize - 4
                     );
                     ctx.strokeStyle = '#FFA000';
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(
+                        segment.x * gridSize + 2,
+                        segment.y * gridSize + 2,
+                        gridSize - 4,
+                        gridSize - 4
+                    );
+                }
+            });
+            
+            // Draw rival snake (green Minecraft snake)
+            rivalSnake.forEach((segment, index) => {
+                if (index === 0) {
+                    ctx.font = '18px Arial';
+                    ctx.fillText('🐍', segment.x * gridSize + gridSize/2, segment.y * gridSize + gridSize/2);
+                } else {
+                    ctx.fillStyle = '#4CAF50';
+                    ctx.fillRect(
+                        segment.x * gridSize + 2,
+                        segment.y * gridSize + 2,
+                        gridSize - 4,
+                        gridSize - 4
+                    );
+                    ctx.strokeStyle = '#2E7D32';
                     ctx.lineWidth = 3;
                     ctx.strokeRect(
                         segment.x * gridSize + 2,
@@ -406,9 +452,51 @@
             nextDirection = bestMove;
         }
         
+        function updateRivalSnake() {
+            if (rivalSnake.length === 0) return;
+            
+            const head = rivalSnake[0];
+            // Simple AI: chase apples
+            const dx = apple.x - head.x;
+            const dy = apple.y - head.y;
+            
+            let newDir = rivalDirection;
+            if (Math.abs(dx) > Math.abs(dy)) {
+                newDir = dx > 0 ? {x: 1, y: 0} : {x: -1, y: 0};
+            } else {
+                newDir = dy > 0 ? {x: 0, y: 1} : {x: 0, y: -1};
+            }
+            
+            // Don't reverse
+            if (newDir.x !== -rivalDirection.x || newDir.y !== -rivalDirection.y) {
+                rivalDirection = newDir;
+            }
+            
+            const newHead = {x: head.x + rivalDirection.x, y: head.y + rivalDirection.y};
+            
+            // Wrap around walls
+            if (newHead.x < 0) newHead.x = tileCount - 1;
+            if (newHead.x >= tileCount) newHead.x = 0;
+            if (newHead.y < 0) newHead.y = tileCount - 1;
+            if (newHead.y >= tileCount) newHead.y = 0;
+            
+            rivalSnake.unshift(newHead);
+            
+            // Check if rival eats apple
+            if (newHead.x === apple.x && newHead.y === apple.y) {
+                spawnApple();
+            } else {
+                rivalSnake.pop();
+            }
+            
+            // Keep rival snake manageable
+            if (rivalSnake.length > 8) rivalSnake.pop();
+        }
+        
         function update() {
             if (gameOver) return;
             
+            updateRivalSnake();
             autoPlayAI();
             direction = nextDirection;
             
@@ -441,8 +529,25 @@
                 spawnFood();
                 // Speed up slightly
                 gameSpeed = Math.max(50, gameSpeed - 2);
+            } else if (head.x === apple.x && head.y === apple.y) {
+                // Apple gives +3 bonus points!
+                score += 3;
+                scoreEl.textContent = score;
+                if (score > highScore) {
+                    highScore = score;
+                    highScoreEl.textContent = highScore;
+                }
+                spawnApple();
             } else {
                 snake.pop();
+            }
+            
+            // Check collision with rival snake
+            for (let segment of rivalSnake) {
+                if (head.x === segment.x && head.y === segment.y) {
+                    endGame();
+                    return;
+                }
             }
         }
         
@@ -459,6 +564,8 @@
         
         function restartGame() {
             snake = [{x: 10, y: 10}];
+            rivalSnake = [{x: 20, y: 20}];
+            rivalDirection = {x: -1, y: 0};
             direction = {x: 1, y: 0};
             nextDirection = {x: 1, y: 0};
             score = 0;
@@ -509,6 +616,7 @@
         }
         
         spawnFood();
+        spawnApple();
         gameLoop();
     </script>
 </body>
