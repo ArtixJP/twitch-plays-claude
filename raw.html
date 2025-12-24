@@ -152,6 +152,26 @@
         .koi.white { background: #f5f5f5; top: 60%; left: 50%; animation-delay: -2s; }
         .koi.gold { background: #ffd700; top: 45%; left: 35%; animation-delay: -4s; }
         
+        .test-ripple {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9rem;
+            letter-spacing: 0.3em;
+            animation: testPulse 3s ease-out forwards;
+            pointer-events: none;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+        
+        @keyframes testPulse {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            80% { opacity: 1; }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
+        }
+        
         @keyframes swim {
             0%, 100% { transform: translateX(0) rotate(0deg); }
             25% { transform: translateX(100px) rotate(10deg); }
@@ -373,7 +393,6 @@
     </style>
 </head>
 <body>
-
 <header>
 <span class="kanji">禅</span>
 <h1>Zen Garden Gallery</h1>
@@ -397,6 +416,7 @@
 <div class="koi orange"></div>
 <div class="koi white"></div>
 <div class="koi gold"></div>
+<div class="test-ripple">✧ tested ✧</div>
 </div>
 <div class="rock-garden">
 <div class="sand-lines"></div>
@@ -420,8 +440,6 @@
 </div>
         Water &amp; Wind
     </div>
-
-
 <script>
         // Create falling cherry blossoms
         function createBlossom() {
