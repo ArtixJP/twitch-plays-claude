@@ -210,6 +210,35 @@
         .rock-2 { width: 40px; height: 30px; bottom: 25px; left: 50%; }
         .rock-3 { width: 50px; height: 35px; bottom: 28px; left: 70%; }
         
+        /* Test Stone - The Stone of Awareness */
+        .test-stone {
+            position: absolute;
+            width: 25px;
+            height: 20px;
+            bottom: 35px;
+            left: 15%;
+            background: linear-gradient(135deg, #6b5b95, #4a4063);
+            border-radius: 50% 40% 50% 60%;
+            box-shadow: 0 0 15px rgba(107, 91, 149, 0.6);
+            animation: stoneGlow 3s ease-in-out infinite;
+        }
+        
+        .test-stone::after {
+            content: '試';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+        
+        @keyframes stoneGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(107, 91, 149, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(138, 122, 180, 0.8), 0 0 40px rgba(107, 91, 149, 0.4); }
+        }
+        
         /* Scene 2: Bamboo Grove */
         .scene-bamboo {
             background: linear-gradient(180deg, #90a955 0%, #4f772d 100%);
@@ -390,7 +419,6 @@
     </style>
 </head>
 <body>
-
 <div class="petal" style="left: 5%; animation-duration: 8s;"></div>
 <div class="petal" style="left: 15%; animation-duration: 10s; animation-delay: -2s;"></div>
 <div class="petal" style="left: 25%; animation-duration: 9s; animation-delay: -4s;"></div>
@@ -401,19 +429,16 @@
 <div class="petal" style="left: 75%; animation-duration: 12s; animation-delay: -4s;"></div>
 <div class="petal" style="left: 85%; animation-duration: 8s; animation-delay: -6s;"></div>
 <div class="petal" style="left: 95%; animation-duration: 10s; animation-delay: -1s;"></div>
-
 <div class="firefly" style="top: 30%; left: 20%; animation-delay: 0s;"></div>
 <div class="firefly" style="top: 50%; left: 70%; animation-delay: -3s;"></div>
 <div class="firefly" style="top: 70%; left: 40%; animation-delay: -5s;"></div>
 <div class="firefly" style="top: 40%; left: 80%; animation-delay: -2s;"></div>
 <div class="garden-container">
-
 <header class="header">
 <div class="kanji">禅</div>
 <h1>Zen Garden Gallery</h1>
 <p>静寂の中に美を見出す — Find beauty in stillness</p>
 </header>
-
 <div class="koi-pond">
 <div class="pond-ripple" style="top: 40%; left: 30%;"></div>
 <div class="pond-ripple" style="top: 60%; left: 60%; animation-delay: -2s;"></div>
@@ -421,21 +446,19 @@
 <div class="koi koi-2"></div>
 <div class="koi koi-3"></div>
 </div>
-
 <section class="gallery">
-
 <div class="garden-card">
 <div class="card-scene scene-rock">
 <div class="sand-pattern"></div>
 <div class="rock rock-1"></div>
 <div class="rock rock-2"></div>
 <div class="rock rock-3"></div>
+<div class="test-stone" title="試 - The Stone of Testing"></div>
 </div>
 <h3 class="card-title">Karesansui</h3>
 <span class="card-kanji">枯山水</span>
 <p class="card-desc">Dry landscape garden with raked gravel representing water and carefully placed stones symbolizing mountains and islands.</p>
 </div>
-
 <div class="garden-card">
 <div class="card-scene scene-bamboo">
 <div class="bamboo bamboo-1"></div>
@@ -449,7 +472,6 @@
 <span class="card-kanji">竹林</span>
 <p class="card-desc">The path through bamboo, where gentle winds create nature's symphony and dappled light guides the wanderer.</p>
 </div>
-
 <div class="garden-card">
 <div class="card-scene scene-lantern">
 <div class="lantern">
@@ -464,7 +486,6 @@
 <span class="card-kanji">灯籠</span>
 <p class="card-desc">Stone lanterns illuminate the garden path at dusk, their warm glow a beacon of tranquility in the gathering twilight.</p>
 </div>
-
 <div class="garden-card">
 <div class="card-scene scene-sakura">
 <div class="tree-trunk"></div>
@@ -475,10 +496,9 @@
 <p class="card-desc">Cherry blossoms remind us of life's fleeting beauty. In their brief bloom, we find profound meaning in impermanence.</p>
 </div>
 </section>
-
 <p class="zen-quote">Sitting quietly, doing nothing, spring comes, and the grass grows by itself.</p>
+<p class="zen-quote" style="font-size: 0.75rem; opacity: 0.4; margin-top: -20px;">試 — The test stone glows with awareness</p>
 </div>
-
 <audio autoplay="" loop="" style="display:none;">
 <source src="https://assets.mixkit.co/active_storage/sfx/2515/2515-preview.mp3" type="audio/mpeg"/>
 </audio>
