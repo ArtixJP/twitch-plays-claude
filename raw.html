@@ -34,6 +34,12 @@
 </div>
 <span style="position: absolute; top: -35px; left: 50%; transform: translateX(-50%); color: #2196f3; font-weight: bold; font-size: 12px;">SQUARE</span>
 </div>
+<div class="purple-losange" id="purpleFighter" style="position: fixed; left: 450px; top: 200px; width: 60px; height: 60px; background: linear-gradient(135deg, #9c27b0, #6a1b9a); box-shadow: 0 4px 20px rgba(156, 39, 176, 0.6); z-index: 10; transform: rotate(45deg); animation: losangePulse 1.3s ease-in-out infinite;">
+<div class="health-bar" style="position: absolute; top: -30px; left: -10px; width: 80px; height: 12px; background: #333; border-radius: 6px; overflow: hidden; transform: rotate(-45deg);">
+<div id="purpleHealth" style="width: 100%; height: 100%; background: linear-gradient(90deg, #4caf50, #8bc34a); transition: width 0.3s;"></div>
+</div>
+<span style="position: absolute; top: -45px; left: 50%; transform: translateX(-50%) rotate(-45deg); color: #9c27b0; font-weight: bold; font-size: 12px;">LOSANGE</span>
+</div>
 <div class="yellow-rectangle" id="yellowFighter" style="position: fixed; left: 350px; top: 450px; width: 100px; height: 50px; background: linear-gradient(135deg, #ffeb3b, #ffc107); box-shadow: 0 4px 20px rgba(255, 235, 59, 0.6); border-radius: 6px; z-index: 10; animation: rectPulse 1.5s ease-in-out infinite;">
 <div class="health-bar" style="position: absolute; top: -20px; left: 0; width: 100%; height: 12px; background: #333; border-radius: 6px; overflow: hidden;">
 <div id="yellowHealth" style="width: 100%; height: 100%; background: linear-gradient(90deg, #4caf50, #8bc34a); transition: width 0.3s;"></div>
@@ -108,6 +114,10 @@
             0%, 100% { transform: translateY(0) rotate(2deg); }
             50% { transform: translateY(-10px) rotate(-2deg); }
         }
+        @keyframes losangePulse {
+            0%, 100% { transform: rotate(45deg) scale(1); opacity: 0.9; }
+            50% { transform: rotate(45deg) scale(1.08); opacity: 1; box-shadow: 0 6px 30px rgba(156, 39, 176, 0.7); }
+        }
         @keyframes rectPulse {
             0%, 100% { transform: scale(1); opacity: 0.9; }
             50% { transform: scale(1.04); opacity: 1; box-shadow: 0 6px 30px rgba(255, 235, 59, 0.7); }
@@ -143,6 +153,11 @@
     let yellowHealth = 100;
     const yellow = document.getElementById('yellowFighter');
     const yellowHealthBar = document.getElementById('yellowHealth');
+    let purpleX = 450, purpleY = 200;
+    let purpleVX = 0, purpleVY = 0;
+    let purpleHealth = 100;
+    const purple = document.getElementById('purpleFighter');
+    const purpleHealthBar = document.getElementById('purpleHealth');
     let battleOver = false;
     
     const attacks = ['PUNCH!', 'SLAM!', 'BASH!', 'WHACK!', 'POW!', 'BOOM!'];
@@ -233,8 +248,8 @@
             if (redHealth <= 0 || blueHealth <= 0) {
                 battleOver = true;
                 let winner = '🟨 RECTANGLE';
-                if (redHealth > blueHealth && redHealth > yellowHealth) winner = '🔺 TRIANGLE';
-                else if (blueHealth > redHealth && blueHealth > yellowHealth) winner = '🟦 SQUARE';
+                const scores = [{name: '🔺 TRIANGLE', h: redHealth}, {name: '🟦 SQUARE', h: blueHealth}, {name: '🟨 RECTANGLE', h: yellowHealth}, {name: '🟣 LOSANGE', h: purpleHealth}];
+                winner = scores.sort((a,b) => b.h - a.h)[0].name;
                 status.textContent = winner + ' WINS!';
                 status.style.background = 'linear-gradient(90deg, gold, orange)';
                 status.style.color = '#333';
@@ -246,7 +261,7 @@
                 
                 // Restart after 3 seconds
                 setTimeout(() => {
-                    redHealth = 100; blueHealth = 100; yellowHealth = 100;
+                    redHealth = 100; blueHealth = 100; yellowHealth = 100; purpleHealth = 100;
                     redX = 150; redY = 300;
                     blueX = 550; blueY = 310;
                     redHealthBar.style.width = '100%';
@@ -255,6 +270,9 @@
                     yellow.style.opacity = '1';
                     yellowX = 350; yellowY = 450;
                     yellowHealthBar.style.width = '100%';
+                    purple.style.opacity = '1';
+                    purpleX = 450; purpleY = 200;
+                    purpleHealthBar.style.width = '100%';
                     blue.style.opacity = '1';
                     status.textContent = 'ROUND 2... FIGHT!';
                     status.style.background = 'rgba(0,0,0,0.7)';
@@ -321,10 +339,63 @@
         redHealthBar.style.width = Math.max(0, redHealth) + '%';
         blueHealthBar.style.width = Math.max(0, blueHealth) + '%';
         yellowHealthBar.style.width = Math.max(0, yellowHealth) + '%';
+        purpleHealthBar.style.width = Math.max(0, purpleHealth) + '%';
         
         if (yellowHealth <= 0 && !battleOver) {
             yellow.style.opacity = '0.3';
         }
+        if (purpleHealth <= 0 && !battleOver) {
+            purple.style.opacity = '0.3';
+        }
+        
+        // Purple losange AI - aggressive, targets weakest enemy
+        let pTargetX, pTargetY;
+        const healths = [{h: redHealth, x: redX+61, y: redY+49}, {h: blueHealth, x: blueX+40, y: blueY+40}, {h: yellowHealth, x: yellowX+50, y: yellowY+25}];
+        const weakest = healths.filter(e => e.h > 0).sort((a,b) => a.h - b.h)[0];
+        if (weakest) { pTargetX = weakest.x; pTargetY = weakest.y; }
+        else { pTargetX = 400; pTargetY = 350; }
+        const dxP = pTargetX - (purpleX + 30);
+        const dyP = pTargetY - (purpleY + 30);
+        const distP = Math.sqrt(dxP*dxP + dyP*dyP);
+        if (distP > 50) {
+            purpleVX = (dxP / distP) * 4.5 + (Math.random() - 0.5) * 3;
+            purpleVY = (dyP / distP) * 4.5 + (Math.random() - 0.5) * 3;
+        }
+        purpleX += purpleVX; purpleY += purpleVY;
+        purpleX = Math.max(50, Math.min(700, purpleX));
+        purpleY = Math.max(150, Math.min(500, purpleY));
+        purple.style.left = purpleX + 'px';
+        purple.style.top = purpleY + 'px';
+        
+        // Purple collisions with all fighters
+        const prDist = Math.sqrt((redX+61 - purpleX-30)**2 + (redY+49 - purpleY-30)**2);
+        if (prDist < 70 && !battleOver && redHealth > 0 && purpleHealth > 0) {
+            const dmg = Math.floor(Math.random() * 14) + 6;
+            if (Math.random() > 0.45) { redHealth -= dmg; red.style.animation = 'shake 0.2s'; status.textContent = '🟣 ' + attacks[Math.floor(Math.random()*attacks.length)] + ' -' + dmg; }
+            else { purpleHealth -= dmg; purple.style.animation = 'shake 0.2s'; status.textContent = '🔴 ' + attacks[Math.floor(Math.random()*attacks.length)] + ' -' + dmg; }
+            showImpact((redX + purpleX) / 2 + 45, (redY + purpleY) / 2 + 40);
+            purpleVX = -(redX - purpleX) / prDist * 7; purpleVY = -(redY - purpleY) / prDist * 7;
+            setTimeout(() => { purple.style.animation = 'losangePulse 1.3s ease-in-out infinite'; red.style.animation = ''; }, 200);
+        }
+        const pbDist = Math.sqrt((blueX+40 - purpleX-30)**2 + (blueY+40 - purpleY-30)**2);
+        if (pbDist < 70 && !battleOver && blueHealth > 0 && purpleHealth > 0) {
+            const dmg = Math.floor(Math.random() * 14) + 6;
+            if (Math.random() > 0.45) { blueHealth -= dmg; blue.style.animation = 'shake 0.2s'; status.textContent = '🟣 ' + attacks[Math.floor(Math.random()*attacks.length)] + ' -' + dmg; }
+            else { purpleHealth -= dmg; purple.style.animation = 'shake 0.2s'; status.textContent = '🔵 ' + attacks[Math.floor(Math.random()*attacks.length)] + ' -' + dmg; }
+            showImpact((blueX + purpleX) / 2 + 35, (blueY + purpleY) / 2 + 35);
+            purpleVX = -(blueX - purpleX) / pbDist * 7; purpleVY = -(blueY - purpleY) / pbDist * 7;
+            setTimeout(() => { purple.style.animation = 'losangePulse 1.3s ease-in-out infinite'; blue.style.animation = ''; }, 200);
+        }
+        const pyDist = Math.sqrt((yellowX+50 - purpleX-30)**2 + (yellowY+25 - purpleY-30)**2);
+        if (pyDist < 70 && !battleOver && yellowHealth > 0 && purpleHealth > 0) {
+            const dmg = Math.floor(Math.random() * 14) + 6;
+            if (Math.random() > 0.45) { yellowHealth -= dmg; yellow.style.animation = 'shake 0.2s'; status.textContent = '🟣 ' + attacks[Math.floor(Math.random()*attacks.length)] + ' -' + dmg; }
+            else { purpleHealth -= dmg; purple.style.animation = 'shake 0.2s'; status.textContent = '🟨 ' + attacks[Math.floor(Math.random()*attacks.length)] + ' -' + dmg; }
+            showImpact((yellowX + purpleX) / 2 + 40, (yellowY + purpleY) / 2 + 28);
+            purpleVX = -(yellowX - purpleX) / pyDist * 7; purpleVY = -(yellowY - purpleY) / pyDist * 7;
+            setTimeout(() => { purple.style.animation = 'losangePulse 1.3s ease-in-out infinite'; yellow.style.animation = ''; }, 200);
+        }
+        purpleVX *= 0.94; purpleVY *= 0.94;
         
         // Friction
         redVX *= 0.95;
