@@ -153,16 +153,17 @@
 <div id="score-display">🍩 Donuts: <span id="score">0</span> | 🍎 Apples: +3pts | High Score: <span id="high-score">0</span></div>
 <div style="font-size:0.9rem;color:#4CAF50;margin-top:5px;">🐍 Watch out for the rival snake!</div>
 </div>
-<div id="mode-indicator">💬 CHAT CONTROL <span style="font-size:0.8em;color:#FFD700;">⏳ connecting...</span></div>
-<div id="chat-controls" style="position:absolute;top:50px;right:10px;background:rgba(0,0,0,0.8);padding:10px 15px;border-radius:8px;color:#fff;font-size:0.85rem;z-index:100;max-width:180px;">
-<div style="color:#bf94ff;font-weight:bold;margin-bottom:8px;">📺 CHAT COMMANDS:</div>
+<div id="mode-indicator" style="background:linear-gradient(135deg,rgba(118,255,3,0.3),rgba(0,0,0,0.8));border:2px solid #76FF03;">💬 CHAT CONTROL <span style="font-size:0.8em;color:#FFD700;">⏳ connecting...</span></div>
+<div id="chat-controls" style="position:absolute;top:50px;right:10px;background:linear-gradient(135deg,rgba(145,71,255,0.2),rgba(0,0,0,0.9));padding:10px 15px;border-radius:8px;color:#fff;font-size:0.85rem;z-index:100;max-width:180px;border:2px solid #bf94ff;box-shadow:0 0 15px rgba(145,71,255,0.5);">
+<div style="color:#bf94ff;font-weight:bold;margin-bottom:8px;animation:pulseText 2s infinite;">📺 TYPE IN CHAT:</div>
+<style>@keyframes pulseText { 0%,100%{opacity:1;} 50%{opacity:0.7;} }</style>
 <div style="color:#76FF03;">⬆️ up / w</div>
 <div style="color:#76FF03;">⬇️ down / s</div>
 <div style="color:#76FF03;">⬅️ left / a</div>
 <div style="color:#76FF03;">➡️ right / d</div>
 <div style="margin-top:10px;border-top:1px solid #444;padding-top:8px;">
 <div style="color:#FFD700;font-size:0.75rem;">Last command:</div>
-<div id="last-command" style="color:#00FFFF;font-weight:bold;transition:all 0.2s;">waiting...</div>
+<div id="last-command" style="color:#00FFFF;font-weight:bold;transition:all 0.2s;font-size:1.1rem;padding:5px;background:rgba(0,255,255,0.1);border-radius:4px;margin-top:5px;">waiting for chat...</div>
 <style>
 @keyframes cmdFlash {
 0% { background: rgba(118,255,3,0.5); transform: scale(1.1); }
@@ -179,7 +180,8 @@
 <p>Homer ate <span id="final-score">0</span> donuts!</p>
 <button id="restart-btn">🍩 TRY AGAIN</button>
 </div>
-<div id="instruction">Type <code>up</code> <code>down</code> <code>left</code> <code>right</code> in chat to control Homer! | <code>!idea</code> to modify the world!</div>
+<div id="instruction" style="animation:instructionPulse 3s infinite;">🎮 Type <code>up</code> <code>down</code> <code>left</code> <code>right</code> in Twitch chat to control Homer! 🍩</div>
+<style>@keyframes instructionPulse { 0%,100%{box-shadow:0 0 10px rgba(191,148,255,0.5);} 50%{box-shadow:0 0 20px rgba(191,148,255,0.8);} }</style>
 <div class="power-plant">☢️🏭</div>
 <div class="fountain" style="position:absolute;left:60px;top:150px;z-index:50;animation:fountainBubble 2s ease-in-out infinite;">
 <div style="font-size:3rem;text-align:center;filter:drop-shadow(2px 2px 0 #000);">⛲</div>
@@ -759,8 +761,23 @@
             const modeEl = document.getElementById('mode-indicator');
             if (modeEl) {
                 modeEl.innerHTML = '💬 CHAT CONTROL <span style="font-size:0.8em;color:#4CAF50;">✓ CONNECTED</span>';
+                modeEl.style.animation = 'connectedPulse 1s ease';
             }
+            // Add connected animation
+            const styleEl = document.createElement('style');
+            styleEl.textContent = '@keyframes connectedPulse { 0%{transform:scale(1);} 50%{transform:scale(1.1);box-shadow:0 0 30px #4CAF50;} 100%{transform:scale(1);} }';
+            document.head.appendChild(styleEl);
             console.log('[SNAKE] Chat control initialized successfully!');
+            
+            // Show connection success notification
+            const notif = document.createElement('div');
+            notif.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(135deg,#4CAF50,#2E7D32);padding:20px 40px;border-radius:15px;color:white;font-size:1.5rem;z-index:9999;animation:fadeNotif 2s forwards;';
+            notif.innerHTML = '✅ CHAT CONTROL ACTIVE!<br><span style="font-size:1rem;">Type up/down/left/right in chat!</span>';
+            document.body.appendChild(notif);
+            const fadeStyle = document.createElement('style');
+            fadeStyle.textContent = '@keyframes fadeNotif { 0%{opacity:0;transform:translate(-50%,-50%) scale(0.5);} 20%{opacity:1;transform:translate(-50%,-50%) scale(1);} 80%{opacity:1;} 100%{opacity:0;pointer-events:none;} }';
+            document.head.appendChild(fadeStyle);
+            setTimeout(() => notif.remove(), 2500);
         }
         
         // Start initialization
