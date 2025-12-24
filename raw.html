@@ -172,6 +172,10 @@
 <div style="margin-top:10px;border-top:1px solid #444;padding-top:8px;">
 <div style="color:#FFD700;font-size:0.75rem;">Last command:</div>
 <div id="last-command" style="color:#00FFFF;font-weight:bold;transition:all 0.2s;font-size:1.1rem;padding:5px;background:rgba(0,255,255,0.1);border-radius:4px;margin-top:5px;">waiting for chat...</div>
+<div style="margin-top:8px;border-top:1px solid #444;padding-top:8px;">
+<button id="test-chat-btn" style="background:linear-gradient(135deg,#4CAF50,#2E7D32);border:none;padding:6px 12px;border-radius:5px;color:white;cursor:pointer;font-size:0.8rem;width:100%;transition:all 0.2s;">🧪 Test Chat Control</button>
+<div id="debug-info" style="font-size:0.65rem;color:#888;margin-top:5px;">Debug: initializing...</div>
+</div>
 <style>
 @keyframes cmdFlash {
 0% { background: rgba(118,255,3,0.5); transform: scale(1.1); }
@@ -236,7 +240,6 @@
 <div style="color:#000;font-weight:bold;text-shadow:1px 1px 0 #fff;">TEST SUCCESSFUL!</div>
 <div style="font-size:1rem;color:#333;margin-top:5px;font-style:italic;">"Woohoo!" - Homer</div>
 </div>
-
 <div id="mega-test-sequence" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:500;">
 <div class="test-item" style="position:absolute;top:20%;left:15%;animation:testBounce 0.5s ease 0.2s both;">✅ CHAT: OK</div>
 <div class="test-item" style="position:absolute;top:30%;right:20%;animation:testBounce 0.5s ease 0.4s both;">✅ SNAKE: OK</div>
@@ -842,6 +845,9 @@ setTimeout(function() {
                 const modeEl = document.getElementById('mode-indicator');
                 if (modeEl) {
                     modeEl.innerHTML = '💬 CHAT CONTROL <span style="font-size:0.8em;color:#4CAF50;">(' + commandCount + ' cmds)</span>';
+                    modeEl.style.animation = 'none';
+                    modeEl.offsetHeight;
+                    modeEl.style.animation = 'pulse 0.5s ease';
                 }
                 console.log('[CHAT CONTROL] ' + username + ' moved: ' + dirName);
             }
@@ -903,6 +909,10 @@ setTimeout(function() {
             document.head.appendChild(styleEl);
             console.log('[SNAKE] Chat control initialized successfully!');
             
+            // Update debug info
+            const debugEl = document.getElementById('debug-info');
+            if (debugEl) debugEl.innerHTML = '✅ TPC connected! Listening...';
+            
             // Show connection success notification
             const notif = document.createElement('div');
             notif.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(135deg,#4CAF50,#2E7D32);padding:20px 40px;border-radius:15px;color:white;font-size:1.5rem;z-index:9999;animation:fadeNotif 2s forwards;';
@@ -916,6 +926,29 @@ setTimeout(function() {
         
         // Start initialization
         initChatControl();
+        
+        // Test button functionality
+        document.getElementById('test-chat-btn').addEventListener('click', function() {
+            const testDirs = ['up', 'down', 'left', 'right'];
+            const testDir = testDirs[Math.floor(Math.random() * testDirs.length)];
+            processCommand(testDir, 'TEST_USER');
+            this.textContent = '✅ Sent: ' + testDir.toUpperCase();
+            this.style.background = 'linear-gradient(135deg,#FFD700,#FFA500)';
+            setTimeout(() => {
+                this.textContent = '🧪 Test Chat Control';
+                this.style.background = 'linear-gradient(135deg,#4CAF50,#2E7D32)';
+            }, 1000);
+        });
+        
+        // Debug info updater
+        setInterval(function() {
+            const debugEl = document.getElementById('debug-info');
+            if (debugEl) {
+                const tpcStatus = window.tpc ? '✅' : '❌';
+                const msgCount = window.tpc?.chatMessages?.length || 0;
+                debugEl.innerHTML = 'TPC: ' + tpcStatus + ' | Msgs: ' + msgCount + ' | Cmds: ' + commandCount;
+            }
+        }, 1000);
         
         gameLoop();
     </script>
