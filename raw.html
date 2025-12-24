@@ -76,7 +76,7 @@
             min-height: 100vh;
             padding: 20px;
             display: grid;
-            grid-template-columns: 1fr 2fr 1fr;
+            grid-template-columns: 1fr 1fr 2fr 1fr;
             grid-template-rows: auto 1fr auto;
             gap: 20px;
             max-width: 1600px;
@@ -271,6 +271,76 @@
             transform: scale(1.02);
         }
         
+        /* Pokemon Specimens */
+        .specimen-case {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        
+        .specimen {
+            background: linear-gradient(135deg, rgba(181,166,66,0.2) 0%, rgba(139,69,19,0.3) 100%);
+            border: 2px solid var(--brass);
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .specimen:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(181,166,66,0.5);
+        }
+        
+        .specimen:hover::after {
+            content: attr(data-name);
+            position: absolute;
+            bottom: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.6rem;
+            color: var(--brass);
+            white-space: nowrap;
+        }
+        
+        .specimen-creature {
+            font-size: 1.8rem;
+            filter: sepia(0.5) saturate(1.2);
+            animation: specimen-float 3s ease-in-out infinite;
+        }
+        
+        .specimen:nth-child(2) .specimen-creature { animation-delay: 0.5s; }
+        .specimen:nth-child(3) .specimen-creature { animation-delay: 1s; }
+        .specimen:nth-child(4) .specimen-creature { animation-delay: 1.5s; }
+        
+        @keyframes specimen-float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        .specimen-gears {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 12px;
+            height: 12px;
+            border: 2px solid var(--copper);
+            border-radius: 50%;
+            animation: rotate 4s linear infinite;
+            opacity: 0.6;
+        }
+        
+        .specimen-gears::before {
+            content: '';
+            position: absolute;
+            inset: 2px;
+            background: var(--bronze);
+            border-radius: 50%;
+        }
+        
         /* Gas lamps */
         .lamp {
             position: fixed;
@@ -367,7 +437,6 @@
 </head>
 <body>
 <div class="wall-texture"></div>
-
 <div class="lamp lamp-1">
 <div class="lamp-flame"></div>
 <div class="lamp-base"></div>
@@ -376,14 +445,11 @@
 <div class="lamp-flame"></div>
 <div class="lamp-base"></div>
 </div>
-
 <div class="pipe pipe-h pipe-1"></div>
 <div class="pipe pipe-h pipe-2"></div>
 <div class="pipe pipe-v pipe-3"></div>
 <div class="pipe pipe-v pipe-4"></div>
-
 <div class="steam-container" id="steamContainer"></div>
-
 <div class="workshop">
 <header class="header">
 <div class="gear gear-1"></div>
@@ -393,7 +459,6 @@
 <h1>⚙️ Professor Cogsworth's Workshop ⚙️</h1>
 <p class="subtitle">"Where Steam Meets Genius" — Est. 1887</p>
 </header>
-
 <aside class="side-panel">
 <h3 class="panel-title">🔧 Tool Rack</h3>
 <div class="tool-rack">
@@ -405,7 +470,6 @@
 <div class="tool"><span class="tool-icon">📐</span> Precision Calipers</div>
 </div>
 </aside>
-
 <main class="workbench">
 <h2 style="font-family: 'Cinzel', serif; color: var(--brass); margin-bottom: 20px;">Current Invention</h2>
 <div class="workbench-surface">
@@ -424,7 +488,28 @@
 </div>
 <p style="margin-top: 20px; font-style: italic; opacity: 0.7;">"The community shapes what we build next..."</p>
 </main>
-
+<aside class="side-panel">
+<h3 class="panel-title">🔬 Captured Specimens</h3>
+<div class="specimen-case">
+<div class="specimen" data-name="Clockwork Pikachu">
+<div class="specimen-creature">⚡🐭</div>
+<div class="specimen-gears"></div>
+</div>
+<div class="specimen" data-name="Steam Charizard">
+<div class="specimen-creature">🔥🐉</div>
+<div class="specimen-gears"></div>
+</div>
+<div class="specimen" data-name="Brass Bulbasaur">
+<div class="specimen-creature">🌿🦎</div>
+<div class="specimen-gears"></div>
+</div>
+<div class="specimen" data-name="Copper Eevee">
+<div class="specimen-creature">✨🦊</div>
+<div class="specimen-gears"></div>
+</div>
+</div>
+<p style="font-size:0.7rem;text-align:center;margin-top:8px;opacity:0.7;">"Mechanical fauna from distant lands"</p>
+</aside>
 <aside class="side-panel">
 <h3 class="panel-title">📜 Blueprints</h3>
 <div class="blueprints">
@@ -436,7 +521,6 @@
 <div class="blueprint">📋 Dirigible Navigation System</div>
 </div>
 </aside>
-
 <footer class="footer">
 <div class="status">
 <div class="status-item">
