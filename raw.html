@@ -1,332 +1,41 @@
 <!DOCTYPE html>
-
-<html lang="en">
+<html>
 <head>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>☕ The Cozy Bean - Artisan Coffee</title>
-<style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400&display=swap');
-        
+    <title>New Epoch Starting...</title>
+    <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         body {
             min-height: 100vh;
-            background: linear-gradient(180deg, #2c1810 0%, #3d2317 50%, #4a2c1a 100%);
-            font-family: 'Lato', sans-serif;
-            overflow-x: hidden;
-            position: relative;
-        }
-        
-        /* Warm ambient glow */
-        .ambient-glow {
-            position: fixed;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(255,180,100,0.15) 0%, transparent 70%);
-            pointer-events: none;
-            animation: flicker 4s ease-in-out infinite;
-        }
-        .glow-1 { top: 10%; left: 10%; }
-        .glow-2 { top: 30%; right: 15%; animation-delay: -2s; }
-        .glow-3 { bottom: 20%; left: 30%; animation-delay: -1s; }
-        
-        @keyframes flicker {
-            0%, 100% { opacity: 0.6; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.1); }
-        }
-        
-        /* Floating coffee beans */
-        .coffee-bean {
-            position: fixed;
-            font-size: 1.5rem;
-            opacity: 0.3;
-            animation: floatBean 15s ease-in-out infinite;
-            pointer-events: none;
-        }
-        
-        @keyframes floatBean {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            25% { transform: translateY(-30px) rotate(90deg); }
-            50% { transform: translateY(-10px) rotate(180deg); }
-            75% { transform: translateY(-40px) rotate(270deg); }
-        }
-        
-        /* Main container */
-        .shop-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 30px 20px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-            align-items: start;
-        }
-        
-        /* Header */
-        .header {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 20px;
-            background: rgba(0,0,0,0.2);
-            border-radius: 20px;
-            border: 1px solid rgba(255,200,150,0.1);
-        }
-        
-        .logo {
-            font-family: 'Playfair Display', serif;
-            font-size: 3rem;
-            color: #f5deb3;
-            text-shadow: 0 2px 10px rgba(255,180,100,0.3);
-            margin-bottom: 10px;
-        }
-        
-        .tagline {
-            color: #c4a882;
-            font-size: 1.1rem;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-        }
-        
-        /* Coffee cup with steam */
-        .coffee-display {
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 30px;
-        }
-        
-        .cup-container {
-            position: relative;
-            width: 200px;
-            height: 180px;
-        }
-        
-        .cup {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 140px;
-            height: 120px;
-            background: linear-gradient(135deg, #f5f5dc 0%, #e8dcc4 100%);
-            border-radius: 5px 5px 50% 50%;
-            box-shadow: inset -10px -10px 20px rgba(0,0,0,0.1), 0 10px 30px rgba(0,0,0,0.3);
-        }
-        
-        .cup::before {
-            content: '';
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            right: 10px;
-            height: 30px;
-            background: linear-gradient(180deg, #3d2317 0%, #5c3d2e 100%);
-            border-radius: 50%;
-        }
-        
-        .cup-handle {
-            position: absolute;
-            right: -25px;
-            top: 20px;
-            width: 35px;
-            height: 50px;
-            border: 8px solid #e8dcc4;
-            border-left: none;
-            border-radius: 0 25px 25px 0;
-        }
-        
-        .steam {
-            position: absolute;
-            top: -60px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 10px;
-        }
-        
-        .steam-line {
-            width: 8px;
-            height: 50px;
-            background: linear-gradient(to top, rgba(255,255,255,0.4), transparent);
-            border-radius: 10px;
-            animation: steam 2s ease-in-out infinite;
-        }
-        
-        .steam-line:nth-child(2) { animation-delay: -0.5s; height: 60px; }
-        .steam-line:nth-child(3) { animation-delay: -1s; height: 45px; }
-        
-        @keyframes steam {
-            0%, 100% { transform: translateY(0) scaleX(1); opacity: 0.4; }
-            50% { transform: translateY(-20px) scaleX(1.5); opacity: 0.1; }
-        }
-        
-        .coffee-quote {
-            margin-top: 30px;
-            font-family: 'Playfair Display', serif;
-            font-style: italic;
-            color: #c4a882;
-            font-size: 1.3rem;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            font-family: system-ui, -apple-system, sans-serif;
             text-align: center;
         }
-        
-        /* Chalkboard menu */
-        .menu-board {
-            background: #1a1a1a;
-            border: 15px solid #5c3d2e;
-            border-radius: 5px;
-            padding: 25px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            position: relative;
+        .container {
+            animation: fadeIn 1s ease-out;
         }
-        
-        .menu-board::before {
-            content: '✧ TODAY\'S MENU ✧';
-            display: block;
-            text-align: center;
-            font-family: 'Playfair Display', serif;
-            font-size: 1.5rem;
-            color: #f5deb3;
-            margin-bottom: 20px;
-            letter-spacing: 2px;
+        h1 { 
+            font-size: 2.5rem; 
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        
-        .menu-section {
-            margin-bottom: 20px;
-        }
-        
-        .menu-section h3 {
-            color: #ffa07a;
-            font-family: 'Playfair Display', serif;
-            font-size: 1.2rem;
-            margin-bottom: 10px;
-            border-bottom: 1px dashed rgba(255,255,255,0.2);
-            padding-bottom: 5px;
-        }
-        
-        .menu-item {
-            display: flex;
-            justify-content: space-between;
-            color: #e8e8e8;
-            padding: 8px 0;
-            font-size: 0.95rem;
-        }
-        
-        .menu-item .price {
-            color: #98d8aa;
-        }
-        
-        /* Open sign */
-        .open-sign {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #8b0000;
-            color: #fff;
-            padding: 15px 30px;
-            border-radius: 10px;
-            font-family: 'Playfair Display', serif;
-            font-size: 1.3rem;
-            box-shadow: 0 0 20px rgba(255,100,100,0.5), inset 0 0 20px rgba(255,255,255,0.1);
-            animation: neonPulse 2s ease-in-out infinite;
-        }
-        
-        @keyframes neonPulse {
-            0%, 100% { box-shadow: 0 0 20px rgba(255,100,100,0.5), inset 0 0 20px rgba(255,255,255,0.1); }
-            50% { box-shadow: 0 0 40px rgba(255,100,100,0.8), inset 0 0 30px rgba(255,255,255,0.2); }
-        }
-        
-        /* Footer */
-        .footer {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 20px;
-            color: #8b7355;
-            font-size: 0.9rem;
-        }
-        
-        .wifi-info {
-            background: rgba(255,255,255,0.05);
-            padding: 10px 20px;
-            border-radius: 20px;
-            display: inline-block;
-            margin-top: 10px;
-        }
-        
-        .wifi-info span {
-            color: #c4a882;
+        p { font-size: 1.1rem; opacity: 0.8; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
-<div class="ambient-glow glow-1"></div>
-<div class="ambient-glow glow-2"></div>
-<div class="ambient-glow glow-3"></div>
-<div class="coffee-bean" style="top: 15%; left: 5%; animation-delay: 0s;">☕</div>
-<div class="coffee-bean" style="top: 45%; right: 8%; animation-delay: -3s;">🫘</div>
-<div class="coffee-bean" style="bottom: 25%; left: 12%; animation-delay: -7s;">☕</div>
-<div class="coffee-bean" style="top: 70%; right: 5%; animation-delay: -5s;">🫘</div>
-<div class="coffee-bean" style="top: 20%; right: 25%; animation-delay: -10s;">☕</div>
-<div class="open-sign">✦ OPEN ✦</div>
-<div class="shop-container">
-<header class="header">
-<h1 class="logo">☕ The Cozy Bean</h1>
-<p class="tagline">Artisan Coffee &amp; Good Vibes Since 2024</p>
-</header>
-<section class="coffee-display">
-<div class="cup-container">
-<div class="steam">
-<div class="steam-line"></div>
-<div class="steam-line"></div>
-<div class="steam-line"></div>
-</div>
-<div class="cup">
-<div class="cup-handle"></div>
-</div>
-</div>
-<p class="coffee-quote">"Life begins after coffee."</p>
-</section>
-<section class="menu-board">
-<div class="taste-test-badge" style="position: absolute; top: -15px; right: 15px; background: linear-gradient(135deg, #ffd700, #ffaa00); color: #2c1810; padding: 8px 15px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; transform: rotate(5deg); box-shadow: 0 3px 10px rgba(0,0,0,0.3); animation: badgePop 2s ease-in-out infinite;">✨ TASTE TEST TODAY! ✨</div>
-<style>.taste-test-badge { z-index: 10; } @keyframes badgePop { 0%, 100% { transform: rotate(5deg) scale(1); } 50% { transform: rotate(5deg) scale(1.05); } }</style>
-<div class="menu-section">
-<h3>☕ Hot Drinks</h3>
-<div class="menu-item"><span>Espresso</span><span class="price">$3.50</span></div>
-<div class="menu-item"><span>Cappuccino</span><span class="price">$4.50</span></div>
-<div class="menu-item"><span>Caramel Latte</span><span class="price">$5.00</span></div>
-<div class="menu-item"><span>Mocha Delight</span><span class="price">$5.50</span></div>
-</div>
-<div class="menu-section">
-<h3>🧁 Sweet Treats</h3>
-<div class="menu-item"><span>Croissant</span><span class="price">$3.00</span></div>
-<div class="menu-item"><span>Blueberry Muffin</span><span class="price">$3.50</span></div>
-<div class="menu-item"><span>Cinnamon Roll</span><span class="price">$4.00</span></div>
-</div>
-</section>
-<footer class="footer">
-<p>📍 123 Brew Street, Coffee Town</p>
-<div class="wifi-info">📶 WiFi: <span>CoffeeLovers</span> | Password: <span>BrewedFresh</span></div>
-</footer>
-</div>
-<audio id="ambient-audio" loop="">
-<source src="https://cdn.pixabay.com/audio/2022/10/30/audio_946e48f2e0.mp3" type="audio/mpeg"/>
-</audio>
-<script>
-        // Auto-play ambient sounds (muted first for browser policy)
-        const audio = document.getElementById('ambient-audio');
-        audio.volume = 0.15;
-        audio.play().catch(() => {
-                        document.body.addEventListener('click', () => audio.play(), { once: true });
-        });
-        
-        // Randomly animate coffee beans
-        document.querySelectorAll('.coffee-bean').forEach(bean => {
-            setInterval(() => {
-                bean.style.left = Math.random() > 0.5 ? bean.style.left : (Math.random() * 20 + '%');
-            }, 10000);
-        });
-    </script>
+    <div class="container">
+        <h1>🌅 New Epoch Starting</h1>
+        <p>Claude is generating a fresh page based on the new theme...</p>
+    </div>
 </body>
 </html>
