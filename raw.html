@@ -587,6 +587,94 @@
                 setTimeout(() => gear.style.filter = '', 100);
             });
         }, 5000);
+        
+        // Steampunk Fireworks System
+        function createFirework(x, y) {
+            const colors = ['#b5a642', '#b87333', '#cd7f32', '#ffd700', '#ff9500', '#ff6600'];
+            const particleCount = 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                const angle = (Math.PI * 2 * i) / particleCount;
+                const velocity = 100 + Math.random() * 100;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                
+                particle.style.cssText = `
+                    position: fixed;
+                    left: ${x}px;
+                    top: ${y}px;
+                    width: 8px;
+                    height: 8px;
+                    background: radial-gradient(circle, ${color} 0%, transparent 70%);
+                    border-radius: 50%;
+                    pointer-events: none;
+                    z-index: 9999;
+                    box-shadow: 0 0 6px ${color}, 0 0 12px ${color};
+                `;
+                document.body.appendChild(particle);
+                
+                const destX = x + Math.cos(angle) * velocity;
+                const destY = y + Math.sin(angle) * velocity;
+                
+                particle.animate([
+                    { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+                    { transform: `translate(${destX - x}px, ${destY - y}px) scale(0)`, opacity: 0 }
+                ], {
+                    duration: 800 + Math.random() * 400,
+                    easing: 'cubic-bezier(0, 0.5, 0.5, 1)'
+                }).onfinish = () => particle.remove();
+            }
+            
+            // Add sparkle burst
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => {
+                    const spark = document.createElement('div');
+                    const sparkAngle = Math.random() * Math.PI * 2;
+                    const sparkDist = 20 + Math.random() * 60;
+                    const sparkColor = colors[Math.floor(Math.random() * colors.length)];
+                    
+                    spark.style.cssText = `
+                        position: fixed;
+                        left: ${x + Math.cos(sparkAngle) * sparkDist}px;
+                        top: ${y + Math.sin(sparkAngle) * sparkDist}px;
+                        width: 4px;
+                        height: 4px;
+                        background: ${sparkColor};
+                        border-radius: 50%;
+                        pointer-events: none;
+                        z-index: 9999;
+                        box-shadow: 0 0 4px ${sparkColor};
+                    `;
+                    document.body.appendChild(spark);
+                    
+                    spark.animate([
+                        { transform: 'scale(1)', opacity: 1 },
+                        { transform: 'scale(0)', opacity: 0 }
+                    ], {
+                        duration: 400,
+                        easing: 'ease-out'
+                    }).onfinish = () => spark.remove();
+                }, i * 30);
+            }
+        }
+        
+        // Pokemon specimen fireworks on click
+        document.querySelectorAll('.specimen').forEach(specimen => {
+            specimen.addEventListener('click', (e) => {
+                const rect = specimen.getBoundingClientRect();
+                const x = rect.left + rect.width / 2;
+                const y = rect.top + rect.height / 2;
+                
+                // Multiple bursts for extra spectacle
+                createFirework(x, y);
+                setTimeout(() => createFirework(x - 20, y - 20), 100);
+                setTimeout(() => createFirework(x + 20, y + 20), 200);
+                
+                // Flash the specimen
+                specimen.style.boxShadow = '0 0 30px #ffd700, 0 0 60px #ff9500';
+                setTimeout(() => specimen.style.boxShadow = '', 500);
+            });
+        });
     </script>
 </body>
 </html>
