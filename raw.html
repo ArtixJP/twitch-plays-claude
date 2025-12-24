@@ -236,6 +236,50 @@
 <div style="color:#000;font-weight:bold;text-shadow:1px 1px 0 #fff;">TEST SUCCESSFUL!</div>
 <div style="font-size:1rem;color:#333;margin-top:5px;font-style:italic;">"Woohoo!" - Homer</div>
 </div>
+
+<div id="mega-test-sequence" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:500;">
+<div class="test-item" style="position:absolute;top:20%;left:15%;animation:testBounce 0.5s ease 0.2s both;">✅ CHAT: OK</div>
+<div class="test-item" style="position:absolute;top:30%;right:20%;animation:testBounce 0.5s ease 0.4s both;">✅ SNAKE: OK</div>
+<div class="test-item" style="position:absolute;top:60%;left:25%;animation:testBounce 0.5s ease 0.6s both;">✅ DONUTS: OK</div>
+<div class="test-item" style="position:absolute;top:70%;right:15%;animation:testBounce 0.5s ease 0.8s both;">✅ RIVAL: OK</div>
+<div class="test-item" style="position:absolute;top:45%;left:50%;transform:translateX(-50%);animation:testBounce 0.5s ease 1s both;">✅ TWITCH: OK</div>
+<div class="mega-success" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);animation:megaSuccess 3s ease 1.5s both;font-size:3rem;text-align:center;">
+<div style="font-size:5rem;">🎉🍩🐍🍩🎉</div>
+<div style="color:#76FF03;text-shadow:0 0 20px #76FF03,3px 3px 0 #000;">ALL SYSTEMS GO!</div>
+<div style="font-size:1.5rem;color:#FFD700;margin-top:10px;">Springfield Snake is LIVE!</div>
+</div>
+</div>
+<style>
+.test-item {
+  background: linear-gradient(135deg, #4CAF50, #2E7D32);
+  color: white;
+  padding: 15px 25px;
+  border-radius: 10px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  box-shadow: 0 0 20px rgba(76,175,80,0.8);
+  opacity: 0;
+}
+@keyframes testBounce {
+  0% { opacity: 0; transform: scale(0) rotate(-10deg); }
+  50% { transform: scale(1.2) rotate(5deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+@keyframes megaSuccess {
+  0% { opacity: 0; transform: translate(-50%,-50%) scale(0); }
+  30% { opacity: 1; transform: translate(-50%,-50%) scale(1.2); }
+  50% { transform: translate(-50%,-50%) scale(1); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(0.8); }
+}
+</style>
+<script>
+// Remove test sequence after animation
+setTimeout(function() {
+  var testSeq = document.getElementById('mega-test-sequence');
+  if (testSeq) testSeq.remove();
+}, 5000);
+</script>
 <style>
     @keyframes testPopup {
         0% { opacity: 0; transform: translate(-50%,-50%) scale(0.5); }
