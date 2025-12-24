@@ -245,6 +245,44 @@
         100% { opacity: 0; transform: translate(-50%,-50%) scale(0.8); pointer-events: none; }
     }
 </style>
+<div id="chat-history" style="position:fixed;left:10px;top:50%;transform:translateY(-50%);width:220px;max-height:400px;background:linear-gradient(180deg,rgba(0,0,0,0.9),rgba(30,0,60,0.85));border:3px solid #bf94ff;border-radius:12px;padding:10px;z-index:150;overflow-y:auto;box-shadow:0 0 20px rgba(145,71,255,0.5);">
+<div style="color:#bf94ff;font-weight:bold;font-size:1rem;margin-bottom:8px;text-align:center;border-bottom:1px solid #bf94ff;padding-bottom:5px;">💬 CHAT HISTORY</div>
+<div id="chat-messages-list" style="font-size:0.8rem;color:#fff;"></div>
+</div>
+<script>
+(function() {
+  function renderChatHistory() {
+    const container = document.getElementById('chat-messages-list');
+    if (!container || !window.tpc || !window.tpc.chatMessages) return;
+    
+    const messages = window.tpc.chatMessages.slice(-15);
+    container.innerHTML = messages.map(m => {
+      const isCommand = /^(up|down|left|right|w|a|s|d)$/i.test(m.message.trim());
+      const cmdStyle = isCommand ? 'background:rgba(118,255,3,0.2);border-left:3px solid #76FF03;' : '';
+      return '<div style="margin:4px 0;padding:5px;background:rgba(255,255,255,0.05);border-radius:4px;word-wrap:break-word;' + cmdStyle + '">' +
+        '<span style="color:#a78bfa;font-weight:bold;">' + m.username + '</span>: ' +
+        '<span style="color:' + (isCommand ? '#76FF03' : '#ddd') + ';">' + m.message + '</span></div>';
+    }).join('');
+    container.scrollTop = container.scrollHeight;
+  }
+  
+  // Initial render
+  setTimeout(renderChatHistory, 1000);
+  
+  // Update on new messages
+  const originalCallback = window.tpc?.onChatMessage;
+  if (window.tpc) {
+    const origFn = window.tpc.onChatMessage;
+    window.tpc.onChatMessage = function(msg) {
+      if (origFn) origFn(msg);
+      renderChatHistory();
+    };
+  }
+  
+  // Also poll periodically
+  setInterval(renderChatHistory, 1000);
+})();
+</script>
 <div class="grandma-npc" style="position:absolute;left:60px;top:400px;background:rgba(255,255,255,0.9);padding:10px 15px;border-radius:15px;border:3px solid #8B4513;box-shadow:0 4px 15px rgba(0,0,0,0.3);z-index:50;animation:grandmaWave 2s ease-in-out infinite;">
 <div style="font-size:2.5rem;text-align:center;">👵</div>
 <div style="font-size:0.9rem;color:#333;font-weight:bold;text-align:center;margin-top:5px;">Coucou mamie! 💕</div>
