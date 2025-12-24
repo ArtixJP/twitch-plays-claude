@@ -5,112 +5,365 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Twitch plays Claude</title>
+<title>Twitch Plays Minecraft</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
-        .blue-circle {
-            position: absolute;
-            left: 240px;
-            top: 460px;
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-            border-radius: 50%;
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.5);
-            animation: blue-pulse 2.5s ease-in-out infinite;
-            animation-delay: 0.25s;
-        }
-        @keyframes blue-pulse {
-            0%, 100% { transform: scale(1); opacity: 0.9; }
-            50% { transform: scale(1.08); opacity: 1; box-shadow: 0 6px 25px rgba(52, 152, 219, 0.7); }
-        }
-        .red-rectangle {
-            position: absolute;
-            left: 961px;
-            top: 418px;
-            width: 54px;
-            height: 66px;
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
-            animation: red-pulse 2s ease-in-out infinite;
-            animation-delay: 0.5s;
-        }
-        @keyframes red-pulse {
-            0%, 100% { transform: scale(1); opacity: 0.9; }
-            50% { transform: scale(1.05); opacity: 1; }
-        }
-        .green-rectangle {
-            position: absolute;
-            left: 365px;
-            top: 123px;
-            width: 115px;
-            height: 77px;
-            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(155, 89, 182, 0.5);
-            animation: gentle-pulse 2s ease-in-out infinite;
-        }
-        @keyframes gentle-pulse {
-            0%, 100% { transform: scale(1); opacity: 0.9; }
-            50% { transform: scale(1.02); opacity: 1; }
-        }
-        .yellow-rectangle {
-            position: absolute;
-            left: 764px;
-            top: 110px;
-            width: 70px;
-            height: 70px;
-            background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%);
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(241, 196, 15, 0.5);
-            animation: yellow-morph 3s ease-in-out infinite;
-            animation-delay: 0.75s;
-            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-        }
-        @keyframes yellow-morph {
-            0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.9; clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
-            25% { transform: scale(1.1) rotate(45deg); opacity: 1; clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
-            50% { transform: scale(1.15) rotate(90deg); opacity: 1; box-shadow: 0 6px 25px rgba(241, 196, 15, 0.8); clip-path: polygon(50% 5%, 95% 50%, 50% 95%, 5% 50%); }
-            75% { transform: scale(1.1) rotate(135deg); opacity: 1; clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
-            font-family: system-ui, sans-serif; 
-            display: flex; 
-            flex-direction: column;
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
-            margin: 0;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            font-family: 'Courier New', monospace; 
+            overflow: hidden;
+            background: #87CEEB;
+        }
+        #game-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        #ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 100;
             color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
         }
-        h1 { font-size: 3rem; text-align: center; margin-bottom: 1rem; }
-        .instruction {
-            text-align: center;
-            font-size: 1.2rem;
+        #ui h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: #4ade80;
+        }
+        #hotbar {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 4px;
+            background: rgba(0,0,0,0.6);
+            padding: 8px;
+            border-radius: 8px;
+            border: 3px solid #555;
+        }
+        .hotbar-slot {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #888;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .hotbar-slot.selected {
+            border-color: #fff;
+            box-shadow: 0 0 10px white;
+            transform: scale(1.1);
+        }
+        .hotbar-slot:hover {
+            border-color: #aaa;
+        }
+        #crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            pointer-events: none;
+            z-index: 50;
+        }
+        #crosshair::before, #crosshair::after {
+            content: '';
+            position: absolute;
+            background: white;
+            mix-blend-mode: difference;
+        }
+        #crosshair::before {
+            width: 2px;
+            height: 20px;
+            left: 9px;
+        }
+        #crosshair::after {
+            width: 20px;
+            height: 2px;
+            top: 9px;
+        }
+        #mode-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            padding: 10px 20px;
+            border-radius: 8px;
+            color: #4ade80;
+            font-size: 1rem;
+            z-index: 100;
+        }
+        #instruction {
+            position: absolute;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            padding: 8px 16px;
+            border-radius: 8px;
             color: #a0aec0;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 0 20px;
-            line-height: 1.6;
+            font-size: 0.9rem;
+            z-index: 100;
         }
-        .instruction code {
-            background: rgba(145, 71, 255, 0.2);
-            padding: 2px 8px;
+        #instruction code {
+            background: rgba(145, 71, 255, 0.3);
+            padding: 2px 6px;
             border-radius: 4px;
             color: #bf94ff;
         }
     </style>
 </head>
 <body>
-<div class="green-rectangle" title="Now a majestic purple!"></div>
-<div class="blue-circle" title="A cool blue circle!"></div>
-<div class="red-rectangle" title="A fiery red companion!"></div>
-<div class="yellow-rectangle" title="Morphed into a spinning diamond!"></div>
-<h1>Hello World!</h1>
-<p class="instruction">
-        Type <code>!idea &lt;your idea&gt;</code> in the Twitch chat to add to this page.<br/>
-        Example: <code>!idea Add a space cat floating in the background</code>
-</p>
+<div id="game-container"></div>
+<div id="crosshair"></div>
+<div id="ui">
+<h1>⛏️ TWITCH MINECRAFT</h1>
+<div>Blocks: <span id="block-count">0</span></div>
+</div>
+<div id="mode-indicator">🤖 AUTO-PLAY MODE</div>
+<div id="hotbar">
+<div class="hotbar-slot selected" data-block="grass" style="background: linear-gradient(to bottom, #4ade80 50%, #8B4513 50%);">🌱</div>
+<div class="hotbar-slot" data-block="dirt" style="background: #8B4513;">🟫</div>
+<div class="hotbar-slot" data-block="stone" style="background: #888;">🪨</div>
+<div class="hotbar-slot" data-block="wood" style="background: #DEB887;">🪵</div>
+<div class="hotbar-slot" data-block="diamond" style="background: linear-gradient(135deg, #00CED1, #4169E1);">💎</div>
+<div class="hotbar-slot" data-block="gold" style="background: linear-gradient(135deg, #FFD700, #FFA500);">🥇</div>
+<div class="hotbar-slot" data-block="lava" style="background: linear-gradient(135deg, #FF4500, #FF6347);">🔥</div>
+<div class="hotbar-slot" data-block="water" style="background: linear-gradient(135deg, #1E90FF, #00BFFF);">💧</div>
+</div>
+<div id="instruction">Type <code>!idea &lt;your idea&gt;</code> to modify this world!</div>
+<script>
+        // Minecraft-style voxel game
+        const container = document.getElementById('game-container');
+        const blockCountEl = document.getElementById('block-count');
+        
+        // Three.js setup
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x87CEEB);
+        scene.fog = new THREE.Fog(0x87CEEB, 50, 150);
+        
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(20, 25, 40);
+        camera.lookAt(0, 0, 0);
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        container.appendChild(renderer.domElement);
+        
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+        
+        const sunLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        sunLight.position.set(50, 100, 50);
+        sunLight.castShadow = true;
+        sunLight.shadow.mapSize.width = 2048;
+        sunLight.shadow.mapSize.height = 2048;
+        scene.add(sunLight);
+        
+        // Block materials
+        const blockMaterials = {
+            grass: new THREE.MeshLambertMaterial({ color: 0x4ade80 }),
+            dirt: new THREE.MeshLambertMaterial({ color: 0x8B4513 }),
+            stone: new THREE.MeshLambertMaterial({ color: 0x888888 }),
+            wood: new THREE.MeshLambertMaterial({ color: 0xDEB887 }),
+            diamond: new THREE.MeshLambertMaterial({ color: 0x00CED1 }),
+            gold: new THREE.MeshLambertMaterial({ color: 0xFFD700 }),
+            lava: new THREE.MeshLambertMaterial({ color: 0xFF4500, emissive: 0xFF2200, emissiveIntensity: 0.5 }),
+            water: new THREE.MeshLambertMaterial({ color: 0x1E90FF, transparent: true, opacity: 0.7 })
+        };
+        
+        const blockGeometry = new THREE.BoxGeometry(1, 1, 1);
+        const blocks = new Map();
+        let blockCount = 0;
+        
+        function getBlockKey(x, y, z) {
+            return `${Math.round(x)},${Math.round(y)},${Math.round(z)}`;
+        }
+        
+        function addBlock(x, y, z, type = 'grass') {
+            const key = getBlockKey(x, y, z);
+            if (blocks.has(key)) return;
+            
+            const material = blockMaterials[type] || blockMaterials.grass;
+            const block = new THREE.Mesh(blockGeometry, material);
+            block.position.set(Math.round(x), Math.round(y), Math.round(z));
+            block.castShadow = true;
+            block.receiveShadow = true;
+            block.userData.type = type;
+            scene.add(block);
+            blocks.set(key, block);
+            blockCount++;
+            blockCountEl.textContent = blockCount;
+        }
+        
+        function removeBlock(x, y, z) {
+            const key = getBlockKey(x, y, z);
+            const block = blocks.get(key);
+            if (block) {
+                scene.remove(block);
+                blocks.delete(key);
+                blockCount--;
+                blockCountEl.textContent = blockCount;
+            }
+        }
+        
+        // Generate terrain
+        function generateTerrain() {
+            const size = 20;
+            for (let x = -size; x <= size; x++) {
+                for (let z = -size; z <= size; z++) {
+                    // Simple height variation
+                    const height = Math.floor(Math.sin(x * 0.3) * Math.cos(z * 0.3) * 3) + 2;
+                    
+                    // Bedrock layer
+                    addBlock(x, 0, z, 'stone');
+                    
+                    // Dirt layers
+                    for (let y = 1; y < height; y++) {
+                        addBlock(x, y, z, 'dirt');
+                    }
+                    
+                    // Grass top
+                    addBlock(x, height, z, 'grass');
+                    
+                    // Random trees
+                    if (Math.random() < 0.02 && height > 2) {
+                        for (let ty = 1; ty <= 4; ty++) {
+                            addBlock(x, height + ty, z, 'wood');
+                        }
+                        // Leaves (simplified)
+                        for (let lx = -1; lx <= 1; lx++) {
+                            for (let lz = -1; lz <= 1; lz++) {
+                                addBlock(x + lx, height + 5, z + lz, 'grass');
+                            }
+                        }
+                    }
+                    
+                    // Random ores
+                    if (Math.random() < 0.01) {
+                        addBlock(x, 1, z, 'diamond');
+                    }
+                    if (Math.random() < 0.02) {
+                        addBlock(x, 1, z, 'gold');
+                    }
+                }
+            }
+            
+            // Add the original shapes as special blocks!
+            // Purple rectangle -> Amethyst structure
+            for (let i = 0; i < 3; i++) {
+                addBlock(-5 + i, 6, -5, 'diamond');
+                addBlock(-5 + i, 7, -5, 'diamond');
+            }
+            
+            // Blue circle -> Water pool
+            for (let x = -8; x <= -6; x++) {
+                for (let z = 2; z <= 4; z++) {
+                    addBlock(x, 3, z, 'water');
+                }
+            }
+            
+            // Red rectangle -> Lava pit
+            addBlock(8, 3, 5, 'lava');
+            addBlock(9, 3, 5, 'lava');
+            addBlock(8, 3, 6, 'lava');
+            
+            // Yellow diamond -> Gold monument
+            addBlock(5, 6, -8, 'gold');
+            addBlock(5, 7, -8, 'gold');
+            addBlock(5, 8, -8, 'gold');
+        }
+        
+        generateTerrain();
+        
+        // Auto-play camera movement
+        let autoPlayAngle = 0;
+        let autoPlayRadius = 35;
+        let autoPlayHeight = 25;
+        let targetLookAt = new THREE.Vector3(0, 5, 0);
+        
+        // Auto-build AI
+        let autoBuildTimer = 0;
+        const buildTypes = ['grass', 'dirt', 'stone', 'wood', 'diamond', 'gold'];
+        
+        function autoPlay(delta) {
+            // Smooth camera orbit
+            autoPlayAngle += delta * 0.1;
+            autoPlayRadius = 35 + Math.sin(autoPlayAngle * 0.5) * 10;
+            autoPlayHeight = 25 + Math.sin(autoPlayAngle * 0.3) * 8;
+            
+            camera.position.x = Math.cos(autoPlayAngle) * autoPlayRadius;
+            camera.position.z = Math.sin(autoPlayAngle) * autoPlayRadius;
+            camera.position.y = autoPlayHeight;
+            camera.lookAt(targetLookAt);
+            
+            // Auto-build blocks periodically
+            autoBuildTimer += delta;
+            if (autoBuildTimer > 0.5) {
+                autoBuildTimer = 0;
+                
+                // Random building
+                const rx = Math.floor(Math.random() * 10) - 5;
+                const rz = Math.floor(Math.random() * 10) - 5;
+                const ry = Math.floor(Math.random() * 5) + 5;
+                const type = buildTypes[Math.floor(Math.random() * buildTypes.length)];
+                
+                // 70% chance to build, 30% to remove
+                if (Math.random() < 0.7) {
+                    addBlock(rx, ry, rz, type);
+                } else {
+                    removeBlock(rx, ry, rz);
+                }
+            }
+        }
+        
+        // Hotbar selection
+        let selectedBlock = 'grass';
+        document.querySelectorAll('.hotbar-slot').forEach(slot => {
+            slot.addEventListener('click', () => {
+                document.querySelectorAll('.hotbar-slot').forEach(s => s.classList.remove('selected'));
+                slot.classList.add('selected');
+                selectedBlock = slot.dataset.block;
+            });
+        });
+        
+        // Animation loop
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+            const delta = clock.getDelta();
+            
+            autoPlay(delta);
+            
+            // Animate lava and water
+            blocks.forEach((block, key) => {
+                if (block.userData.type === 'lava') {
+                    block.position.y += Math.sin(Date.now() * 0.005 + block.position.x) * 0.002;
+                }
+                if (block.userData.type === 'water') {
+                    block.position.y += Math.sin(Date.now() * 0.003 + block.position.z) * 0.001;
+                }
+            });
+            
+            renderer.render(scene, camera);
+        }
+        animate();
+        
+        // Handle resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
 </body>
 </html>
