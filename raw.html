@@ -150,7 +150,7 @@
 <body>
 <div id="ui">
 <h1>🍩 SPRINGFIELD SNAKE 🐍</h1>
-<div id="score-display">🍩 Donuts: <span id="score">0</span> | 🍎 Apples: +3pts | High Score: <span id="high-score">0</span></div>
+<div id="score-display">🍩 Donuts: <span id="score">0</span> | 🍎 Apples: +3pts | 🍌 Bananas: +2pts | High Score: <span id="high-score">0</span></div>
 <div style="font-size:0.9rem;color:#4CAF50;margin-top:5px;">🐍 Watch out for the rival snake!</div>
 </div>
 <div id="mode-indicator" style="background:linear-gradient(135deg,rgba(118,255,3,0.3),rgba(0,0,0,0.8));border:2px solid #76FF03;font-size:1.1rem;">💬 CHAT CONTROL <span style="font-size:0.8em;color:#FFD700;">⏳ connecting...</span></div>
@@ -403,8 +403,10 @@ setTimeout(function() {
         
         let snake = [{x: 10, y: 10}];
         let rivalSnake = [{x: 20, y: 20}];
+            bananas = [{x: 3, y: 3}, {x: 25, y: 8}, {x: 12, y: 22}, {x: 18, y: 5}, {x: 7, y: 18}];
         let rivalDirection = {x: -1, y: 0};
         let apple = {x: 5, y: 5};
+        let bananas = [{x: 3, y: 3}, {x: 25, y: 8}, {x: 12, y: 22}, {x: 18, y: 5}, {x: 7, y: 18}];
         let direction = {x: 1, y: 0};
         let nextDirection = {x: 1, y: 0};
         let food = {x: 15, y: 15};
@@ -502,6 +504,11 @@ setTimeout(function() {
             
             // Draw apple (bonus food)
             ctx.fillText('🍎', apple.x * gridSize + gridSize/2, apple.y * gridSize + gridSize/2);
+            
+            // Draw bananas (multiple bonus items)
+            for (let banana of bananas) {
+                ctx.fillText('🍌', banana.x * gridSize + gridSize/2, banana.y * gridSize + gridSize/2);
+            }
             
             // Draw snake
             snake.forEach((segment, index) => {
@@ -726,6 +733,26 @@ setTimeout(function() {
                 }
                 spawnApple();
             } else {
+                // Check banana collision
+                let ateBanana = false;
+                for (let i = 0; i < bananas.length; i++) {
+                    if (head.x === bananas[i].x && head.y === bananas[i].y) {
+                        score += 2;
+                        scoreEl.textContent = score;
+                        if (score > highScore) {
+                            highScore = score;
+                            highScoreEl.textContent = highScore;
+                        }
+                        // Respawn banana at new location
+                        bananas[i] = {
+                            x: Math.floor(Math.random() * tileCount),
+                            y: Math.floor(Math.random() * tileCount)
+                        };
+                        ateBanana = true;
+                        break;
+                    }
+                }
+                if (!ateBanana) {
                 snake.pop();
             }
             
@@ -752,6 +779,7 @@ setTimeout(function() {
         function restartGame() {
             snake = [{x: 10, y: 10}];
             rivalSnake = [{x: 20, y: 20}];
+            bananas = [{x: 3, y: 3}, {x: 25, y: 8}, {x: 12, y: 22}, {x: 18, y: 5}, {x: 7, y: 18}];
             rivalDirection = {x: -1, y: 0};
             direction = {x: 1, y: 0};
             nextDirection = {x: 1, y: 0};
