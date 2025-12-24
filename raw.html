@@ -195,6 +195,65 @@
 <div id="instruction" style="animation:instructionPulse 3s infinite;font-size:1rem;padding:12px 20px;">🎮 Type <code>up</code> <code>down</code> <code>left</code> <code>right</code> (or <code>w</code> <code>a</code> <code>s</code> <code>d</code>) in Twitch chat to control Homer! 🍩<br/><span style="font-size:0.8rem;color:#76FF03;">✨ Chat commands are LIVE! ✨</span></div>
 <style>@keyframes instructionPulse { 0%,100%{box-shadow:0 0 10px rgba(191,148,255,0.5);} 50%{box-shadow:0 0 20px rgba(191,148,255,0.8);} }</style>
 <div class="power-plant">☢️🏭</div>
+<div id="test4-badge" style="position:absolute;top:220px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,rgba(255,0,150,0.95),rgba(150,0,255,0.9));padding:18px 35px;border-radius:30px;border:5px solid #FF69B4;box-shadow:0 0 50px rgba(255,0,150,0.7),0 0 100px rgba(150,0,255,0.4);z-index:250;animation:test4Entry 1s ease-out,test4Float 3s ease-in-out infinite 1s;">
+<div style="display:flex;align-items:center;gap:25px;">
+<div style="font-size:3.5rem;animation:test4Spin 1.2s ease-in-out infinite;">🧪</div>
+<div>
+<div style="color:#fff;font-weight:bold;font-size:1.8rem;text-shadow:3px 3px 0 #000;">TEST 4.0</div>
+<div style="color:#FFD700;font-size:0.9rem;font-style:italic;">"Quad test? That's unpossible!" - Ralph</div>
+</div>
+<div style="font-size:3.5rem;animation:test4Bounce 0.6s ease infinite;">✅✅✅✅</div>
+</div>
+<div style="margin-top:12px;text-align:center;">
+<div style="background:rgba(0,0,0,0.5);padding:10px 25px;border-radius:20px;color:#FF69B4;font-size:1rem;animation:test4Pulse 0.8s infinite;">🎮 QUADRUPLE TEST COMPLETE! 🎮</div>
+<div style="color:#FFD700;font-size:0.8rem;margin-top:8px;">🍩 Test 1 ➜ Test 2 ➜ Test 3 ➜ Test 4 = LEGENDARY 🍩</div>
+<div style="color:#76FF03;font-size:0.7rem;margin-top:5px;animation:rainbowText 2s infinite;">★ ACHIEVEMENT UNLOCKED: QUAD TESTER ★</div>
+</div>
+</div>
+<style>
+@keyframes test4Entry {
+  0% { opacity: 0; transform: translateX(-50%) translateY(-100px) scale(0.1) rotate(-45deg); }
+  40% { transform: translateX(-50%) translateY(20px) scale(1.2) rotate(10deg); }
+  70% { transform: translateX(-50%) translateY(-10px) scale(0.95) rotate(-5deg); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1) rotate(0deg); }
+}
+@keyframes test4Float {
+  0%, 100% { transform: translateX(-50%) translateY(0) rotate(-2deg); }
+  50% { transform: translateX(-50%) translateY(-15px) rotate(2deg); }
+}
+@keyframes test4Spin {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(25deg) scale(1.15); }
+  75% { transform: rotate(-25deg) scale(1.15); }
+}
+@keyframes test4Bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+}
+@keyframes test4Pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 15px rgba(255,105,180,0.5); }
+  50% { opacity: 0.9; box-shadow: 0 0 30px rgba(255,105,180,0.9), 0 0 50px rgba(150,0,255,0.5); }
+}
+@keyframes rainbowText {
+  0% { color: #FF0000; }
+  25% { color: #FFD700; }
+  50% { color: #76FF03; }
+  75% { color: #00FFFF; }
+  100% { color: #FF0000; }
+}
+</style>
+<script>
+setTimeout(function() {
+  var test4El = document.getElementById('test4-badge');
+  if (test4El) {
+    test4El.style.animation = 'test4Exit 1s ease forwards';
+    var exitStyle4 = document.createElement('style');
+    exitStyle4.textContent = '@keyframes test4Exit { 0%{opacity:1;transform:translateX(-50%) scale(1) rotate(0deg);} 30%{transform:translateX(-50%) scale(1.3) rotate(15deg);} 100%{opacity:0;transform:translateX(-50%) translateY(-80px) scale(0.2) rotate(-45deg);} }';
+    document.head.appendChild(exitStyle4);
+    setTimeout(function() { test4El.remove(); }, 1000);
+  }
+}, 12000);
+</script>
 <div id="test3-badge" style="position:absolute;top:160px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,rgba(0,200,255,0.95),rgba(0,100,200,0.9));padding:15px 30px;border-radius:25px;border:4px solid #00FFFF;box-shadow:0 0 40px rgba(0,200,255,0.7),0 0 80px rgba(0,255,255,0.4);z-index:200;animation:test3Entry 0.8s ease-out,test3Float 3s ease-in-out infinite 0.8s;">
 <div style="display:flex;align-items:center;gap:20px;">
 <div style="font-size:3rem;animation:test3Spin 1.5s ease-in-out infinite;">🧪</div>
