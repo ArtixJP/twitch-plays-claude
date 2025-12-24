@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Twitch Plays Springfield Snake x Minecraft</title>
+<title>Twitch Plays Springfield Snake</title>
 <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
@@ -149,7 +149,7 @@
 </head>
 <body>
 <div id="ui">
-<h1>🍩 SPRINGFIELD SNAKE ⛏️</h1>
+<h1>🍩 SPRINGFIELD SNAKE 🐍</h1>
 <div id="score-display">🍩 Donuts: <span id="score">0</span> | 🍎 Apples: +3pts | High Score: <span id="high-score">0</span></div>
 <div style="font-size:0.9rem;color:#4CAF50;margin-top:5px;">🐍 Watch out for the rival snake!</div>
 </div>
@@ -164,16 +164,44 @@
 </div>
 <div id="instruction">Type <code>!idea &lt;your idea&gt;</code> to modify this world!</div>
 <div class="power-plant">☢️🏭</div>
-<div class="minecraft-creeper" style="position:absolute;right:60px;top:150px;background:#4CAF50;padding:15px;border-radius:5px;border:4px solid #2E7D32;box-shadow:0 4px 15px rgba(0,0,0,0.4);z-index:50;animation:creeperLurk 3s ease-in-out infinite;image-rendering:pixelated;">
-<div style="font-size:2.5rem;text-align:center;filter:drop-shadow(2px 2px 0 #000);">🟩💀🟩</div>
-<div style="font-size:0.8rem;color:#fff;font-weight:bold;text-align:center;margin-top:5px;text-shadow:2px 2px #000;">Ssssss...</div>
-<div style="font-size:0.7rem;color:#8BC34A;text-align:center;font-style:italic;">Nice snake...</div>
+<div class="fountain" style="position:absolute;left:60px;top:150px;z-index:50;animation:fountainBubble 2s ease-in-out infinite;">
+<div style="font-size:3rem;text-align:center;filter:drop-shadow(2px 2px 0 #000);">⛲</div>
+<div style="font-size:0.8rem;color:#64B5F6;font-weight:bold;text-align:center;margin-top:5px;text-shadow:1px 1px #000;">Town Fountain</div>
+<div style="font-size:1.5rem;text-align:center;animation:waterDrip 1s infinite;">💧</div>
 </div>
 <style>
-@keyframes creeperLurk {
-0%, 100% { transform: translateX(0); }
-30% { transform: translateX(-5px); }
-70% { transform: translateX(5px); }
+@keyframes fountainBubble {
+0%, 100% { transform: scale(1); }
+50% { transform: scale(1.05); }
+}
+@keyframes waterDrip {
+0% { opacity: 1; transform: translateY(0); }
+100% { opacity: 0; transform: translateY(15px); }
+}
+</style>
+<div class="flowers" style="position:absolute;bottom:80px;left:50%;transform:translateX(-50%);z-index:50;display:flex;gap:10px;">
+<span style="font-size:2rem;animation:flowerSway 2s ease-in-out infinite;">🌷</span>
+<span style="font-size:2rem;animation:flowerSway 2.2s ease-in-out infinite 0.2s;">🌻</span>
+<span style="font-size:2rem;animation:flowerSway 2.4s ease-in-out infinite 0.4s;">🌸</span>
+<span style="font-size:2rem;animation:flowerSway 2.1s ease-in-out infinite 0.1s;">🌺</span>
+<span style="font-size:2rem;animation:flowerSway 2.3s ease-in-out infinite 0.3s;">🌼</span>
+<span style="font-size:2rem;animation:flowerSway 2s ease-in-out infinite 0.5s;">🌷</span>
+</div>
+<style>
+@keyframes flowerSway {
+0%, 100% { transform: rotate(-5deg); }
+50% { transform: rotate(5deg); }
+}
+</style>
+<div class="springfield-tower" style="position:absolute;right:60px;top:120px;z-index:50;animation:towerSway 4s ease-in-out infinite;">
+<div style="font-size:3rem;text-align:center;filter:drop-shadow(3px 3px 0 #000);">🗼</div>
+<div style="font-size:0.8rem;color:#FFD700;font-weight:bold;text-align:center;margin-top:5px;text-shadow:2px 2px #000;">Springfield Tower</div>
+<div style="font-size:0.7rem;color:#fff;text-align:center;font-style:italic;">Est. 1989</div>
+</div>
+<style>
+@keyframes towerSway {
+0%, 100% { transform: rotate(-1deg); }
+50% { transform: rotate(1deg); }
 }
 </style>
 <div id="test-notification" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(135deg,#FFD700,#FFA500);padding:20px 40px;border-radius:15px;border:5px solid #8B4513;box-shadow:0 0 30px rgba(255,215,0,0.8);z-index:300;animation:testPopup 4s forwards;font-size:1.5rem;text-align:center;">
@@ -237,7 +265,7 @@
             for (let i = 0; i < 10; i++) {
                 const donut = document.createElement('div');
                 donut.className = 'donut-rain';
-                donut.textContent = Math.random() > 0.5 ? '🍩' : '⛏️';
+                donut.textContent = Math.random() > 0.5 ? '🍩' : '🌸';
                 donut.style.left = Math.random() * 100 + 'vw';
                 donut.style.animationDuration = (5 + Math.random() * 10) + 's';
                 donut.style.animationDelay = Math.random() * 5 + 's';
@@ -283,7 +311,7 @@
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Draw Minecraft-style grass blocks pattern
+            // Draw Springfield grass pattern
             for(let gx = 0; gx < tileCount; gx++) {
                 for(let gy = 0; gy < tileCount; gy++) {
                     if((gx + gy) % 2 === 0) {
@@ -320,11 +348,11 @@
             // Draw snake
             snake.forEach((segment, index) => {
                 if (index === 0) {
-                    // Homer's head with Minecraft Steve vibes
+                    // Homer's head
                     ctx.font = '18px Arial';
-                    ctx.fillText('🧱😋', segment.x * gridSize + gridSize/2 - 5, segment.y * gridSize + gridSize/2);
+                    ctx.fillText('😋', segment.x * gridSize + gridSize/2, segment.y * gridSize + gridSize/2);
                 } else {
-                    // Body - blocky Minecraft style yellow
+                    // Body - Springfield yellow
                     ctx.fillStyle = '#FFEB3B';
                     // Make it more blocky/pixelated
                     ctx.imageSmoothingEnabled = false;
@@ -346,7 +374,7 @@
                 }
             });
             
-            // Draw rival snake (green Minecraft snake)
+            // Draw rival snake (green snake)
             rivalSnake.forEach((segment, index) => {
                 if (index === 0) {
                     ctx.font = '18px Arial';
