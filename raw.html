@@ -150,7 +150,7 @@
 <body>
 <div id="ui">
 <h1>🍩 SPRINGFIELD SNAKE 🐍</h1>
-<div id="score-display">🍩 Donuts: <span id="score">0</span> | 🍎 Apples: +3pts | 🍌 Bananas: +2pts | High Score: <span id="high-score">0</span></div>
+<div id="score-display">🍩🍩🍩🍩 Donuts: <span id="score">0</span> | 🍎 Apples: +3pts | 🍌 Bananas: +2pts | High Score: <span id="high-score">0</span></div>
 <div style="font-size:0.9rem;color:#4CAF50;margin-top:5px;">🐍 Watch out for the rival snake!</div>
 </div>
 <div id="mode-indicator" style="background:linear-gradient(135deg,rgba(118,255,3,0.3),rgba(0,0,0,0.8));border:2px solid #76FF03;font-size:1.1rem;">💬 CHAT CONTROL <span style="font-size:0.8em;color:#FFD700;">⏳ connecting...</span></div>
@@ -406,9 +406,11 @@ setTimeout(function() {
         let rivalDirection = {x: -1, y: 0};
         let apple = {x: 5, y: 5};
         let bananas = [{x: 3, y: 3}, {x: 25, y: 8}, {x: 12, y: 22}, {x: 18, y: 5}, {x: 7, y: 18}];
+            extraDonuts = [{x: 8, y: 12}, {x: 22, y: 7}, {x: 14, y: 25}];
         let direction = {x: 1, y: 0};
         let nextDirection = {x: 1, y: 0};
         let food = {x: 15, y: 15};
+        let extraDonuts = [{x: 8, y: 12}, {x: 22, y: 7}, {x: 14, y: 25}];
         let score = 0;
         let highScore = 0;
         let gameOver = false;
@@ -495,11 +497,16 @@ setTimeout(function() {
                 ctx.stroke();
             }
             
-            // Draw food (donut)
+            // Draw food (donuts - MORE DONUTS!)
             ctx.font = '18px Arial';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText('🍩', food.x * gridSize + gridSize/2, food.y * gridSize + gridSize/2);
+            
+            // Draw extra donuts!
+            for (let donut of extraDonuts) {
+                ctx.fillText('🍩', donut.x * gridSize + gridSize/2, donut.y * gridSize + gridSize/2);
+            }
             
             // Draw apple (bonus food)
             ctx.fillText('🍎', apple.x * gridSize + gridSize/2, apple.y * gridSize + gridSize/2);
@@ -732,6 +739,28 @@ setTimeout(function() {
                 }
                 spawnApple();
             } else {
+                // Check extra donut collision
+                let ateExtraDonut = false;
+                for (let i = 0; i < extraDonuts.length; i++) {
+                    if (head.x === extraDonuts[i].x && head.y === extraDonuts[i].y) {
+                        score++;
+                        scoreEl.textContent = score;
+                        if (score > highScore) {
+                            highScore = score;
+                            highScoreEl.textContent = highScore;
+                        }
+                        // Respawn donut at new location
+                        extraDonuts[i] = {
+                            x: Math.floor(Math.random() * tileCount),
+                            y: Math.floor(Math.random() * tileCount)
+                        };
+                        ateExtraDonut = true;
+                        break;
+                    }
+                }
+                if (ateExtraDonut) {
+                    // Don't remove tail - snake grows!
+                } else {
                 // Check banana collision
                 let ateBanana = false;
                 for (let i = 0; i < bananas.length; i++) {
@@ -754,6 +783,7 @@ setTimeout(function() {
                 if (!ateBanana) {
                     snake.pop();
                 }
+            }
             }
             
             // Check collision with rival snake
@@ -780,6 +810,7 @@ setTimeout(function() {
             snake = [{x: 10, y: 10}];
             rivalSnake = [{x: 20, y: 20}];
             bananas = [{x: 3, y: 3}, {x: 25, y: 8}, {x: 12, y: 22}, {x: 18, y: 5}, {x: 7, y: 18}];
+            extraDonuts = [{x: 8, y: 12}, {x: 22, y: 7}, {x: 14, y: 25}];
             rivalDirection = {x: -1, y: 0};
             direction = {x: 1, y: 0};
             nextDirection = {x: 1, y: 0};
