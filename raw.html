@@ -195,6 +195,21 @@
 <div id="instruction" style="animation:instructionPulse 3s infinite;font-size:1rem;padding:12px 20px;">🎮 Type <code>up</code> <code>down</code> <code>left</code> <code>right</code> (or <code>w</code> <code>a</code> <code>s</code> <code>d</code>) in Twitch chat to control Homer! 🍩<br/><span style="font-size:0.8rem;color:#76FF03;">✨ Chat commands are LIVE! ✨</span></div>
 <style>@keyframes instructionPulse { 0%,100%{box-shadow:0 0 10px rgba(191,148,255,0.5);} 50%{box-shadow:0 0 20px rgba(191,148,255,0.8);} }</style>
 <div class="power-plant">☢️🏭</div>
+<div id="math-corner" style="position:absolute;bottom:70px;left:10px;background:linear-gradient(135deg,#2d5016,#1a3d0c);padding:15px 20px;border-radius:10px;border:4px solid #8B4513;box-shadow:0 4px 15px rgba(0,0,0,0.5),inset 0 0 20px rgba(0,0,0,0.3);z-index:50;animation:chalkShake 3s ease-in-out infinite;">
+<div style="font-size:0.7rem;color:#FFD700;font-weight:bold;text-align:center;margin-bottom:5px;text-shadow:1px 1px #000;">📝 BART'S MATH</div>
+<div style="font-family:'Comic Sans MS',cursive;font-size:2rem;color:#fff;text-align:center;text-shadow:2px 2px 0 #000,0 0 10px rgba(255,255,255,0.5);animation:mathPulse 2s infinite;">1+1=<span style="color:#76FF03;font-size:2.5rem;">2</span></div>
+<div style="font-size:0.6rem;color:#a0aec0;text-align:center;font-style:italic;margin-top:5px;">"Eat my shorts!" - Bart</div>
+</div>
+<style>
+@keyframes chalkShake {
+  0%, 100% { transform: rotate(-1deg); }
+  50% { transform: rotate(1deg); }
+}
+@keyframes mathPulse {
+  0%, 100% { text-shadow: 2px 2px 0 #000, 0 0 10px rgba(255,255,255,0.5); }
+  50% { text-shadow: 2px 2px 0 #000, 0 0 20px rgba(118,255,3,0.8), 0 0 30px rgba(255,235,59,0.5); }
+}
+</style>
 <div id="lol-counter" style="position:absolute;bottom:60px;right:10px;background:linear-gradient(135deg,rgba(255,215,0,0.9),rgba(255,165,0,0.95));padding:12px 20px;border-radius:15px;border:3px solid #8B4513;box-shadow:0 0 20px rgba(255,215,0,0.5);z-index:100;text-align:center;animation:lolBounce 2s ease-in-out infinite;">
 <div style="font-size:2rem;">😂</div>
 <div style="color:#333;font-weight:bold;font-size:1.1rem;">LOL COUNT</div>
