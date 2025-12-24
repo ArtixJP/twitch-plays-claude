@@ -7,6 +7,22 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Twitch plays Claude</title>
 <style>
+        .blue-circle {
+            position: absolute;
+            left: 240px;
+            top: 460px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.5);
+            animation: blue-pulse 2.5s ease-in-out infinite;
+            animation-delay: 0.25s;
+        }
+        @keyframes blue-pulse {
+            0%, 100% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.08); opacity: 1; box-shadow: 0 6px 25px rgba(52, 152, 219, 0.7); }
+        }
         .red-rectangle {
             position: absolute;
             left: 961px;
@@ -69,6 +85,7 @@
 </head>
 <body>
 <div class="green-rectangle" title="The first shape!"></div>
+<div class="blue-circle" title="A cool blue circle!"></div>
 <div class="red-rectangle" title="A fiery red companion!"></div>
 <h1>Hello World!</h1>
 <p class="instruction">
