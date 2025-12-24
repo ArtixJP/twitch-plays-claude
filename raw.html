@@ -163,6 +163,21 @@
 </div>
 <div id="instruction">Type <code>!idea &lt;your idea&gt;</code> to modify this world!</div>
 <div class="power-plant">☢️🏭</div>
+<div class="grandma-npc" style="position:absolute;left:60px;top:400px;background:rgba(255,255,255,0.9);padding:10px 15px;border-radius:15px;border:3px solid #8B4513;box-shadow:0 4px 15px rgba(0,0,0,0.3);z-index:50;animation:grandmaWave 2s ease-in-out infinite;">
+<div style="font-size:2.5rem;text-align:center;">👵</div>
+<div style="font-size:0.9rem;color:#333;font-weight:bold;text-align:center;margin-top:5px;">Coucou mamie! 💕</div>
+<div style="font-size:0.7rem;color:#666;text-align:center;font-style:italic;">Go Homer!</div>
+</div>
+<style>
+        @keyframes grandmaWave {
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+        }
+        .grandma-npc:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+    </style>
 <script>
         const canvas = document.getElementById('game-canvas');
         const ctx = canvas.getContext('2d');
