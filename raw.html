@@ -54,6 +54,22 @@
             0%, 100% { transform: scale(1); opacity: 0.9; }
             50% { transform: scale(1.02); opacity: 1; }
         }
+        .yellow-rectangle {
+            position: absolute;
+            left: 764px;
+            top: 110px;
+            width: 90px;
+            height: 70px;
+            background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(241, 196, 15, 0.5);
+            animation: yellow-pulse 2.2s ease-in-out infinite;
+            animation-delay: 0.75s;
+        }
+        @keyframes yellow-pulse {
+            0%, 100% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.06); opacity: 1; box-shadow: 0 6px 20px rgba(241, 196, 15, 0.7); }
+        }
         body { 
             font-family: system-ui, sans-serif; 
             display: flex; 
@@ -87,6 +103,7 @@
 <div class="green-rectangle" title="The first shape!"></div>
 <div class="blue-circle" title="A cool blue circle!"></div>
 <div class="red-rectangle" title="A fiery red companion!"></div>
+<div class="yellow-rectangle" title="A bright yellow newcomer!"></div>
 <h1>Hello World!</h1>
 <p class="instruction">
         Type <code>!idea &lt;your idea&gt;</code> in the Twitch chat to add to this page.<br/>
