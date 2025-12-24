@@ -285,6 +285,69 @@
         
         generateTerrain();
         
+        // Build a tower at center!
+        function buildTower(baseX, baseZ) {
+            const towerHeight = 15;
+            const towerWidth = 3;
+            
+            // Find ground level at this position
+            let groundY = 5;
+            
+            // Tower walls
+            for (let y = groundY; y < groundY + towerHeight; y++) {
+                for (let x = baseX - 1; x <= baseX + 1; x++) {
+                    for (let z = baseZ - 1; z <= baseZ + 1; z++) {
+                        // Hollow inside (only walls)
+                        if (x === baseX - 1 || x === baseX + 1 || z === baseZ - 1 || z === baseZ + 1) {
+                            // Alternate stone and darker stone for texture
+                            if (y % 3 === 0) {
+                                addBlock(x, y, z, 'stone');
+                            } else {
+                                addBlock(x, y, z, 'dirt');
+                            }
+                        }
+                    }
+                }
+                // Corner pillars in wood
+                addBlock(baseX - 1, y, baseZ - 1, 'wood');
+                addBlock(baseX + 1, y, baseZ - 1, 'wood');
+                addBlock(baseX - 1, y, baseZ + 1, 'wood');
+                addBlock(baseX + 1, y, baseZ + 1, 'wood');
+            }
+            
+            // Tower top battlements
+            const topY = groundY + towerHeight;
+            for (let x = baseX - 2; x <= baseX + 2; x++) {
+                for (let z = baseZ - 2; z <= baseZ + 2; z++) {
+                    addBlock(x, topY, z, 'stone');
+                }
+            }
+            
+            // Crenellations (battlements)
+            for (let i = -2; i <= 2; i += 2) {
+                addBlock(baseX + i, topY + 1, baseZ - 2, 'stone');
+                addBlock(baseX + i, topY + 1, baseZ + 2, 'stone');
+                addBlock(baseX - 2, topY + 1, baseZ + i, 'stone');
+                addBlock(baseX + 2, topY + 1, baseZ + i, 'stone');
+            }
+            
+            // Diamond beacon at the very top!
+            addBlock(baseX, topY + 2, baseZ, 'diamond');
+            addBlock(baseX, topY + 3, baseZ, 'diamond');
+            addBlock(baseX, topY + 4, baseZ, 'gold');
+            
+            // Window openings (remove some blocks)
+            for (let y = groundY + 3; y < groundY + towerHeight - 2; y += 4) {
+                removeBlock(baseX, y, baseZ - 1);
+                removeBlock(baseX, y, baseZ + 1);
+                removeBlock(baseX - 1, y, baseZ);
+                removeBlock(baseX + 1, y, baseZ);
+            }
+        }
+        
+        // Build the tower at center of the world
+        buildTower(0, 0);
+        
         // Auto-play camera movement
         let autoPlayAngle = 0;
         let autoPlayRadius = 35;
