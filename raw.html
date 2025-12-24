@@ -1,41 +1,483 @@
 <!DOCTYPE html>
+
 <html>
 <head>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
-    <title>New Epoch Starting...</title>
-    <style>
+<title>Pokemon Simulation</title>
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
             min-height: 100vh;
+            background: linear-gradient(180deg, #87CEEB 0%, #98FB98 100%);
+            font-family: 'Press Start 2P', monospace;
+            overflow: hidden;
+            transition: background 3s ease;
+        }
+        
+        body.night {
+            background: linear-gradient(180deg, #1a1a3e 0%, #2d4a3e 100%);
+        }
+        
+        #game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            height: 100vh;
+        }
+        
+        #header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 1400px;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        #title {
+            font-size: 1.2rem;
+            color: #cc0000;
+            text-shadow: 2px 2px 0 #ffcb05;
+        }
+        
+        #stats {
+            display: flex;
+            gap: 20px;
+            font-size: 0.6rem;
+            color: #333;
+        }
+        
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        #main-area {
+            display: flex;
+            gap: 15px;
+            flex: 1;
+            width: 100%;
+            max-width: 1400px;
+            max-height: calc(100vh - 150px);
+        }
+        
+        #game-world {
+            flex: 1;
+            background: #4a7c23;
+            border-radius: 10px;
+            border: 4px solid #2d5016;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.3);
+        }
+        
+        #game-canvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        #sidebar {
+            width: 280px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .panel {
+            background: rgba(255,255,255,0.95);
+            border-radius: 10px;
+            padding: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .panel-title {
+            font-size: 0.7rem;
+            color: #cc0000;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #ffcb05;
+            padding-bottom: 5px;
+        }
+        
+        #pokedex {
+            flex: 1;
+            overflow-y: auto;
+            max-height: 300px;
+        }
+        
+        #pokedex-list {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+        }
+        
+        .pokemon-entry {
+            width: 50px;
+            height: 50px;
+            background: #f0f0f0;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #e0e0e0;
-            font-family: system-ui, -apple-system, sans-serif;
-            text-align: center;
+            font-size: 1.5rem;
+            border: 2px solid #ddd;
+            transition: all 0.3s ease;
         }
-        .container {
-            animation: fadeIn 1s ease-out;
+        
+        .pokemon-entry.caught {
+            background: linear-gradient(135deg, #fff 0%, #e8f5e9 100%);
+            border-color: #4caf50;
+            animation: catchPulse 0.5s ease;
         }
-        h1 { 
-            font-size: 2.5rem; 
-            margin-bottom: 15px;
-            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        
+        .pokemon-entry.uncaught {
+            filter: grayscale(1) brightness(0.3);
         }
-        p { font-size: 1.1rem; opacity: 0.8; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        
+        #activity-log {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        #log-list {
+            font-size: 0.5rem;
+            line-height: 1.8;
+            color: #333;
+        }
+        
+        .log-entry {
+            padding: 3px 0;
+            border-bottom: 1px dashed #eee;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .log-catch { color: #4caf50; }
+        .log-encounter { color: #2196f3; }
+        .log-flee { color: #ff9800; }
+        
+        #catch-animation {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 100;
+        }
+        
+        #catch-animation.active {
+            animation: catchBurst 1s ease forwards;
+        }
+        
+        @keyframes catchPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        @keyframes catchBurst {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.5); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(2); }
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .grass-patch {
+            position: absolute;
+            font-size: 1.5rem;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        #time-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5rem;
+            background: rgba(255,255,255,0.8);
+            padding: 5px 10px;
+            border-radius: 20px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🌅 New Epoch Starting</h1>
-        <p>AI is generating a fresh page based on the new theme...</p>
-    </div>
+<div id="game-container">
+<div id="header">
+<div id="title">🎮 POKEMON SIMULATION</div>
+<div id="stats">
+<div class="stat">🏃 Trainer: <span id="trainer-name">Ash</span></div>
+<div class="stat">⭐ Caught: <span id="caught-count">0</span>/<span id="total-pokemon">0</span></div>
+<div class="stat">🎯 Pokeballs: <span id="pokeball-count">∞</span></div>
+</div>
+</div>
+<div id="main-area">
+<div id="game-world">
+<canvas id="game-canvas"></canvas>
+<div id="time-indicator">☀️</div>
+</div>
+<div id="sidebar">
+<div class="panel" id="pokedex">
+<div class="panel-title">📖 POKEDEX</div>
+<div id="pokedex-list"></div>
+</div>
+<div class="panel" id="activity-log">
+<div class="panel-title">📜 ACTIVITY LOG</div>
+<div id="log-list"></div>
+</div>
+</div>
+</div>
+</div>
+<div id="catch-animation"></div>
+<script>
+        // Pokemon data with emojis
+        const POKEMON = [
+            { id: 1, name: 'Bulbasaur', emoji: '🌱', type: 'grass', rarity: 0.8 },
+            { id: 2, name: 'Charmander', emoji: '🔥', type: 'fire', rarity: 0.7 },
+            { id: 3, name: 'Squirtle', emoji: '💧', type: 'water', rarity: 0.7 },
+            { id: 4, name: 'Pikachu', emoji: '⚡', type: 'electric', rarity: 0.5 },
+            { id: 5, name: 'Jigglypuff', emoji: '🎀', type: 'fairy', rarity: 0.6 },
+            { id: 6, name: 'Meowth', emoji: '🐱', type: 'normal', rarity: 0.8 },
+            { id: 7, name: 'Psyduck', emoji: '🦆', type: 'water', rarity: 0.7 },
+            { id: 8, name: 'Geodude', emoji: '🪨', type: 'rock', rarity: 0.8 },
+            { id: 9, name: 'Magikarp', emoji: '🐟', type: 'water', rarity: 0.9 },
+            { id: 10, name: 'Eevee', emoji: '🦊', type: 'normal', rarity: 0.4 },
+            { id: 11, name: 'Snorlax', emoji: '😴', type: 'normal', rarity: 0.2 },
+            { id: 12, name: 'Gengar', emoji: '👻', type: 'ghost', rarity: 0.3 },
+            { id: 13, name: 'Ditto', emoji: '🫠', type: 'normal', rarity: 0.2 },
+            { id: 14, name: 'Mew', emoji: '✨', type: 'psychic', rarity: 0.05 },
+            { id: 15, name: 'Pidgey', emoji: '🐦', type: 'flying', rarity: 0.9 },
+            { id: 16, name: 'Rattata', emoji: '🐀', type: 'normal', rarity: 0.9 }
+        ];
+        
+        // Game state
+        const state = {
+            trainer: { x: 0, y: 0, targetX: 0, targetY: 0, emoji: '🧢' },
+            wildPokemon: [],
+            caughtPokemon: new Set(),
+            isNight: false,
+            logs: []
+        };
+        
+        // Canvas setup
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            const container = document.getElementById('game-world');
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            state.trainer.x = canvas.width / 2;
+            state.trainer.y = canvas.height / 2;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        // Initialize Pokedex
+        function initPokedex() {
+            const list = document.getElementById('pokedex-list');
+            document.getElementById('total-pokemon').textContent = POKEMON.length;
+            
+            POKEMON.forEach(p => {
+                const entry = document.createElement('div');
+                entry.className = 'pokemon-entry uncaught';
+                entry.id = `pokedex-${p.id}`;
+                entry.textContent = p.emoji;
+                entry.title = p.name;
+                list.appendChild(entry);
+            });
+        }
+        
+        // Spawn wild Pokemon
+        function spawnPokemon() {
+            if (state.wildPokemon.length < 8) {
+                const pokemon = POKEMON[Math.floor(Math.random() * POKEMON.length)];
+                const wild = {
+                    ...pokemon,
+                    x: Math.random() * (canvas.width - 100) + 50,
+                    y: Math.random() * (canvas.height - 100) + 50,
+                    vx: (Math.random() - 0.5) * 2,
+                    vy: (Math.random() - 0.5) * 2,
+                    spawnTime: Date.now()
+                };
+                state.wildPokemon.push(wild);
+                addLog(`Wild ${pokemon.name} appeared!`, 'encounter');
+            }
+        }
+        
+        // Add log entry
+        function addLog(message, type) {
+            const logList = document.getElementById('log-list');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `${new Date().toLocaleTimeString().slice(0,5)} - ${message}`;
+            logList.insertBefore(entry, logList.firstChild);
+            
+            if (logList.children.length > 20) {
+                logList.removeChild(logList.lastChild);
+            }
+        }
+        
+        // Catch animation
+        function showCatchAnimation(pokemon) {
+            const anim = document.getElementById('catch-animation');
+            anim.textContent = `🎊 ${pokemon.emoji} 🎊`;
+            anim.classList.remove('active');
+            void anim.offsetWidth;
+            anim.classList.add('active');
+        }
+        
+        // Update Pokedex
+        function updatePokedex(pokemon) {
+            const entry = document.getElementById(`pokedex-${pokemon.id}`);
+            if (entry) {
+                entry.classList.remove('uncaught');
+                entry.classList.add('caught');
+            }
+            document.getElementById('caught-count').textContent = state.caughtPokemon.size;
+        }
+        
+        // Game loop
+        function update() {
+            // Move trainer towards target
+            const dx = state.trainer.targetX - state.trainer.x;
+            const dy = state.trainer.targetY - state.trainer.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            
+            if (dist > 5) {
+                state.trainer.x += (dx / dist) * 3;
+                state.trainer.y += (dy / dist) * 3;
+            } else {
+                // Pick new random target
+                state.trainer.targetX = Math.random() * (canvas.width - 100) + 50;
+                state.trainer.targetY = Math.random() * (canvas.height - 100) + 50;
+            }
+            
+            // Move wild Pokemon
+            state.wildPokemon.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                
+                if (p.x < 20 || p.x > canvas.width - 20) p.vx *= -1;
+                if (p.y < 20 || p.y > canvas.height - 20) p.vy *= -1;
+                
+                // Random direction change
+                if (Math.random() < 0.02) {
+                    p.vx = (Math.random() - 0.5) * 2;
+                    p.vy = (Math.random() - 0.5) * 2;
+                }
+            });
+            
+            // Check for catches
+            state.wildPokemon = state.wildPokemon.filter(p => {
+                const dx = p.x - state.trainer.x;
+                const dy = p.y - state.trainer.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                
+                if (dist < 40) {
+                    // Attempt catch based on rarity
+                    const catchChance = p.rarity * 0.8;
+                    if (Math.random() < catchChance) {
+                        state.caughtPokemon.add(p.id);
+                        updatePokedex(p);
+                        showCatchAnimation(p);
+                        addLog(`Caught ${p.name}!`, 'catch');
+                    } else {
+                        addLog(`${p.name} fled!`, 'flee');
+                    }
+                    return false;
+                }
+                
+                // Despawn after 30 seconds
+                if (Date.now() - p.spawnTime > 30000) {
+                    addLog(`${p.name} wandered away...`, 'flee');
+                    return false;
+                }
+                
+                return true;
+            });
+        }
+        
+        // Render
+        function render() {
+            // Clear canvas
+            ctx.fillStyle = state.isNight ? '#2d4a3e' : '#4a7c23';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw grass patches
+            ctx.fillStyle = state.isNight ? '#1a3a2e' : '#3d6a1a';
+            for (let i = 0; i < 50; i++) {
+                const x = (i * 137) % canvas.width;
+                const y = (i * 89) % canvas.height;
+                ctx.beginPath();
+                ctx.arc(x, y, 15, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Draw wild Pokemon
+            ctx.font = '32px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            state.wildPokemon.forEach(p => {
+                // Shadow
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                ctx.beginPath();
+                ctx.ellipse(p.x, p.y + 20, 15, 8, 0, 0, Math.PI * 2);
+                ctx.fill();
+                // Pokemon
+                ctx.fillText(p.emoji, p.x, p.y);
+            });
+            
+            // Draw trainer
+            ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            ctx.beginPath();
+            ctx.ellipse(state.trainer.x, state.trainer.y + 20, 12, 6, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.font = '36px Arial';
+            ctx.fillText(state.trainer.emoji, state.trainer.x, state.trainer.y);
+        }
+        
+        // Day/night cycle
+        function updateDayNight() {
+            state.isNight = !state.isNight;
+            document.body.classList.toggle('night', state.isNight);
+            document.getElementById('time-indicator').textContent = state.isNight ? '🌙' : '☀️';
+        }
+        
+        // Main game loop
+        function gameLoop() {
+            update();
+            render();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Initialize
+        initPokedex();
+        addLog('Welcome to the Pokemon Simulation!', 'encounter');
+        addLog('Watch the trainer explore and catch Pokemon!', 'encounter');
+        
+        // Start spawning Pokemon
+        setInterval(spawnPokemon, 3000);
+        spawnPokemon();
+        spawnPokemon();
+        spawnPokemon();
+        
+        // Day/night cycle every 60 seconds
+        setInterval(updateDayNight, 60000);
+        
+        // Start game loop
+        gameLoop();
+    </script>
 </body>
 </html>
