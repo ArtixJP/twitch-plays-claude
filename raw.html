@@ -246,24 +246,68 @@
     }
 </style>
 <div id="chat-history" style="position:fixed;left:10px;top:50%;transform:translateY(-50%);width:220px;max-height:400px;background:linear-gradient(180deg,rgba(0,0,0,0.9),rgba(30,0,60,0.85));border:3px solid #bf94ff;border-radius:12px;padding:10px;z-index:150;overflow-y:auto;box-shadow:0 0 20px rgba(145,71,255,0.5);">
+<div id="connection-line" style="position:absolute;right:-60px;top:50%;width:60px;height:3px;background:linear-gradient(90deg,#76FF03,transparent);opacity:0;transition:opacity 0.3s;"></div>
 <div style="color:#bf94ff;font-weight:bold;font-size:1rem;margin-bottom:8px;text-align:center;border-bottom:1px solid #bf94ff;padding-bottom:5px;">💬 CHAT HISTORY</div>
+<div style="font-size:0.7rem;color:#76FF03;text-align:center;margin-bottom:5px;animation:arrowBounce 1s infinite;">⟶ Commands control Homer! ⟶</div>
+<style>@keyframes arrowBounce { 0%,100%{transform:translateX(0);} 50%{transform:translateX(5px);} }</style>
 <div id="chat-messages-list" style="font-size:0.8rem;color:#fff;"></div>
 </div>
 <script>
 (function() {
+  let lastCommandTime = 0;
+  
+  function showConnectionPulse() {
+    const line = document.getElementById('connection-line');
+    if (line) {
+      line.style.opacity = '1';
+      line.style.background = 'linear-gradient(90deg,#76FF03,#4CAF50,transparent)';
+      line.style.animation = 'connectionPulse 0.5s ease';
+      setTimeout(() => {
+        line.style.opacity = '0';
+        line.style.animation = '';
+      }, 500);
+    }
+    // Also pulse the chat-controls panel
+    const controls = document.getElementById('chat-controls');
+    if (controls) {
+      controls.style.animation = 'controlFlash 0.5s ease';
+      setTimeout(() => controls.style.animation = '', 500);
+    }
+  }
+  
+  // Add connection animation styles
+  const connStyle = document.createElement('style');
+  connStyle.textContent = '@keyframes connectionPulse { 0%{transform:scaleX(0);opacity:0;} 50%{transform:scaleX(1.2);opacity:1;} 100%{transform:scaleX(1);opacity:1;} } @keyframes controlFlash { 0%{box-shadow:0 0 15px rgba(145,71,255,0.5);} 50%{box-shadow:0 0 30px rgba(118,255,3,0.8),0 0 50px rgba(76,175,80,0.5);border-color:#76FF03;} 100%{box-shadow:0 0 15px rgba(145,71,255,0.5);} } @keyframes cmdHighlight { 0%{transform:scale(1);} 50%{transform:scale(1.05);box-shadow:0 0 15px #76FF03;} 100%{transform:scale(1);} }';
+  document.head.appendChild(connStyle);
+  
   function renderChatHistory() {
     const container = document.getElementById('chat-messages-list');
     if (!container || !window.tpc || !window.tpc.chatMessages) return;
     
     const messages = window.tpc.chatMessages.slice(-15);
-    container.innerHTML = messages.map(m => {
+    const now = Date.now();
+    container.innerHTML = messages.map((m, idx) => {
       const isCommand = /^(up|down|left|right|w|a|s|d)$/i.test(m.message.trim());
-      const cmdStyle = isCommand ? 'background:rgba(118,255,3,0.2);border-left:3px solid #76FF03;' : '';
-      return '<div style="margin:4px 0;padding:5px;background:rgba(255,255,255,0.05);border-radius:4px;word-wrap:break-word;' + cmdStyle + '">' +
+      const isRecent = idx === messages.length - 1 && isCommand && (now - lastCommandTime < 1000);
+      const cmdStyle = isCommand ? 'background:rgba(118,255,3,0.3);border-left:4px solid #76FF03;' + (isRecent ? 'animation:cmdHighlight 0.5s ease;' : '') : '';
+      const cmdIcon = isCommand ? '<span style="margin-right:5px;">🎮</span>' : '';
+      const arrow = isCommand ? '<span style="float:right;color:#76FF03;animation:arrowBounce 0.5s infinite;">➜</span>' : '';
+      return '<div class="chat-msg' + (isCommand ? ' cmd-msg' : '') + '" style="margin:4px 0;padding:6px;background:rgba(255,255,255,0.05);border-radius:6px;word-wrap:break-word;transition:all 0.2s;' + cmdStyle + '">' +
+        cmdIcon + arrow +
         '<span style="color:#a78bfa;font-weight:bold;">' + m.username + '</span>: ' +
-        '<span style="color:' + (isCommand ? '#76FF03' : '#ddd') + ';">' + m.message + '</span></div>';
+        '<span style="color:' + (isCommand ? '#76FF03;font-weight:bold;text-shadow:0 0 5px #76FF03' : '#ddd') + ';">' + m.message + '</span></div>';
     }).join('');
     container.scrollTop = container.scrollHeight;
+    
+    // Check for new command
+    if (messages.length > 0) {
+      const lastMsg = messages[messages.length - 1];
+      const isCmd = /^(up|down|left|right|w|a|s|d)$/i.test(lastMsg.message.trim());
+      if (isCmd && lastMsg.timestamp > lastCommandTime) {
+        lastCommandTime = lastMsg.timestamp || now;
+        showConnectionPulse();
+      }
+    }
   }
   
   // Initial render
