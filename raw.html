@@ -163,6 +163,20 @@
 </div>
 <div id="instruction">Type <code>!idea &lt;your idea&gt;</code> to modify this world!</div>
 <div class="power-plant">☢️🏭</div>
+<div id="test-notification" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(135deg,#FFD700,#FFA500);padding:20px 40px;border-radius:15px;border:5px solid #8B4513;box-shadow:0 0 30px rgba(255,215,0,0.8);z-index:300;animation:testPopup 4s forwards;font-size:1.5rem;text-align:center;">
+<div style="font-size:3rem;margin-bottom:10px;">🍩✅🍩</div>
+<div style="color:#000;font-weight:bold;text-shadow:1px 1px 0 #fff;">TEST SUCCESSFUL!</div>
+<div style="font-size:1rem;color:#333;margin-top:5px;font-style:italic;">"Woohoo!" - Homer</div>
+</div>
+<style>
+    @keyframes testPopup {
+        0% { opacity: 0; transform: translate(-50%,-50%) scale(0.5); }
+        15% { opacity: 1; transform: translate(-50%,-50%) scale(1.1); }
+        25% { transform: translate(-50%,-50%) scale(1); }
+        75% { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+        100% { opacity: 0; transform: translate(-50%,-50%) scale(0.8); pointer-events: none; }
+    }
+</style>
 <div class="grandma-npc" style="position:absolute;left:60px;top:400px;background:rgba(255,255,255,0.9);padding:10px 15px;border-radius:15px;border:3px solid #8B4513;box-shadow:0 4px 15px rgba(0,0,0,0.3);z-index:50;animation:grandmaWave 2s ease-in-out infinite;">
 <div style="font-size:2.5rem;text-align:center;">👵</div>
 <div style="font-size:0.9rem;color:#333;font-weight:bold;text-align:center;margin-top:5px;">Coucou mamie! 💕</div>
