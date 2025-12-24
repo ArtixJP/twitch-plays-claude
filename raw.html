@@ -40,6 +40,12 @@
 </div>
 <span style="position: absolute; top: -45px; left: 50%; transform: translateX(-50%) rotate(-45deg); color: #9c27b0; font-weight: bold; font-size: 12px;">LOSANGE</span>
 </div>
+<div class="green-rectangle" id="greenFighter" style="position: fixed; left: 250px; top: 200px; width: 70px; height: 45px; background: linear-gradient(135deg, #4caf50, #2e7d32); box-shadow: 0 4px 20px rgba(76, 175, 80, 0.6); border-radius: 6px; z-index: 10; animation: greenPulse 1.4s ease-in-out infinite;">
+<div class="health-bar" style="position: absolute; top: -20px; left: 0; width: 100%; height: 12px; background: #333; border-radius: 6px; overflow: hidden;">
+<div id="greenHealth" style="width: 100%; height: 100%; background: linear-gradient(90deg, #4caf50, #8bc34a); transition: width 0.3s;"></div>
+</div>
+<span style="position: absolute; top: -35px; left: 50%; transform: translateX(-50%); color: #4caf50; font-weight: bold; font-size: 12px;">GREEN</span>
+</div>
 <div class="yellow-rectangle" id="yellowFighter" style="position: fixed; left: 350px; top: 450px; width: 100px; height: 50px; background: linear-gradient(135deg, #ffeb3b, #ffc107); box-shadow: 0 4px 20px rgba(255, 235, 59, 0.6); border-radius: 6px; z-index: 10; animation: rectPulse 1.5s ease-in-out infinite;">
 <div class="health-bar" style="position: absolute; top: -20px; left: 0; width: 100%; height: 12px; background: #333; border-radius: 6px; overflow: hidden;">
 <div id="yellowHealth" style="width: 100%; height: 100%; background: linear-gradient(90deg, #4caf50, #8bc34a); transition: width 0.3s;"></div>
@@ -118,6 +124,10 @@
             0%, 100% { transform: rotate(45deg) scale(1); opacity: 0.9; }
             50% { transform: rotate(45deg) scale(1.08); opacity: 1; box-shadow: 0 6px 30px rgba(156, 39, 176, 0.7); }
         }
+        @keyframes greenPulse {
+            0%, 100% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.06); opacity: 1; box-shadow: 0 6px 30px rgba(76, 175, 80, 0.7); }
+        }
         @keyframes rectPulse {
             0%, 100% { transform: scale(1); opacity: 0.9; }
             50% { transform: scale(1.04); opacity: 1; box-shadow: 0 6px 30px rgba(255, 235, 59, 0.7); }
@@ -153,6 +163,11 @@
     let yellowHealth = 100;
     const yellow = document.getElementById('yellowFighter');
     const yellowHealthBar = document.getElementById('yellowHealth');
+    let greenX = 250, greenY = 200;
+    let greenVX = 0, greenVY = 0;
+    let greenHealth = 100;
+    const green = document.getElementById('greenFighter');
+    const greenHealthBar = document.getElementById('greenHealth');
     let purpleX = 450, purpleY = 200;
     let purpleVX = 0, purpleVY = 0;
     let purpleHealth = 100;
@@ -248,7 +263,7 @@
             if (redHealth <= 0 || blueHealth <= 0) {
                 battleOver = true;
                 let winner = '🟨 RECTANGLE';
-                const scores = [{name: '🔺 TRIANGLE', h: redHealth}, {name: '🟦 SQUARE', h: blueHealth}, {name: '🟨 RECTANGLE', h: yellowHealth}, {name: '🟣 LOSANGE', h: purpleHealth}];
+                const scores = [{name: '🔺 TRIANGLE', h: redHealth}, {name: '🟦 SQUARE', h: blueHealth}, {name: '🟨 RECTANGLE', h: yellowHealth}, {name: '🟣 LOSANGE', h: purpleHealth}, {name: '🟩 GREEN', h: greenHealth}];
                 winner = scores.sort((a,b) => b.h - a.h)[0].name;
                 status.textContent = winner + ' WINS!';
                 status.style.background = 'linear-gradient(90deg, gold, orange)';
@@ -261,7 +276,7 @@
                 
                 // Restart after 3 seconds
                 setTimeout(() => {
-                    redHealth = 100; blueHealth = 100; yellowHealth = 100; purpleHealth = 100;
+                    redHealth = 100; blueHealth = 100; yellowHealth = 100; purpleHealth = 100; greenHealth = 100;
                     redX = 150; redY = 300;
                     blueX = 550; blueY = 310;
                     redHealthBar.style.width = '100%';
@@ -273,6 +288,9 @@
                     purple.style.opacity = '1';
                     purpleX = 450; purpleY = 200;
                     purpleHealthBar.style.width = '100%';
+                    green.style.opacity = '1';
+                    greenX = 250; greenY = 200;
+                    greenHealthBar.style.width = '100%';
                     blue.style.opacity = '1';
                     status.textContent = 'ROUND 2... FIGHT!';
                     status.style.background = 'rgba(0,0,0,0.7)';
@@ -350,7 +368,7 @@
         
         // Purple losange AI - aggressive, targets weakest enemy
         let pTargetX, pTargetY;
-        const healths = [{h: redHealth, x: redX+61, y: redY+49}, {h: blueHealth, x: blueX+40, y: blueY+40}, {h: yellowHealth, x: yellowX+50, y: yellowY+25}];
+        const healths = [{h: redHealth, x: redX+61, y: redY+49}, {h: blueHealth, x: blueX+40, y: blueY+40}, {h: yellowHealth, x: yellowX+50, y: yellowY+25}, {h: greenHealth, x: greenX+35, y: greenY+22}];
         const weakest = healths.filter(e => e.h > 0).sort((a,b) => a.h - b.h)[0];
         if (weakest) { pTargetX = weakest.x; pTargetY = weakest.y; }
         else { pTargetX = 400; pTargetY = 350; }
@@ -396,6 +414,69 @@
             setTimeout(() => { purple.style.animation = 'losangePulse 1.3s ease-in-out infinite'; yellow.style.animation = ''; }, 200);
         }
         purpleVX *= 0.94; purpleVY *= 0.94;
+        
+        // Green rectangle AI - balanced fighter, targets nearest
+        let gTargetX, gTargetY;
+        const gDists = [{d: Math.sqrt((redX+61 - greenX-35)**2 + (redY+49 - greenY-22)**2), x: redX+61, y: redY+49, h: redHealth},
+                        {d: Math.sqrt((blueX+40 - greenX-35)**2 + (blueY+40 - greenY-22)**2), x: blueX+40, y: blueY+40, h: blueHealth},
+                        {d: Math.sqrt((yellowX+50 - greenX-35)**2 + (yellowY+25 - greenY-22)**2), x: yellowX+50, y: yellowY+25, h: yellowHealth},
+                        {d: Math.sqrt((purpleX+30 - greenX-35)**2 + (purpleY+30 - greenY-22)**2), x: purpleX+30, y: purpleY+30, h: purpleHealth}];
+        const gNearest = gDists.filter(e => e.h > 0).sort((a,b) => a.d - b.d)[0];
+        if (gNearest) { gTargetX = gNearest.x; gTargetY = gNearest.y; }
+        else { gTargetX = 400; gTargetY = 300; }
+        const dxG = gTargetX - (greenX + 35);
+        const dyG = gTargetY - (greenY + 22);
+        const distG = Math.sqrt(dxG*dxG + dyG*dyG);
+        if (distG > 55) {
+            greenVX = (dxG / distG) * 3.8 + (Math.random() - 0.5) * 2;
+            greenVY = (dyG / distG) * 3.8 + (Math.random() - 0.5) * 2;
+        }
+        greenX += greenVX; greenY += greenVY;
+        greenX = Math.max(50, Math.min(700, greenX));
+        greenY = Math.max(150, Math.min(500, greenY));
+        green.style.left = greenX + 'px';
+        green.style.top = greenY + 'px';
+        
+        // Green collisions
+        const grDist = Math.sqrt((redX+61 - greenX-35)**2 + (redY+49 - greenY-22)**2);
+        if (grDist < 70 && !battleOver && redHealth > 0 && greenHealth > 0) {
+            const dmg = Math.floor(Math.random() * 13) + 5;
+            if (Math.random() > 0.5) { redHealth -= dmg; red.style.animation = 'shake 0.2s'; status.textContent = '🟩 ' + attacks[Math.floor(Math.random()*attacks.length)] + ' -' + dmg; }
+            else { greenHealth -= dmg; green.style.animation = 'shake 0.2s'; status.textContent = '🔴 ' + attacks[Math.floor(Math.random()*attacks.length)] + ' -' + dmg; }
+            showImpact((redX + greenX) / 2 + 48, (redY + greenY) / 2 + 35);
+            greenVX = -(redX - greenX) / grDist * 6; greenVY = -(redY - greenY) / grDist * 6;
+            setTimeout(() => { green.style.animation = 'greenPulse 1.4s ease-in-out infinite'; red.style.animation = ''; }, 200);
+        }
+        const gbDist = Math.sqrt((blueX+40 - greenX-35)**2 + (blueY+40 - greenY-22)**2);
+        if (gbDist < 70 && !battleOver && blueHealth > 0 && greenHealth > 0) {
+            const dmg = Math.floor(Math.random() * 13) + 5;
+            if (Math.random() > 0.5) { blueHealth -= dmg; blue.style.animation = 'shake 0.2s'; status.textContent = '🟩 ' + attacks[Math.floor(Math.random()*attacks.length)] + ' -' + dmg; }
+            else { greenHealth -= dmg; green.style.animation = 'shake 0.2s'; status.textContent = '🔵 ' + attacks[Math.floor(Math.random()*attacks.length)] + ' -' + dmg; }
+            showImpact((blueX + greenX) / 2 + 38, (blueY + greenY) / 2 + 31);
+            greenVX = -(blueX - greenX) / gbDist * 6; greenVY = -(blueY - greenY) / gbDist * 6;
+            setTimeout(() => { green.style.animation = 'greenPulse 1.4s ease-in-out infinite'; blue.style.animation = ''; }, 200);
+        }
+        const gyDist = Math.sqrt((yellowX+50 - greenX-35)**2 + (yellowY+25 - greenY-22)**2);
+        if (gyDist < 70 && !battleOver && yellowHealth > 0 && greenHealth > 0) {
+            const dmg = Math.floor(Math.random() * 13) + 5;
+            if (Math.random() > 0.5) { yellowHealth -= dmg; yellow.style.animation = 'shake 0.2s'; status.textContent = '🟩 ' + attacks[Math.floor(Math.random()*attacks.length)] + ' -' + dmg; }
+            else { greenHealth -= dmg; green.style.animation = 'shake 0.2s'; status.textContent = '🟨 ' + attacks[Math.floor(Math.random()*attacks.length)] + ' -' + dmg; }
+            showImpact((yellowX + greenX) / 2 + 42, (yellowY + greenY) / 2 + 23);
+            greenVX = -(yellowX - greenX) / gyDist * 6; greenVY = -(yellowY - greenY) / gyDist * 6;
+            setTimeout(() => { green.style.animation = 'greenPulse 1.4s ease-in-out infinite'; yellow.style.animation = ''; }, 200);
+        }
+        const gpDist = Math.sqrt((purpleX+30 - greenX-35)**2 + (purpleY+30 - greenY-22)**2);
+        if (gpDist < 65 && !battleOver && purpleHealth > 0 && greenHealth > 0) {
+            const dmg = Math.floor(Math.random() * 13) + 5;
+            if (Math.random() > 0.5) { purpleHealth -= dmg; purple.style.animation = 'shake 0.2s'; status.textContent = '🟩 ' + attacks[Math.floor(Math.random()*attacks.length)] + ' -' + dmg; }
+            else { greenHealth -= dmg; green.style.animation = 'shake 0.2s'; status.textContent = '🟣 ' + attacks[Math.floor(Math.random()*attacks.length)] + ' -' + dmg; }
+            showImpact((purpleX + greenX) / 2 + 32, (purpleY + greenY) / 2 + 26);
+            greenVX = -(purpleX - greenX) / gpDist * 6; greenVY = -(purpleY - greenY) / gpDist * 6;
+            setTimeout(() => { green.style.animation = 'greenPulse 1.4s ease-in-out infinite'; purple.style.animation = 'losangePulse 1.3s ease-in-out infinite'; }, 200);
+        }
+        greenVX *= 0.95; greenVY *= 0.95;
+        greenHealthBar.style.width = Math.max(0, greenHealth) + '%';
+        if (greenHealth <= 0 && !battleOver) { green.style.opacity = '0.3'; }
         
         // Friction
         redVX *= 0.95;
