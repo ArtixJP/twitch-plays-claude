@@ -34,6 +34,12 @@
 </div>
 <span style="position: absolute; top: -35px; left: 50%; transform: translateX(-50%); color: #2196f3; font-weight: bold; font-size: 12px;">SQUARE</span>
 </div>
+<div class="yellow-rectangle" id="yellowFighter" style="position: fixed; left: 350px; top: 450px; width: 100px; height: 50px; background: linear-gradient(135deg, #ffeb3b, #ffc107); box-shadow: 0 4px 20px rgba(255, 235, 59, 0.6); border-radius: 6px; z-index: 10; animation: rectPulse 1.5s ease-in-out infinite;">
+<div class="health-bar" style="position: absolute; top: -20px; left: 0; width: 100%; height: 12px; background: #333; border-radius: 6px; overflow: hidden;">
+<div id="yellowHealth" style="width: 100%; height: 100%; background: linear-gradient(90deg, #4caf50, #8bc34a); transition: width 0.3s;"></div>
+</div>
+<span style="position: absolute; top: -35px; left: 50%; transform: translateX(-50%); color: #ffc107; font-weight: bold; font-size: 12px;">RECTANGLE</span>
+</div>
 <div id="battleArena" style="position: fixed; top: 50px; left: 50%; transform: translateX(-50%); text-align: center; z-index: 100;">
 <h2 style="color: #ff5722; font-size: 28px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); animation: titlePulse 1s ease-in-out infinite;">⚔️ SHAPE WARS ⚔️</h2>
 <p id="battleStatus" style="color: #fff; background: rgba(0,0,0,0.7); padding: 5px 15px; border-radius: 20px; margin-top: 10px;">FIGHT!</p>
@@ -102,6 +108,10 @@
             0%, 100% { transform: translateY(0) rotate(2deg); }
             50% { transform: translateY(-10px) rotate(-2deg); }
         }
+        @keyframes rectPulse {
+            0%, 100% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.04); opacity: 1; box-shadow: 0 6px 30px rgba(255, 235, 59, 0.7); }
+        }
         @keyframes hiMomFloat {
             0%, 100% { transform: translateY(0) rotate(-2deg); }
             50% { transform: translateY(-8px) rotate(2deg); }
@@ -128,6 +138,11 @@
     let blueX = 550, blueY = 310;
     let redVX = 0, redVY = 0;
     let blueVX = 0, blueVY = 0;
+    let yellowX = 350, yellowY = 450;
+    let yellowVX = 0, yellowVY = 0;
+    let yellowHealth = 100;
+    const yellow = document.getElementById('yellowFighter');
+    const yellowHealthBar = document.getElementById('yellowHealth');
     let battleOver = false;
     
     const attacks = ['PUNCH!', 'SLAM!', 'BASH!', 'WHACK!', 'POW!', 'BOOM!'];
@@ -217,7 +232,9 @@
             
             if (redHealth <= 0 || blueHealth <= 0) {
                 battleOver = true;
-                const winner = redHealth > 0 ? '🔺 TRIANGLE' : '🟦 SQUARE';
+                let winner = '🟨 RECTANGLE';
+                if (redHealth > blueHealth && redHealth > yellowHealth) winner = '🔺 TRIANGLE';
+                else if (blueHealth > redHealth && blueHealth > yellowHealth) winner = '🟦 SQUARE';
                 status.textContent = winner + ' WINS!';
                 status.style.background = 'linear-gradient(90deg, gold, orange)';
                 status.style.color = '#333';
@@ -229,12 +246,15 @@
                 
                 // Restart after 3 seconds
                 setTimeout(() => {
-                    redHealth = 100; blueHealth = 100;
+                    redHealth = 100; blueHealth = 100; yellowHealth = 100;
                     redX = 150; redY = 300;
                     blueX = 550; blueY = 310;
                     redHealthBar.style.width = '100%';
                     blueHealthBar.style.width = '100%';
                     red.style.opacity = '1';
+                    yellow.style.opacity = '1';
+                    yellowX = 350; yellowY = 450;
+                    yellowHealthBar.style.width = '100%';
                     blue.style.opacity = '1';
                     status.textContent = 'ROUND 2... FIGHT!';
                     status.style.background = 'rgba(0,0,0,0.7)';
@@ -244,11 +264,75 @@
             }
         }
         
+        // Yellow fighter AI - targets closest enemy
+        const dyellowRed = Math.sqrt((redX - yellowX)**2 + (redY - yellowY)**2);
+        const dyellowBlue = Math.sqrt((blueX - yellowX)**2 + (blueY - yellowY)**2);
+        let targetX, targetY;
+        if (dyellowRed < dyellowBlue) {
+            targetX = redX + 61; targetY = redY + 49;
+        } else {
+            targetX = blueX + 40; targetY = blueY + 40;
+        }
+        const dxY = targetX - (yellowX + 50);
+        const dyY = targetY - (yellowY + 25);
+        const distY = Math.sqrt(dxY*dxY + dyY*dyY);
+        if (distY > 60) {
+            yellowVX = (dxY / distY) * 3.5 + (Math.random() - 0.5) * 2;
+            yellowVY = (dyY / distY) * 3.5 + (Math.random() - 0.5) * 2;
+        }
+        yellowX += yellowVX; yellowY += yellowVY;
+        yellowX = Math.max(50, Math.min(700, yellowX));
+        yellowY = Math.max(150, Math.min(500, yellowY));
+        yellow.style.left = yellowX + 'px';
+        yellow.style.top = yellowY + 'px';
+        
+        // Yellow vs Red collision
+        const yrDist = Math.sqrt((redX+61 - yellowX-50)**2 + (redY+49 - yellowY-25)**2);
+        if (yrDist < 80 && !battleOver) {
+            const dmg = Math.floor(Math.random() * 12) + 5;
+            if (Math.random() > 0.5) {
+                redHealth -= dmg; red.style.animation = 'shake 0.2s';
+                status.textContent = '🟨 ' + attacks[Math.floor(Math.random()*attacks.length)] + ' -' + dmg;
+            } else {
+                yellowHealth -= dmg; yellow.style.animation = 'shake 0.2s';
+                status.textContent = '🔴 ' + attacks[Math.floor(Math.random()*attacks.length)] + ' -' + dmg;
+            }
+            showImpact((redX + yellowX) / 2 + 50, (redY + yellowY) / 2 + 40);
+            yellowVX = -(redX - yellowX) / yrDist * 6; yellowVY = -(redY - yellowY) / yrDist * 6;
+            setTimeout(() => { yellow.style.animation = ''; red.style.animation = ''; }, 200);
+        }
+        
+        // Yellow vs Blue collision
+        const ybDist = Math.sqrt((blueX+40 - yellowX-50)**2 + (blueY+40 - yellowY-25)**2);
+        if (ybDist < 80 && !battleOver) {
+            const dmg = Math.floor(Math.random() * 12) + 5;
+            if (Math.random() > 0.5) {
+                blueHealth -= dmg; blue.style.animation = 'shake 0.2s';
+                status.textContent = '🟨 ' + attacks[Math.floor(Math.random()*attacks.length)] + ' -' + dmg;
+            } else {
+                yellowHealth -= dmg; yellow.style.animation = 'shake 0.2s';
+                status.textContent = '🔵 ' + attacks[Math.floor(Math.random()*attacks.length)] + ' -' + dmg;
+            }
+            showImpact((blueX + yellowX) / 2 + 50, (blueY + yellowY) / 2 + 40);
+            yellowVX = -(blueX - yellowX) / ybDist * 6; yellowVY = -(blueY - yellowY) / ybDist * 6;
+            setTimeout(() => { yellow.style.animation = ''; blue.style.animation = ''; }, 200);
+        }
+        
+        redHealthBar.style.width = Math.max(0, redHealth) + '%';
+        blueHealthBar.style.width = Math.max(0, blueHealth) + '%';
+        yellowHealthBar.style.width = Math.max(0, yellowHealth) + '%';
+        
+        if (yellowHealth <= 0 && !battleOver) {
+            yellow.style.opacity = '0.3';
+        }
+        
         // Friction
         redVX *= 0.95;
         redVY *= 0.95;
         blueVX *= 0.95;
         blueVY *= 0.95;
+        yellowVX *= 0.95;
+        yellowVY *= 0.95;
         
         updatePositions();
     }
