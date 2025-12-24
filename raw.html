@@ -5,19 +5,23 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Twitch Plays Springfield</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<title>Twitch Plays Springfield Snake</title>
 <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Courier New', monospace; 
             overflow: hidden;
-            background: #FFD700;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FF8C00 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
-        #game-container {
-            width: 100vw;
-            height: 100vh;
+        #game-wrapper {
             position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         #ui {
             position: absolute;
@@ -31,63 +35,18 @@
             font-size: 1.8rem;
             margin-bottom: 10px;
             color: #FFEB3B;
+            text-shadow: 3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
         }
-        #hotbar {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 4px;
-            background: rgba(0,0,0,0.6);
-            padding: 8px;
-            border-radius: 8px;
-            border: 3px solid #555;
+        #score-display {
+            font-size: 1.2rem;
+            color: #76FF03;
+            text-shadow: 2px 2px 0 #000;
         }
-        .hotbar-slot {
-            width: 50px;
-            height: 50px;
-            border: 2px solid #888;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .hotbar-slot.selected {
-            border-color: #fff;
-            box-shadow: 0 0 10px white;
-            transform: scale(1.1);
-        }
-        .hotbar-slot:hover {
-            border-color: #aaa;
-        }
-        #crosshair {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 20px;
-            height: 20px;
-            pointer-events: none;
-            z-index: 50;
-        }
-        #crosshair::before, #crosshair::after {
-            content: '';
-            position: absolute;
-            background: white;
-            mix-blend-mode: difference;
-        }
-        #crosshair::before {
-            width: 2px;
-            height: 20px;
-            left: 9px;
-        }
-        #crosshair::after {
-            width: 20px;
-            height: 2px;
-            top: 9px;
+        #game-canvas {
+            border: 8px solid #8B4513;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(118, 255, 3, 0.5), inset 0 0 50px rgba(0,0,0,0.3);
+            background: #2d5016;
         }
         #mode-indicator {
             position: absolute;
@@ -96,13 +55,18 @@
             background: rgba(0,0,0,0.7);
             padding: 10px 20px;
             border-radius: 8px;
-            color: #FFEB3B;
+            color: #76FF03;
             font-size: 1rem;
             z-index: 100;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 10px #76FF03; }
+            50% { box-shadow: 0 0 25px #76FF03, 0 0 40px #4CAF50; }
         }
         #instruction {
             position: absolute;
-            bottom: 90px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0,0,0,0.7);
@@ -118,378 +82,376 @@
             border-radius: 4px;
             color: #bf94ff;
         }
+        #game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.9);
+            padding: 30px 50px;
+            border-radius: 15px;
+            text-align: center;
+            z-index: 200;
+            display: none;
+            border: 4px solid #E91E63;
+            box-shadow: 0 0 30px #E91E63;
+        }
+        #game-over h2 {
+            color: #E91E63;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        #game-over p {
+            color: #FFEB3B;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+        #restart-btn {
+            background: linear-gradient(135deg, #76FF03, #4CAF50);
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #000;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        #restart-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px #76FF03;
+        }
+        .power-plant {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 3rem;
+            opacity: 0.3;
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .donut-rain {
+            position: fixed;
+            font-size: 2rem;
+            animation: fall linear infinite;
+            opacity: 0.6;
+            pointer-events: none;
+            z-index: 1;
+        }
+        @keyframes fall {
+            0% { transform: translateY(-100vh) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(720deg); }
+        }
     </style>
 </head>
 <body>
-<div id="game-container"></div>
-<div id="crosshair"></div>
 <div id="ui">
-<h1>🍩 TWITCH SPRINGFIELD</h1>
-<div>Blocks: <span id="block-count">0</span></div>
+<h1>🍩 SPRINGFIELD SNAKE</h1>
+<div id="score-display">Donuts: <span id="score">0</span> | High Score: <span id="high-score">0</span></div>
 </div>
 <div id="mode-indicator">🤖 AUTO-PLAY MODE</div>
-<div id="hotbar">
-<div class="hotbar-slot selected" data-block="grass" style="background: linear-gradient(to bottom, #7CB342 50%, #8D6E63 50%);">🌿</div>
-<div class="hotbar-slot" data-block="dirt" style="background: #8D6E63;">🟫</div>
-<div class="hotbar-slot" data-block="stone" style="background: #9E9E9E;">🏠</div>
-<div class="hotbar-slot" data-block="wood" style="background: #FFEB3B;">🟨</div>
-<div class="hotbar-slot" data-block="diamond" style="background: linear-gradient(135deg, #2196F3, #1976D2);">🔵</div>
-<div class="hotbar-slot" data-block="gold" style="background: linear-gradient(135deg, #FFD700, #FFA000);">⭐</div>
-<div class="hotbar-slot" data-block="lava" style="background: linear-gradient(135deg, #76FF03, #4CAF50);">☢️</div>
-<div class="hotbar-slot" data-block="donut" style="background: linear-gradient(135deg, #FF69B4, #E91E63);">🍩</div>
+<div id="game-wrapper">
+<canvas height="600" id="game-canvas" width="600"></canvas>
+</div>
+<div id="game-over">
+<h2>D'OH! 💀</h2>
+<p>Homer ate <span id="final-score">0</span> donuts!</p>
+<button id="restart-btn">🍩 TRY AGAIN</button>
 </div>
 <div id="instruction">Type <code>!idea &lt;your idea&gt;</code> to modify this world!</div>
+<div class="power-plant">☢️🏭</div>
 <script>
-        // Minecraft-style voxel game
-        const container = document.getElementById('game-container');
-        const blockCountEl = document.getElementById('block-count');
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('score');
+        const highScoreEl = document.getElementById('high-score');
+        const gameOverEl = document.getElementById('game-over');
+        const finalScoreEl = document.getElementById('final-score');
+        const restartBtn = document.getElementById('restart-btn');
         
-        // Three.js setup
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0xFFD700);
-        scene.fog = new THREE.Fog(0xFFD700, 50, 150);
+        const gridSize = 20;
+        const tileCount = canvas.width / gridSize;
         
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(20, 25, 40);
-        camera.lookAt(0, 0, 0);
+        let snake = [{x: 10, y: 10}];
+        let direction = {x: 1, y: 0};
+        let nextDirection = {x: 1, y: 0};
+        let food = {x: 15, y: 15};
+        let score = 0;
+        let highScore = 0;
+        let gameOver = false;
+        let gameSpeed = 100;
         
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.shadowMap.enabled = true;
-        container.appendChild(renderer.domElement);
+        // Auto-play AI state
+        let autoPlay = true;
         
-        // Lighting
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-        scene.add(ambientLight);
-        
-        const sunLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        sunLight.position.set(50, 100, 50);
-        sunLight.castShadow = true;
-        sunLight.shadow.mapSize.width = 2048;
-        sunLight.shadow.mapSize.height = 2048;
-        scene.add(sunLight);
-        
-        // Block materials
-        const blockMaterials = {
-            grass: new THREE.MeshLambertMaterial({ color: 0x7CB342 }),
-            dirt: new THREE.MeshLambertMaterial({ color: 0x8D6E63 }),
-            stone: new THREE.MeshLambertMaterial({ color: 0x9E9E9E }),
-            wood: new THREE.MeshLambertMaterial({ color: 0xFFEB3B }),
-            diamond: new THREE.MeshLambertMaterial({ color: 0x2196F3 }),
-            gold: new THREE.MeshLambertMaterial({ color: 0xFFD700 }),
-            lava: new THREE.MeshLambertMaterial({ color: 0x76FF03, emissive: 0x4CAF50, emissiveIntensity: 0.8 }),
-            water: new THREE.MeshLambertMaterial({ color: 0x00BCD4, transparent: true, opacity: 0.7 }),
-            pink: new THREE.MeshLambertMaterial({ color: 0xFF69B4 }),
-            donut: new THREE.MeshLambertMaterial({ color: 0xE91E63 })
-        };
-        
-        const blockGeometry = new THREE.BoxGeometry(1, 1, 1);
-        const blocks = new Map();
-        let blockCount = 0;
-        
-        function getBlockKey(x, y, z) {
-            return `${Math.round(x)},${Math.round(y)},${Math.round(z)}`;
+        // Create donut rain effect
+        function createDonutRain() {
+            for (let i = 0; i < 10; i++) {
+                const donut = document.createElement('div');
+                donut.className = 'donut-rain';
+                donut.textContent = '🍩';
+                donut.style.left = Math.random() * 100 + 'vw';
+                donut.style.animationDuration = (5 + Math.random() * 10) + 's';
+                donut.style.animationDelay = Math.random() * 5 + 's';
+                document.body.appendChild(donut);
+            }
         }
+        createDonutRain();
         
-        function addBlock(x, y, z, type = 'grass') {
-            const key = getBlockKey(x, y, z);
-            if (blocks.has(key)) return;
-            
-            const material = blockMaterials[type] || blockMaterials.grass;
-            const block = new THREE.Mesh(blockGeometry, material);
-            block.position.set(Math.round(x), Math.round(y), Math.round(z));
-            block.castShadow = true;
-            block.receiveShadow = true;
-            block.userData.type = type;
-            scene.add(block);
-            blocks.set(key, block);
-            blockCount++;
-            blockCountEl.textContent = blockCount;
-        }
-        
-        function removeBlock(x, y, z) {
-            const key = getBlockKey(x, y, z);
-            const block = blocks.get(key);
-            if (block) {
-                scene.remove(block);
-                blocks.delete(key);
-                blockCount--;
-                blockCountEl.textContent = blockCount;
+        function spawnFood() {
+            food = {
+                x: Math.floor(Math.random() * tileCount),
+                y: Math.floor(Math.random() * tileCount)
+            };
+            // Make sure food doesn't spawn on snake
+            for (let segment of snake) {
+                if (segment.x === food.x && segment.y === food.y) {
+                    spawnFood();
+                    return;
+                }
             }
         }
         
-        // Generate terrain
-        function generateTerrain() {
-            const size = 20;
-            for (let x = -size; x <= size; x++) {
-                for (let z = -size; z <= size; z++) {
-                    // Simple height variation
-                    const height = Math.floor(Math.sin(x * 0.3) * Math.cos(z * 0.3) * 3) + 2;
-                    
-                    // Bedrock layer
-                    addBlock(x, 0, z, 'stone');
-                    
-                    // Dirt layers
-                    for (let y = 1; y < height; y++) {
-                        addBlock(x, y, z, 'dirt');
-                    }
-                    
-                    // Grass top
-                    addBlock(x, height, z, 'grass');
-                    
-                    // Random trees
-                    if (Math.random() < 0.02 && height > 2) {
-                        for (let ty = 1; ty <= 4; ty++) {
-                            addBlock(x, height + ty, z, 'wood');
-                        }
-                        // Leaves (simplified)
-                        for (let lx = -1; lx <= 1; lx++) {
-                            for (let lz = -1; lz <= 1; lz++) {
-                                addBlock(x + lx, height + 5, z + lz, 'grass');
-                            }
-                        }
-                    }
-                    
-                    // Random ores
-                    if (Math.random() < 0.01) {
-                        addBlock(x, 1, z, 'diamond');
-                    }
-                    if (Math.random() < 0.02) {
-                        addBlock(x, 1, z, 'gold');
-                    }
-                }
+        function drawGame() {
+            // Clear canvas with gradient background
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#1a3d0c');
+            gradient.addColorStop(1, '#2d5016');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw grid lines (subtle)
+            ctx.strokeStyle = 'rgba(118, 255, 3, 0.1)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= tileCount; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * gridSize, 0);
+                ctx.lineTo(i * gridSize, canvas.height);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(0, i * gridSize);
+                ctx.lineTo(canvas.width, i * gridSize);
+                ctx.stroke();
             }
             
-            // Add the original shapes as special blocks!
-            // Purple rectangle -> Amethyst structure
-            for (let i = 0; i < 3; i++) {
-                addBlock(-5 + i, 6, -5, 'diamond');
-                addBlock(-5 + i, 7, -5, 'diamond');
-            }
+            // Draw food (donut)
+            ctx.font = '18px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🍩', food.x * gridSize + gridSize/2, food.y * gridSize + gridSize/2);
             
-            // Blue circle -> Water pool
-            for (let x = -8; x <= -6; x++) {
-                for (let z = 2; z <= 4; z++) {
-                    addBlock(x, 3, z, 'water');
-                }
-            }
-            
-            // Red rectangle -> Lava pit
-            addBlock(8, 3, 5, 'lava');
-            addBlock(9, 3, 5, 'lava');
-            addBlock(8, 3, 6, 'lava');
-            
-            // Yellow diamond -> Gold monument
-            addBlock(5, 6, -8, 'gold');
-            addBlock(5, 7, -8, 'gold');
-            addBlock(5, 8, -8, 'gold');
-        }
-        
-        generateTerrain();
-        
-        // Build a tower at center!
-        function buildTower(baseX, baseZ) {
-            const towerHeight = 15;
-            const towerWidth = 3;
-            
-            // Find ground level at this position
-            let groundY = 5;
-            
-            // Tower walls
-            for (let y = groundY; y < groundY + towerHeight; y++) {
-                for (let x = baseX - 1; x <= baseX + 1; x++) {
-                    for (let z = baseZ - 1; z <= baseZ + 1; z++) {
-                        // Hollow inside (only walls)
-                        if (x === baseX - 1 || x === baseX + 1 || z === baseZ - 1 || z === baseZ + 1) {
-                            // Alternate stone and darker stone for texture
-                            if (y % 3 === 0) {
-                                addBlock(x, y, z, 'stone');
-                            } else {
-                                addBlock(x, y, z, 'dirt');
-                            }
-                        }
-                    }
-                }
-                // Corner pillars in wood
-                addBlock(baseX - 1, y, baseZ - 1, 'wood');
-                addBlock(baseX + 1, y, baseZ - 1, 'wood');
-                addBlock(baseX - 1, y, baseZ + 1, 'wood');
-                addBlock(baseX + 1, y, baseZ + 1, 'wood');
-            }
-            
-            // Tower top battlements
-            const topY = groundY + towerHeight;
-            for (let x = baseX - 2; x <= baseX + 2; x++) {
-                for (let z = baseZ - 2; z <= baseZ + 2; z++) {
-                    addBlock(x, topY, z, 'stone');
-                }
-            }
-            
-            // Crenellations (battlements)
-            for (let i = -2; i <= 2; i += 2) {
-                addBlock(baseX + i, topY + 1, baseZ - 2, 'stone');
-                addBlock(baseX + i, topY + 1, baseZ + 2, 'stone');
-                addBlock(baseX - 2, topY + 1, baseZ + i, 'stone');
-                addBlock(baseX + 2, topY + 1, baseZ + i, 'stone');
-            }
-            
-            // Diamond beacon at the very top!
-            addBlock(baseX, topY + 2, baseZ, 'diamond');
-            addBlock(baseX, topY + 3, baseZ, 'diamond');
-            addBlock(baseX, topY + 4, baseZ, 'gold');
-            
-            // Window openings (remove some blocks)
-            for (let y = groundY + 3; y < groundY + towerHeight - 2; y += 4) {
-                removeBlock(baseX, y, baseZ - 1);
-                removeBlock(baseX, y, baseZ + 1);
-                removeBlock(baseX - 1, y, baseZ);
-                removeBlock(baseX + 1, y, baseZ);
-            }
-        }
-        
-        // Build the tower at center of the world
-        buildTower(0, 0);
-        
-        // Build Springfield Power Plant cooling towers!
-        function buildCoolingTower(baseX, baseZ) {
-            for (let y = 5; y < 20; y++) {
-                const radius = Math.max(2, 5 - (y - 5) * 0.2);
-                for (let angle = 0; angle < Math.PI * 2; angle += 0.3) {
-                    const x = baseX + Math.round(Math.cos(angle) * radius);
-                    const z = baseZ + Math.round(Math.sin(angle) * radius);
-                    addBlock(x, y, z, 'stone');
-                }
-            }
-            // Green radioactive glow at top
-            addBlock(baseX, 20, baseZ, 'lava');
-            addBlock(baseX+1, 20, baseZ, 'lava');
-            addBlock(baseX-1, 20, baseZ, 'lava');
-            addBlock(baseX, 20, baseZ+1, 'lava');
-            addBlock(baseX, 20, baseZ-1, 'lava');
-        }
-        buildCoolingTower(-15, -15);
-        buildCoolingTower(-15, -10);
-        
-        // Build Moe's Tavern
-        function buildMoesTavern(baseX, baseZ) {
-            const groundY = 5;
-            // Walls
-            for (let y = groundY; y < groundY + 6; y++) {
-                for (let x = baseX; x < baseX + 8; x++) {
-                    addBlock(x, y, baseZ, 'dirt');
-                    addBlock(x, y, baseZ + 5, 'dirt');
-                }
-                for (let z = baseZ; z < baseZ + 6; z++) {
-                    addBlock(baseX, y, z, 'dirt');
-                    addBlock(baseX + 7, y, z, 'dirt');
-                }
-            }
-            // Roof
-            for (let x = baseX; x < baseX + 8; x++) {
-                for (let z = baseZ; z < baseZ + 6; z++) {
-                    addBlock(x, groundY + 6, z, 'wood');
-                }
-            }
-            // Neon sign (blue)
-            addBlock(baseX + 3, groundY + 7, baseZ, 'diamond');
-            addBlock(baseX + 4, groundY + 7, baseZ, 'diamond');
-        }
-        buildMoesTavern(12, 8);
-        
-        // Giant Donut (Lard Lad)
-        function buildGiantDonut(baseX, baseZ) {
-            const centerY = 12;
-            const outerR = 5;
-            const innerR = 2;
-            for (let angle = 0; angle < Math.PI * 2; angle += 0.2) {
-                for (let r = innerR; r <= outerR; r += 0.5) {
-                    const x = baseX + Math.round(Math.cos(angle) * r);
-                    const y = centerY + Math.round(Math.sin(angle) * r * 0.6);
-                    addBlock(x, y, baseZ, r > outerR - 1 ? 'donut' : 'wood');
-                }
-            }
-        }
-        buildGiantDonut(15, -12);
-        
-        // Auto-play camera movement
-        let autoPlayAngle = 0;
-        let autoPlayRadius = 35;
-        let autoPlayHeight = 25;
-        let targetLookAt = new THREE.Vector3(0, 5, 0);
-        
-        // Auto-build AI
-        let autoBuildTimer = 0;
-        const buildTypes = ['grass', 'dirt', 'stone', 'wood', 'diamond', 'gold', 'donut', 'lava'];
-        
-        function autoPlay(delta) {
-            // Smooth camera orbit
-            autoPlayAngle += delta * 0.1;
-            autoPlayRadius = 35 + Math.sin(autoPlayAngle * 0.5) * 10;
-            autoPlayHeight = 25 + Math.sin(autoPlayAngle * 0.3) * 8;
-            
-            camera.position.x = Math.cos(autoPlayAngle) * autoPlayRadius;
-            camera.position.z = Math.sin(autoPlayAngle) * autoPlayRadius;
-            camera.position.y = autoPlayHeight;
-            camera.lookAt(targetLookAt);
-            
-            // Auto-build blocks periodically
-            autoBuildTimer += delta;
-            if (autoBuildTimer > 0.5) {
-                autoBuildTimer = 0;
-                
-                // Random building
-                const rx = Math.floor(Math.random() * 10) - 5;
-                const rz = Math.floor(Math.random() * 10) - 5;
-                const ry = Math.floor(Math.random() * 5) + 5;
-                const type = buildTypes[Math.floor(Math.random() * buildTypes.length)];
-                
-                // 70% chance to build, 30% to remove
-                if (Math.random() < 0.7) {
-                    addBlock(rx, ry, rz, type);
+            // Draw snake
+            snake.forEach((segment, index) => {
+                if (index === 0) {
+                    // Homer's head
+                    ctx.font = '18px Arial';
+                    ctx.fillText('😋', segment.x * gridSize + gridSize/2, segment.y * gridSize + gridSize/2);
                 } else {
-                    removeBlock(rx, ry, rz);
+                    // Body - yellow like Homer
+                    ctx.fillStyle = '#FFEB3B';
+                    ctx.beginPath();
+                    ctx.arc(
+                        segment.x * gridSize + gridSize/2,
+                        segment.y * gridSize + gridSize/2,
+                        gridSize/2 - 2,
+                        0, Math.PI * 2
+                    );
+                    ctx.fill();
+                    ctx.strokeStyle = '#FFA000';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
                 }
+            });
+            
+            // Draw radioactive glow around snake head
+            if (snake.length > 0) {
+                ctx.beginPath();
+                ctx.arc(
+                    snake[0].x * gridSize + gridSize/2,
+                    snake[0].y * gridSize + gridSize/2,
+                    gridSize,
+                    0, Math.PI * 2
+                );
+                ctx.fillStyle = 'rgba(118, 255, 3, 0.2)';
+                ctx.fill();
             }
         }
         
-        // Hotbar selection
-        let selectedBlock = 'grass';
-        document.querySelectorAll('.hotbar-slot').forEach(slot => {
-            slot.addEventListener('click', () => {
-                document.querySelectorAll('.hotbar-slot').forEach(s => s.classList.remove('selected'));
-                slot.classList.add('selected');
-                selectedBlock = slot.dataset.block;
-            });
-        });
-        
-        // Animation loop
-        const clock = new THREE.Clock();
-        function animate() {
-            requestAnimationFrame(animate);
-            const delta = clock.getDelta();
+        function autoPlayAI() {
+            if (!autoPlay) return;
             
-            autoPlay(delta);
+            const head = snake[0];
+            const dx = food.x - head.x;
+            const dy = food.y - head.y;
             
-            // Animate lava and water
-            blocks.forEach((block, key) => {
-                if (block.userData.type === 'lava') {
-                    block.position.y += Math.sin(Date.now() * 0.005 + block.position.x) * 0.002;
+            // Simple pathfinding - try to move towards food while avoiding walls and self
+            const possibleMoves = [
+                {x: 1, y: 0},
+                {x: -1, y: 0},
+                {x: 0, y: 1},
+                {x: 0, y: -1}
+            ];
+            
+            // Filter out reverse direction
+            const validMoves = possibleMoves.filter(move => 
+                !(move.x === -direction.x && move.y === -direction.y)
+            );
+            
+            // Check which moves are safe
+            const safeMoves = validMoves.filter(move => {
+                const newX = head.x + move.x;
+                const newY = head.y + move.y;
+                
+                // Check walls
+                if (newX < 0 || newX >= tileCount || newY < 0 || newY >= tileCount) {
+                    return false;
                 }
-                if (block.userData.type === 'water') {
-                    block.position.y += Math.sin(Date.now() * 0.003 + block.position.z) * 0.001;
+                
+                // Check self collision
+                for (let segment of snake) {
+                    if (segment.x === newX && segment.y === newY) {
+                        return false;
+                    }
                 }
+                
+                return true;
             });
             
-            renderer.render(scene, camera);
+            if (safeMoves.length === 0) {
+                // No safe moves, just continue
+                return;
+            }
+            
+            // Prioritize moves towards food
+            let bestMove = safeMoves[0];
+            let bestScore = -Infinity;
+            
+            for (let move of safeMoves) {
+                let moveScore = 0;
+                const newX = head.x + move.x;
+                const newY = head.y + move.y;
+                
+                // Prefer moves that get closer to food
+                const newDist = Math.abs(food.x - newX) + Math.abs(food.y - newY);
+                const oldDist = Math.abs(dx) + Math.abs(dy);
+                moveScore = oldDist - newDist;
+                
+                if (moveScore > bestScore) {
+                    bestScore = moveScore;
+                    bestMove = move;
+                }
+            }
+            
+            nextDirection = bestMove;
         }
-        animate();
         
-        // Handle resize
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+        function update() {
+            if (gameOver) return;
+            
+            autoPlayAI();
+            direction = nextDirection;
+            
+            const head = {x: snake[0].x + direction.x, y: snake[0].y + direction.y};
+            
+            // Check wall collision
+            if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
+                endGame();
+                return;
+            }
+            
+            // Check self collision
+            for (let segment of snake) {
+                if (segment.x === head.x && segment.y === head.y) {
+                    endGame();
+                    return;
+                }
+            }
+            
+            snake.unshift(head);
+            
+            // Check food collision
+            if (head.x === food.x && head.y === food.y) {
+                score++;
+                scoreEl.textContent = score;
+                if (score > highScore) {
+                    highScore = score;
+                    highScoreEl.textContent = highScore;
+                }
+                spawnFood();
+                // Speed up slightly
+                gameSpeed = Math.max(50, gameSpeed - 2);
+            } else {
+                snake.pop();
+            }
+        }
+        
+        function endGame() {
+            gameOver = true;
+            finalScoreEl.textContent = score;
+            gameOverEl.style.display = 'block';
+            
+            // Auto-restart after 3 seconds in auto-play mode
+            if (autoPlay) {
+                setTimeout(restartGame, 3000);
+            }
+        }
+        
+        function restartGame() {
+            snake = [{x: 10, y: 10}];
+            direction = {x: 1, y: 0};
+            nextDirection = {x: 1, y: 0};
+            score = 0;
+            scoreEl.textContent = score;
+            gameSpeed = 100;
+            gameOver = false;
+            gameOverEl.style.display = 'none';
+            spawnFood();
+        }
+        
+        restartBtn.addEventListener('click', restartGame);
+        
+        // Keyboard controls (for manual play)
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowUp':
+                case 'w':
+                    if (direction.y !== 1) nextDirection = {x: 0, y: -1};
+                    autoPlay = false;
+                    document.getElementById('mode-indicator').textContent = '🎮 MANUAL MODE';
+                    break;
+                case 'ArrowDown':
+                case 's':
+                    if (direction.y !== -1) nextDirection = {x: 0, y: 1};
+                    autoPlay = false;
+                    document.getElementById('mode-indicator').textContent = '🎮 MANUAL MODE';
+                    break;
+                case 'ArrowLeft':
+                case 'a':
+                    if (direction.x !== 1) nextDirection = {x: -1, y: 0};
+                    autoPlay = false;
+                    document.getElementById('mode-indicator').textContent = '🎮 MANUAL MODE';
+                    break;
+                case 'ArrowRight':
+                case 'd':
+                    if (direction.x !== -1) nextDirection = {x: 1, y: 0};
+                    autoPlay = false;
+                    document.getElementById('mode-indicator').textContent = '🎮 MANUAL MODE';
+                    break;
+            }
         });
+        
+        // Game loop
+        function gameLoop() {
+            update();
+            drawGame();
+            setTimeout(gameLoop, gameSpeed);
+        }
+        
+        spawnFood();
+        gameLoop();
     </script>
 </body>
 </html>
