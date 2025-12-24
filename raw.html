@@ -11,7 +11,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: white;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             color: #333;
             font-family: system-ui, -apple-system, sans-serif;
             text-align: center;
@@ -22,8 +22,23 @@
     </style>
 </head>
 <body>
-<div class="red-rectangle" style="position: fixed; left: 233px; top: 102px; width: 122px; height: 98px; background: #e53935; box-shadow: 0 4px 20px rgba(229, 57, 53, 0.4); border-radius: 4px; animation: rectPulse 3s ease-in-out infinite;"></div>
-<div class="blue-circle" style="position: fixed; left: 450px; top: 115px; width: 80px; height: 80px; background: #2196f3; box-shadow: 0 4px 20px rgba(33, 150, 243, 0.4); border-radius: 50%; animation: circlePulse 3s ease-in-out infinite;"></div>
+<div class="red-rectangle" id="redFighter" style="position: fixed; left: 150px; top: 300px; width: 122px; height: 98px; background: linear-gradient(135deg, #e53935, #b71c1c); box-shadow: 0 4px 20px rgba(229, 57, 53, 0.4); border-radius: 4px; z-index: 10;">
+<div class="health-bar" style="position: absolute; top: -20px; left: 0; width: 100%; height: 12px; background: #333; border-radius: 6px; overflow: hidden;">
+<div id="redHealth" style="width: 100%; height: 100%; background: linear-gradient(90deg, #4caf50, #8bc34a); transition: width 0.3s;"></div>
+</div>
+<span style="position: absolute; top: -35px; left: 50%; transform: translateX(-50%); color: #e53935; font-weight: bold; font-size: 12px;">RECTANGLE</span>
+</div>
+<div class="blue-circle" id="blueFighter" style="position: fixed; left: 550px; top: 310px; width: 80px; height: 80px; background: linear-gradient(135deg, #2196f3, #0d47a1); box-shadow: 0 4px 20px rgba(33, 150, 243, 0.4); border-radius: 50%; z-index: 10;">
+<div class="health-bar" style="position: absolute; top: -20px; left: 0; width: 100%; height: 12px; background: #333; border-radius: 6px; overflow: hidden;">
+<div id="blueHealth" style="width: 100%; height: 100%; background: linear-gradient(90deg, #4caf50, #8bc34a); transition: width 0.3s;"></div>
+</div>
+<span style="position: absolute; top: -35px; left: 50%; transform: translateX(-50%); color: #2196f3; font-weight: bold; font-size: 12px;">CIRCLE</span>
+</div>
+<div id="battleArena" style="position: fixed; top: 50px; left: 50%; transform: translateX(-50%); text-align: center; z-index: 100;">
+<h2 style="color: #ff5722; font-size: 28px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); animation: titlePulse 1s ease-in-out infinite;">⚔️ SHAPE WARS ⚔️</h2>
+<p id="battleStatus" style="color: #fff; background: rgba(0,0,0,0.7); padding: 5px 15px; border-radius: 20px; margin-top: 10px;">FIGHT!</p>
+</div>
+<div id="impactEffect" style="position: fixed; width: 100px; height: 100px; pointer-events: none; z-index: 50; display: none;"></div>
 <div class="ghost-container">
 <h1 class="ghost-text">░░░░░░░░░░</h1>
 <p class="ghost-text">░ ░ ░ ░ ░ ░ ░ ░ ░ ░ ░</p>
@@ -60,6 +75,27 @@
             0%, 100% { transform: scale(1); opacity: 0.9; }
             50% { transform: scale(1.05); opacity: 1; box-shadow: 0 6px 30px rgba(33, 150, 243, 0.6); }
         }
+        @keyframes titlePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); text-shadow: 0 0 20px #ff5722; }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px) rotate(-2deg); }
+            75% { transform: translateX(5px) rotate(2deg); }
+        }
+        @keyframes impact {
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(3); opacity: 0; }
+        }
+        .hit-effect {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, #ffeb3b, #ff9800, transparent);
+            border-radius: 50%;
+            animation: impact 0.4s ease-out forwards;
+        }
         @keyframes ellipsis {
             0% { content: ''; }
             25% { content: '.'; }
@@ -67,5 +103,148 @@
             75% { content: '...'; }
         }
     </style>
+<script>
+(function() {
+    const red = document.getElementById('redFighter');
+    const blue = document.getElementById('blueFighter');
+    const redHealthBar = document.getElementById('redHealth');
+    const blueHealthBar = document.getElementById('blueHealth');
+    const status = document.getElementById('battleStatus');
+    const impact = document.getElementById('impactEffect');
+    
+    let redHealth = 100;
+    let blueHealth = 100;
+    let redX = 150, redY = 300;
+    let blueX = 550, blueY = 310;
+    let redVX = 0, redVY = 0;
+    let blueVX = 0, blueVY = 0;
+    let battleOver = false;
+    
+    const attacks = ['PUNCH!', 'SLAM!', 'BASH!', 'WHACK!', 'POW!', 'BOOM!'];
+    
+    function showImpact(x, y) {
+        const effect = document.createElement('div');
+        effect.className = 'hit-effect';
+        effect.style.left = (x - 30) + 'px';
+        effect.style.top = (y - 30) + 'px';
+        effect.style.position = 'fixed';
+        effect.style.zIndex = '60';
+        document.body.appendChild(effect);
+        setTimeout(() => effect.remove(), 400);
+    }
+    
+    function updatePositions() {
+        red.style.left = redX + 'px';
+        red.style.top = redY + 'px';
+        blue.style.left = blueX + 'px';
+        blue.style.top = blueY + 'px';
+    }
+    
+    function checkCollision() {
+        const dx = (redX + 61) - (blueX + 40);
+        const dy = (redY + 49) - (blueY + 40);
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        return dist < 100;
+    }
+    
+    function fight() {
+        if (battleOver) return;
+        
+        // Move towards each other
+        const dx = (blueX + 40) - (redX + 61);
+        const dy = (blueY + 40) - (redY + 49);
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        
+        if (dist > 80) {
+            redVX = (dx / dist) * 4 + (Math.random() - 0.5) * 2;
+            redVY = (dy / dist) * 4 + (Math.random() - 0.5) * 2;
+            blueVX = (-dx / dist) * 4 + (Math.random() - 0.5) * 2;
+            blueVY = (-dy / dist) * 4 + (Math.random() - 0.5) * 2;
+        }
+        
+        redX += redVX;
+        redY += redVY;
+        blueX += blueVX;
+        blueY += blueVY;
+        
+        // Boundaries
+        redX = Math.max(50, Math.min(700, redX));
+        redY = Math.max(150, Math.min(500, redY));
+        blueX = Math.max(50, Math.min(700, blueX));
+        blueY = Math.max(150, Math.min(500, blueY));
+        
+        if (checkCollision()) {
+            // COLLISION! Both take damage
+            const damage = Math.floor(Math.random() * 15) + 5;
+            const attacker = Math.random() > 0.5 ? 'red' : 'blue';
+            
+            if (attacker === 'red') {
+                blueHealth -= damage;
+                blue.style.animation = 'shake 0.2s';
+                status.textContent = '🔴 ' + attacks[Math.floor(Math.random()*attacks.length)] + ' -' + damage;
+            } else {
+                redHealth -= damage;
+                red.style.animation = 'shake 0.2s';
+                status.textContent = '🔵 ' + attacks[Math.floor(Math.random()*attacks.length)] + ' -' + damage;
+            }
+            
+            showImpact((redX + blueX) / 2 + 60, (redY + blueY) / 2 + 50);
+            
+            // Bounce apart
+            redVX = -dx / dist * 8;
+            redVY = -dy / dist * 8;
+            blueVX = dx / dist * 8;
+            blueVY = dy / dist * 8;
+            
+            setTimeout(() => {
+                red.style.animation = '';
+                blue.style.animation = '';
+            }, 200);
+            
+            // Update health bars
+            redHealthBar.style.width = Math.max(0, redHealth) + '%';
+            blueHealthBar.style.width = Math.max(0, blueHealth) + '%';
+            
+            if (redHealth <= 0 || blueHealth <= 0) {
+                battleOver = true;
+                const winner = redHealth > 0 ? '🔴 RECTANGLE' : '🔵 CIRCLE';
+                status.textContent = winner + ' WINS!';
+                status.style.background = 'linear-gradient(90deg, gold, orange)';
+                status.style.color = '#333';
+                status.style.fontWeight = 'bold';
+                
+                // Loser fades
+                if (redHealth <= 0) red.style.opacity = '0.3';
+                if (blueHealth <= 0) blue.style.opacity = '0.3';
+                
+                // Restart after 3 seconds
+                setTimeout(() => {
+                    redHealth = 100; blueHealth = 100;
+                    redX = 150; redY = 300;
+                    blueX = 550; blueY = 310;
+                    redHealthBar.style.width = '100%';
+                    blueHealthBar.style.width = '100%';
+                    red.style.opacity = '1';
+                    blue.style.opacity = '1';
+                    status.textContent = 'ROUND 2... FIGHT!';
+                    status.style.background = 'rgba(0,0,0,0.7)';
+                    status.style.color = '#fff';
+                    battleOver = false;
+                }, 3000);
+            }
+        }
+        
+        // Friction
+        redVX *= 0.95;
+        redVY *= 0.95;
+        blueVX *= 0.95;
+        blueVY *= 0.95;
+        
+        updatePositions();
+    }
+    
+    setInterval(fight, 50);
+})();
+</script>
 </body>
 </html>
