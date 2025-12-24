@@ -23,6 +23,7 @@
 </head>
 <body>
 <div class="red-rectangle" style="position: fixed; left: 233px; top: 102px; width: 122px; height: 98px; background: #e53935; box-shadow: 0 4px 20px rgba(229, 57, 53, 0.4); border-radius: 4px; animation: rectPulse 3s ease-in-out infinite;"></div>
+<div class="blue-circle" style="position: fixed; left: 450px; top: 115px; width: 80px; height: 80px; background: #2196f3; box-shadow: 0 4px 20px rgba(33, 150, 243, 0.4); border-radius: 50%; animation: circlePulse 3s ease-in-out infinite;"></div>
 <div class="ghost-container">
 <h1 class="ghost-text">░░░░░░░░░░</h1>
 <p class="ghost-text">░ ░ ░ ░ ░ ░ ░ ░ ░ ░ ░</p>
@@ -54,6 +55,10 @@
         @keyframes rectPulse {
             0%, 100% { transform: scale(1); opacity: 0.9; }
             50% { transform: scale(1.02); opacity: 1; box-shadow: 0 6px 30px rgba(229, 57, 53, 0.6); }
+        }
+        @keyframes circlePulse {
+            0%, 100% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.05); opacity: 1; box-shadow: 0 6px 30px rgba(33, 150, 243, 0.6); }
         }
         @keyframes ellipsis {
             0% { content: ''; }
