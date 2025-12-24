@@ -261,25 +261,20 @@
     </style>
 </head>
 <body>
-
 <div class="ambient-glow glow-1"></div>
 <div class="ambient-glow glow-2"></div>
 <div class="ambient-glow glow-3"></div>
-
 <div class="coffee-bean" style="top: 15%; left: 5%; animation-delay: 0s;">☕</div>
 <div class="coffee-bean" style="top: 45%; right: 8%; animation-delay: -3s;">🫘</div>
 <div class="coffee-bean" style="bottom: 25%; left: 12%; animation-delay: -7s;">☕</div>
 <div class="coffee-bean" style="top: 70%; right: 5%; animation-delay: -5s;">🫘</div>
 <div class="coffee-bean" style="top: 20%; right: 25%; animation-delay: -10s;">☕</div>
-
 <div class="open-sign">✦ OPEN ✦</div>
 <div class="shop-container">
-
 <header class="header">
 <h1 class="logo">☕ The Cozy Bean</h1>
 <p class="tagline">Artisan Coffee &amp; Good Vibes Since 2024</p>
 </header>
-
 <section class="coffee-display">
 <div class="cup-container">
 <div class="steam">
@@ -293,8 +288,9 @@
 </div>
 <p class="coffee-quote">"Life begins after coffee."</p>
 </section>
-
 <section class="menu-board">
+<div class="taste-test-badge" style="position: absolute; top: -15px; right: 15px; background: linear-gradient(135deg, #ffd700, #ffaa00); color: #2c1810; padding: 8px 15px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; transform: rotate(5deg); box-shadow: 0 3px 10px rgba(0,0,0,0.3); animation: badgePop 2s ease-in-out infinite;">✨ TASTE TEST TODAY! ✨</div>
+<style>.taste-test-badge { z-index: 10; } @keyframes badgePop { 0%, 100% { transform: rotate(5deg) scale(1); } 50% { transform: rotate(5deg) scale(1.05); } }</style>
 <div class="menu-section">
 <h3>☕ Hot Drinks</h3>
 <div class="menu-item"><span>Espresso</span><span class="price">$3.50</span></div>
@@ -309,13 +305,11 @@
 <div class="menu-item"><span>Cinnamon Roll</span><span class="price">$4.00</span></div>
 </div>
 </section>
-
 <footer class="footer">
 <p>📍 123 Brew Street, Coffee Town</p>
 <div class="wifi-info">📶 WiFi: <span>CoffeeLovers</span> | Password: <span>BrewedFresh</span></div>
 </footer>
 </div>
-
 <audio id="ambient-audio" loop="">
 <source src="https://cdn.pixabay.com/audio/2022/10/30/audio_946e48f2e0.mp3" type="audio/mpeg"/>
 </audio>
