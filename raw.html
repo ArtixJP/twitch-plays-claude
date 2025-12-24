@@ -1,41 +1,353 @@
 <!DOCTYPE html>
-<html>
+
+<html lang="en">
 <head>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
-    <title>New Epoch Starting...</title>
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>禅 Zen Garden Gallery</title>
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;500&display=swap');
+        
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bamboo: #4a7c59;
+            --stone: #8b8b83;
+            --sand: #e8dcc4;
+            --water: #5b8a9a;
+            --sakura: #ffb7c5;
+            --wood: #8b4513;
+            --ink: #2c2c2c;
+        }
+        
         body {
             min-height: 100vh;
+            font-family: 'Noto Serif JP', serif;
+            background: linear-gradient(180deg, #c9d6df 0%, #e8dcc4 60%, #d4c5a9 100%);
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Floating Cherry Blossoms */
+        .petal {
+            position: fixed;
+            width: 12px;
+            height: 12px;
+            background: var(--sakura);
+            border-radius: 50% 0 50% 50%;
+            opacity: 0.8;
+            pointer-events: none;
+            z-index: 100;
+            animation: fall linear infinite;
+        }
+        
+        @keyframes fall {
+            0% { transform: translateY(-20px) rotate(0deg) translateX(0); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(100vh) rotate(720deg) translateX(100px); opacity: 0; }
+        }
+        
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 300;
+            color: var(--ink);
+            letter-spacing: 0.3em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .header .kanji {
+            font-size: 5rem;
+            display: block;
+            margin-bottom: 10px;
+            color: var(--bamboo);
+            opacity: 0.7;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            color: var(--stone);
+            font-style: italic;
+            margin-top: 10px;
+        }
+        
+        /* Garden Container */
+        .garden {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+        
+        /* Garden Elements */
+        .garden-element {
+            background: rgba(255,255,255,0.4);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.6);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .garden-element:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+        
+        .garden-element h3 {
+            font-weight: 500;
+            color: var(--ink);
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .garden-element p {
+            color: var(--stone);
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+        
+        /* Koi Pond */
+        .koi-pond {
+            grid-column: span 2;
+            background: linear-gradient(135deg, rgba(91,138,154,0.6) 0%, rgba(74,124,89,0.4) 100%);
+            min-height: 250px;
+            position: relative;
+        }
+        
+        .koi-pond::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='30' r='15' fill='rgba(255,255,255,0.1)'/%3E%3Ccircle cx='70' cy='60' r='20' fill='rgba(255,255,255,0.08)'/%3E%3Ccircle cx='40' cy='80' r='12' fill='rgba(255,255,255,0.1)'/%3E%3C/svg%3E");
+            animation: ripple 8s ease-in-out infinite;
+        }
+        
+        @keyframes ripple {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+        
+        .koi {
+            position: absolute;
+            font-size: 2.5rem;
+            animation: swim 15s ease-in-out infinite;
+        }
+        
+        .koi:nth-child(2) { animation-delay: -5s; animation-duration: 18s; }
+        .koi:nth-child(3) { animation-delay: -10s; animation-duration: 12s; }
+        
+        @keyframes swim {
+            0% { left: -10%; top: 40%; transform: scaleX(1); }
+            45% { left: 85%; top: 60%; transform: scaleX(1); }
+            50% { left: 90%; top: 55%; transform: scaleX(-1); }
+            95% { left: 5%; top: 35%; transform: scaleX(-1); }
+            100% { left: -10%; top: 40%; transform: scaleX(1); }
+        }
+        
+        /* Stone Lantern */
+        .lantern {
+            text-align: center;
+        }
+        
+        .lantern-icon {
+            font-size: 4rem;
+            display: block;
+            margin: 20px 0;
+            animation: glow 3s ease-in-out infinite;
+        }
+        
+        @keyframes glow {
+            0%, 100% { filter: drop-shadow(0 0 5px rgba(255,200,100,0.5)); }
+            50% { filter: drop-shadow(0 0 20px rgba(255,200,100,0.8)); }
+        }
+        
+        /* Bamboo */
+        .bamboo-grove {
+            background: linear-gradient(180deg, rgba(74,124,89,0.3) 0%, rgba(74,124,89,0.1) 100%);
+        }
+        
+        .bamboo-stalks {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 20px 0;
+            height: 100px;
+        }
+        
+        .bamboo-stalk {
+            width: 8px;
+            background: linear-gradient(180deg, var(--bamboo) 0%, #3d6b4a 100%);
+            border-radius: 4px;
+            position: relative;
+            animation: sway 4s ease-in-out infinite;
+        }
+        
+        .bamboo-stalk::before {
+            content: '🎋';
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+        }
+        
+        .bamboo-stalk:nth-child(2) { animation-delay: -1s; height: 90px; }
+        .bamboo-stalk:nth-child(3) { animation-delay: -2s; height: 110px; }
+        .bamboo-stalk:nth-child(4) { animation-delay: -0.5s; height: 85px; }
+        .bamboo-stalk:nth-child(5) { animation-delay: -1.5s; height: 95px; }
+        
+        @keyframes sway {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+        }
+        
+        /* Zen Sand */
+        .zen-sand {
+            grid-column: span 3;
+            background: linear-gradient(90deg, var(--sand) 0%, #f0e6d3 50%, var(--sand) 100%);
+            min-height: 150px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #e0e0e0;
-            font-family: system-ui, -apple-system, sans-serif;
+            position: relative;
+        }
+        
+        .zen-pattern {
+            position: absolute;
+            inset: 20px;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 3px,
+                rgba(139,139,131,0.2) 3px,
+                rgba(139,139,131,0.2) 6px
+            );
+            border-radius: 50%;
+            animation: rake 20s linear infinite;
+        }
+        
+        @keyframes rake {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .zen-rock {
+            font-size: 3rem;
+            z-index: 2;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+        }
+        
+        /* Footer */
+        .footer {
             text-align: center;
+            padding: 30px;
+            color: var(--stone);
+            font-size: 0.9rem;
         }
-        .container {
-            animation: fadeIn 1s ease-out;
+        
+        .footer .haiku {
+            font-style: italic;
+            margin-bottom: 10px;
+            line-height: 1.8;
         }
-        h1 { 
-            font-size: 2.5rem; 
-            margin-bottom: 15px;
-            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        
+        /* Torii Gate Decoration */
+        .torii {
+            position: fixed;
+            bottom: 20px;
+            right: 30px;
+            font-size: 3rem;
+            opacity: 0.6;
+            animation: float 6s ease-in-out infinite;
         }
-        p { font-size: 1.1rem; opacity: 0.8; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🌅 New Epoch Starting</h1>
-        <p>Claude is generating a fresh page based on the new theme...</p>
-    </div>
+
+<div class="petal" style="left: 10%; animation-duration: 8s; animation-delay: 0s;"></div>
+<div class="petal" style="left: 25%; animation-duration: 10s; animation-delay: 2s;"></div>
+<div class="petal" style="left: 40%; animation-duration: 7s; animation-delay: 4s;"></div>
+<div class="petal" style="left: 55%; animation-duration: 9s; animation-delay: 1s;"></div>
+<div class="petal" style="left: 70%; animation-duration: 11s; animation-delay: 3s;"></div>
+<div class="petal" style="left: 85%; animation-duration: 8s; animation-delay: 5s;"></div>
+<div class="petal" style="left: 15%; animation-duration: 12s; animation-delay: 6s;"></div>
+<div class="petal" style="left: 60%; animation-duration: 9s; animation-delay: 7s;"></div>
+<header class="header">
+<h1>
+<span class="kanji">禅</span>
+            Zen Garden Gallery
+        </h1>
+<p>「静寂の中に美を見出す」 — Find beauty in stillness</p>
+</header>
+<main class="garden">
+<div class="garden-element koi-pond">
+<h3>🌊 Koi Pond</h3>
+<p>Watch the graceful koi dance beneath the lily pads, their scales shimmering like living jewels in the tranquil waters.</p>
+<span class="koi">🐟</span>
+<span class="koi">🐠</span>
+<span class="koi">🐟</span>
+</div>
+<div class="garden-element lantern">
+<h3>🏮 Stone Lantern</h3>
+<span class="lantern-icon">🪔</span>
+<p>Tōrō illuminates the path of enlightenment</p>
+</div>
+<div class="garden-element bamboo-grove">
+<h3>🎍 Bamboo Grove</h3>
+<div class="bamboo-stalks">
+<div class="bamboo-stalk"></div>
+<div class="bamboo-stalk"></div>
+<div class="bamboo-stalk"></div>
+<div class="bamboo-stalk"></div>
+<div class="bamboo-stalk"></div>
+</div>
+<p>Strength bends but never breaks</p>
+</div>
+<div class="garden-element">
+<h3>🌸 Cherry Blossoms</h3>
+<p>Sakura petals drift on the spring breeze, a gentle reminder of life's fleeting beauty. Each petal tells a story of impermanence.</p>
+</div>
+<div class="garden-element">
+<h3>🍵 Tea Ceremony</h3>
+<p>In the ritual of tea, we find harmony (和), respect (敬), purity (清), and tranquility (寂). Every gesture is meditation.</p>
+</div>
+<div class="garden-element zen-sand">
+<div class="zen-pattern"></div>
+<span class="zen-rock">🪨</span>
+<span class="zen-rock" style="font-size: 2rem; margin-left: 50px;">🪨</span>
+<span class="zen-rock" style="font-size: 1.5rem; margin-left: 30px;">🪨</span>
+</div>
+</main>
+<footer class="footer">
+<p class="haiku">
+            Ancient pond—<br/>
+            A frog jumps in,<br/>
+            Sound of water.
+        </p>
+<p>— 松尾芭蕉 (Matsuo Bashō)</p>
+</footer>
+<div class="torii">⛩️</div>
 </body>
 </html>
