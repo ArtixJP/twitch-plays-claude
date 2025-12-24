@@ -28,11 +28,11 @@
 </div>
 <span style="position: absolute; top: -35px; left: 50%; transform: translateX(-50%); color: #e53935; font-weight: bold; font-size: 12px;">TRIANGLE</span>
 </div>
-<div class="blue-circle" id="blueFighter" style="position: fixed; left: 550px; top: 310px; width: 80px; height: 80px; background: linear-gradient(135deg, #2196f3, #0d47a1); box-shadow: 0 4px 20px rgba(33, 150, 243, 0.4); border-radius: 50%; z-index: 10;">
+<div class="blue-square" id="blueFighter" style="position: fixed; left: 550px; top: 310px; width: 80px; height: 80px; background: linear-gradient(135deg, #2196f3, #0d47a1); box-shadow: 0 4px 20px rgba(33, 150, 243, 0.4); border-radius: 8px; z-index: 10;">
 <div class="health-bar" style="position: absolute; top: -20px; left: 0; width: 100%; height: 12px; background: #333; border-radius: 6px; overflow: hidden;">
 <div id="blueHealth" style="width: 100%; height: 100%; background: linear-gradient(90deg, #4caf50, #8bc34a); transition: width 0.3s;"></div>
 </div>
-<span style="position: absolute; top: -35px; left: 50%; transform: translateX(-50%); color: #2196f3; font-weight: bold; font-size: 12px;">CIRCLE</span>
+<span style="position: absolute; top: -35px; left: 50%; transform: translateX(-50%); color: #2196f3; font-weight: bold; font-size: 12px;">SQUARE</span>
 </div>
 <div id="battleArena" style="position: fixed; top: 50px; left: 50%; transform: translateX(-50%); text-align: center; z-index: 100;">
 <h2 style="color: #ff5722; font-size: 28px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); animation: titlePulse 1s ease-in-out infinite;">⚔️ SHAPE WARS ⚔️</h2>
@@ -207,7 +207,7 @@
             
             if (redHealth <= 0 || blueHealth <= 0) {
                 battleOver = true;
-                const winner = redHealth > 0 ? '🔺 TRIANGLE' : '🔵 CIRCLE';
+                const winner = redHealth > 0 ? '🔺 TRIANGLE' : '🟦 SQUARE';
                 status.textContent = winner + ' WINS!';
                 status.style.background = 'linear-gradient(90deg, gold, orange)';
                 status.style.color = '#333';
