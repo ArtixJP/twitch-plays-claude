@@ -153,9 +153,17 @@
 <div id="score-display">🍩 Donuts: <span id="score">0</span> | 🍎 Apples: +3pts | High Score: <span id="high-score">0</span></div>
 <div style="font-size:0.9rem;color:#4CAF50;margin-top:5px;">🐍 Watch out for the rival snake!</div>
 </div>
-<div id="mode-indicator" style="background:linear-gradient(135deg,rgba(118,255,3,0.3),rgba(0,0,0,0.8));border:2px solid #76FF03;">💬 CHAT CONTROL <span style="font-size:0.8em;color:#FFD700;">⏳ connecting...</span></div>
+<div id="mode-indicator" style="background:linear-gradient(135deg,rgba(118,255,3,0.3),rgba(0,0,0,0.8));border:2px solid #76FF03;font-size:1.1rem;">💬 CHAT CONTROL <span style="font-size:0.8em;color:#FFD700;">⏳ connecting...</span></div>
+<div id="chat-status" style="position:absolute;top:10px;right:200px;background:rgba(76,175,80,0.9);padding:8px 15px;border-radius:20px;color:white;font-size:0.9rem;z-index:100;animation:chatPulse 1.5s infinite;border:2px solid #2E7D32;box-shadow:0 0 15px rgba(76,175,80,0.6);">🎮 TYPE IN TWITCH CHAT!</div>
+<style>
+@keyframes chatPulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 15px rgba(76,175,80,0.6); }
+    50% { transform: scale(1.05); box-shadow: 0 0 25px rgba(76,175,80,0.9); }
+}
+</style>
 <div id="chat-controls" style="position:absolute;top:50px;right:10px;background:linear-gradient(135deg,rgba(145,71,255,0.2),rgba(0,0,0,0.9));padding:10px 15px;border-radius:8px;color:#fff;font-size:0.85rem;z-index:100;max-width:180px;border:2px solid #bf94ff;box-shadow:0 0 15px rgba(145,71,255,0.5);">
-<div style="color:#bf94ff;font-weight:bold;margin-bottom:8px;animation:pulseText 2s infinite;">📺 TYPE IN CHAT:</div>
+<div style="color:#bf94ff;font-weight:bold;margin-bottom:8px;animation:pulseText 2s infinite;font-size:1rem;">📺 CHAT CONTROLS HOMER!</div>
+<div style="color:#4CAF50;font-size:0.7rem;margin-bottom:5px;">✅ Commands active!</div>
 <style>@keyframes pulseText { 0%,100%{opacity:1;} 50%{opacity:0.7;} }</style>
 <div style="color:#76FF03;">⬆️ up / w</div>
 <div style="color:#76FF03;">⬇️ down / s</div>
@@ -180,7 +188,7 @@
 <p>Homer ate <span id="final-score">0</span> donuts!</p>
 <button id="restart-btn">🍩 TRY AGAIN</button>
 </div>
-<div id="instruction" style="animation:instructionPulse 3s infinite;">🎮 Type <code>up</code> <code>down</code> <code>left</code> <code>right</code> in Twitch chat to control Homer! 🍩</div>
+<div id="instruction" style="animation:instructionPulse 3s infinite;font-size:1rem;padding:12px 20px;">🎮 Type <code>up</code> <code>down</code> <code>left</code> <code>right</code> (or <code>w</code> <code>a</code> <code>s</code> <code>d</code>) in Twitch chat to control Homer! 🍩<br/><span style="font-size:0.8rem;color:#76FF03;">✨ Chat commands are LIVE! ✨</span></div>
 <style>@keyframes instructionPulse { 0%,100%{box-shadow:0 0 10px rgba(191,148,255,0.5);} 50%{box-shadow:0 0 20px rgba(191,148,255,0.8);} }</style>
 <div class="power-plant">☢️🏭</div>
 <div class="fountain" style="position:absolute;left:60px;top:150px;z-index:50;animation:fountainBubble 2s ease-in-out infinite;">
