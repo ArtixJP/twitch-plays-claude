@@ -419,9 +419,7 @@
     </style>
 </head>
 <body>
-
 <div class="sakura-container" id="sakura"></div>
-
 <div class="bamboo-left">
 <div class="bamboo-stalk"></div>
 <div class="bamboo-stalk"></div>
@@ -432,14 +430,11 @@
 <div class="bamboo-stalk"></div>
 <div class="bamboo-stalk"></div>
 </div>
-
 <header class="header">
 <h1>禅 庭 園</h1>
 <p class="subtitle">Zen Garden Gallery</p>
 </header>
-
 <main class="gallery">
-
 <article class="garden-card">
 <div class="card-image koi-pond">
 <div class="koi orange"></div>
@@ -454,7 +449,6 @@
 <p>Watch the graceful koi dance beneath the still waters, bringing fortune and perseverance.</p>
 </div>
 </article>
-
 <article class="garden-card">
 <div class="card-image lantern-garden">
 <div class="stone-lantern">
@@ -471,7 +465,6 @@
 <p>Ancient guardians of the path, their gentle light guides wanderers through twilight.</p>
 </div>
 </article>
-
 <article class="garden-card">
 <div class="card-image rock-garden">
 <div class="sand-pattern"></div>
@@ -484,7 +477,6 @@
 <p>Raked sand becomes ocean waves, stones become mountains. Find infinity in simplicity.</p>
 </div>
 </article>
-
 <article class="garden-card">
 <div class="card-image sakura-tree">
 <div class="tree-trunk"></div>
@@ -503,13 +495,110 @@
 </div>
 </article>
 </main>
-
 <footer class="wisdom">
 <p>"In the garden of the soul, silence is the most beautiful flower."</p>
 </footer>
+<div class="test-stone" id="testStone" title="A curious stone...">
+<span class="stone-kanji">試</span>
+<div class="test-ripple"></div>
+</div>
+<style>
+.test-stone {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 40px;
+  background: linear-gradient(135deg, #5a5a52, #7b7b73, #6b6b63);
+  border-radius: 45% 55% 50% 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  z-index: 150;
+}
 
+.test-stone:hover {
+  transform: translateX(-50%) scale(1.1);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+.stone-kanji {
+  font-size: 1.2rem;
+  color: rgba(255,255,255,0.7);
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.test-ripple {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid var(--sakura);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.test-stone.active .test-ripple {
+  animation: stoneRipple 1s ease-out;
+}
+
+@keyframes stoneRipple {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(3); opacity: 0; }
+}
+
+.test-message {
+  position: fixed;
+  bottom: 140px;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: rgba(255,255,255,0.9);
+  padding: 12px 24px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  opacity: 0;
+  transition: all 0.5s ease;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  z-index: 151;
+}
+
+.test-message.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+</style>
+<div class="test-message" id="testMessage">✨ The garden acknowledges your presence ✨</div>
+<script>
+(function() {
+  const testStone = document.getElementById('testStone');
+  const testMessage = document.getElementById('testMessage');
+  
+  testStone.addEventListener('click', () => {
+    testStone.classList.add('active');
+    testMessage.classList.add('show');
+    
+    setTimeout(() => {
+      testStone.classList.remove('active');
+    }, 1000);
+    
+    setTimeout(() => {
+      testMessage.classList.remove('show');
+    }, 3000);
+  });
+  
+  // Auto-click after 5 seconds for stream viewers
+  setTimeout(() => {
+    testStone.click();
+  }, 5000);
+})();
+</script>
 <div class="ambient" id="ambientToggle">🎋 Ambient: ON</div>
-
 <audio autoplay="" id="ambientAudio" loop="">
 <source src="https://assets.mixkit.co/music/preview/mixkit-japanese-garden-2150.mp3" type="audio/mpeg"/>
 </audio>
