@@ -14,7 +14,7 @@
 </style>
 </head>
 <body>
-<div id="ui">⛏️ Minecraft World<br/><small>WASD move | SPACE jump | Click place/break | 1-7 select block</small></div>
+<div id="ui">⛏️ Minecraft × Mario World 🍄<br/><small>WASD move | SPACE jump | Click place/break | 1-7 select block</small></div>
 <div id="crosshair">+</div>
 <div id="inventory">
 <div class="slot selected" data-block="grass">🟩</div>
@@ -25,7 +25,7 @@
 <div class="slot" data-block="sand">🟨</div>
 <div class="slot" data-block="water">🟦</div>
 </div>
-<div id="hint">Left click = place block | Right click = break block | Explore the tower! 🏰</div>
+<div id="hint">🍄 Left click = place block | Right click = break block | Find the Mario pipe, Peach &amp; Bowser statues, and floating castle! 🏰👸🐢</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x87ceeb);
@@ -63,6 +63,48 @@ treePositions.forEach(([tx,tz])=>{
     if(Math.abs(lx)+Math.abs(lz)+ly<4&&!(lx===0&&lz===0&&ly===0))addBlock(tx+lx,th+4+ly,tz+lz,leaves);
   }
 });
+// MARIO PIPE - Green warp pipe
+for(let y=0;y<=3;y++){for(let a=0;a<8;a++){const px=-10+Math.cos(a*Math.PI/4)*1.5;const pz=10+Math.sin(a*Math.PI/4)*1.5;addBlock(Math.round(px),y,Math.round(pz),0x228B22);}}
+for(let a=0;a<12;a++){const px=-10+Math.cos(a*Math.PI/6)*2;const pz=10+Math.sin(a*Math.PI/6)*2;addBlock(Math.round(px),4,Math.round(pz),0x228B22);}
+
+// BOWSER STATUE (pixel art style blocks)
+const bowserX=-15,bowserZ=-12;
+for(let y=1;y<=6;y++)addBlock(bowserX,y,bowserZ,0x228B22); // body
+for(let y=1;y<=6;y++)addBlock(bowserX+1,y,bowserZ,0x228B22);
+addBlock(bowserX,7,bowserZ,0xFFA500); // head
+addBlock(bowserX+1,7,bowserZ,0xFFA500);
+addBlock(bowserX,8,bowserZ,0xFF4500); // horns
+addBlock(bowserX+1,8,bowserZ,0xFF4500);
+addBlock(bowserX-1,4,bowserZ,0x228B22); // arms
+addBlock(bowserX+2,4,bowserZ,0x228B22);
+addBlock(bowserX,0,bowserZ-1,0xFFA500); // feet
+addBlock(bowserX+1,0,bowserZ-1,0xFFA500);
+
+// PEACH STATUE
+const peachX=-18,peachZ=-12;
+for(let y=1;y<=4;y++)addBlock(peachX,y,peachZ,0xFFB6C1); // pink dress
+addBlock(peachX,5,peachZ,0xFFE4B5); // face
+addBlock(peachX,6,peachZ,0xFFD700); // crown
+addBlock(peachX-1,6,peachZ,0xFFD700);
+addBlock(peachX+1,6,peachZ,0xFFD700);
+addBlock(peachX-1,3,peachZ,0xFFB6C1); // arms
+addBlock(peachX+1,3,peachZ,0xFFB6C1);
+
+// FLOATING MUSHROOM CASTLE
+const castleX=15,castleY=15,castleZ=-15;
+for(let x=-3;x<=3;x++)for(let z=-3;z<=3;z++)addBlock(castleX+x,castleY,castleZ+z,0xFFFFFF);
+for(let y=1;y<=4;y++){addBlock(castleX-3,castleY+y,castleZ-3,0xFFFFFF);addBlock(castleX+3,castleY+y,castleZ-3,0xFFFFFF);addBlock(castleX-3,castleY+y,castleZ+3,0xFFFFFF);addBlock(castleX+3,castleY+y,castleZ+3,0xFFFFFF);}
+for(let x=-3;x<=3;x++)for(let z=-3;z<=3;z++)addBlock(castleX+x,castleY+5,castleZ+z,0xFF0000);
+addBlock(castleX,castleY+6,castleZ,0xFF0000);
+addBlock(castleX,castleY+7,castleZ,0xFFFFFF); // flag pole
+addBlock(castleX,castleY+8,castleZ,0xFFFFFF);
+addBlock(castleX+1,castleY+8,castleZ,0xFF0000); // flag
+addBlock(castleX+1,castleY+7,castleZ,0xFF0000);
+
+// QUESTION BLOCKS floating
+addBlock(-5,8,0,0xFFD700);addBlock(-3,8,0,0xFFD700);addBlock(-1,8,0,0xFFD700);
+addBlock(0,10,5,0x8B4513); // brick block
+
 // More scattered trees
 for(let i=0;i<15;i++){
   const tx=Math.floor(Math.random()*30-15);
