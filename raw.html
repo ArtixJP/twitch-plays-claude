@@ -542,6 +542,81 @@ body::before {
 .tree:nth-child(1) { left: 5%; }
 .tree:nth-child(2) { right: 5%; }
 
+/* Nether Portal - Dimensional Rift */
+.nether-portal {
+    position: absolute;
+    top: 150px;
+    left: 55%;
+    width: 60px;
+    height: 100px;
+    background: linear-gradient(180deg, #4B0082 0%, #8B008B 25%, #9400D3 50%, #8B008B 75%, #4B0082 100%);
+    border: 6px solid #1A0A2E;
+    animation: portalPulse 2s ease-in-out infinite;
+    box-shadow: 0 0 30px #9400D3, inset 0 0 20px rgba(148, 0, 211, 0.8);
+    z-index: 50;
+}
+
+.nether-portal::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    bottom: 5px;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent 0px,
+        rgba(138, 43, 226, 0.4) 4px,
+        transparent 8px
+    );
+    animation: portalFlow 0.5s linear infinite;
+}
+
+.nether-portal::after {
+    content: '🌀';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2rem;
+    animation: portalSpin 3s linear infinite;
+}
+
+@keyframes portalPulse {
+    0%, 100% { box-shadow: 0 0 30px #9400D3, inset 0 0 20px rgba(148, 0, 211, 0.8); }
+    50% { box-shadow: 0 0 50px #DA70D6, inset 0 0 30px rgba(218, 112, 214, 0.9); }
+}
+
+@keyframes portalFlow {
+    from { background-position: 0 0; }
+    to { background-position: 0 20px; }
+}
+
+@keyframes portalSpin {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Portal particles */
+.portal-particle {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: #DA70D6;
+    border-radius: 50%;
+    animation: particleFloat 2s ease-in-out infinite;
+}
+
+.portal-particle:nth-child(1) { left: 52%; top: 130px; animation-delay: 0s; }
+.portal-particle:nth-child(2) { left: 58%; top: 140px; animation-delay: 0.3s; }
+.portal-particle:nth-child(3) { left: 54%; top: 260px; animation-delay: 0.6s; }
+.portal-particle:nth-child(4) { left: 60%; top: 250px; animation-delay: 0.9s; }
+
+@keyframes particleFloat {
+    0%, 100% { transform: translateY(0) scale(1); opacity: 0.8; }
+    50% { transform: translateY(-20px) scale(1.5); opacity: 1; }
+}
+
 /* Inventory count */
 .inventory-count {
     position: absolute;
@@ -576,6 +651,12 @@ body::before {
 <div class="tree-leaves"></div>
 <div class="tree-trunk"></div>
 </div>
+
+<div class="nether-portal"></div>
+<div class="portal-particle"></div>
+<div class="portal-particle"></div>
+<div class="portal-particle"></div>
+<div class="portal-particle"></div>
 <div class="crafting-table"></div>
 <div class="mushroom-biome">
 <div class="mushroom-block"></div>
