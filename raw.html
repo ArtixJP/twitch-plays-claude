@@ -11,6 +11,11 @@
 #inventory{position:absolute;bottom:50px;left:50%;transform:translateX(-50%);display:flex;gap:5px}
 .slot{width:50px;height:50px;border:3px solid #555;background:#0008;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer}
 .slot.selected{border-color:#fff}
+#speech-bubble{position:absolute;top:20%;left:50%;transform:translateX(-50%);background:#fff;border:4px solid #333;border-radius:20px;padding:15px 25px;font-family:'Comic Sans MS',cursive;font-size:18px;max-width:400px;text-align:center;display:none;box-shadow:0 4px 15px rgba(0,0,0,0.3);animation:bounce 0.5s ease}
+#speech-bubble::after{content:'';position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);border:10px solid transparent;border-top-color:#333}
+#speech-bubble .speaker{font-weight:bold;color:#FF0000;margin-bottom:5px}
+@keyframes bounce{0%{transform:translateX(-50%) scale(0.8)}50%{transform:translateX(-50%) scale(1.05)}100%{transform:translateX(-50%) scale(1)}}
+#npc-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#FFD700;font-family:monospace;font-size:14px;text-shadow:2px 2px #000;display:none;pointer-events:none}
 </style>
 </head>
 <body>
@@ -25,7 +30,9 @@
 <div class="slot" data-block="sand">🟨</div>
 <div class="slot" data-block="water">🟦</div>
 </div>
-<div id="hint">🍄 Left click = place block | Right click = break block | Find the Mario pipe, Peach, Toad &amp; Bowser statues, floating castle, and collect bananas! 🏰👸🐢🍌🍄</div>
+<div id="hint">🍄 Left click = place block | Right click = break block | Walk near Toad to talk! 🏰👸🐢🍌🍄</div>
+<div id="speech-bubble"><div class="speaker">🍄 TOAD</div><div id="speech-text">Hello there!</div></div>
+<div id="npc-hint">Press E to talk</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x87ceeb);
@@ -67,7 +74,7 @@ treePositions.forEach(([tx,tz])=>{
 for(let y=0;y<=3;y++){for(let a=0;a<8;a++){const px=-10+Math.cos(a*Math.PI/4)*1.5;const pz=10+Math.sin(a*Math.PI/4)*1.5;addBlock(Math.round(px),y,Math.round(pz),0x228B22);}}
 for(let a=0;a<12;a++){const px=-10+Math.cos(a*Math.PI/6)*2;const pz=10+Math.sin(a*Math.PI/6)*2;addBlock(Math.round(px),4,Math.round(pz),0x228B22);}
 
-// BOWSER STATUE (pixel art style blocks)
+// BOWSER STATUE (pixel art style blocks) - Enhanced!
 const bowserX=-15,bowserZ=-12;
 for(let y=1;y<=6;y++)addBlock(bowserX,y,bowserZ,0x228B22); // body
 for(let y=1;y<=6;y++)addBlock(bowserX+1,y,bowserZ,0x228B22);
@@ -79,8 +86,17 @@ addBlock(bowserX-1,4,bowserZ,0x228B22); // arms
 addBlock(bowserX+2,4,bowserZ,0x228B22);
 addBlock(bowserX,0,bowserZ-1,0xFFA500); // feet
 addBlock(bowserX+1,0,bowserZ-1,0xFFA500);
+// Bowser's menacing eyes
+const bowserEyeGeo=new THREE.BoxGeometry(0.35,0.35,0.35);
+const bowserEyeMat=new THREE.MeshLambertMaterial({color:0xFF0000});
+const bowserEye1=new THREE.Mesh(bowserEyeGeo,bowserEyeMat);bowserEye1.position.set(bowserX-0.1,7.3,bowserZ-0.6);scene.add(bowserEye1);
+const bowserEye2=new THREE.Mesh(bowserEyeGeo,bowserEyeMat);bowserEye2.position.set(bowserX+1.1,7.3,bowserZ-0.6);scene.add(bowserEye2);
+// Bowser's shell spikes
+addBlock(bowserX,4,bowserZ+1,0x8B0000);
+addBlock(bowserX+1,5,bowserZ+1,0x8B0000);
+addBlock(bowserX,6,bowserZ+1,0x8B0000);
 
-// PEACH STATUE
+// PEACH STATUE - Enhanced with facial features!
 const peachX=-18,peachZ=-12;
 for(let y=1;y<=4;y++)addBlock(peachX,y,peachZ,0xFFB6C1); // pink dress
 addBlock(peachX,5,peachZ,0xFFE4B5); // face
@@ -89,8 +105,20 @@ addBlock(peachX-1,6,peachZ,0xFFD700);
 addBlock(peachX+1,6,peachZ,0xFFD700);
 addBlock(peachX-1,3,peachZ,0xFFB6C1); // arms
 addBlock(peachX+1,3,peachZ,0xFFB6C1);
+// Peach's eyes and smile
+const peachEyeGeo=new THREE.BoxGeometry(0.25,0.25,0.25);
+const peachEyeMat=new THREE.MeshLambertMaterial({color:0x4169E1});
+const peachEye1=new THREE.Mesh(peachEyeGeo,peachEyeMat);peachEye1.position.set(peachX-0.25,5.2,peachZ-0.55);scene.add(peachEye1);
+const peachEye2=new THREE.Mesh(peachEyeGeo,peachEyeMat);peachEye2.position.set(peachX+0.25,5.2,peachZ-0.55);scene.add(peachEye2);
+const peachSmileGeo=new THREE.BoxGeometry(0.4,0.12,0.1);
+const peachSmileMat=new THREE.MeshLambertMaterial({color:0xFF69B4});
+const peachSmile=new THREE.Mesh(peachSmileGeo,peachSmileMat);peachSmile.position.set(peachX,4.85,peachZ-0.55);scene.add(peachSmile);
+// Hair
+addBlock(peachX,7,peachZ,0xFFD700);
+addBlock(peachX-1,5,peachZ,0xFFD700);
+addBlock(peachX+1,5,peachZ,0xFFD700);
 
-// TOAD STATUE next to Peach
+// TOAD STATUE next to Peach - Enhanced with more detail!
 const toadX=-21,toadZ=-12;
 for(let y=1;y<=2;y++)addBlock(toadX,y,toadZ,0xFFFFFF); // white body
 addBlock(toadX,3,toadZ,0xFFE4B5); // face
@@ -102,6 +130,49 @@ addBlock(toadX,4,toadZ-1,0xFFFFFF); // white spots
 addBlock(toadX,4,toadZ+1,0xFFFFFF);
 addBlock(toadX-1,3,toadZ,0xFFFFFF); // arms
 addBlock(toadX+1,3,toadZ,0xFFFFFF);
+// Toad's eyes (small dark blocks)
+const toadEyeGeo=new THREE.BoxGeometry(0.3,0.3,0.3);
+const toadEyeMat=new THREE.MeshLambertMaterial({color:0x000000});
+const toadEye1=new THREE.Mesh(toadEyeGeo,toadEyeMat);toadEye1.position.set(toadX-0.3,3.2,toadZ-0.6);scene.add(toadEye1);
+const toadEye2=new THREE.Mesh(toadEyeGeo,toadEyeMat);toadEye2.position.set(toadX+0.3,3.2,toadZ-0.6);scene.add(toadEye2);
+// Toad's smile
+const smileGeo=new THREE.BoxGeometry(0.5,0.15,0.1);
+const smileMat=new THREE.MeshLambertMaterial({color:0x8B0000});
+const toadSmile=new THREE.Mesh(smileGeo,smileMat);toadSmile.position.set(toadX,2.8,toadZ-0.55);scene.add(toadSmile);
+
+// TOAD DIALOGUE SYSTEM
+const toadDialogues=[
+  "Welcome to the Mushroom Kingdom! 🍄",
+  "Princess Peach is right over there! She's so kind!",
+  "Watch out for Bowser... he's always causing trouble!",
+  "Did you find all the bananas? They're hidden everywhere!",
+  "The floating castle up there? That's Peach's vacation home!",
+  "I love this Minecraft world! So many blocks!",
+  "Try building something cool! Use 1-7 to select blocks!",
+  "The green pipe leads to... well, I'm not sure actually!",
+  "Have you seen the lake? Perfect for a swim! 🏊",
+  "Mario couldn't make it today. He's-a busy!"
+];
+let currentDialogue=0;
+let toadTalkCooldown=0;
+const speechBubble=document.getElementById('speech-bubble');
+const speechText=document.getElementById('speech-text');
+const npcHint=document.getElementById('npc-hint');
+
+function showToadDialogue(){
+  speechText.textContent=toadDialogues[currentDialogue];
+  speechBubble.style.display='block';
+  currentDialogue=(currentDialogue+1)%toadDialogues.length;
+  toadTalkCooldown=180; // 3 seconds at 60fps
+  setTimeout(()=>{speechBubble.style.display='none';},4000);
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key.toLowerCase()==='e'&&toadTalkCooldown<=0){
+    const dist=Math.sqrt(Math.pow(camera.position.x-toadX,2)+Math.pow(camera.position.z-toadZ,2));
+    if(dist<6)showToadDialogue();
+  }
+});
 
 // BANANAS scattered around (Mario Kart style collectibles)
 const bananaPositions=[[3,2,-5],[8,1,3],[-7,2,8],[0,3,12],[-12,2,-3],[12,1,-8],[-3,2,15],[6,2,-12],[-20,2,5],[18,1,0]];
@@ -161,7 +232,12 @@ if(keys.s){camera.position.x+=Math.sin(angle)*0.1;camera.position.z+=Math.cos(an
 if(keys[' ']&&onGround){yVel=0.15;onGround=false;}
 yVel-=0.008;camera.position.y+=yVel;
 if(camera.position.y<3){camera.position.y=3;yVel=0;onGround=true;}
-camera.rotation.y=angle;renderer.render(scene,camera);}
+camera.rotation.y=angle;
+// Check proximity to Toad for hint
+const distToToad=Math.sqrt(Math.pow(camera.position.x-toadX,2)+Math.pow(camera.position.z-toadZ,2));
+if(distToToad<6&&toadTalkCooldown<=0){npcHint.style.display='block';}else{npcHint.style.display='none';}
+if(toadTalkCooldown>0)toadTalkCooldown--;
+renderer.render(scene,camera);}
 renderer.domElement.onclick=e=>{mouse.x=(e.clientX/innerWidth)*2-1;mouse.y=-(e.clientY/innerHeight)*2+1;
 raycaster.setFromCamera(mouse,camera);const hits=raycaster.intersectObjects(blocks);
 if(hits.length>0){const hit=hits[0];if(e.shiftKey||e.button===2){scene.remove(hit.object);blocks.splice(blocks.indexOf(hit.object),1);}
