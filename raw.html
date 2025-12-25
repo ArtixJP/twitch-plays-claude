@@ -1,41 +1,408 @@
 <!DOCTYPE html>
-<html>
+
+<html lang="en">
 <head>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
-    <title>New Epoch Starting...</title>
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>🌴 Paradise Islands Travel Guide</title>
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;400;600&display=swap');
+        
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --ocean-deep: #006994;
+            --ocean-light: #00bcd4;
+            --sand: #f4e4ba;
+            --palm-green: #228b22;
+            --sunset-orange: #ff7043;
+            --sunset-pink: #ff8a80;
+            --coconut: #8b4513;
+        }
+        
         body {
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #e0e0e0;
-            font-family: system-ui, -apple-system, sans-serif;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(180deg, #87ceeb 0%, #00bcd4 50%, var(--ocean-deep) 100%);
+            overflow-x: hidden;
+        }
+        
+        /* Animated Sun */
+        .sun {
+            position: fixed;
+            top: 30px;
+            right: 80px;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #fff9c4 0%, #ffeb3b 40%, #ff9800 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 60px #ffeb3b, 0 0 100px #ff9800;
+            animation: sunPulse 4s ease-in-out infinite;
+            z-index: 10;
+        }
+        
+        @keyframes sunPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 60px #ffeb3b, 0 0 100px #ff9800; }
+            50% { transform: scale(1.1); box-shadow: 0 0 80px #ffeb3b, 0 0 120px #ff9800; }
+        }
+        
+        /* Floating Clouds */
+        .clouds {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            pointer-events: none;
+            z-index: 5;
+        }
+        
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 50px;
+            opacity: 0.9;
+            animation: floatCloud 20s linear infinite;
+        }
+        
+        .cloud::before, .cloud::after {
+            content: '';
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+        }
+        
+        .cloud1 { top: 20px; left: -100px; width: 80px; height: 30px; animation-duration: 25s; }
+        .cloud1::before { width: 40px; height: 40px; top: -20px; left: 15px; }
+        .cloud1::after { width: 30px; height: 30px; top: -10px; left: 45px; }
+        
+        .cloud2 { top: 60px; left: -150px; width: 100px; height: 35px; animation-duration: 30s; animation-delay: 5s; }
+        .cloud2::before { width: 50px; height: 50px; top: -25px; left: 20px; }
+        .cloud2::after { width: 35px; height: 35px; top: -15px; left: 55px; }
+        
+        @keyframes floatCloud {
+            from { transform: translateX(0); }
+            to { transform: translateX(calc(100vw + 200px)); }
+        }
+        
+        /* Header */
+        .header {
             text-align: center;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 20;
         }
-        .container {
-            animation: fadeIn 1s ease-out;
+        
+        .header h1 {
+            font-family: 'Pacifico', cursive;
+            font-size: 3.5rem;
+            color: white;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3), 0 0 30px rgba(255,255,255,0.3);
+            animation: titleWave 3s ease-in-out infinite;
         }
-        h1 { 
-            font-size: 2.5rem; 
-            margin-bottom: 15px;
-            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        
+        @keyframes titleWave {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
         }
-        p { font-size: 1.1rem; opacity: 0.8; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        
+        .header p {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.9);
+            margin-top: 10px;
+            font-weight: 300;
+        }
+        
+        /* Island Cards Container */
+        .islands-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 20;
+        }
+        
+        .island-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 20px;
+            width: 280px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            transform: translateY(0);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .island-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--sunset-orange), var(--sunset-pink), var(--ocean-light));
+        }
+        
+        .island-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+        
+        .island-card .emoji {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        .island-card h3 {
+            color: var(--ocean-deep);
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+        }
+        
+        .island-card p {
+            color: #555;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .rating {
+            margin-top: 10px;
+            color: #ffb300;
+            font-size: 1.1rem;
+        }
+        
+        /* Beach Footer Scene */
+        .beach-scene {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 180px;
+            z-index: 15;
+            pointer-events: none;
+        }
+        
+        .sand-layer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 60px;
+            background: linear-gradient(180deg, var(--sand) 0%, #d4c4a0 100%);
+            border-radius: 100% 100% 0 0;
+        }
+        
+        .wave {
+            position: absolute;
+            bottom: 50px;
+            width: 200%;
+            height: 40px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120'%3E%3Cpath fill='%2300bcd4' d='M0,60 C200,120 400,0 600,60 C800,120 1000,0 1200,60 L1200,120 L0,120 Z'/%3E%3C/svg%3E") repeat-x;
+            animation: waveMove 8s linear infinite;
+            opacity: 0.8;
+        }
+        
+        .wave:nth-child(2) {
+            bottom: 55px;
+            animation-duration: 10s;
+            animation-direction: reverse;
+            opacity: 0.5;
+        }
+        
+        @keyframes waveMove {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+        
+        /* Palm Trees */
+        .palm {
+            position: fixed;
+            bottom: 40px;
+            z-index: 25;
+        }
+        
+        .palm-left { left: 20px; }
+        .palm-right { right: 20px; transform: scaleX(-1); }
+        
+        .palm-trunk {
+            width: 15px;
+            height: 120px;
+            background: linear-gradient(90deg, #5d4037, #8b4513, #5d4037);
+            border-radius: 5px;
+            transform: rotate(5deg);
+            transform-origin: bottom;
+        }
+        
+        .palm-right .palm-trunk {
+            transform: rotate(-5deg);
+        }
+        
+        .palm-leaves {
+            position: absolute;
+            top: -30px;
+            left: -40px;
+            font-size: 4rem;
+            animation: palmSway 4s ease-in-out infinite;
+        }
+        
+        @keyframes palmSway {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+        
+        /* Floating elements */
+        .floater {
+            position: fixed;
+            font-size: 2rem;
+            animation: float 6s ease-in-out infinite;
+            z-index: 30;
+            pointer-events: none;
+        }
+        
+        .floater:nth-child(1) { top: 15%; left: 10%; animation-delay: 0s; }
+        .floater:nth-child(2) { top: 25%; right: 15%; animation-delay: 1s; }
+        .floater:nth-child(3) { top: 40%; left: 5%; animation-delay: 2s; }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+        
+        /* Explore Button */
+        .explore-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, var(--sunset-orange), var(--sunset-pink));
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(255,112,67,0.4);
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+        
+        .explore-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 30px rgba(255,112,67,0.6);
+        }
+        
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 5px 20px rgba(255,112,67,0.4); }
+            50% { box-shadow: 0 5px 30px rgba(255,112,67,0.7); }
+        }
+        
+        /* Scrollable content area */
+        .content-wrapper {
+            padding-bottom: 200px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🌅 New Epoch Starting</h1>
-        <p>AI is generating a fresh page based on the new theme...</p>
-    </div>
+
+<div class="sun"></div>
+<div class="clouds">
+<div class="cloud cloud1"></div>
+<div class="cloud cloud2"></div>
+</div>
+<div class="floater">🦜</div>
+<div class="floater">🥥</div>
+<div class="floater">🌺</div>
+<div class="content-wrapper">
+
+<header class="header">
+<h1>🌴 Paradise Islands 🌴</h1>
+<p>Your Ultimate Tropical Travel Guide</p>
+<button class="explore-btn" onclick="document.querySelector('.islands-container').scrollIntoView({behavior:'smooth'})">✨ Explore Islands</button>
+</header>
+
+<div class="islands-container">
+<div class="island-card">
+<span class="emoji">🏝️</span>
+<h3>Coral Bay Beach</h3>
+<p>Crystal clear waters and vibrant coral reefs perfect for snorkeling adventures.</p>
+<div class="rating">⭐⭐⭐⭐⭐</div>
+</div>
+<div class="island-card">
+<span class="emoji">🌋</span>
+<h3>Volcano Vista</h3>
+<p>Hike ancient volcanic trails and witness breathtaking sunset views from the crater.</p>
+<div class="rating">⭐⭐⭐⭐</div>
+</div>
+<div class="island-card">
+<span class="emoji">🐚</span>
+<h3>Shell Cove</h3>
+<p>A hidden beach paradise famous for its rare seashells and peaceful atmosphere.</p>
+<div class="rating">⭐⭐⭐⭐⭐</div>
+</div>
+<div class="island-card">
+<span class="emoji">🍹</span>
+<h3>Coconut Grove</h3>
+<p>Relax in hammocks under swaying palms while sipping fresh tropical cocktails.</p>
+<div class="rating">⭐⭐⭐⭐</div>
+</div>
+</div>
+</div>
+
+<div class="palm palm-left">
+<div class="palm-leaves">🌴</div>
+<div class="palm-trunk"></div>
+</div>
+<div class="palm palm-right">
+<div class="palm-leaves">🌴</div>
+<div class="palm-trunk"></div>
+</div>
+
+<div class="beach-scene">
+<div class="wave"></div>
+<div class="wave"></div>
+<div class="sand-layer"></div>
+</div>
+
+<script>
+        setTimeout(() => {
+            document.querySelector('.explore-btn').click();
+        }, 3000);
+        
+        // Add random tropical fish swimming
+        function createFish() {
+            const fish = document.createElement('div');
+            fish.innerHTML = ['🐠', '🐟', '🦈', '🐡'][Math.floor(Math.random() * 4)];
+            fish.style.cssText = `
+                position: fixed;
+                font-size: ${20 + Math.random() * 20}px;
+                bottom: ${60 + Math.random() * 80}px;
+                left: -50px;
+                z-index: 18;
+                animation: swimAcross ${8 + Math.random() * 8}s linear forwards;
+                pointer-events: none;
+            `;
+            document.body.appendChild(fish);
+            setTimeout(() => fish.remove(), 16000);
+        }
+        
+        // Add swim animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes swimAcross {
+                from { transform: translateX(0) scaleX(1); }
+                to { transform: translateX(calc(100vw + 100px)) scaleX(1); }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Spawn fish periodically
+        setInterval(createFish, 3000);
+        createFish();
+    </script>
 </body>
 </html>
