@@ -322,6 +322,82 @@
             75% { transform: translateY(-40px) translateX(15px) rotate(3deg); opacity: 0.05; }
         }
         
+        /* Mysterious Artifact - Le Bidule */
+        .mysterious-artifact {
+            max-width: 300px;
+            margin: 40px auto;
+            padding: 25px;
+            background: radial-gradient(ellipse at center, #1a0a20 0%, #0d0510 100%);
+            border: 2px solid #6a0dad;
+            border-radius: 50%;
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+            animation: bidulePulse 3s ease-in-out infinite;
+            box-shadow: 0 0 30px rgba(106, 13, 173, 0.4), inset 0 0 20px rgba(106, 13, 173, 0.2);
+        }
+        
+        .mysterious-artifact:hover {
+            animation: biduleAwaken 0.5s ease-in-out;
+            box-shadow: 0 0 50px rgba(106, 13, 173, 0.8), inset 0 0 30px rgba(106, 13, 173, 0.4);
+        }
+        
+        .artifact-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, rgba(106, 13, 173, 0.6) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: glowRotate 8s linear infinite;
+        }
+        
+        .artifact-icon {
+            font-size: 3rem;
+            color: #bf7fff;
+            text-shadow: 0 0 20px #6a0dad, 0 0 40px #6a0dad;
+            animation: symbolFloat 2s ease-in-out infinite;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .artifact-name {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: 1.2rem;
+            color: #bf7fff;
+            margin-top: 10px;
+            letter-spacing: 3px;
+        }
+        
+        .artifact-desc {
+            font-size: 0.85rem;
+            color: rgba(191, 127, 255, 0.6);
+            font-style: italic;
+            margin-top: 5px;
+        }
+        
+        @keyframes bidulePulse {
+            0%, 100% { transform: scale(1); border-color: #6a0dad; }
+            50% { transform: scale(1.02); border-color: #9932cc; }
+        }
+        
+        @keyframes biduleAwaken {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        @keyframes glowRotate {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        @keyframes symbolFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
         /* Footer */
         .mansion-footer {
             text-align: center;
@@ -422,6 +498,12 @@
 <div class="room-hint">Beyond the veil</div>
 </div>
 </div>
+<div class="mysterious-artifact" onclick="alert('The Bidule hums... You feel it probing your thoughts...')">
+<div class="artifact-glow"></div>
+<div class="artifact-icon">✧</div>
+<div class="artifact-name">Le Bidule</div>
+<div class="artifact-desc">An unidentifiable object. It shouldn't exist.</div>
+</div>
 <footer class="mansion-footer">
 <p class="footer-text">"In this house, the walls remember everything... and they never forgive."</p>
 <p style="margin-top: 10px; font-size: 0.8rem; opacity: 0.3;">🦇 Blackwood Manor Est. 1847 🦇</p>
@@ -451,7 +533,9 @@
             '...a cold breeze touches your neck...',
             '...a ghostly voice echoes: "lol"...',
             '...spectral laughter fills the room...',
-            '...the spirits find you amusing...'
+            '...the spirits find you amusing...',
+            '...the Bidule pulses with unknown energy...',
+            '...what IS that thing?...'
         ];
         
         function showCreepyMessage() {
