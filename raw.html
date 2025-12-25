@@ -25,7 +25,7 @@
 <div class="slot" data-block="sand">🟨</div>
 <div class="slot" data-block="water">🟦</div>
 </div>
-<div id="hint">🍄 Left click = place block | Right click = break block | Find the Mario pipe, Peach &amp; Bowser statues, and floating castle! 🏰👸🐢</div>
+<div id="hint">🍄 Left click = place block | Right click = break block | Find the Mario pipe, Peach, Toad &amp; Bowser statues, floating castle, and collect bananas! 🏰👸🐢🍌🍄</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x87ceeb);
@@ -89,6 +89,30 @@ addBlock(peachX-1,6,peachZ,0xFFD700);
 addBlock(peachX+1,6,peachZ,0xFFD700);
 addBlock(peachX-1,3,peachZ,0xFFB6C1); // arms
 addBlock(peachX+1,3,peachZ,0xFFB6C1);
+
+// TOAD STATUE next to Peach
+const toadX=-21,toadZ=-12;
+for(let y=1;y<=2;y++)addBlock(toadX,y,toadZ,0xFFFFFF); // white body
+addBlock(toadX,3,toadZ,0xFFE4B5); // face
+addBlock(toadX,4,toadZ,0xFF0000); // red mushroom cap
+addBlock(toadX-1,4,toadZ,0xFF0000);
+addBlock(toadX+1,4,toadZ,0xFF0000);
+addBlock(toadX,5,toadZ,0xFF0000);
+addBlock(toadX,4,toadZ-1,0xFFFFFF); // white spots
+addBlock(toadX,4,toadZ+1,0xFFFFFF);
+addBlock(toadX-1,3,toadZ,0xFFFFFF); // arms
+addBlock(toadX+1,3,toadZ,0xFFFFFF);
+
+// BANANAS scattered around (Mario Kart style collectibles)
+const bananaPositions=[[3,2,-5],[8,1,3],[-7,2,8],[0,3,12],[-12,2,-3],[12,1,-8],[-3,2,15],[6,2,-12],[-20,2,5],[18,1,0]];
+bananaPositions.forEach(([bx,by,bz])=>{
+  const th=Math.floor(noise(bx,bz));
+  addBlock(bx,th+by,bz,0xFFE135); // banana yellow
+});
+
+// Tiny gravestone for chaos (acknowledging 'remove everything' request)
+addBlock(-24,1,-24,0x444444); // gravestone
+addBlock(-24,2,-24,0x555555);
 
 // FLOATING MUSHROOM CASTLE
 const castleX=15,castleY=15,castleZ=-15;
