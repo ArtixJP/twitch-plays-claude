@@ -1,41 +1,372 @@
 <!DOCTYPE html>
+
 <html>
 <head>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
-    <title>New Epoch Starting...</title>
-    <style>
+<title>NEON CITY PORTAL // 2087</title>
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+        
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
             min-height: 100vh;
+            background: #0a0a0f;
+            font-family: 'Orbitron', sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* Rain effect */
+        .rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .rain-drop {
+            position: absolute;
+            width: 2px;
+            height: 15px;
+            background: linear-gradient(transparent, rgba(0, 255, 255, 0.6));
+            animation: rain-fall linear infinite;
+        }
+        
+        @keyframes rain-fall {
+            0% { transform: translateY(-100vh); }
+            100% { transform: translateY(100vh); }
+        }
+        
+        /* City skyline */
+        .city {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60vh;
             display: flex;
-            align-items: center;
+            align-items: flex-end;
             justify-content: center;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #e0e0e0;
-            font-family: system-ui, -apple-system, sans-serif;
+            gap: 5px;
+            z-index: 1;
+        }
+        
+        .building {
+            background: linear-gradient(to top, #1a1a2e, #0d0d15);
+            position: relative;
+            border-top: 2px solid;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
+        }
+        
+        .building::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 8px,
+                rgba(255,255,255,0.03) 8px,
+                rgba(255,255,255,0.03) 10px
+            );
+        }
+        
+        .building.pink { border-color: #ff00ff; box-shadow: 0 -20px 60px rgba(255,0,255,0.3); }
+        .building.cyan { border-color: #00ffff; box-shadow: 0 -20px 60px rgba(0,255,255,0.3); }
+        .building.yellow { border-color: #ffff00; box-shadow: 0 -20px 60px rgba(255,255,0,0.3); }
+        .building.orange { border-color: #ff6600; box-shadow: 0 -20px 60px rgba(255,102,0,0.3); }
+        
+        /* Windows */
+        .windows {
+            position: absolute;
+            top: 10px;
+            left: 5px;
+            right: 5px;
+            bottom: 10px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(8px, 1fr));
+            gap: 4px;
+        }
+        
+        .window {
+            background: rgba(255,255,200,0.1);
+            animation: window-flicker 4s infinite;
+        }
+        
+        .window.lit { background: rgba(255,255,150,0.7); }
+        
+        @keyframes window-flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        /* Neon signs */
+        .neon-sign {
+            position: absolute;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8rem;
+            padding: 3px 8px;
+            animation: neon-flicker 3s infinite;
+            text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+            border: 1px solid currentColor;
+            box-shadow: 0 0 10px currentColor, inset 0 0 10px rgba(255,255,255,0.1);
+        }
+        
+        @keyframes neon-flicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+            20%, 24%, 55% { opacity: 0.6; }
+        }
+        
+        /* Portal */
+        .portal-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 5;
+        }
+        
+        .portal {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #000 0%, transparent 70%);
+            position: relative;
+            animation: portal-pulse 2s ease-in-out infinite;
+        }
+        
+        .portal::before,
+        .portal::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            border: 3px solid;
+            animation: portal-spin 4s linear infinite;
+        }
+        
+        .portal::before {
+            width: 280px;
+            height: 280px;
+            border-color: #ff00ff transparent #00ffff transparent;
+            box-shadow: 0 0 30px #ff00ff, 0 0 60px #00ffff;
+        }
+        
+        .portal::after {
+            width: 240px;
+            height: 240px;
+            border-color: transparent #ffff00 transparent #ff6600;
+            animation-direction: reverse;
+            animation-duration: 3s;
+            box-shadow: 0 0 20px #ffff00, 0 0 40px #ff6600;
+        }
+        
+        .portal-core {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0,255,255,0.3) 0%, rgba(255,0,255,0.2) 50%, transparent 70%);
+            animation: core-pulse 1.5s ease-in-out infinite alternate;
+        }
+        
+        @keyframes portal-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes portal-spin {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        @keyframes core-pulse {
+            from { opacity: 0.5; filter: blur(10px); }
+            to { opacity: 1; filter: blur(20px); }
+        }
+        
+        /* Title */
+        .title {
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
             text-align: center;
         }
-        .container {
-            animation: fadeIn 1s ease-out;
+        
+        .title h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: 0.3em;
+            color: #fff;
+            text-shadow: 
+                0 0 10px #ff00ff,
+                0 0 20px #ff00ff,
+                0 0 40px #ff00ff,
+                0 0 80px #00ffff;
+            animation: title-glow 2s ease-in-out infinite alternate;
         }
-        h1 { 
-            font-size: 2.5rem; 
-            margin-bottom: 15px;
-            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        
+        .title p {
+            font-family: 'Share Tech Mono', monospace;
+            color: #00ffff;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            letter-spacing: 0.5em;
+            text-shadow: 0 0 10px #00ffff;
         }
-        p { font-size: 1.1rem; opacity: 0.8; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        
+        @keyframes title-glow {
+            from { filter: brightness(1); }
+            to { filter: brightness(1.3); }
+        }
+        
+        /* Scanlines */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0,0,0,0.1) 2px,
+                rgba(0,0,0,0.1) 4px
+            );
+        }
+        
+        /* Ground reflection */
+        .ground {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: linear-gradient(to bottom, transparent, rgba(0,255,255,0.1));
+            z-index: 2;
+        }
+        
+        .ground::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ffff, #ff00ff, #00ffff, transparent);
+            box-shadow: 0 0 20px #00ffff;
+        }
+        
+        /* Floating particles */
+        .particle {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: #ff00ff;
+            border-radius: 50%;
+            animation: float-up 8s linear infinite;
+            box-shadow: 0 0 10px currentColor;
+        }
+        
+        @keyframes float-up {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) scale(1); opacity: 0; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🌅 New Epoch Starting</h1>
-        <p>AI is generating a fresh page based on the new theme...</p>
-    </div>
+<div class="scanlines"></div>
+<div class="title">
+<h1>NEON CITY</h1>
+<p>// PORTAL ONLINE //</p>
+</div>
+<div class="portal-container">
+<div class="portal">
+<div class="portal-core"></div>
+</div>
+</div>
+<div class="city" id="city"></div>
+<div class="ground"></div>
+<div class="rain" id="rain"></div>
+<script>
+        // Generate buildings
+        const city = document.getElementById('city');
+        const colors = ['pink', 'cyan', 'yellow', 'orange'];
+        const signs = ['CYBER', 'NEON', '2087', 'HACK', 'SYNTH', 'DATA', 'GRID', 'PULSE'];
+        
+        for (let i = 0; i < 30; i++) {
+            const building = document.createElement('div');
+            building.className = 'building ' + colors[Math.floor(Math.random() * colors.length)];
+            building.style.width = (20 + Math.random() * 60) + 'px';
+            building.style.height = (100 + Math.random() * 300) + 'px';
+            
+            // Add windows
+            const windows = document.createElement('div');
+            windows.className = 'windows';
+            const windowCount = Math.floor(Math.random() * 30) + 10;
+            for (let j = 0; j < windowCount; j++) {
+                const win = document.createElement('div');
+                win.className = 'window' + (Math.random() > 0.6 ? ' lit' : '');
+                win.style.animationDelay = (Math.random() * 4) + 's';
+                windows.appendChild(win);
+            }
+            building.appendChild(windows);
+            
+            // Random neon signs
+            if (Math.random() > 0.7) {
+                const sign = document.createElement('div');
+                sign.className = 'neon-sign';
+                sign.textContent = signs[Math.floor(Math.random() * signs.length)];
+                sign.style.color = ['#ff00ff', '#00ffff', '#ffff00', '#ff6600'][Math.floor(Math.random() * 4)];
+                sign.style.top = (Math.random() * 50 + 10) + '%';
+                sign.style.left = '50%';
+                sign.style.transform = 'translateX(-50%)';
+                sign.style.animationDelay = (Math.random() * 3) + 's';
+                building.appendChild(sign);
+            }
+            
+            city.appendChild(building);
+        }
+        
+        // Generate rain
+        const rain = document.getElementById('rain');
+        for (let i = 0; i < 100; i++) {
+            const drop = document.createElement('div');
+            drop.className = 'rain-drop';
+            drop.style.left = Math.random() * 100 + '%';
+            drop.style.animationDuration = (0.5 + Math.random() * 0.5) + 's';
+            drop.style.animationDelay = Math.random() * 2 + 's';
+            rain.appendChild(drop);
+        }
+        
+        // Generate floating particles
+        for (let i = 0; i < 20; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 8 + 's';
+            particle.style.background = ['#ff00ff', '#00ffff', '#ffff00'][Math.floor(Math.random() * 3)];
+            document.body.appendChild(particle);
+        }
+    </script>
 </body>
 </html>
