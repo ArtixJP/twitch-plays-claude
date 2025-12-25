@@ -14,12 +14,16 @@
 </style>
 </head>
 <body>
-<div id="ui">⛏️ Minecraft World<br/><small>WASD move | SPACE jump | Click place/break | 1-3 select block</small></div>
+<div id="ui">⛏️ Minecraft World<br/><small>WASD move | SPACE jump | Click place/break | 1-7 select block</small></div>
 <div id="crosshair">+</div>
 <div id="inventory">
 <div class="slot selected" data-block="grass">🟩</div>
 <div class="slot" data-block="dirt">🟫</div>
 <div class="slot" data-block="stone">⬜</div>
+<div class="slot" data-block="wood">🪵</div>
+<div class="slot" data-block="leaves">🌿</div>
+<div class="slot" data-block="sand">🟨</div>
+<div class="slot" data-block="water">🟦</div>
 </div>
 <div id="hint">Left click = place block | Right click = break block | Explore the tower! 🏰</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -27,20 +31,61 @@
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x87ceeb);
 const camera=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,0.1,1000);
 const renderer=new THREE.WebGLRenderer();renderer.setSize(innerWidth,innerHeight);document.body.appendChild(renderer.domElement);
-const grass=0x4a7c23,dirt=0x8b4513,stone=0x888888;
+const grass=0x4a7c23,dirt=0x8b4513,stone=0x888888,wood=0x8B5A2B,leaves=0x228B22,sand=0xC2B280,water=0x1E90FF;
 function block(x,y,z,c){const g=new THREE.BoxGeometry(1,1,1);const m=new THREE.MeshLambertMaterial({color:c});const b=new THREE.Mesh(g,m);b.position.set(x,y,z);scene.add(b);}
 const blocks=[];function addBlock(x,y,z,c){const g=new THREE.BoxGeometry(1,1,1);const m=new THREE.MeshLambertMaterial({color:c});const b=new THREE.Mesh(g,m);b.position.set(x,y,z);b.userData.isBlock=true;scene.add(b);blocks.push(b);return b;}
-for(let x=-8;x<8;x++)for(let z=-8;z<8;z++){addBlock(x,0,z,grass);addBlock(x,-1,z,dirt);if(Math.random()>0.9)addBlock(x,1,z,stone);}
+// Terrain generation with noise-like hills
+function noise(x,z){return Math.sin(x*0.3)*Math.cos(z*0.3)+Math.sin(x*0.1+z*0.15)*2;}
+for(let x=-25;x<25;x++)for(let z=-25;z<25;z++){
+  const h=Math.floor(noise(x,z));
+  const dist=Math.sqrt(x*x+z*z);
+  // Lake in corner
+  if(x>10&&x<20&&z>10&&z<20){for(let y=-2;y<=0;y++)addBlock(x,y,z,water);continue;}
+  // Beach around lake
+  if(x>=8&&x<=22&&z>=8&&z<=22&&!(x>10&&x<20&&z>10&&z<20)){addBlock(x,0,z,sand);addBlock(x,-1,z,sand);continue;}
+  // Mountains far away
+  if(dist>18){const mh=Math.floor((dist-18)*0.3)+h;for(let y=-1;y<=mh;y++)addBlock(x,y,z,y===mh?stone:stone);continue;}
+  // Normal terrain with grass and dirt layers
+  for(let y=-2;y<=h;y++){addBlock(x,y,z,y===h?grass:dirt);}
+  // Random flowers (colored stones) 
+  if(Math.random()>0.97&&h>=0)addBlock(x,h+1,z,0xff69b4);
+}
 // TOWER
 for(let y=1;y<=8;y++){addBlock(5,y,5,stone);addBlock(5,y,7,stone);addBlock(7,y,5,stone);addBlock(7,y,7,stone);}
 for(let x=5;x<=7;x++)for(let z=5;z<=7;z++)addBlock(x,9,z,stone);
 addBlock(6,10,6,grass);
-const light=new THREE.DirectionalLight(0xffffff,1);light.position.set(5,10,5);scene.add(light);scene.add(new THREE.AmbientLight(0x404040));
+// FOREST with trees
+const treePositions=[[-5,-5],[-8,-3],[-3,-8],[-10,-10],[-15,-5],[-5,-15],[3,-10],[-12,-8],[-20,-15],[-18,-3],[-6,-20]];
+treePositions.forEach(([tx,tz])=>{
+  const th=Math.floor(noise(tx,tz));
+  for(let y=th+1;y<=th+5;y++)addBlock(tx,y,tz,wood);
+  for(let lx=-2;lx<=2;lx++)for(let lz=-2;lz<=2;lz++)for(let ly=0;ly<=2;ly++){
+    if(Math.abs(lx)+Math.abs(lz)+ly<4&&!(lx===0&&lz===0&&ly===0))addBlock(tx+lx,th+4+ly,tz+lz,leaves);
+  }
+});
+// More scattered trees
+for(let i=0;i<15;i++){
+  const tx=Math.floor(Math.random()*30-15);
+  const tz=Math.floor(Math.random()*30-15);
+  if(tx>8&&tx<22&&tz>8&&tz<22)continue;
+  const th=Math.floor(noise(tx,tz));
+  for(let y=th+1;y<=th+4;y++)addBlock(tx,y,tz,wood);
+  for(let lx=-1;lx<=1;lx++)for(let lz=-1;lz<=1;lz++)for(let ly=0;ly<=1;ly++){
+    if(!(lx===0&&lz===0&&ly===0))addBlock(tx+lx,th+3+ly,tz+lz,leaves);
+  }
+}
+const light=new THREE.DirectionalLight(0xffeedd,1.2);light.position.set(50,80,30);scene.add(light);scene.add(new THREE.AmbientLight(0x6688aa,0.6));
+// Add fog for atmosphere
+scene.fog=new THREE.Fog(0x87ceeb,20,80);
+// Add sun visual
+const sunGeo=new THREE.SphereGeometry(3,16,16);const sunMat=new THREE.MeshBasicMaterial({color:0xffff88});const sun=new THREE.Mesh(sunGeo,sunMat);sun.position.set(50,60,30);scene.add(sun);
+// Clouds
+for(let i=0;i<10;i++){const cloudGeo=new THREE.SphereGeometry(Math.random()*3+2,8,8);const cloudMat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.8});const cloud=new THREE.Mesh(cloudGeo,cloudMat);cloud.position.set(Math.random()*80-40,25+Math.random()*10,Math.random()*80-40);scene.add(cloud);}
 camera.position.set(0,3,10);let yVel=0,onGround=true;
 const raycaster=new THREE.Raycaster();const mouse=new THREE.Vector2();
-let selectedBlock='grass';const blockColors={grass:0x4a7c23,dirt:0x8b4513,stone:0x888888};
+let selectedBlock='grass';const blockColors={grass:0x4a7c23,dirt:0x8b4513,stone:0x888888,wood:0x8B5A2B,leaves:0x228B22,sand:0xC2B280,water:0x1E90FF};
 document.querySelectorAll('.slot').forEach(s=>s.onclick=()=>{document.querySelector('.slot.selected').classList.remove('selected');s.classList.add('selected');selectedBlock=s.dataset.block;});
-document.onkeypress=e=>{if(e.key>='1'&&e.key<='3'){const slots=document.querySelectorAll('.slot');document.querySelector('.slot.selected').classList.remove('selected');slots[e.key-1].classList.add('selected');selectedBlock=slots[e.key-1].dataset.block;}};
+document.onkeypress=e=>{if(e.key>='1'&&e.key<='7'){const slots=document.querySelectorAll('.slot');document.querySelector('.slot.selected').classList.remove('selected');slots[e.key-1].classList.add('selected');selectedBlock=slots[e.key-1].dataset.block;}};
 const keys={};document.onkeydown=e=>keys[e.key.toLowerCase()]=1;document.onkeyup=e=>keys[e.key.toLowerCase()]=0;
 let angle=0;
 function animate(){requestAnimationFrame(animate);
