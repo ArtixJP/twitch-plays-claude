@@ -150,7 +150,8 @@
 <h1>MINECRAFT</h1>
 <p>🎮 Auto-Exploring World...</p>
 </div>
-<div id="mode-indicator">🤖 AUTO-PILOT MODE</div>
+<div id="mode-indicator">🎮 CLICK TO PLAY - WASD + Mouse</div>
+<div id="controls-help" style="position:absolute;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);color:#fff;padding:10px 20px;border-radius:5px;font-size:12px;z-index:100;text-align:center;">W/A/S/D: Move | Mouse: Look | Space: Jump | Shift: Descend</div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://unpkg.com/simplex-noise@2.4.0/simplex-noise.js"></script>
@@ -329,11 +330,90 @@
         camera.position.set(0, 75, 20);
         camera.lookAt(0, 65, 0);
         
-        // Auto-pilot camera movement
-        let cameraAngle = 0;
-        let cameraRadius = 25;
-        let cameraHeight = 75;
-        let targetY = 70;
+        // Player controls
+        let playerPos = { x: 0, y: 75, z: 20 };
+        let playerVel = { x: 0, y: 0, z: 0 };
+        let yaw = 0;
+        let pitch = 0;
+        const moveSpeed = 0.15;
+        const jumpForce = 0.3;
+        const gravity = 0.01;
+        let isJumping = false;
+        let isPointerLocked = false;
+        
+        const keys = { w: false, a: false, s: false, d: false, space: false, shift: false };
+        
+        document.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            if (key in keys) keys[key] = true;
+            if (key === ' ') keys.space = true;
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            const key = e.key.toLowerCase();
+            if (key in keys) keys[key] = false;
+            if (key === ' ') keys.space = false;
+        });
+        
+        document.getElementById('game-container').addEventListener('click', () => {
+            renderer.domElement.requestPointerLock();
+        });
+        
+        document.addEventListener('pointerlockchange', () => {
+            isPointerLocked = document.pointerLockElement === renderer.domElement;
+            document.getElementById('mode-indicator').textContent = isPointerLocked ? '🎮 PLAYING - ESC to exit' : '🎮 CLICK TO PLAY - WASD + Mouse';
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (!isPointerLocked) return;
+            yaw -= e.movementX * 0.002;
+            pitch -= e.movementY * 0.002;
+            pitch = Math.max(-Math.PI/2 + 0.1, Math.min(Math.PI/2 - 0.1, pitch));
+        });
+        
+        function updatePlayer() {
+            // Movement direction based on yaw
+            let moveX = 0, moveZ = 0;
+            
+            if (keys.w) { moveX += Math.sin(yaw); moveZ += Math.cos(yaw); }
+            if (keys.s) { moveX -= Math.sin(yaw); moveZ -= Math.cos(yaw); }
+            if (keys.a) { moveX += Math.cos(yaw); moveZ -= Math.sin(yaw); }
+            if (keys.d) { moveX -= Math.cos(yaw); moveZ += Math.sin(yaw); }
+            
+            // Normalize diagonal movement
+            const len = Math.sqrt(moveX * moveX + moveZ * moveZ);
+            if (len > 0) {
+                moveX = (moveX / len) * moveSpeed;
+                moveZ = (moveZ / len) * moveSpeed;
+            }
+            
+            playerPos.x += moveX;
+            playerPos.z += moveZ;
+            
+            // Vertical movement
+            if (keys.space) playerVel.y = jumpForce;
+            if (keys.shift) playerVel.y = -jumpForce;
+            
+            playerVel.y -= gravity;
+            playerPos.y += playerVel.y;
+            
+            // Ground collision (simple)
+            const groundHeight = getHeight(Math.floor(playerPos.x), Math.floor(playerPos.z)) + 3;
+            if (playerPos.y < groundHeight) {
+                playerPos.y = groundHeight;
+                playerVel.y = 0;
+            }
+            if (playerPos.y > 120) playerPos.y = 120;
+            
+            // Update camera
+            camera.position.set(playerPos.x, playerPos.y, playerPos.z);
+            
+            // Camera look direction
+            const lookX = playerPos.x + Math.sin(yaw) * Math.cos(pitch);
+            const lookY = playerPos.y + Math.sin(pitch);
+            const lookZ = playerPos.z + Math.cos(yaw) * Math.cos(pitch);
+            camera.lookAt(lookX, lookY, lookZ);
+        }
         
         // Day/night cycle
         let dayTime = 0;
@@ -367,21 +447,12 @@
         function animate() {
             requestAnimationFrame(animate);
             
-            // Auto-pilot camera orbit
-            cameraAngle += 0.003;
-            cameraRadius = 25 + Math.sin(cameraAngle * 0.5) * 10;
-            cameraHeight = 75 + Math.sin(cameraAngle * 0.3) * 10;
-            
-            camera.position.x = Math.cos(cameraAngle) * cameraRadius;
-            camera.position.z = Math.sin(cameraAngle) * cameraRadius;
-            camera.position.y = cameraHeight;
-            
-            targetY = 65 + Math.sin(cameraAngle * 0.2) * 5;
-            camera.lookAt(0, targetY, 0);
+            // Player movement update
+            updatePlayer();
             
             // Update HUD
             document.getElementById('coords').textContent = 
-                `X: ${Math.floor(camera.position.x)} Y: ${Math.floor(camera.position.y)} Z: ${Math.floor(camera.position.z)}`;
+                `X: ${Math.floor(playerPos.x)} Y: ${Math.floor(playerPos.y)} Z: ${Math.floor(playerPos.z)}`;
             
             updateDayNight();
             
