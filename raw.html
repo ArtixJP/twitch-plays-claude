@@ -451,6 +451,18 @@
         style.textContent = '@keyframes fadeInOut { 0%,100%{opacity:0;} 50%{opacity:1;} }';
         document.head.appendChild(style);
         
+        // Ghostly test message - spirits probing the connection
+        (function() {
+            const testMsg = document.createElement('div');
+            testMsg.innerHTML = '⚡ <em>The spirits sense your presence...</em> ⚡<br><span style="font-size:0.7rem;opacity:0.5;">CONNECTION ESTABLISHED</span>';
+            testMsg.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(13,13,26,0.95);border:1px solid rgba(139,0,0,0.5);padding:30px 50px;border-radius:8px;color:var(--ghost-white);font-family:Cinzel Decorative,cursive;text-align:center;z-index:300;animation:spiritTest 4s forwards;box-shadow:0 0 50px rgba(139,0,0,0.3);';
+            document.body.appendChild(testMsg);
+            const testStyle = document.createElement('style');
+            testStyle.textContent = '@keyframes spiritTest { 0%{opacity:0;transform:translate(-50%,-50%) scale(0.8);} 20%{opacity:1;transform:translate(-50%,-50%) scale(1);} 80%{opacity:1;} 100%{opacity:0;transform:translate(-50%,-50%) scale(1.1);} }';
+            document.head.appendChild(testStyle);
+            setTimeout(() => testMsg.remove(), 4000);
+        })();
+        
         // Room hover sound simulation (visual feedback)
         document.querySelectorAll('.room').forEach(room => {
             room.addEventListener('mouseenter', () => {
