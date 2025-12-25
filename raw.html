@@ -149,9 +149,15 @@
 <div id="title-overlay">
 <h1>MINECRAFT</h1>
 <p>🎮 Auto-Exploring World...</p>
-<p style="color:#E52521;margin-top:5px;">🍄 Mario has joined the world!</p>
+<p style="color:#E52521;margin-top:5px;">🍄 SUPER MARIO MINECRAFT!</p>
+<p style="color:#FFD700;margin-top:5px;">Arrow Keys/WASD: Move | Space: Jump</p>
 </div>
-<div id="mode-indicator">🎮 CLICK TO PLAY - WASD + Mouse</div>
+<div id="mode-indicator">🎮 SUPER MARIO MODE - Arrow Keys + Space</div>
+<div id="mario-hud" style="position:absolute;top:50px;left:10px;background:rgba(0,0,0,0.8);color:#fff;padding:10px 15px;border-radius:5px;font-size:16px;z-index:100;font-family:'Courier New',monospace;">
+<div>🪙 COINS: <span id="coin-count">0</span></div>
+<div>⭐ SCORE: <span id="score-count">0</span></div>
+<div>❤️ LIVES: <span id="lives-count">3</span></div>
+</div>
 <div id="controls-help" style="position:absolute;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);color:#fff;padding:10px 20px;border-radius:5px;font-size:12px;z-index:100;text-align:center;">W/A/S/D: Move | Mouse: Look | Space: Jump | Shift: Descend</div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -582,6 +588,318 @@
         setInterval(animateWithMario, 16);
         
         console.log('🍄 It\'s-a me, Mario! Walking around the Minecraft world!');
+        
+        // ═══════════════════════════════════════════════════════════
+        // SUPER MARIO BROS MODE - Transform Minecraft into Mario!
+        // ═══════════════════════════════════════════════════════════
+        
+        let marioCoins = 0;
+        let marioScore = 0;
+        let marioLives = 3;
+        let marioVelY = 0;
+        let marioOnGround = true;
+        let marioControlled = true;
+        const MARIO_JUMP = 0.35;
+        const MARIO_GRAVITY = 0.015;
+        const MARIO_SPEED = 0.12;
+        
+        // Mario Bros color palette
+        const brickMat = new THREE.MeshLambertMaterial({ map: createBlockTexture('#8B4513', 0.15) });
+        const questionMat = new THREE.MeshLambertMaterial({ map: createBlockTexture('#FFD700', 0.1) });
+        const pipeMat = new THREE.MeshLambertMaterial({ color: 0x228B22 });
+        const coinMat = new THREE.MeshLambertMaterial({ color: 0xFFD700, emissive: 0xFFAA00, emissiveIntensity: 0.3 });
+        const goombaMat = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+        
+        // Arrays to track collectibles and enemies
+        const coins = [];
+        const goombas = [];
+        const questionBlocks = [];
+        
+        // Create Mario-style platforms and objects
+        function createMarioPlatform(x, y, z, length) {
+            for (let i = 0; i < length; i++) {
+                const brick = new THREE.Mesh(blockGeometry, brickMat);
+                brick.position.set(x + i, y, z);
+                brick.userData.type = 'brick';
+                scene.add(brick);
+            }
+        }
+        
+        function createQuestionBlock(x, y, z) {
+            const qBlock = new THREE.Mesh(blockGeometry, questionMat);
+            qBlock.position.set(x, y, z);
+            qBlock.userData.type = 'question';
+            qBlock.userData.hasItem = true;
+            scene.add(qBlock);
+            questionBlocks.push(qBlock);
+            
+            // Add ? symbol
+            const qGeom = new THREE.BoxGeometry(0.3, 0.4, 0.1);
+            const qMark = new THREE.Mesh(qGeom, new THREE.MeshLambertMaterial({ color: 0x8B4513 }));
+            qMark.position.set(x, y, z + 0.46);
+            scene.add(qMark);
+        }
+        
+        function createCoin(x, y, z) {
+            const coinGeom = new THREE.CylinderGeometry(0.3, 0.3, 0.1, 8);
+            const coin = new THREE.Mesh(coinGeom, coinMat);
+            coin.position.set(x, y, z);
+            coin.rotation.x = Math.PI / 2;
+            coin.userData.type = 'coin';
+            scene.add(coin);
+            coins.push(coin);
+        }
+        
+        function createPipe(x, y, z, height = 2) {
+            const pipeGeom = new THREE.CylinderGeometry(0.7, 0.7, height, 8);
+            const pipe = new THREE.Mesh(pipeGeom, pipeMat);
+            pipe.position.set(x, y + height/2, z);
+            scene.add(pipe);
+            
+            // Pipe rim
+            const rimGeom = new THREE.CylinderGeometry(0.85, 0.85, 0.3, 8);
+            const rim = new THREE.Mesh(rimGeom, pipeMat);
+            rim.position.set(x, y + height + 0.15, z);
+            scene.add(rim);
+        }
+        
+        function createGoomba(x, y, z) {
+            const goombaGroup = new THREE.Group();
+            
+            // Body
+            const body = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.5, 0.6), goombaMat);
+            body.position.y = 0.25;
+            goombaGroup.add(body);
+            
+            // Head
+            const headMat = new THREE.MeshLambertMaterial({ color: 0xDEB887 });
+            const goombaHead = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.4, 0.7), headMat);
+            goombaHead.position.y = 0.7;
+            goombaGroup.add(goombaHead);
+            
+            // Eyes (angry)
+            const eyeWhite = new THREE.MeshLambertMaterial({ color: 0xFFFFFF });
+            const eyeBlack = new THREE.MeshLambertMaterial({ color: 0x000000 });
+            const leftEyeG = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.15, 0.1), eyeWhite);
+            leftEyeG.position.set(-0.15, 0.75, 0.35);
+            goombaGroup.add(leftEyeG);
+            const rightEyeG = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.15, 0.1), eyeWhite);
+            rightEyeG.position.set(0.15, 0.75, 0.35);
+            goombaGroup.add(rightEyeG);
+            
+            // Feet
+            const footMat = new THREE.MeshLambertMaterial({ color: 0x000000 });
+            const leftFoot = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.15, 0.3), footMat);
+            leftFoot.position.set(-0.2, 0.075, 0);
+            goombaGroup.add(leftFoot);
+            const rightFoot = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.15, 0.3), footMat);
+            rightFoot.position.set(0.2, 0.075, 0);
+            goombaGroup.add(rightFoot);
+            
+            goombaGroup.position.set(x, y, z);
+            goombaGroup.userData.direction = Math.random() > 0.5 ? 1 : -1;
+            goombaGroup.userData.alive = true;
+            scene.add(goombaGroup);
+            goombas.push(goombaGroup);
+        }
+        
+        // Build Mario level elements around spawn
+        const levelBaseY = getHeight(0, 0) + 1;
+        
+        // Floating brick platforms
+        createMarioPlatform(-5, levelBaseY + 4, 0, 5);
+        createMarioPlatform(8, levelBaseY + 6, 2, 4);
+        createMarioPlatform(-10, levelBaseY + 8, -5, 6);
+        createMarioPlatform(3, levelBaseY + 10, -8, 3);
+        
+        // Question blocks with coins
+        createQuestionBlock(-3, levelBaseY + 4, 0);
+        createQuestionBlock(0, levelBaseY + 4, 0);
+        createQuestionBlock(10, levelBaseY + 6, 2);
+        createQuestionBlock(-7, levelBaseY + 8, -5);
+        createQuestionBlock(4, levelBaseY + 10, -8);
+        
+        // Floating coins
+        for (let i = 0; i < 20; i++) {
+            const cx = (Math.random() - 0.5) * 40;
+            const cz = (Math.random() - 0.5) * 40;
+            const cy = getHeight(Math.floor(cx), Math.floor(cz)) + 2 + Math.random() * 5;
+            createCoin(cx, cy, cz);
+        }
+        
+        // Pipes
+        createPipe(-8, getHeight(-8, 8), 8, 2);
+        createPipe(12, getHeight(12, -5), -5, 3);
+        createPipe(-15, getHeight(-15, -10), -10, 4);
+        
+        // Goombas
+        for (let i = 0; i < 8; i++) {
+            const gx = (Math.random() - 0.5) * 30;
+            const gz = (Math.random() - 0.5) * 30;
+            const gy = getHeight(Math.floor(gx), Math.floor(gz)) + 1;
+            createGoomba(gx, gy, gz);
+        }
+        
+        // Mario controls - override the walking AI
+        marioControlled = true;
+        let marioFacing = 1;
+        
+        const marioKeys = { left: false, right: false, up: false, down: false, jump: false };
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'a') marioKeys.left = true;
+            if (e.key === 'ArrowRight' || e.key === 'd') marioKeys.right = true;
+            if (e.key === 'ArrowUp' || e.key === 'w') marioKeys.up = true;
+            if (e.key === 'ArrowDown' || e.key === 's') marioKeys.down = true;
+            if (e.key === ' ') marioKeys.jump = true;
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'a') marioKeys.left = false;
+            if (e.key === 'ArrowRight' || e.key === 'd') marioKeys.right = false;
+            if (e.key === 'ArrowUp' || e.key === 'w') marioKeys.up = false;
+            if (e.key === 'ArrowDown' || e.key === 's') marioKeys.down = false;
+            if (e.key === ' ') marioKeys.jump = false;
+        });
+        
+        // Override Mario update for platformer controls
+        function updateMarioPlayer() {
+            // Horizontal movement
+            if (marioKeys.left) {
+                marioGroup.position.x -= MARIO_SPEED;
+                marioFacing = -1;
+                marioGroup.rotation.y = Math.PI / 2;
+            }
+            if (marioKeys.right) {
+                marioGroup.position.x += MARIO_SPEED;
+                marioFacing = 1;
+                marioGroup.rotation.y = -Math.PI / 2;
+            }
+            if (marioKeys.up) {
+                marioGroup.position.z -= MARIO_SPEED;
+                marioGroup.rotation.y = 0;
+            }
+            if (marioKeys.down) {
+                marioGroup.position.z += MARIO_SPEED;
+                marioGroup.rotation.y = Math.PI;
+            }
+            
+            // Jumping
+            if (marioKeys.jump && marioOnGround) {
+                marioVelY = MARIO_JUMP;
+                marioOnGround = false;
+            }
+            
+            // Gravity
+            marioVelY -= MARIO_GRAVITY;
+            marioGroup.position.y += marioVelY;
+            
+            // Ground collision
+            const groundY = getHeight(Math.floor(marioGroup.position.x), Math.floor(marioGroup.position.z)) + 1;
+            if (marioGroup.position.y <= groundY) {
+                marioGroup.position.y = groundY;
+                marioVelY = 0;
+                marioOnGround = true;
+            }
+            
+            // Walking animation
+            marioWalkTime += 0.1;
+            if (marioKeys.left || marioKeys.right || marioKeys.up || marioKeys.down) {
+                leftLeg.position.y = 0.2 + Math.sin(marioWalkTime * 5) * 0.15;
+                rightLeg.position.y = 0.2 + Math.sin(marioWalkTime * 5 + Math.PI) * 0.15;
+            }
+            
+            // Coin collection
+            coins.forEach((coin, i) => {
+                if (coin.visible && marioGroup.position.distanceTo(coin.position) < 1) {
+                    coin.visible = false;
+                    marioCoins++;
+                    marioScore += 100;
+                    document.getElementById('coin-count').textContent = marioCoins;
+                    document.getElementById('score-count').textContent = marioScore;
+                }
+            });
+            
+            // Rotate visible coins
+            coins.forEach(coin => {
+                if (coin.visible) coin.rotation.y += 0.05;
+            });
+            
+            // Goomba AI and collision
+            goombas.forEach(goomba => {
+                if (!goomba.userData.alive) return;
+                
+                // Move goomba
+                goomba.position.x += goomba.userData.direction * 0.02;
+                
+                // Terrain follow
+                const goombaGround = getHeight(Math.floor(goomba.position.x), Math.floor(goomba.position.z)) + 0.5;
+                goomba.position.y = goombaGround;
+                
+                // Turn around at edges
+                if (Math.abs(goomba.position.x) > WORLD_SIZE - 3) {
+                    goomba.userData.direction *= -1;
+                }
+                
+                // Collision with Mario
+                const dist = marioGroup.position.distanceTo(goomba.position);
+                if (dist < 1 && goomba.userData.alive) {
+                    // Check if Mario is above (stomping)
+                    if (marioGroup.position.y > goomba.position.y + 0.5 && marioVelY < 0) {
+                        // Stomp!
+                        goomba.userData.alive = false;
+                        goomba.scale.y = 0.2;
+                        marioScore += 200;
+                        marioVelY = 0.2; // Bounce
+                        document.getElementById('score-count').textContent = marioScore;
+                    } else {
+                        // Hit by goomba
+                        marioLives--;
+                        document.getElementById('lives-count').textContent = marioLives;
+                        // Knockback
+                        marioGroup.position.y += 2;
+                        marioVelY = 0.2;
+                        if (marioLives <= 0) {
+                            alert('Game Over! Score: ' + marioScore);
+                            marioLives = 3;
+                            marioCoins = 0;
+                            marioScore = 0;
+                            document.getElementById('lives-count').textContent = marioLives;
+                            document.getElementById('coin-count').textContent = marioCoins;
+                            document.getElementById('score-count').textContent = marioScore;
+                        }
+                    }
+                }
+            });
+            
+            // Camera follows Mario (side-scrolling style with some freedom)
+            camera.position.x = marioGroup.position.x - 8;
+            camera.position.y = marioGroup.position.y + 5;
+            camera.position.z = marioGroup.position.z + 12;
+            camera.lookAt(marioGroup.position.x, marioGroup.position.y + 1, marioGroup.position.z);
+            
+            // Update coords to Mario position
+            document.getElementById('coords').textContent = 
+                `X: ${Math.floor(marioGroup.position.x)} Y: ${Math.floor(marioGroup.position.y)} Z: ${Math.floor(marioGroup.position.z)}`;
+        }
+        
+        // Replace the original Mario update
+        setInterval(updateMarioPlayer, 16);
+        
+        // Add classic Mario sound effect simulation (visual feedback)
+        function showCoinEffect(x, y, z) {
+            const effect = document.createElement('div');
+            effect.textContent = '+100';
+            effect.style.cssText = 'position:fixed;color:#FFD700;font-size:24px;font-weight:bold;pointer-events:none;z-index:1000;text-shadow:2px 2px #000;';
+            effect.style.left = '50%';
+            effect.style.top = '40%';
+            document.body.appendChild(effect);
+            setTimeout(() => effect.remove(), 500);
+        }
+        
+        console.log('🎮 Super Mario Minecraft Mode Activated!');
+        console.log('Use Arrow Keys or WASD to move, Space to jump!');
+        console.log('Collect coins, stomp goombas, and explore!');
         
         // Chat integration for future interactivity
         try {
