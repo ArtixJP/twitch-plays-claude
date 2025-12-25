@@ -498,6 +498,84 @@
 <footer class="wisdom">
 <p>"In the garden of the soul, silence is the most beautiful flower."</p>
 </footer>
+<div class="laughing-buddha" id="laughingBuddha" title="布袋 Hotei - The Laughing Buddha">
+<div class="buddha-body">😄</div>
+<div class="buddha-laugh">ふふふ</div>
+</div>
+<style>
+.laughing-buddha {
+  position: fixed;
+  bottom: 150px;
+  right: 120px;
+  width: 60px;
+  height: 70px;
+  background: linear-gradient(135deg, #d4a574, #c49a6c, #b8906a);
+  border-radius: 50% 50% 45% 45%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+  z-index: 150;
+  cursor: pointer;
+  animation: buddhaWobble 4s ease-in-out infinite;
+}
+
+.buddha-body {
+  font-size: 2rem;
+  animation: buddhaLaugh 3s ease-in-out infinite;
+}
+
+.buddha-laugh {
+  position: absolute;
+  top: -25px;
+  font-size: 0.75rem;
+  color: var(--ink);
+  opacity: 0;
+  animation: laughText 6s ease-in-out infinite;
+  white-space: nowrap;
+}
+
+@keyframes buddhaWobble {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+
+@keyframes buddhaLaugh {
+  0%, 70%, 100% { transform: scale(1); }
+  75%, 85% { transform: scale(1.1); }
+  80% { transform: scale(1.05); }
+}
+
+@keyframes laughText {
+  0%, 60%, 100% { opacity: 0; transform: translateY(5px); }
+  65%, 90% { opacity: 1; transform: translateY(0); }
+}
+
+.laughing-buddha:hover .buddha-body {
+  animation: buddhaHover 0.3s ease-in-out infinite;
+}
+
+@keyframes buddhaHover {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+</style>
+<script>
+(function() {
+  const buddha = document.getElementById('laughingBuddha');
+  buddha.addEventListener('click', () => {
+    buddha.querySelector('.buddha-laugh').style.animation = 'none';
+    buddha.querySelector('.buddha-laugh').offsetHeight;
+    buddha.querySelector('.buddha-laugh').style.animation = 'laughText 2s ease-in-out forwards';
+  });
+  
+  // Auto-trigger for stream viewers
+  setInterval(() => {
+    buddha.click();
+  }, 8000);
+})();
+</script>
 <div class="test-stone" id="testStone" title="A curious stone...">
 <span class="stone-kanji">試</span>
 <div class="test-ripple"></div>
