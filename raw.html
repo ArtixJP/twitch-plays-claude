@@ -21,6 +21,9 @@
         .community { margin-top: 50px; color: #666; font-size: 0.6rem; text-shadow: 2px 2px 0 #000; }
         .pickaxe { position: fixed; bottom: 20px; right: 20px; font-size: 2rem; animation: bob 1s ease-in-out infinite; filter: drop-shadow(0 0 10px #ff00ff); }
         @keyframes bob { 0%, 100% { transform: translateY(0) rotate(-45deg); } 50% { transform: translateY(-10px) rotate(-45deg); } }
+        .test-badge { position: fixed; top: 53px; left: 296px; font-family: 'Press Start 2P', monospace; font-size: 0.6rem; color: #00ffff; text-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff; padding: 8px 12px; border: 2px solid #ff00ff; background: rgba(10, 10, 18, 0.8); animation: testPulse 2s ease-in-out infinite, testFade 8s forwards; z-index: 100; }
+        @keyframes testPulse { 0%, 100% { box-shadow: 0 0 10px #00ffff; } 50% { box-shadow: 0 0 25px #ff00ff, 0 0 35px #00ffff; } }
+        @keyframes testFade { 0%, 70% { opacity: 1; } 100% { opacity: 0; pointer-events: none; } }
         .creeper { position: fixed; top: 20px; left: 20px; width: 40px; height: 40px; background: #00ff00; box-shadow: inset 8px 8px 0 #0a0a12, inset -8px -8px 0 #0a0a12, inset 0 20px 0 #0a0a12; animation: creepPulse 2s ease-in-out infinite; }
         .mc-block { position: fixed; top: 100px; right: 100px; width: 60px; height: 60px; background: linear-gradient(180deg, #4ade80 0%, #4ade80 30%, #8b5a2b 30%, #8b5a2b 100%); border: 3px solid #00ffff; box-shadow: 6px 6px 0 #ff00ff, 0 0 20px #00ffff, inset 4px 4px 0 rgba(255,255,255,0.2), inset -4px -4px 0 rgba(0,0,0,0.3); animation: blockFloat 3s ease-in-out infinite, blockGlow 2s ease-in-out infinite alternate; }
         .mc-block::before { content: ''; position: absolute; top: 35%; left: 20%; width: 8px; height: 8px; background: #654321; box-shadow: 20px 0 0 #654321, 10px 12px 0 #654321; }
@@ -38,6 +41,7 @@
 </head>
 <body>
 <canvas class="pixel-grid" id="pixelGrid"></canvas>
+<div class="test-badge">✓ TEST OK</div>
 <div class="creeper"></div>
 <div class="mc-block" title="GRASS BLOCK"></div>
 <div class="mario" title="IT'S-A ME!"><div class="mario-sprite"></div></div>
