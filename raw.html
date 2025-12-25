@@ -11,14 +11,127 @@
         .player { width: 400px; height: 120px; background: linear-gradient(180deg, #1a1a2e 0%, #0f0f1a 100%); border: 2px solid #00ffff; box-shadow: 0 0 30px #00ffff40, inset 0 0 20px #ff00ff20; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
         .play-btn { width: 60px; height: 60px; border: 3px solid #ff00ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 15px #ff00ff; }
         .play-btn::after { content: '▶'; color: #00ffff; font-size: 24px; margin-left: 5px; }
+        .play-btn.playing::after { content: '❚❚'; margin-left: 0; }
+        .play-btn:hover { transform: scale(1.1); transition: transform 0.2s; }
+        .visualizer { display: flex; gap: 3px; align-items: flex-end; height: 40px; margin-left: 30px; }
+        .bar { width: 6px; background: linear-gradient(180deg, #ff00ff, #00ffff); border-radius: 2px; transition: height 0.1s; }
         .community { margin-top: 50px; color: #444; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 <h1>SYNTHWAVE</h1>
 <div class="player">
-<div class="play-btn"></div>
+<div class="play-btn" id="playBtn"></div>
+<div class="visualizer" id="visualizer"></div>
 </div>
-<p class="community">[ Community ideas here... ]</p>
+<p class="community">[ Click play for procedural synthwave ]</p>
+<script>
+let audioCtx, isPlaying = false, oscillators = [], intervals = [];
+const playBtn = document.getElementById('playBtn');
+const visualizer = document.getElementById('visualizer');
+
+// Create visualizer bars
+for(let i = 0; i < 12; i++) {
+  const bar = document.createElement('div');
+  bar.className = 'bar';
+  bar.style.height = '5px';
+  visualizer.appendChild(bar);
+}
+const bars = visualizer.querySelectorAll('.bar');
+
+function createSynthwave() {
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  
+  // Synthwave chord progression (Am - F - C - G)
+  const chords = [[220, 261.63, 329.63], [174.61, 220, 261.63], [261.63, 329.63, 392], [196, 246.94, 293.66]];
+  let chordIndex = 0;
+  
+  // Main synth pad
+  function playChord() {
+    const chord = chords[chordIndex % 4];
+    chord.forEach((freq, i) => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      const filter = audioCtx.createBiquadFilter();
+      osc.type = 'sawtooth';
+      osc.frequency.value = freq;
+      filter.type = 'lowpass';
+      filter.frequency.value = 1200;
+      gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+      osc.connect(filter).connect(gain).connect(audioCtx.destination);
+      osc.start();
+      oscillators.push({osc, gain});
+      setTimeout(() => { gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5); setTimeout(() => osc.stop(), 600); }, 1400);
+    });
+    chordIndex++;
+  }
+  
+  // Bass line
+  function playBass() {
+    const bassNotes = [55, 43.65, 65.41, 49];
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'square';
+    osc.frequency.value = bassNotes[chordIndex % 4];
+    gain.gain.value = 0.15;
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start();
+    oscillators.push({osc, gain});
+    setTimeout(() => { gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1); setTimeout(() => osc.stop(), 200); }, 150);
+  }
+  
+  // Arpeggio
+  function playArp() {
+    const arpNotes = [440, 523.25, 659.25, 523.25];
+    let noteIndex = 0;
+    intervals.push(setInterval(() => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.value = arpNotes[noteIndex % 4] * (1 + Math.floor(noteIndex/4) % 2);
+      gain.gain.value = 0.06;
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start();
+      setTimeout(() => { gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05); setTimeout(() => osc.stop(), 100); }, 80);
+      noteIndex++;
+      bars[noteIndex % 12].style.height = (Math.random() * 30 + 10) + 'px';
+    }, 125));
+  }
+  
+  // Kick drum
+  function playKick() {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+    gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.5);
+  }
+  
+  playChord();
+  playArp();
+  intervals.push(setInterval(playChord, 2000));
+  intervals.push(setInterval(playBass, 500));
+  intervals.push(setInterval(playKick, 500));
+  intervals.push(setInterval(() => bars.forEach(b => b.style.height = (Math.random() * 25 + 5) + 'px'), 100));
+}
+
+function stopSynthwave() {
+  oscillators.forEach(({osc, gain}) => { try { gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1); setTimeout(() => osc.stop(), 150); } catch(e){} });
+  intervals.forEach(i => clearInterval(i));
+  oscillators = []; intervals = [];
+  bars.forEach(b => b.style.height = '5px');
+  if(audioCtx) audioCtx.close();
+}
+
+playBtn.addEventListener('click', () => {
+  if(!isPlaying) { createSynthwave(); playBtn.classList.add('playing'); }
+  else { stopSynthwave(); playBtn.classList.remove('playing'); }
+  isPlaying = !isPlaying;
+});
+</script>
 </body>
 </html>
