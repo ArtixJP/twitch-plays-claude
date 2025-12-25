@@ -153,6 +153,19 @@
 <p style="color:#FFD700;margin-top:5px;">Arrow Keys/WASD: Move | Space: Jump</p>
 </div>
 <div id="mode-indicator">🎮 SUPER MARIO MODE - Arrow Keys + Space</div>
+<div id="mario-ftw" style="position:absolute;top:100px;right:10px;background:linear-gradient(135deg,#E52521,#FBD000);color:#fff;padding:15px 25px;border-radius:10px;font-size:20px;font-weight:bold;z-index:100;text-shadow:2px 2px #000;animation:ftw-pulse 1s infinite;border:3px solid #fff;">
+            🍄 MARIO BROS FTW! 🌟
+        </div>
+<style>
+            @keyframes ftw-pulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+            }
+            @keyframes star-spin {
+                from { transform: rotateY(0deg); }
+                to { transform: rotateY(360deg); }
+            }
+        </style>
 <div id="mario-hud" style="position:absolute;top:50px;left:10px;background:rgba(0,0,0,0.8);color:#fff;padding:10px 15px;border-radius:5px;font-size:16px;z-index:100;font-family:'Courier New',monospace;">
 <div>🪙 COINS: <span id="coin-count">0</span></div>
 <div>⭐ SCORE: <span id="score-count">0</span></div>
@@ -898,6 +911,180 @@
         }
         
         console.log('🎮 Super Mario Minecraft Mode Activated!');
+        console.log('🍄 MARIO BROS FTW! 🌟');
+        
+        // === MARIO BROS FTW ENHANCEMENTS ===
+        
+        // 1-UP Mushroom
+        const oneUpMat = new THREE.MeshLambertMaterial({ color: 0x00FF00 });
+        const oneUpWhite = new THREE.MeshLambertMaterial({ color: 0xFFFFFF });
+        
+        function createOneUpMushroom(x, y, z) {
+            const mushGroup = new THREE.Group();
+            
+            // Cap (green with white spots)
+            const cap = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.4, 0.8), oneUpMat);
+            cap.position.y = 0.5;
+            mushGroup.add(cap);
+            
+            // White spots
+            const spot1 = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.1, 0.2), oneUpWhite);
+            spot1.position.set(0.2, 0.7, 0.2);
+            mushGroup.add(spot1);
+            const spot2 = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.1, 0.2), oneUpWhite);
+            spot2.position.set(-0.2, 0.7, -0.1);
+            mushGroup.add(spot2);
+            
+            // Stem
+            const stem = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.3, 0.4), oneUpWhite);
+            stem.position.y = 0.15;
+            mushGroup.add(stem);
+            
+            mushGroup.position.set(x, y, z);
+            mushGroup.userData.type = 'oneup';
+            mushGroup.userData.collected = false;
+            scene.add(mushGroup);
+            return mushGroup;
+        }
+        
+        // Super Star
+        const starMat = new THREE.MeshLambertMaterial({ color: 0xFFD700, emissive: 0xFFAA00, emissiveIntensity: 0.5 });
+        
+        function createSuperStar(x, y, z) {
+            const starGroup = new THREE.Group();
+            
+            // Star body (blocky 5-point star approximation)
+            const center = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.3), starMat);
+            starGroup.add(center);
+            
+            // Points
+            const point1 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.25), starMat);
+            point1.position.set(0, 0.4, 0);
+            starGroup.add(point1);
+            const point2 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.25), starMat);
+            point2.position.set(0.4, 0.1, 0);
+            starGroup.add(point2);
+            const point3 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.25), starMat);
+            point3.position.set(-0.4, 0.1, 0);
+            starGroup.add(point3);
+            const point4 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.25), starMat);
+            point4.position.set(0.25, -0.35, 0);
+            starGroup.add(point4);
+            const point5 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.25), starMat);
+            point5.position.set(-0.25, -0.35, 0);
+            starGroup.add(point5);
+            
+            // Eyes
+            const starEye1 = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.1), new THREE.MeshLambertMaterial({color:0x000000}));
+            starEye1.position.set(-0.1, 0.05, 0.16);
+            starGroup.add(starEye1);
+            const starEye2 = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.1), new THREE.MeshLambertMaterial({color:0x000000}));
+            starEye2.position.set(0.1, 0.05, 0.16);
+            starGroup.add(starEye2);
+            
+            starGroup.position.set(x, y, z);
+            starGroup.userData.type = 'star';
+            starGroup.userData.collected = false;
+            scene.add(starGroup);
+            return starGroup;
+        }
+        
+        // Cloud platforms
+        const cloudMat = new THREE.MeshLambertMaterial({ color: 0xFFFFFF });
+        
+        function createCloud(x, y, z) {
+            const cloudGroup = new THREE.Group();
+            
+            const puff1 = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.8, 1), cloudMat);
+            cloudGroup.add(puff1);
+            const puff2 = new THREE.Mesh(new THREE.BoxGeometry(1, 0.6, 0.8), cloudMat);
+            puff2.position.set(0.8, 0.2, 0);
+            cloudGroup.add(puff2);
+            const puff3 = new THREE.Mesh(new THREE.BoxGeometry(1, 0.6, 0.8), cloudMat);
+            puff3.position.set(-0.8, 0.2, 0);
+            cloudGroup.add(puff3);
+            
+            cloudGroup.position.set(x, y, z);
+            scene.add(cloudGroup);
+            return cloudGroup;
+        }
+        
+        // Spawn power-ups and clouds
+        const oneUps = [];
+        const stars = [];
+        const clouds = [];
+        
+        oneUps.push(createOneUpMushroom(3, levelBaseY + 5, 3));
+        oneUps.push(createOneUpMushroom(-12, levelBaseY + 9, -3));
+        
+        stars.push(createSuperStar(-5, levelBaseY + 12, 5));
+        stars.push(createSuperStar(15, levelBaseY + 8, -8));
+        
+        clouds.push(createCloud(20, levelBaseY + 15, 0));
+        clouds.push(createCloud(-18, levelBaseY + 18, 8));
+        clouds.push(createCloud(5, levelBaseY + 20, -15));
+        
+        let starPowerTime = 0;
+        let hasStarPower = false;
+        
+        // Enhanced update for power-ups
+        setInterval(() => {
+            // Animate stars
+            stars.forEach(star => {
+                if (!star.userData.collected) {
+                    star.rotation.y += 0.05;
+                    star.position.y += Math.sin(Date.now() * 0.003) * 0.01;
+                }
+            });
+            
+            // Animate 1-UPs
+            oneUps.forEach(mushroom => {
+                if (!mushroom.userData.collected) {
+                    mushroom.position.y += Math.sin(Date.now() * 0.002) * 0.005;
+                }
+            });
+            
+            // Check 1-UP collection
+            oneUps.forEach(mushroom => {
+                if (!mushroom.userData.collected && marioGroup.position.distanceTo(mushroom.position) < 1.2) {
+                    mushroom.userData.collected = true;
+                    mushroom.visible = false;
+                    marioLives++;
+                    marioScore += 1000;
+                    document.getElementById('lives-count').textContent = marioLives;
+                    document.getElementById('score-count').textContent = marioScore;
+                    console.log('🍄 1-UP!');
+                }
+            });
+            
+            // Check Star collection
+            stars.forEach(star => {
+                if (!star.userData.collected && marioGroup.position.distanceTo(star.position) < 1.2) {
+                    star.userData.collected = true;
+                    star.visible = false;
+                    hasStarPower = true;
+                    starPowerTime = 300; // 5 seconds of star power
+                    marioScore += 500;
+                    document.getElementById('score-count').textContent = marioScore;
+                    console.log('⭐ STAR POWER!');
+                }
+            });
+            
+            // Star power effect
+            if (hasStarPower) {
+                starPowerTime--;
+                // Rainbow flash effect on Mario
+                const hue = (Date.now() * 0.01) % 360;
+                marioRed.color.setHSL(hue / 360, 1, 0.5);
+                marioBlue.color.setHSL((hue + 120) / 360, 1, 0.5);
+                
+                if (starPowerTime <= 0) {
+                    hasStarPower = false;
+                    marioRed.color.setHex(0xE52521);
+                    marioBlue.color.setHex(0x1560BD);
+                }
+            }
+        }, 16);
         console.log('Use Arrow Keys or WASD to move, Space to jump!');
         console.log('Collect coins, stomp goombas, and explore!');
         
