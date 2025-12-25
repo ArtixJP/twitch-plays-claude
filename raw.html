@@ -1,41 +1,465 @@
 <!DOCTYPE html>
-<html>
+
+<html lang="en">
 <head>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
-    <title>New Epoch Starting...</title>
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Blackwood Manor - A Mystery Awaits</title>
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Crimson+Text:ital@0;1&display=swap');
+        
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --blood-red: #8b0000;
+            --midnight: #0d0d1a;
+            --fog: rgba(200, 200, 220, 0.1);
+            --candle-glow: #ff9d00;
+            --ghost-white: #e8e8f0;
+        }
+        
         body {
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #e0e0e0;
-            font-family: system-ui, -apple-system, sans-serif;
+            background: var(--midnight);
+            color: var(--ghost-white);
+            font-family: 'Crimson Text', serif;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Fog effect */
+        .fog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: 
+                radial-gradient(ellipse at 20% 80%, rgba(100, 100, 120, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(100, 100, 120, 0.1) 0%, transparent 40%);
+            animation: fogDrift 20s ease-in-out infinite alternate;
+            z-index: 100;
+        }
+        
+        @keyframes fogDrift {
+            0% { transform: translateX(-20px) scale(1); opacity: 0.7; }
+            100% { transform: translateX(20px) scale(1.1); opacity: 0.5; }
+        }
+        
+        /* Lightning flash */
+        .lightning {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 99;
+            animation: lightning 8s infinite;
+        }
+        
+        @keyframes lightning {
+            0%, 89%, 91%, 93%, 100% { opacity: 0; }
+            90%, 92% { opacity: 0.3; }
+        }
+        
+        /* Main mansion container */
+        .mansion {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        /* Header with mansion name */
+        .mansion-header {
             text-align: center;
+            padding: 40px 20px;
+            position: relative;
         }
-        .container {
-            animation: fadeIn 1s ease-out;
+        
+        .mansion-title {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: 3.5rem;
+            color: var(--ghost-white);
+            text-shadow: 
+                0 0 10px rgba(139, 0, 0, 0.5),
+                0 0 30px rgba(139, 0, 0, 0.3),
+                2px 2px 4px rgba(0, 0, 0, 0.8);
+            letter-spacing: 4px;
+            animation: titleFlicker 4s ease-in-out infinite;
         }
-        h1 { 
-            font-size: 2.5rem; 
+        
+        @keyframes titleFlicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.95; }
+            52% { opacity: 0.85; }
+            54% { opacity: 1; }
+        }
+        
+        .subtitle {
+            font-style: italic;
+            font-size: 1.3rem;
+            color: rgba(232, 232, 240, 0.6);
+            margin-top: 15px;
+            letter-spacing: 2px;
+        }
+        
+        /* Candelabra decoration */
+        .candelabra {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            margin: 30px 0;
+        }
+        
+        .candle {
+            width: 8px;
+            height: 60px;
+            background: linear-gradient(to bottom, #f4e4bc, #d4c4a0);
+            border-radius: 2px 2px 0 0;
+            position: relative;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+        
+        .candle::before {
+            content: '';
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 16px;
+            height: 25px;
+            background: radial-gradient(ellipse at center bottom, var(--candle-glow) 0%, #ff6600 30%, transparent 70%);
+            border-radius: 50% 50% 20% 20%;
+            animation: flameFlicker 0.5s ease-in-out infinite alternate;
+            box-shadow: 0 0 20px var(--candle-glow), 0 0 40px rgba(255, 100, 0, 0.5);
+        }
+        
+        @keyframes flameFlicker {
+            0% { transform: translateX(-50%) scale(1) rotate(-2deg); }
+            100% { transform: translateX(-50%) scale(1.1, 0.9) rotate(2deg); }
+        }
+        
+        /* Mystery scroll */
+        .mystery-scroll {
+            background: linear-gradient(135deg, #2a1f1a 0%, #1a1210 100%);
+            border: 2px solid #4a3a30;
+            border-radius: 8px;
+            padding: 30px;
+            margin: 20px auto;
+            max-width: 800px;
+            position: relative;
+            box-shadow: 
+                inset 0 0 30px rgba(0, 0, 0, 0.5),
+                0 10px 30px rgba(0, 0, 0, 0.8);
+        }
+        
+        .mystery-scroll::before {
+            content: '📜';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            filter: sepia(1) brightness(0.8);
+        }
+        
+        .scroll-title {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: 1.5rem;
+            color: var(--blood-red);
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(139, 0, 0, 0.5);
+        }
+        
+        .mystery-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: rgba(232, 232, 240, 0.85);
+            text-align: justify;
+        }
+        
+        /* Mansion rooms grid */
+        .rooms-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .room {
+            background: linear-gradient(180deg, #1a1520 0%, #0d0a10 100%);
+            border: 1px solid #3a2a35;
+            border-radius: 8px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .room::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(139, 0, 0, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .room:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(139, 0, 0, 0.3);
+            border-color: var(--blood-red);
+        }
+        
+        .room:hover::before {
+            left: 100%;
+        }
+        
+        .room-icon {
+            font-size: 2.5rem;
             margin-bottom: 15px;
-            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            filter: grayscale(30%);
         }
-        p { font-size: 1.1rem; opacity: 0.8; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        
+        .room-name {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: 1.1rem;
+            color: var(--ghost-white);
+            margin-bottom: 8px;
+        }
+        
+        .room-hint {
+            font-size: 0.9rem;
+            color: rgba(232, 232, 240, 0.5);
+            font-style: italic;
+        }
+        
+        .room.locked {
+            opacity: 0.6;
+        }
+        
+        .room.locked .room-icon::after {
+            content: '🔒';
+            font-size: 1rem;
+            position: absolute;
+            margin-left: 5px;
+        }
+        
+        /* Clue counter */
+        .clue-counter {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(26, 18, 16, 0.9);
+            border: 1px solid var(--blood-red);
+            border-radius: 8px;
+            padding: 15px 25px;
+            font-family: 'Cinzel Decorative', cursive;
+            z-index: 50;
+        }
+        
+        .clue-label {
+            font-size: 0.8rem;
+            color: rgba(232, 232, 240, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .clue-count {
+            font-size: 1.5rem;
+            color: var(--candle-glow);
+            text-shadow: 0 0 10px var(--candle-glow);
+        }
+        
+        /* Floating ghosts */
+        .ghost {
+            position: fixed;
+            font-size: 2rem;
+            opacity: 0.15;
+            pointer-events: none;
+            animation: ghostFloat 15s ease-in-out infinite;
+            z-index: 5;
+        }
+        
+        .ghost:nth-child(1) { top: 20%; left: 5%; animation-delay: 0s; }
+        .ghost:nth-child(2) { top: 60%; right: 8%; animation-delay: -5s; }
+        .ghost:nth-child(3) { bottom: 30%; left: 10%; animation-delay: -10s; }
+        
+        @keyframes ghostFloat {
+            0%, 100% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0.1; }
+            25% { transform: translateY(-30px) translateX(20px) rotate(5deg); opacity: 0.2; }
+            50% { transform: translateY(-10px) translateX(-10px) rotate(-3deg); opacity: 0.15; }
+            75% { transform: translateY(-40px) translateX(15px) rotate(3deg); opacity: 0.05; }
+        }
+        
+        /* Footer */
+        .mansion-footer {
+            text-align: center;
+            padding: 30px;
+            margin-top: 40px;
+            border-top: 1px solid rgba(139, 0, 0, 0.3);
+        }
+        
+        .footer-text {
+            font-size: 0.9rem;
+            color: rgba(232, 232, 240, 0.4);
+            font-style: italic;
+        }
+        
+        /* Creepy clock */
+        .grandfather-clock {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            font-size: 0.9rem;
+            color: rgba(232, 232, 240, 0.5);
+            font-family: 'Cinzel Decorative', cursive;
+            z-index: 50;
+        }
+        
+        .clock-time {
+            font-size: 1.3rem;
+            color: var(--ghost-white);
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🌅 New Epoch Starting</h1>
-        <p>AI is generating a fresh page based on the new theme...</p>
-    </div>
+<div class="fog"></div>
+<div class="lightning"></div>
+<div class="ghost">👻</div>
+<div class="ghost">👻</div>
+<div class="ghost">👻</div>
+<div class="clue-counter">
+<div class="clue-label">Clues Found</div>
+<div class="clue-count">0 / ?</div>
+</div>
+<div class="grandfather-clock">
+        🕰️ <span class="clock-time">11:58 PM</span>
+<div style="font-size: 0.7rem; opacity: 0.6;">The witching hour approaches...</div>
+</div>
+<div class="mansion">
+<header class="mansion-header">
+<h1 class="mansion-title">🏚️ Blackwood Manor</h1>
+<p class="subtitle">"Some doors are better left unopened..."</p>
+<div class="candelabra">
+<div class="candle"></div>
+<div class="candle"></div>
+<div class="candle"></div>
+</div>
+</header>
+<div class="mystery-scroll">
+<h2 class="scroll-title">⚰️ The Disappearance</h2>
+<p class="mystery-text">
+                On the night of October 31st, 1923, Lord Edmund Blackwood vanished from his study, 
+                leaving behind only a cryptic letter and a trail of blood-red rose petals. 
+                For a century, the manor has stood silent, its secrets locked within these crumbling walls. 
+                Tonight, the gates have opened once more... and <em>something</em> stirs in the shadows.
+                <br/><br/>
+<strong>Your task:</strong> Explore the manor, uncover the clues, and solve the mystery 
+                before the clock strikes midnight. But beware — you are not alone.
+            </p>
+</div>
+<div class="rooms-grid">
+<div class="room" onclick="alert('The grand foyer echoes with phantom footsteps...')">
+<div class="room-icon">🚪</div>
+<div class="room-name">Grand Foyer</div>
+<div class="room-hint">Where it all began...</div>
+</div>
+<div class="room" onclick="alert('Dusty tomes whisper forgotten secrets...')">
+<div class="room-icon">📚</div>
+<div class="room-name">The Library</div>
+<div class="room-hint">Knowledge hides in darkness</div>
+</div>
+<div class="room" onclick="alert('The chandelier sways though there is no wind...')">
+<div class="room-icon">🍽️</div>
+<div class="room-name">Dining Hall</div>
+<div class="room-hint">A feast frozen in time</div>
+</div>
+<div class="room locked" onclick="alert('🔒 This room requires a key...')">
+<div class="room-icon">🛏️</div>
+<div class="room-name">Master Bedroom</div>
+<div class="room-hint">Locked from the inside</div>
+</div>
+<div class="room" onclick="alert('The portraits... their eyes follow you...')">
+<div class="room-icon">🖼️</div>
+<div class="room-name">Portrait Gallery</div>
+<div class="room-hint">The dead still watch</div>
+</div>
+<div class="room locked" onclick="alert('🔒 A strange symbol blocks entry...')">
+<div class="room-icon">🔮</div>
+<div class="room-name">The Séance Room</div>
+<div class="room-hint">Beyond the veil</div>
+</div>
+</div>
+<footer class="mansion-footer">
+<p class="footer-text">"In this house, the walls remember everything... and they never forgive."</p>
+<p style="margin-top: 10px; font-size: 0.8rem; opacity: 0.3;">🦇 Blackwood Manor Est. 1847 🦇</p>
+</footer>
+</div>
+<script>
+        // Creepy clock that counts toward midnight
+        function updateClock() {
+            const clockEl = document.querySelector('.clock-time');
+            const now = new Date();
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12 || 12;
+            const timeStr = `${hours}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+            clockEl.textContent = timeStr;
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+        
+        // Random creepy sounds (visual only - text flashes)
+        const creepyMessages = [
+            '...a floorboard creaks upstairs...',
+            '...you hear distant whispers...',
+            '...the candles flicker violently...',
+            '...something moves in the shadows...',
+            '...a cold breeze touches your neck...'
+        ];
+        
+        function showCreepyMessage() {
+            if (Math.random() > 0.7) {
+                const msg = creepyMessages[Math.floor(Math.random() * creepyMessages.length)];
+                const msgEl = document.createElement('div');
+                msgEl.style.cssText = 'position:fixed;bottom:50%;left:50%;transform:translate(-50%,-50%);color:rgba(139,0,0,0.6);font-style:italic;font-size:1.2rem;pointer-events:none;animation:fadeInOut 3s forwards;z-index:200;';
+                msgEl.textContent = msg;
+                document.body.appendChild(msgEl);
+                setTimeout(() => msgEl.remove(), 3000);
+            }
+        }
+        
+        setInterval(showCreepyMessage, 8000);
+        
+        // Add fade animation
+        const style = document.createElement('style');
+        style.textContent = '@keyframes fadeInOut { 0%,100%{opacity:0;} 50%{opacity:1;} }';
+        document.head.appendChild(style);
+        
+        // Room hover sound simulation (visual feedback)
+        document.querySelectorAll('.room').forEach(room => {
+            room.addEventListener('mouseenter', () => {
+                room.style.boxShadow = '0 10px 30px rgba(139, 0, 0, 0.4), inset 0 0 20px rgba(139, 0, 0, 0.1)';
+            });
+            room.addEventListener('mouseleave', () => {
+                room.style.boxShadow = '';
+            });
+        });
+    </script>
 </body>
 </html>
