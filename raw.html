@@ -259,6 +259,61 @@ body::before {
     bottom: 10px;
     animation: redstonePulse 1s ease-in-out infinite;
 }
+
+/* Test confirmation lamp */
+.test-lamp {
+    position: absolute;
+    bottom: 200px;
+    right: 8%;
+    width: 30px;
+    height: 30px;
+    background: #4a0000;
+    border: 3px solid #2a0000;
+    border-radius: 4px;
+    animation: lampBlink 0.5s ease-in-out 5;
+}
+
+.test-lamp::before {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1rem;
+    color: #ff6666;
+}
+
+@keyframes lampBlink {
+    0%, 100% { background: #4a0000; box-shadow: none; }
+    50% { background: #ff0000; box-shadow: 0 0 20px #ff0000, 0 0 40px #ff4444; }
+}
+
+/* Test notification */
+.test-notification {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    background: linear-gradient(180deg, #2d5a27 0%, #1a3d16 100%);
+    border: 4px solid #5D8B3D;
+    padding: 15px 25px;
+    font-size: 1.5rem;
+    color: #90EE90;
+    text-shadow: 2px 2px 0 black;
+    z-index: 300;
+    animation: notificationSlide 4s ease-in-out forwards;
+}
+
+.test-notification::before {
+    content: '🔧';
+    margin-right: 10px;
+}
+
+@keyframes notificationSlide {
+    0% { transform: translateX(150%); opacity: 0; }
+    15% { transform: translateX(0); opacity: 1; }
+    85% { transform: translateX(0); opacity: 1; }
+    100% { transform: translateX(150%); opacity: 0; }
+}
 .ore-block.redstone::before {
     content: '';
     position: absolute;
@@ -500,15 +555,12 @@ body::before {
 </head>
 <body>
 <div class="game-world">
-
 <div class="clouds">
 <div class="cloud"></div>
 <div class="cloud"></div>
 <div class="cloud"></div>
 </div>
-
 <div class="game-title">⚙️ Professor Cogsworth's <span>MINECRAFT</span> Laboratory ⚙️</div>
-
 <div class="controls-ui">
 <h3>🎮 CONTROLS</h3>
 <p><span class="key">A</span> / <span class="key">←</span> Move Left</p>
@@ -516,7 +568,6 @@ body::before {
 <p><span class="key">W</span> / <span class="key">SPACE</span> Jump</p>
 <p><span class="key">1-9</span> Select Item</p>
 </div>
-
 <div class="tree">
 <div class="tree-leaves"></div>
 <div class="tree-trunk"></div>
@@ -525,9 +576,7 @@ body::before {
 <div class="tree-leaves"></div>
 <div class="tree-trunk"></div>
 </div>
-
 <div class="crafting-table"></div>
-
 <div class="mushroom-biome">
 <div class="mushroom-block"></div>
 <div class="mushroom-block"></div>
@@ -535,29 +584,25 @@ body::before {
 <div class="mushroom-block"></div>
 <div class="mushroom-block"></div>
 </div>
-
 <div class="mob-pen">
 <span class="mob pikachu">⚡🐭</span>
 <span class="mob pig">🐷</span>
 </div>
-
 <div class="player" id="player">
 <div class="player-head"></div>
 <div class="player-body"></div>
 </div>
-
 <div class="flying-pig">🐷🪽</div>
-
+<div class="test-lamp"></div>
+<div class="test-notification">TEST PASSED!</div>
 <div class="ore-deposits">
 <div class="ore-block diamond"></div>
 <div class="ore-block gold"></div>
 <div class="ore-block iron"></div>
 <div class="ore-block redstone"></div>
 </div>
-
 <div class="ground"></div>
 </div>
-
 <div class="hotbar">
 <div class="hotbar-slot selected">⛏️<span class="inventory-count">1</span></div>
 <div class="hotbar-slot">🗡️</div>
