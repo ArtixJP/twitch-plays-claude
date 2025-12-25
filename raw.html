@@ -25,6 +25,8 @@
         .mc-block { position: fixed; top: 100px; right: 100px; width: 60px; height: 60px; background: linear-gradient(180deg, #4ade80 0%, #4ade80 30%, #8b5a2b 30%, #8b5a2b 100%); border: 3px solid #00ffff; box-shadow: 6px 6px 0 #ff00ff, 0 0 20px #00ffff, inset 4px 4px 0 rgba(255,255,255,0.2), inset -4px -4px 0 rgba(0,0,0,0.3); animation: blockFloat 3s ease-in-out infinite, blockGlow 2s ease-in-out infinite alternate; }
         .mc-block::before { content: ''; position: absolute; top: 35%; left: 20%; width: 8px; height: 8px; background: #654321; box-shadow: 20px 0 0 #654321, 10px 12px 0 #654321; }
         @keyframes blockFloat { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-15px) rotate(5deg); } }
+        @keyframes blockDance { 0% { transform: translateY(0) rotate(-10deg) scale(1); } 25% { transform: translateY(-20px) rotate(15deg) scale(1.2); } 50% { transform: translateY(-5px) rotate(-15deg) scale(0.9); } 75% { transform: translateY(-25px) rotate(10deg) scale(1.15); } 100% { transform: translateY(0) rotate(-10deg) scale(1); } }
+        .mc-block.dancing { animation: blockDance 0.5s ease-in-out infinite, blockGlow 0.25s ease-in-out infinite alternate !important; }
         @keyframes blockGlow { 0% { filter: drop-shadow(0 0 10px #00ffff); } 100% { filter: drop-shadow(0 0 25px #ff00ff); } }
         @keyframes creepPulse { 0%, 100% { filter: drop-shadow(0 0 5px #00ff00); } 50% { filter: drop-shadow(0 0 20px #00ff00); } }
     </style>
@@ -167,9 +169,25 @@ function stopSynthwave() {
   if(audioCtx) audioCtx.close();
 }
 
+const mcBlock = document.querySelector('.mc-block');
+const creeper = document.querySelector('.creeper');
+const pickaxe = document.querySelector('.pickaxe');
+
 playBtn.addEventListener('click', () => {
-  if(!isPlaying) { createSynthwave(); playBtn.classList.add('playing'); }
-  else { stopSynthwave(); playBtn.classList.remove('playing'); }
+  if(!isPlaying) { 
+    createSynthwave(); 
+    playBtn.classList.add('playing');
+    mcBlock.classList.add('dancing');
+    creeper.style.animation = 'creepPulse 0.25s ease-in-out infinite';
+    pickaxe.style.animation = 'bob 0.25s ease-in-out infinite';
+  }
+  else { 
+    stopSynthwave(); 
+    playBtn.classList.remove('playing');
+    mcBlock.classList.remove('dancing');
+    creeper.style.animation = 'creepPulse 2s ease-in-out infinite';
+    pickaxe.style.animation = 'bob 1s ease-in-out infinite';
+  }
   isPlaying = !isPlaying;
 });
 </script>
