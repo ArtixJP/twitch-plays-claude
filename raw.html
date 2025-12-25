@@ -1,361 +1,41 @@
 <!DOCTYPE html>
-
 <html>
 <head>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
-<title>RADICAL ARCADE - Insert Coin</title>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&amp;display=swap" rel="stylesheet"/>
-<style>
+    <title>New Epoch Starting...</title>
+    <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        :root {
-            --neon-pink: #ff00ff;
-            --neon-cyan: #00ffff;
-            --neon-yellow: #ffff00;
-            --neon-orange: #ff6600;
-            --arcade-purple: #2d1b4e;
-            --arcade-dark: #0a0a15;
-        }
-        
         body {
             min-height: 100vh;
-            background: var(--arcade-dark);
-            font-family: 'Press Start 2P', monospace;
-            overflow-x: hidden;
-            position: relative;
-        }
-        
-        /* CRT Scanline Effect */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: repeating-linear-gradient(
-                0deg,
-                rgba(0,0,0,0.15) 0px,
-                rgba(0,0,0,0.15) 1px,
-                transparent 1px,
-                transparent 2px
-            );
-            pointer-events: none;
-            z-index: 1000;
-        }
-        
-        /* Neon Grid Floor */
-        .grid-floor {
-            position: fixed;
-            bottom: 0; left: 0; right: 0;
-            height: 40vh;
-            background: 
-                linear-gradient(transparent 0%, var(--arcade-purple) 100%),
-                repeating-linear-gradient(90deg, var(--neon-pink) 0px, transparent 1px, transparent 80px),
-                repeating-linear-gradient(0deg, var(--neon-cyan) 0px, transparent 1px, transparent 40px);
-            transform: perspective(500px) rotateX(60deg);
-            transform-origin: bottom;
-            opacity: 0.6;
-        }
-        
-        /* Header */
-        .arcade-header {
-            text-align: center;
-            padding: 30px 20px;
-            position: relative;
-        }
-        
-        .arcade-title {
-            font-size: clamp(1.5rem, 5vw, 3rem);
-            color: var(--neon-yellow);
-            text-shadow: 
-                0 0 10px var(--neon-yellow),
-                0 0 20px var(--neon-yellow),
-                0 0 40px var(--neon-orange),
-                0 0 80px var(--neon-orange);
-            animation: flicker 3s infinite;
-            letter-spacing: 4px;
-        }
-        
-        .subtitle {
-            font-size: 0.7rem;
-            color: var(--neon-cyan);
-            margin-top: 15px;
-            animation: blink 1s infinite;
-            text-shadow: 0 0 10px var(--neon-cyan);
-        }
-        
-        /* Arcade Cabinets Container */
-        .arcade-floor {
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-            gap: 30px;
-            padding: 20px;
-            flex-wrap: wrap;
-            position: relative;
-            z-index: 10;
-        }
-        
-        /* Arcade Cabinet */
-        .cabinet {
-            width: 150px;
-            height: 280px;
-            background: linear-gradient(180deg, #2a2a4a 0%, #1a1a2e 100%);
-            border-radius: 10px 10px 5px 5px;
-            position: relative;
-            box-shadow: 
-                inset 0 0 20px rgba(0,0,0,0.5),
-                0 10px 30px rgba(0,0,0,0.8);
-            transform-style: preserve-3d;
-            animation: cabinetHover 2s ease-in-out infinite;
-        }
-        
-        .cabinet::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 30px;
-            background: linear-gradient(90deg, var(--neon-pink), var(--neon-cyan));
-            border-radius: 10px 10px 0 0;
-            box-shadow: 0 0 20px currentColor;
-        }
-        
-        .cabinet-screen {
-            position: absolute;
-            top: 40px; left: 15px; right: 15px;
-            height: 100px;
-            background: #000;
-            border: 3px solid #333;
-            border-radius: 5px;
-            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-        
-        .screen-content {
-            font-size: 0.5rem;
-            color: var(--neon-cyan);
-            text-align: center;
-            animation: screenGlow 1.5s ease-in-out infinite alternate;
-        }
-        
-        .cabinet-controls {
-            position: absolute;
-            bottom: 60px; left: 20px; right: 20px;
-            height: 80px;
-            background: #1a1a2e;
-            border-radius: 5px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        
-        .joystick {
-            width: 20px; height: 20px;
-            background: radial-gradient(circle, #ff0000 0%, #aa0000 100%);
-            border-radius: 50%;
-            box-shadow: 0 5px 0 #660000, 0 0 10px #ff0000;
-        }
-        
-        .buttons {
-            display: flex; gap: 8px;
-        }
-        
-        .btn {
-            width: 18px; height: 18px;
-            border-radius: 50%;
-            box-shadow: inset 0 -2px 4px rgba(0,0,0,0.5);
-        }
-        .btn.red { background: #ff4444; }
-        .btn.blue { background: #4444ff; }
-        .btn.green { background: #44ff44; }
-        
-        .cabinet-label {
-            position: absolute;
-            bottom: 20px; left: 10px; right: 10px;
-            font-size: 0.4rem;
-            color: var(--neon-yellow);
-            text-align: center;
-            text-shadow: 0 0 5px var(--neon-yellow);
-        }
-        
-        /* Decorations */
-        .neon-sign {
-            position: fixed;
-            top: 20px; right: 30px;
-            font-size: 0.8rem;
-            color: var(--neon-pink);
-            text-shadow: 0 0 10px var(--neon-pink), 0 0 20px var(--neon-pink);
-            animation: flicker 2s infinite;
-            transform: rotate(10deg);
-        }
-        
-        .coin-counter {
-            position: fixed;
-            top: 20px; left: 30px;
-            font-size: 0.6rem;
-            color: var(--neon-yellow);
-            text-shadow: 0 0 10px var(--neon-yellow);
-        }
-        
-        .high-scores {
-            background: rgba(0,0,0,0.7);
-            border: 2px solid var(--neon-cyan);
-            padding: 15px;
-            margin: 20px auto;
-            max-width: 300px;
-            box-shadow: 0 0 20px var(--neon-cyan);
-        }
-        
-        .high-scores h2 {
-            font-size: 0.7rem;
-            color: var(--neon-cyan);
-            margin-bottom: 10px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            font-family: system-ui, -apple-system, sans-serif;
             text-align: center;
         }
-        
-        .score-entry {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.5rem;
-            color: var(--neon-yellow);
-            margin: 5px 0;
+        .container {
+            animation: fadeIn 1s ease-out;
         }
-        
-        /* Stars background */
-        .stars {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: transparent;
-            z-index: -1;
+        h1 { 
+            font-size: 2.5rem; 
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        
-        .star {
-            position: absolute;
-            width: 2px; height: 2px;
-            background: white;
-            border-radius: 50%;
-            animation: twinkle 2s infinite;
+        p { font-size: 1.1rem; opacity: 0.8; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        
-        /* Animations */
-        @keyframes flicker {
-            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
-            20%, 24%, 55% { opacity: 0.6; }
-        }
-        
-        @keyframes blink {
-            0%, 49% { opacity: 1; }
-            50%, 100% { opacity: 0; }
-        }
-        
-        @keyframes cabinetHover {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
-        
-        @keyframes screenGlow {
-            from { text-shadow: 0 0 5px currentColor; }
-            to { text-shadow: 0 0 15px currentColor, 0 0 25px currentColor; }
-        }
-        
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 1; }
-        }
-        
-        /* Palm trees decoration */
-        .palm {
-            position: fixed;
-            bottom: 0;
-            font-size: 4rem;
-            opacity: 0.3;
-            filter: hue-rotate(280deg);
-        }
-        .palm.left { left: 20px; }
-        .palm.right { right: 20px; transform: scaleX(-1); }
     </style>
 </head>
 <body>
-<div class="stars" id="stars"></div>
-<div class="grid-floor"></div>
-<div class="coin-counter">🪙 CREDITS: 99</div>
-<div class="neon-sign">OPEN 24/7</div>
-<div class="palm left">🌴</div>
-<div class="palm right">🌴</div>
-<header class="arcade-header">
-<h1 class="arcade-title">★ RADICAL ARCADE ★</h1>
-<p class="subtitle">► INSERT COIN TO PLAY ◄</p>
-</header>
-<main class="arcade-floor">
-<div class="cabinet">
-<div class="cabinet-screen">
-<div class="screen-content">SPACE<br/>INVADERS<br/>▼▼▼</div>
-</div>
-<div class="cabinet-controls">
-<div class="joystick"></div>
-<div class="buttons">
-<div class="btn red"></div>
-<div class="btn blue"></div>
-</div>
-</div>
-<div class="cabinet-label">PLAYER 1</div>
-</div>
-<div class="cabinet">
-<div class="cabinet-screen">
-<div class="screen-content">PAC-MAN<br/>🟡<br/>READY!</div>
-</div>
-<div class="cabinet-controls">
-<div class="joystick"></div>
-<div class="buttons">
-<div class="btn green"></div>
-</div>
-</div>
-<div class="cabinet-label">PLAYER 1</div>
-</div>
-<div class="cabinet">
-<div class="cabinet-screen">
-<div class="screen-content">DONKEY<br/>KONG<br/>🦍</div>
-</div>
-<div class="cabinet-controls">
-<div class="joystick"></div>
-<div class="buttons">
-<div class="btn red"></div>
-<div class="btn blue"></div>
-</div>
-</div>
-<div class="cabinet-label">PLAYER 1</div>
-</div>
-</main>
-<div class="high-scores">
-<h2>🏆 HIGH SCORES 🏆</h2>
-<div class="score-entry"><span>1. ACE</span><span>999,999</span></div>
-<div class="score-entry"><span>2. MAX</span><span>888,888</span></div>
-<div class="score-entry"><span>3. RAD</span><span>777,777</span></div>
-<div class="score-entry"><span>4. TPC</span><span>666,666</span></div>
-<div class="score-entry"><span>5. ???</span><span>------</span></div>
-</div>
-<script>
-        // Generate random stars
-        const starsContainer = document.getElementById('stars');
-        for (let i = 0; i < 50; i++) {
-            const star = document.createElement('div');
-            star.className = 'star';
-            star.style.left = Math.random() * 100 + '%';
-            star.style.top = Math.random() * 60 + '%';
-            star.style.animationDelay = Math.random() * 2 + 's';
-            starsContainer.appendChild(star);
-        }
-        
-        // Arcade sound effect on cabinet click
-        document.querySelectorAll('.cabinet').forEach(cab => {
-            cab.style.cursor = 'pointer';
-            cab.addEventListener('click', () => {
-                cab.style.transform = 'scale(1.05)';
-                setTimeout(() => cab.style.transform = '', 200);
-            });
-        });
-    </script>
+    <div class="container">
+        <h1>🌅 New Epoch Starting</h1>
+        <p>AI is generating a fresh page based on the new theme...</p>
+    </div>
 </body>
 </html>
