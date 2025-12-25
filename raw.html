@@ -22,12 +22,17 @@
         .pickaxe { position: fixed; bottom: 20px; right: 20px; font-size: 2rem; animation: bob 1s ease-in-out infinite; filter: drop-shadow(0 0 10px #ff00ff); }
         @keyframes bob { 0%, 100% { transform: translateY(0) rotate(-45deg); } 50% { transform: translateY(-10px) rotate(-45deg); } }
         .creeper { position: fixed; top: 20px; left: 20px; width: 40px; height: 40px; background: #00ff00; box-shadow: inset 8px 8px 0 #0a0a12, inset -8px -8px 0 #0a0a12, inset 0 20px 0 #0a0a12; animation: creepPulse 2s ease-in-out infinite; }
+        .mc-block { position: fixed; top: 100px; right: 100px; width: 60px; height: 60px; background: linear-gradient(180deg, #4ade80 0%, #4ade80 30%, #8b5a2b 30%, #8b5a2b 100%); border: 3px solid #00ffff; box-shadow: 6px 6px 0 #ff00ff, 0 0 20px #00ffff, inset 4px 4px 0 rgba(255,255,255,0.2), inset -4px -4px 0 rgba(0,0,0,0.3); animation: blockFloat 3s ease-in-out infinite, blockGlow 2s ease-in-out infinite alternate; }
+        .mc-block::before { content: ''; position: absolute; top: 35%; left: 20%; width: 8px; height: 8px; background: #654321; box-shadow: 20px 0 0 #654321, 10px 12px 0 #654321; }
+        @keyframes blockFloat { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-15px) rotate(5deg); } }
+        @keyframes blockGlow { 0% { filter: drop-shadow(0 0 10px #00ffff); } 100% { filter: drop-shadow(0 0 25px #ff00ff); } }
         @keyframes creepPulse { 0%, 100% { filter: drop-shadow(0 0 5px #00ff00); } 50% { filter: drop-shadow(0 0 20px #00ff00); } }
     </style>
 </head>
 <body>
 <canvas class="pixel-grid" id="pixelGrid"></canvas>
 <div class="creeper"></div>
+<div class="mc-block" title="GRASS BLOCK"></div>
 <h1>SYNTHCRAFT</h1>
 <div class="player">
 <div class="play-btn" id="playBtn"></div>
