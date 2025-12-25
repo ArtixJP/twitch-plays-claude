@@ -1,41 +1,498 @@
 <!DOCTYPE html>
+
 <html>
 <head>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
-    <title>New Epoch Starting...</title>
-    <style>
+<title>🕹️ PIXEL PARADISE ARCADE</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&amp;display=swap" rel="stylesheet"/>
+<style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --neon-pink: #ff00ff;
+            --neon-cyan: #00ffff;
+            --neon-yellow: #ffff00;
+            --neon-green: #39ff14;
+            --arcade-purple: #1a0a2e;
+            --arcade-dark: #0d0015;
+        }
+        
         body {
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #e0e0e0;
-            font-family: system-ui, -apple-system, sans-serif;
+            background: var(--arcade-dark);
+            font-family: 'Press Start 2P', cursive;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* CRT Scanlines Effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0,0,0,0.15) 0px,
+                rgba(0,0,0,0.15) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        /* Neon Grid Floor */
+        .grid-floor {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 40vh;
+            background: linear-gradient(to bottom, transparent 0%, var(--arcade-purple) 100%);
+            perspective: 500px;
+            overflow: hidden;
+        }
+        
+        .grid-floor::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -50%; right: -50%; bottom: 0;
+            background: 
+                linear-gradient(90deg, var(--neon-pink) 1px, transparent 1px) 0 0 / 80px 80px,
+                linear-gradient(0deg, var(--neon-pink) 1px, transparent 1px) 0 0 / 80px 80px;
+            transform: rotateX(60deg);
+            transform-origin: top center;
+            animation: gridScroll 2s linear infinite;
+            opacity: 0.4;
+        }
+        
+        @keyframes gridScroll {
+            from { background-position: 0 0, 0 0; }
+            to { background-position: 0 80px, 0 80px; }
+        }
+        
+        /* Main Arcade Title */
+        .arcade-header {
             text-align: center;
+            padding: 30px 20px;
+            position: relative;
+            z-index: 10;
         }
-        .container {
-            animation: fadeIn 1s ease-out;
+        
+        .arcade-title {
+            font-size: clamp(1.5rem, 5vw, 3rem);
+            color: var(--neon-cyan);
+            text-shadow: 
+                0 0 10px var(--neon-cyan),
+                0 0 20px var(--neon-cyan),
+                0 0 40px var(--neon-cyan),
+                0 0 80px var(--neon-pink);
+            animation: flicker 3s infinite;
+            letter-spacing: 4px;
         }
-        h1 { 
-            font-size: 2.5rem; 
+        
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            92% { opacity: 1; }
+            93% { opacity: 0.8; }
+            94% { opacity: 1; }
+            95% { opacity: 0.9; }
+            96% { opacity: 1; }
+        }
+        
+        .subtitle {
+            color: var(--neon-yellow);
+            font-size: 0.7rem;
+            margin-top: 15px;
+            text-shadow: 0 0 10px var(--neon-yellow);
+            animation: blink 1s step-end infinite;
+        }
+        
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+        
+        /* Arcade Cabinets Container */
+        .arcade-floor {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        /* Arcade Cabinet */
+        .cabinet {
+            background: linear-gradient(180deg, #2a1a4a 0%, #1a0a2e 100%);
+            border: 3px solid var(--neon-pink);
+            border-radius: 10px 10px 5px 5px;
+            padding: 15px;
+            box-shadow: 
+                0 0 20px rgba(255,0,255,0.5),
+                inset 0 0 30px rgba(0,0,0,0.5);
+            width: 320px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .cabinet:hover {
+            transform: scale(1.02);
+            box-shadow: 
+                0 0 40px rgba(255,0,255,0.8),
+                inset 0 0 30px rgba(0,0,0,0.5);
+        }
+        
+        .cabinet-header {
+            background: linear-gradient(90deg, var(--neon-pink), var(--neon-cyan));
+            color: #000;
+            text-align: center;
+            padding: 8px;
+            font-size: 0.6rem;
+            border-radius: 5px 5px 0 0;
+            margin: -15px -15px 10px -15px;
+        }
+        
+        .screen {
+            background: #000;
+            border: 4px solid #333;
+            border-radius: 5px;
+            height: 250px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Space Invaders Game */
+        #game-canvas {
+            width: 100%;
+            height: 100%;
+            image-rendering: pixelated;
+        }
+        
+        .score-display {
+            display: flex;
+            justify-content: space-between;
+            color: var(--neon-green);
+            font-size: 0.5rem;
+            padding: 10px 0;
+        }
+        
+        /* Joystick and Buttons */
+        .controls {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 15px 0;
+        }
+        
+        .joystick {
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle at 30% 30%, #555, #222);
+            border-radius: 50%;
+            border: 3px solid #666;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        
+        .arcade-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #000, 0 8px 15px rgba(0,0,0,0.5);
+            transition: all 0.1s;
+        }
+        
+        .arcade-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #000, 0 4px 10px rgba(0,0,0,0.5);
+        }
+        
+        .btn-red { background: radial-gradient(circle at 30% 30%, #ff6666, #cc0000); }
+        .btn-blue { background: radial-gradient(circle at 30% 30%, #6666ff, #0000cc); }
+        .btn-yellow { background: radial-gradient(circle at 30% 30%, #ffff66, #cccc00); }
+        
+        /* High Scores Panel */
+        .high-scores {
+            background: rgba(0,0,0,0.8);
+            border: 2px solid var(--neon-cyan);
+            padding: 20px;
+            border-radius: 10px;
+            width: 280px;
+            box-shadow: 0 0 20px rgba(0,255,255,0.3);
+        }
+        
+        .high-scores h2 {
+            color: var(--neon-yellow);
+            font-size: 0.8rem;
+            text-align: center;
             margin-bottom: 15px;
-            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 10px var(--neon-yellow);
         }
-        p { font-size: 1.1rem; opacity: 0.8; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        
+        .score-entry {
+            display: flex;
+            justify-content: space-between;
+            color: var(--neon-green);
+            font-size: 0.5rem;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0,255,255,0.2);
+        }
+        
+        .score-entry:last-child { border-bottom: none; }
+        
+        .rank { color: var(--neon-pink); }
+        
+        /* Decorative Neon Signs */
+        .neon-sign {
+            position: fixed;
+            font-size: 1.5rem;
+            animation: neonPulse 2s ease-in-out infinite;
+        }
+        
+        .neon-sign.left {
+            left: 20px;
+            top: 50%;
+            transform: rotate(-90deg);
+            color: var(--neon-pink);
+            text-shadow: 0 0 20px var(--neon-pink);
+        }
+        
+        .neon-sign.right {
+            right: 20px;
+            top: 50%;
+            transform: rotate(90deg);
+            color: var(--neon-cyan);
+            text-shadow: 0 0 20px var(--neon-cyan);
+        }
+        
+        @keyframes neonPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        /* Insert Coin Animation */
+        .insert-coin {
+            position: fixed;
+            bottom: 45vh;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--neon-yellow);
+            font-size: 0.8rem;
+            text-shadow: 0 0 20px var(--neon-yellow);
+            animation: blink 0.8s step-end infinite;
+            z-index: 100;
+        }
+        
+        /* Floating Pixels */
+        .pixel {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            animation: floatUp 8s linear infinite;
+            z-index: 5;
+        }
+        
+        @keyframes floatUp {
+            from { transform: translateY(100vh) rotate(0deg); opacity: 1; }
+            to { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🌅 New Epoch Starting</h1>
-        <p>AI is generating a fresh page based on the new theme...</p>
-    </div>
+
+<div class="neon-sign left">🎮 PLAY 🎮</div>
+<div class="neon-sign right">🕹️ WIN 🕹️</div>
+
+<header class="arcade-header">
+<h1 class="arcade-title">PIXEL PARADISE</h1>
+<p class="subtitle">★ ARCADE ★ EST. 1984 ★</p>
+</header>
+
+<div class="arcade-floor">
+
+<div class="cabinet">
+<div class="cabinet-header">★ SPACE INVADERS ★</div>
+<div class="screen">
+<canvas id="game-canvas"></canvas>
+</div>
+<div class="score-display">
+<span>SCORE: <span id="score">0000</span></span>
+<span>HI: <span id="hi-score">9999</span></span>
+</div>
+<div class="controls">
+<div class="joystick"></div>
+<button class="arcade-btn btn-red" onclick="shoot()">A</button>
+<button class="arcade-btn btn-blue">B</button>
+<button class="arcade-btn btn-yellow">C</button>
+</div>
+</div>
+
+<div class="high-scores">
+<h2>🏆 HIGH SCORES 🏆</h2>
+<div class="score-entry"><span class="rank">1ST</span><span>AAA</span><span>99999</span></div>
+<div class="score-entry"><span class="rank">2ND</span><span>BOB</span><span>88888</span></div>
+<div class="score-entry"><span class="rank">3RD</span><span>CAT</span><span>77777</span></div>
+<div class="score-entry"><span class="rank">4TH</span><span>DOG</span><span>66666</span></div>
+<div class="score-entry"><span class="rank">5TH</span><span>ELF</span><span>55555</span></div>
+<div class="score-entry"><span class="rank">6TH</span><span>FOX</span><span>44444</span></div>
+<div class="score-entry"><span class="rank">7TH</span><span>GUS</span><span>33333</span></div>
+<div class="score-entry"><span class="rank">8TH</span><span>HAL</span><span>22222</span></div>
+</div>
+</div>
+<div class="insert-coin">INSERT COIN TO PLAY</div>
+
+<div class="grid-floor"></div>
+<script>
+        // Create floating pixels
+        const colors = ['#ff00ff', '#00ffff', '#ffff00', '#39ff14'];
+        for (let i = 0; i < 20; i++) {
+            const pixel = document.createElement('div');
+            pixel.className = 'pixel';
+            pixel.style.left = Math.random() * 100 + 'vw';
+            pixel.style.background = colors[Math.floor(Math.random() * colors.length)];
+            pixel.style.animationDelay = Math.random() * 8 + 's';
+            pixel.style.boxShadow = `0 0 10px ${pixel.style.background}`;
+            document.body.appendChild(pixel);
+        }
+        
+        // Space Invaders Game
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 288;
+        canvas.height = 240;
+        
+        let score = 0;
+        let player = { x: 140, y: 220, width: 20, height: 10 };
+        let bullets = [];
+        let invaders = [];
+        let invaderDir = 1;
+        let invaderSpeed = 0.5;
+        
+        // Create invaders
+        function createInvaders() {
+            invaders = [];
+            for (let row = 0; row < 4; row++) {
+                for (let col = 0; col < 8; col++) {
+                    invaders.push({
+                        x: 30 + col * 30,
+                        y: 30 + row * 25,
+                        width: 20,
+                        height: 15,
+                        alive: true,
+                        type: row
+                    });
+                }
+            }
+        }
+        createInvaders();
+        
+        function shoot() {
+            bullets.push({ x: player.x + 8, y: player.y, speed: 5 });
+        }
+        
+        // Auto-play AI
+        let aiTarget = null;
+        let lastShot = 0;
+        
+        function gameLoop() {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // AI: Move towards nearest invader
+            const aliveInvaders = invaders.filter(i => i.alive);
+            if (aliveInvaders.length > 0) {
+                aiTarget = aliveInvaders.reduce((closest, inv) => {
+                    return Math.abs(inv.x - player.x) < Math.abs(closest.x - player.x) ? inv : closest;
+                });
+                
+                if (aiTarget.x + 10 > player.x + 15) player.x += 2;
+                else if (aiTarget.x + 10 < player.x + 5) player.x -= 2;
+                
+                // Auto shoot
+                if (Date.now() - lastShot > 500) {
+                    shoot();
+                    lastShot = Date.now();
+                }
+            }
+            
+            // Keep player in bounds
+            player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
+            
+            // Draw player (spaceship)
+            ctx.fillStyle = '#39ff14';
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+            ctx.fillRect(player.x + 8, player.y - 5, 4, 5);
+            
+            // Update and draw bullets
+            bullets = bullets.filter(b => {
+                b.y -= b.speed;
+                ctx.fillStyle = '#ffff00';
+                ctx.fillRect(b.x, b.y, 3, 8);
+                return b.y > 0;
+            });
+            
+            // Move invaders
+            let hitEdge = false;
+            invaders.forEach(inv => {
+                if (inv.alive) {
+                    inv.x += invaderDir * invaderSpeed;
+                    if (inv.x <= 5 || inv.x >= canvas.width - 25) hitEdge = true;
+                }
+            });
+            
+            if (hitEdge) {
+                invaderDir *= -1;
+                invaders.forEach(inv => inv.y += 10);
+            }
+            
+            // Draw invaders
+            invaders.forEach(inv => {
+                if (inv.alive) {
+                    const colors = ['#ff00ff', '#00ffff', '#ff6600', '#ff0066'];
+                    ctx.fillStyle = colors[inv.type];
+                    // Pixel art invader
+                    ctx.fillRect(inv.x + 2, inv.y, 16, 3);
+                    ctx.fillRect(inv.x, inv.y + 3, 20, 6);
+                    ctx.fillRect(inv.x + 2, inv.y + 9, 4, 4);
+                    ctx.fillRect(inv.x + 14, inv.y + 9, 4, 4);
+                    ctx.fillRect(inv.x + 5, inv.y + 3, 3, 3);
+                    ctx.fillRect(inv.x + 12, inv.y + 3, 3, 3);
+                }
+            });
+            
+            // Collision detection
+            bullets.forEach((bullet, bi) => {
+                invaders.forEach(inv => {
+                    if (inv.alive && 
+                        bullet.x < inv.x + inv.width &&
+                        bullet.x + 3 > inv.x &&
+                        bullet.y < inv.y + inv.height &&
+                        bullet.y + 8 > inv.y) {
+                        inv.alive = false;
+                        bullets.splice(bi, 1);
+                        score += 100;
+                        document.getElementById('score').textContent = score.toString().padStart(4, '0');
+                    }
+                });
+            });
+            
+            // Reset if all invaders dead
+            if (aliveInvaders.length === 0) {
+                createInvaders();
+                invaderSpeed += 0.2;
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+        
+        gameLoop();
+        
+        // Keyboard controls (for anyone who can interact)
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') player.x -= 10;
+            if (e.key === 'ArrowRight') player.x += 10;
+            if (e.key === ' ') shoot();
+        });
+    </script>
 </body>
 </html>
