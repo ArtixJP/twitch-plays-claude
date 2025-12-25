@@ -434,7 +434,6 @@
     </style>
 </head>
 <body>
-
 <div class="bubbles">
 <div class="bubble" style="left: 10%; width: 20px; height: 20px; animation-duration: 8s;"></div>
 <div class="bubble" style="left: 25%; width: 15px; height: 15px; animation-duration: 12s; animation-delay: 2s;"></div>
@@ -443,7 +442,6 @@
 <div class="bubble" style="left: 80%; width: 18px; height: 18px; animation-duration: 9s; animation-delay: 0.5s;"></div>
 <div class="bubble" style="left: 90%; width: 10px; height: 10px; animation-duration: 11s; animation-delay: 4s;"></div>
 </div>
-
 <div class="particles">
 <div class="particle" style="left: 5%; animation-delay: 0s;"></div>
 <div class="particle" style="left: 15%; animation-delay: 2s;"></div>
@@ -453,7 +451,6 @@
 <div class="particle" style="left: 85%; animation-delay: 1s;"></div>
 <div class="particle" style="left: 95%; animation-delay: 4s;"></div>
 </div>
-
 <header class="station-header">
 <div class="station-name">🌊 ABYSSAL STATION NEPTUNE-7</div>
 <div class="status-indicators">
@@ -471,9 +468,7 @@
 </div>
 </div>
 </header>
-
 <main class="control-grid">
-
 <aside>
 <div class="panel depth-gauge">
 <div class="panel-title">⬇ Current Depth</div>
@@ -510,20 +505,16 @@
 </div>
 </div>
 </aside>
-
 <section class="panel sonar-container">
-<div class="panel-title">📡 Active Sonar Array</div>
-<div class="sonar-display">
-<div class="sonar-rings"></div>
-<div class="sonar-sweep"></div>
-<div class="crosshair"></div>
-<div class="sonar-blip blip-1"></div>
-<div class="sonar-blip blip-2"></div>
-<div class="sonar-blip blip-3"></div>
+<div class="panel-title">🎮 ROV MINING CONTROL — Chat Commands: up/down/left/right/mine/build</div>
+<canvas height="400" id="gameCanvas" style="border: 2px solid var(--sonar-green); border-radius: 8px; background: #001008;" width="400"></canvas>
+<div id="gameStats" style="margin-top: 10px; display: flex; gap: 20px; justify-content: center; font-family: 'Orbitron', monospace; font-size: 0.8rem;">
+<span>💎 Crystals: <span id="crystalCount">0</span></span>
+<span>🪨 Ore: <span id="oreCount">0</span></span>
+<span>⚡ Power: <span id="powerLevel">100</span>%</span>
 </div>
-<p style="margin-top: 15px; opacity: 0.7; font-size: 0.9rem;">Tracking 3 biological signatures in sector 7-G</p>
+<div id="chatLog" style="margin-top: 10px; max-height: 60px; overflow-y: auto; font-size: 0.75rem; opacity: 0.8; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 5px;"></div>
 </section>
-
 <aside>
 <div class="panel">
 <div class="panel-title">🌡️ Environment</div>
@@ -574,7 +565,6 @@
 </div>
 </aside>
 </main>
-
 <div class="welcome-overlay">
 <div class="welcome-text">🌊 WELCOME TO THE ABYSS — DEPTH EXPLORATION ACTIVE 🌊</div>
 </div>
@@ -600,6 +590,191 @@
                 depthEl.innerHTML = depth.toLocaleString() + '<span class="depth-unit">m</span>';
             }
         }, 2000);
+
+        // ═══════════════════════════════════════════
+        // UNDERWATER VOXEL MINING GAME
+        // ═══════════════════════════════════════════
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const TILE = 20;
+        const COLS = 20, ROWS = 20;
+        
+        // Game state
+        let player = { x: 10, y: 10, dir: 0 };
+        let crystals = 0, ore = 0, power = 100;
+        let world = [];
+        let particles = [];
+        
+        // Block types: 0=water, 1=sand, 2=rock, 3=crystal, 4=ore, 5=coral, 6=placed
+        const COLORS = {
+            0: '#001820', 1: '#3d5c5c', 2: '#2a3a4a',
+            3: '#00ffff', 4: '#ff9900', 5: '#ff6b9d', 6: '#00ff88'
+        };
+        
+        // Generate underwater terrain
+        function generateWorld() {
+            for(let y = 0; y < ROWS; y++) {
+                world[y] = [];
+                for(let x = 0; x < COLS; x++) {
+                    let r = Math.random();
+                    if(y < 3) world[y][x] = 0; // water top
+                    else if(r < 0.5) world[y][x] = 0; // water
+                    else if(r < 0.7) world[y][x] = 1; // sand
+                    else if(r < 0.85) world[y][x] = 2; // rock
+                    else if(r < 0.92) world[y][x] = 5; // coral
+                    else if(r < 0.97) world[y][x] = 4; // ore
+                    else world[y][x] = 3; // crystal
+                }
+            }
+            world[player.y][player.x] = 0;
+        }
+        generateWorld();
+        
+        // Draw game
+        function draw() {
+            ctx.fillStyle = '#000810';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw blocks
+            for(let y = 0; y < ROWS; y++) {
+                for(let x = 0; x < COLS; x++) {
+                    let block = world[y][x];
+                    ctx.fillStyle = COLORS[block];
+                    ctx.fillRect(x * TILE, y * TILE, TILE - 1, TILE - 1);
+                    
+                    // Glow effect for special blocks
+                    if(block === 3 || block === 4) {
+                        ctx.shadowColor = COLORS[block];
+                        ctx.shadowBlur = 10;
+                        ctx.fillRect(x * TILE + 2, y * TILE + 2, TILE - 5, TILE - 5);
+                        ctx.shadowBlur = 0;
+                    }
+                }
+            }
+            
+            // Draw particles
+            particles.forEach((p, i) => {
+                p.life--;
+                p.x += p.vx;
+                p.y += p.vy;
+                ctx.fillStyle = `rgba(${p.r},${p.g},${p.b},${p.life/30})`;
+                ctx.fillRect(p.x, p.y, 3, 3);
+                if(p.life <= 0) particles.splice(i, 1);
+            });
+            
+            // Draw submarine ROV
+            ctx.fillStyle = '#ffcc00';
+            ctx.shadowColor = '#ffcc00';
+            ctx.shadowBlur = 15;
+            ctx.beginPath();
+            ctx.ellipse(player.x * TILE + TILE/2, player.y * TILE + TILE/2, TILE/2 - 2, TILE/3, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#00ffff';
+            ctx.fillRect(player.x * TILE + TILE - 5, player.y * TILE + TILE/2 - 2, 4, 4);
+            ctx.shadowBlur = 0;
+            
+            // Update UI
+            document.getElementById('crystalCount').textContent = crystals;
+            document.getElementById('oreCount').textContent = ore;
+            document.getElementById('powerLevel').textContent = Math.max(0, power);
+            
+            requestAnimationFrame(draw);
+        }
+        draw();
+        
+        // Spawn particles
+        function spawnParticles(x, y, color) {
+            for(let i = 0; i < 8; i++) {
+                particles.push({
+                    x: x * TILE + TILE/2, y: y * TILE + TILE/2,
+                    vx: (Math.random() - 0.5) * 3, vy: (Math.random() - 0.5) * 3,
+                    r: color[0], g: color[1], b: color[2], life: 30
+                });
+            }
+        }
+        
+        // Process command
+        function processCommand(cmd, username) {
+            cmd = cmd.toLowerCase().trim();
+            let moved = false;
+            let newX = player.x, newY = player.y;
+            
+            if(cmd === 'up' || cmd === 'w') { newY--; moved = true; }
+            else if(cmd === 'down' || cmd === 's') { newY++; moved = true; }
+            else if(cmd === 'left' || cmd === 'a') { newX--; moved = true; }
+            else if(cmd === 'right' || cmd === 'd') { newX++; moved = true; }
+            else if(cmd === 'mine' || cmd === 'm') {
+                // Mine adjacent blocks
+                [[0,-1],[0,1],[-1,0],[1,0]].forEach(([dx,dy]) => {
+                    let tx = player.x + dx, ty = player.y + dy;
+                    if(tx >= 0 && tx < COLS && ty >= 0 && ty < ROWS) {
+                        let block = world[ty][tx];
+                        if(block === 3) { crystals++; spawnParticles(tx, ty, [0,255,255]); }
+                        else if(block === 4) { ore++; spawnParticles(tx, ty, [255,153,0]); }
+                        else if(block > 0) spawnParticles(tx, ty, [100,100,100]);
+                        if(block > 0) world[ty][tx] = 0;
+                    }
+                });
+                power -= 2;
+            }
+            else if(cmd === 'build' || cmd === 'b') {
+                if(ore > 0) {
+                    [[0,-1],[0,1],[-1,0],[1,0]].forEach(([dx,dy]) => {
+                        let tx = player.x + dx, ty = player.y + dy;
+                        if(tx >= 0 && tx < COLS && ty >= 0 && ty < ROWS && world[ty][tx] === 0 && ore > 0) {
+                            world[ty][tx] = 6;
+                            ore--;
+                            spawnParticles(tx, ty, [0,255,136]);
+                        }
+                    });
+                }
+            }
+            
+            if(moved && newX >= 0 && newX < COLS && newY >= 0 && newY < ROWS) {
+                let targetBlock = world[newY][newX];
+                if(targetBlock === 0 || targetBlock === 3 || targetBlock === 4) {
+                    if(targetBlock === 3) { crystals++; spawnParticles(newX, newY, [0,255,255]); }
+                    if(targetBlock === 4) { ore++; spawnParticles(newX, newY, [255,153,0]); }
+                    player.x = newX;
+                    player.y = newY;
+                    world[newY][newX] = 0;
+                    power -= 0.5;
+                }
+            }
+            
+            // Log command
+            const log = document.getElementById('chatLog');
+            log.innerHTML += `<div><span style="color:var(--bioluminescent)">${username}:</span> ${cmd}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        // Auto-play mode
+        let autoPlay = true;
+        setInterval(() => {
+            if(autoPlay && Math.random() < 0.3) {
+                const cmds = ['up','down','left','right','mine','mine'];
+                processCommand(cmds[Math.floor(Math.random() * cmds.length)], 'AUTO-ROV');
+            }
+            // Recharge power slowly
+            if(power < 100) power += 0.2;
+        }, 800);
+        
+        // Connect to chat WebSocket
+        const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const pathBase = location.pathname.includes('/twitch_plays_code') ? '/twitch_plays_code' : 
+                         location.pathname.includes('/tpc') ? '/twitch_plays_code' : '';
+        const chatWs = new WebSocket(`${wsProtocol}//${location.host}${pathBase}/ws/chat`);
+        
+        chatWs.onmessage = (e) => {
+            const msg = JSON.parse(e.data);
+            if(msg.type === 'chat_message') {
+                autoPlay = false; // Disable auto when humans play
+                setTimeout(() => autoPlay = true, 10000); // Re-enable after 10s idle
+                processCommand(msg.message, msg.username);
+            }
+        };
+        
+        chatWs.onerror = () => console.log('Chat connection unavailable - auto-play active');
     </script>
 </body>
 </html>
