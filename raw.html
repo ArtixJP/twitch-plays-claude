@@ -29,12 +29,18 @@
         .mc-block.dancing { animation: blockDance 0.5s ease-in-out infinite, blockGlow 0.25s ease-in-out infinite alternate !important; }
         @keyframes blockGlow { 0% { filter: drop-shadow(0 0 10px #00ffff); } 100% { filter: drop-shadow(0 0 25px #ff00ff); } }
         @keyframes creepPulse { 0%, 100% { filter: drop-shadow(0 0 5px #00ff00); } 50% { filter: drop-shadow(0 0 20px #00ff00); } }
+        .mario { position: fixed; top: 248px; left: 969px; width: 48px; height: 64px; image-rendering: pixelated; animation: marioJump 1.5s ease-in-out infinite; filter: drop-shadow(0 0 10px #ff00ff); }
+        .mario-sprite { width: 100%; height: 100%; background: linear-gradient(180deg, #ff0000 0%, #ff0000 25%, #ffcc99 25%, #ffcc99 40%, #ff0000 40%, #ff0000 55%, #0000ff 55%, #0000ff 75%, #ffcc99 75%, #ffcc99 100%); clip-path: polygon(25% 0%, 75% 0%, 75% 15%, 85% 15%, 85% 25%, 75% 25%, 75% 40%, 100% 40%, 100% 55%, 75% 55%, 75% 75%, 60% 75%, 60% 100%, 40% 100%, 40% 75%, 25% 75%, 25% 55%, 0% 55%, 0% 40%, 25% 40%, 25% 25%, 15% 25%, 15% 15%, 25% 15%); box-shadow: 4px 4px 0 #00ffff; }
+        @keyframes marioJump { 0%, 100% { transform: translateY(0) scaleX(1); } 50% { transform: translateY(-20px) scaleX(-1); } }
+        .mario.dancing { animation: marioDance 0.3s ease-in-out infinite !important; }
+        @keyframes marioDance { 0%, 100% { transform: translateY(0) rotate(-5deg); } 50% { transform: translateY(-15px) rotate(5deg); } }
     </style>
 </head>
 <body>
 <canvas class="pixel-grid" id="pixelGrid"></canvas>
 <div class="creeper"></div>
 <div class="mc-block" title="GRASS BLOCK"></div>
+<div class="mario" title="IT'S-A ME!"><div class="mario-sprite"></div></div>
 <h1>SYNTHCRAFT</h1>
 <div class="player">
 <div class="play-btn" id="playBtn"></div>
@@ -170,6 +176,7 @@ function stopSynthwave() {
 }
 
 const mcBlock = document.querySelector('.mc-block');
+const mario = document.querySelector('.mario');
 const creeper = document.querySelector('.creeper');
 const pickaxe = document.querySelector('.pickaxe');
 
@@ -180,6 +187,7 @@ playBtn.addEventListener('click', () => {
     mcBlock.classList.add('dancing');
     creeper.style.animation = 'creepPulse 0.25s ease-in-out infinite';
     pickaxe.style.animation = 'bob 0.25s ease-in-out infinite';
+    mario.classList.add('dancing');
   }
   else { 
     stopSynthwave(); 
@@ -187,6 +195,7 @@ playBtn.addEventListener('click', () => {
     mcBlock.classList.remove('dancing');
     creeper.style.animation = 'creepPulse 2s ease-in-out infinite';
     pickaxe.style.animation = 'bob 1s ease-in-out infinite';
+    mario.classList.remove('dancing');
   }
   isPlaying = !isPlaying;
 });
