@@ -297,6 +297,23 @@
         .ghost:nth-child(1) { top: 20%; left: 5%; animation-delay: 0s; }
         .ghost:nth-child(2) { top: 60%; right: 8%; animation-delay: -5s; }
         .ghost:nth-child(3) { bottom: 30%; left: 10%; animation-delay: -10s; }
+        .ghost:nth-child(4) { top: 40%; right: 15%; animation-delay: -7s; }
+        
+        .laughing-ghost::after {
+            content: 'lol';
+            position: absolute;
+            font-size: 0.6rem;
+            color: rgba(139, 0, 0, 0.4);
+            font-family: 'Crimson Text', serif;
+            font-style: italic;
+            animation: laughText 3s ease-in-out infinite;
+            margin-left: 5px;
+        }
+        
+        @keyframes laughText {
+            0%, 100% { opacity: 0; transform: translateY(0); }
+            50% { opacity: 0.8; transform: translateY(-10px); }
+        }
         
         @keyframes ghostFloat {
             0%, 100% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0.1; }
@@ -342,6 +359,7 @@
 <div class="ghost">👻</div>
 <div class="ghost">👻</div>
 <div class="ghost">👻</div>
+<div class="ghost laughing-ghost">🤭</div>
 <div class="clue-counter">
 <div class="clue-label">Clues Found</div>
 <div class="clue-count">0 / ?</div>
@@ -430,7 +448,10 @@
             '...you hear distant whispers...',
             '...the candles flicker violently...',
             '...something moves in the shadows...',
-            '...a cold breeze touches your neck...'
+            '...a cold breeze touches your neck...',
+            '...a ghostly voice echoes: "lol"...',
+            '...spectral laughter fills the room...',
+            '...the spirits find you amusing...'
         ];
         
         function showCreepyMessage() {
