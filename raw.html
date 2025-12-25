@@ -1,208 +1,41 @@
 <!DOCTYPE html>
-
 <html>
 <head>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://esm.sh https://esm.run https://cdn.tailwindcss.com https://threejs.org https://cdn.threejs.org https://cdn.p5js.org https://code.jquery.com https://d3js.org https://cdn.plot.ly https://cdn.tonejs.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' https: wss: ws:; object-src 'none'; base-uri 'self'; form-action 'self';">
-<title>SYNTHWAVE PLAYER</title>
-<style>
-        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-        * { margin: 0; padding: 0; box-sizing: border-box; image-rendering: pixelated; }
-        body { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #0a0a12; font-family: 'Press Start 2P', monospace; position: relative; overflow: hidden; }
-        .pixel-grid { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.3; }
-        .block { position: absolute; border: 2px solid; }
-        h1 { font-size: 1.8rem; color: #ff00ff; text-shadow: 4px 4px 0 #00ffff, 0 0 20px #ff00ff; letter-spacing: 4px; margin-bottom: 40px; -webkit-text-stroke: 2px #0a0a12; }
-        .player { width: 400px; height: 120px; background: linear-gradient(180deg, #1a1a2e 0%, #0f0f1a 100%); border: 4px solid #00ffff; box-shadow: 8px 8px 0 #ff00ff, 0 0 30px #00ffff40; border-radius: 0; display: flex; align-items: center; justify-content: center; }
-        .play-btn { width: 60px; height: 60px; border: 4px solid #ff00ff; border-radius: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 4px 4px 0 #00ffff, 0 0 15px #ff00ff; background: #1a1a2e; }
-        .play-btn::after { content: '►'; color: #00ffff; font-size: 20px; margin-left: 3px; font-family: 'Press Start 2P', monospace; }
-        .play-btn.playing::after { content: '▌▌'; margin-left: 0; letter-spacing: -5px; }
-        .play-btn:hover { transform: scale(1.1); transition: transform 0.2s; }
-        .visualizer { display: flex; gap: 3px; align-items: flex-end; height: 40px; margin-left: 30px; }
-        .bar { width: 8px; background: linear-gradient(180deg, #ff00ff, #00ffff); border-radius: 0; transition: height 0.1s; box-shadow: 2px 2px 0 rgba(0,0,0,0.5); }
-        .community { margin-top: 50px; color: #666; font-size: 0.6rem; text-shadow: 2px 2px 0 #000; }
-        .pickaxe { position: fixed; bottom: 20px; right: 20px; font-size: 2rem; animation: bob 1s ease-in-out infinite; filter: drop-shadow(0 0 10px #ff00ff); }
-        @keyframes bob { 0%, 100% { transform: translateY(0) rotate(-45deg); } 50% { transform: translateY(-10px) rotate(-45deg); } }
-        .test-badge { position: fixed; top: 53px; left: 296px; font-family: 'Press Start 2P', monospace; font-size: 0.6rem; color: #00ffff; text-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff; padding: 8px 12px; border: 2px solid #ff00ff; background: rgba(10, 10, 18, 0.8); animation: testPulse 2s ease-in-out infinite, testFade 8s forwards; z-index: 100; }
-        @keyframes testPulse { 0%, 100% { box-shadow: 0 0 10px #00ffff; } 50% { box-shadow: 0 0 25px #ff00ff, 0 0 35px #00ffff; } }
-        @keyframes testFade { 0%, 70% { opacity: 1; } 100% { opacity: 0; pointer-events: none; } }
-        .creeper { position: fixed; top: 20px; left: 20px; width: 40px; height: 40px; background: #00ff00; box-shadow: inset 8px 8px 0 #0a0a12, inset -8px -8px 0 #0a0a12, inset 0 20px 0 #0a0a12; animation: creepPulse 2s ease-in-out infinite; }
-        .mc-block { position: fixed; top: 100px; right: 100px; width: 60px; height: 60px; background: linear-gradient(180deg, #4ade80 0%, #4ade80 30%, #8b5a2b 30%, #8b5a2b 100%); border: 3px solid #00ffff; box-shadow: 6px 6px 0 #ff00ff, 0 0 20px #00ffff, inset 4px 4px 0 rgba(255,255,255,0.2), inset -4px -4px 0 rgba(0,0,0,0.3); animation: blockFloat 3s ease-in-out infinite, blockGlow 2s ease-in-out infinite alternate; }
-        .mc-block::before { content: ''; position: absolute; top: 35%; left: 20%; width: 8px; height: 8px; background: #654321; box-shadow: 20px 0 0 #654321, 10px 12px 0 #654321; }
-        @keyframes blockFloat { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-15px) rotate(5deg); } }
-        @keyframes blockDance { 0% { transform: translateY(0) rotate(-10deg) scale(1); } 25% { transform: translateY(-20px) rotate(15deg) scale(1.2); } 50% { transform: translateY(-5px) rotate(-15deg) scale(0.9); } 75% { transform: translateY(-25px) rotate(10deg) scale(1.15); } 100% { transform: translateY(0) rotate(-10deg) scale(1); } }
-        .mc-block.dancing { animation: blockDance 0.5s ease-in-out infinite, blockGlow 0.25s ease-in-out infinite alternate !important; }
-        @keyframes blockGlow { 0% { filter: drop-shadow(0 0 10px #00ffff); } 100% { filter: drop-shadow(0 0 25px #ff00ff); } }
-        @keyframes creepPulse { 0%, 100% { filter: drop-shadow(0 0 5px #00ff00); } 50% { filter: drop-shadow(0 0 20px #00ff00); } }
-        .mario { position: fixed; top: 248px; left: 969px; width: 48px; height: 64px; image-rendering: pixelated; animation: marioJump 1.5s ease-in-out infinite; filter: drop-shadow(0 0 10px #ff00ff); }
-        .mario-sprite { width: 100%; height: 100%; background: linear-gradient(180deg, #ff0000 0%, #ff0000 25%, #ffcc99 25%, #ffcc99 40%, #ff0000 40%, #ff0000 55%, #0000ff 55%, #0000ff 75%, #ffcc99 75%, #ffcc99 100%); clip-path: polygon(25% 0%, 75% 0%, 75% 15%, 85% 15%, 85% 25%, 75% 25%, 75% 40%, 100% 40%, 100% 55%, 75% 55%, 75% 75%, 60% 75%, 60% 100%, 40% 100%, 40% 75%, 25% 75%, 25% 55%, 0% 55%, 0% 40%, 25% 40%, 25% 25%, 15% 25%, 15% 15%, 25% 15%); box-shadow: 4px 4px 0 #00ffff; }
-        @keyframes marioJump { 0%, 100% { transform: translateY(0) scaleX(1); } 50% { transform: translateY(-20px) scaleX(-1); } }
-        .mario.dancing { animation: marioDance 0.3s ease-in-out infinite !important; }
-        @keyframes marioDance { 0%, 100% { transform: translateY(0) rotate(-5deg); } 50% { transform: translateY(-15px) rotate(5deg); } }
+    <title>New Epoch Starting...</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            font-family: system-ui, -apple-system, sans-serif;
+            text-align: center;
+        }
+        .container {
+            animation: fadeIn 1s ease-out;
+        }
+        h1 { 
+            font-size: 2.5rem; 
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        p { font-size: 1.1rem; opacity: 0.8; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
-<canvas class="pixel-grid" id="pixelGrid"></canvas>
-<div class="test-badge">✓ TEST OK</div>
-<div class="creeper"></div>
-<div class="mc-block" title="GRASS BLOCK"></div>
-<div class="mario" title="IT'S-A ME!"><div class="mario-sprite"></div></div>
-<h1>SYNTHCRAFT</h1>
-<div class="player">
-<div class="play-btn" id="playBtn"></div>
-<div class="visualizer" id="visualizer"></div>
-</div>
-<p class="community">[ CLICK PLAY FOR PROCEDURAL SYNTHWAVE ]</p>
-<div class="pickaxe">⛏️</div>
-<script>
-let audioCtx, isPlaying = false, oscillators = [], intervals = [];
-const playBtn = document.getElementById('playBtn');
-const visualizer = document.getElementById('visualizer');
-
-// Create visualizer bars
-for(let i = 0; i < 12; i++) {
-  const bar = document.createElement('div');
-  bar.className = 'bar';
-  bar.style.height = '5px';
-  visualizer.appendChild(bar);
-}
-const bars = visualizer.querySelectorAll('.bar');
-
-// Minecraft-style pixel grid background
-const gridCanvas = document.getElementById('pixelGrid');
-const ctx = gridCanvas.getContext('2d');
-gridCanvas.width = window.innerWidth;
-gridCanvas.height = window.innerHeight;
-const blockSize = 20;
-const blocks = [];
-for(let x = 0; x < gridCanvas.width; x += blockSize) {
-  for(let y = 0; y < gridCanvas.height; y += blockSize) {
-    if(Math.random() > 0.85) {
-      blocks.push({x, y, color: Math.random() > 0.5 ? '#ff00ff' : '#00ffff', alpha: Math.random() * 0.3});
-    }
-  }
-}
-function drawGrid() {
-  ctx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
-  blocks.forEach(b => {
-    ctx.fillStyle = b.color;
-    ctx.globalAlpha = b.alpha * (isPlaying ? (0.5 + Math.random() * 0.5) : 0.3);
-    ctx.fillRect(b.x, b.y, blockSize - 2, blockSize - 2);
-  });
-  requestAnimationFrame(drawGrid);
-}
-drawGrid();
-
-function createSynthwave() {
-  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  
-  // Synthwave chord progression (Am - F - C - G)
-  const chords = [[220, 261.63, 329.63], [174.61, 220, 261.63], [261.63, 329.63, 392], [196, 246.94, 293.66]];
-  let chordIndex = 0;
-  
-  // Main synth pad
-  function playChord() {
-    const chord = chords[chordIndex % 4];
-    chord.forEach((freq, i) => {
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      const filter = audioCtx.createBiquadFilter();
-      osc.type = 'sawtooth';
-      osc.frequency.value = freq;
-      filter.type = 'lowpass';
-      filter.frequency.value = 1200;
-      gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-      osc.connect(filter).connect(gain).connect(audioCtx.destination);
-      osc.start();
-      oscillators.push({osc, gain});
-      setTimeout(() => { gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5); setTimeout(() => osc.stop(), 600); }, 1400);
-    });
-    chordIndex++;
-  }
-  
-  // Bass line
-  function playBass() {
-    const bassNotes = [55, 43.65, 65.41, 49];
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'square';
-    osc.frequency.value = bassNotes[chordIndex % 4];
-    gain.gain.value = 0.15;
-    osc.connect(gain).connect(audioCtx.destination);
-    osc.start();
-    oscillators.push({osc, gain});
-    setTimeout(() => { gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1); setTimeout(() => osc.stop(), 200); }, 150);
-  }
-  
-  // Arpeggio
-  function playArp() {
-    const arpNotes = [440, 523.25, 659.25, 523.25];
-    let noteIndex = 0;
-    intervals.push(setInterval(() => {
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.value = arpNotes[noteIndex % 4] * (1 + Math.floor(noteIndex/4) % 2);
-      gain.gain.value = 0.06;
-      osc.connect(gain).connect(audioCtx.destination);
-      osc.start();
-      setTimeout(() => { gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05); setTimeout(() => osc.stop(), 100); }, 80);
-      noteIndex++;
-      bars[noteIndex % 12].style.height = (Math.random() * 30 + 10) + 'px';
-    }, 125));
-  }
-  
-  // Kick drum
-  function playKick() {
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-    gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-    osc.connect(gain).connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.5);
-  }
-  
-  playChord();
-  playArp();
-  intervals.push(setInterval(playChord, 2000));
-  intervals.push(setInterval(playBass, 500));
-  intervals.push(setInterval(playKick, 500));
-  intervals.push(setInterval(() => bars.forEach(b => b.style.height = (Math.random() * 25 + 5) + 'px'), 100));
-}
-
-function stopSynthwave() {
-  oscillators.forEach(({osc, gain}) => { try { gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1); setTimeout(() => osc.stop(), 150); } catch(e){} });
-  intervals.forEach(i => clearInterval(i));
-  oscillators = []; intervals = [];
-  bars.forEach(b => b.style.height = '5px');
-  if(audioCtx) audioCtx.close();
-}
-
-const mcBlock = document.querySelector('.mc-block');
-const mario = document.querySelector('.mario');
-const creeper = document.querySelector('.creeper');
-const pickaxe = document.querySelector('.pickaxe');
-
-playBtn.addEventListener('click', () => {
-  if(!isPlaying) { 
-    createSynthwave(); 
-    playBtn.classList.add('playing');
-    mcBlock.classList.add('dancing');
-    creeper.style.animation = 'creepPulse 0.25s ease-in-out infinite';
-    pickaxe.style.animation = 'bob 0.25s ease-in-out infinite';
-    mario.classList.add('dancing');
-  }
-  else { 
-    stopSynthwave(); 
-    playBtn.classList.remove('playing');
-    mcBlock.classList.remove('dancing');
-    creeper.style.animation = 'creepPulse 2s ease-in-out infinite';
-    pickaxe.style.animation = 'bob 1s ease-in-out infinite';
-    mario.classList.remove('dancing');
-  }
-  isPlaying = !isPlaying;
-});
-</script>
+    <div class="container">
+        <h1>🌅 New Epoch Starting</h1>
+        <p>AI is generating a fresh page based on the new theme...</p>
+    </div>
 </body>
 </html>
