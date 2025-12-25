@@ -7,11 +7,21 @@
 <style>
 *{margin:0;padding:0}body{overflow:hidden}#ui{position:absolute;top:10px;left:10px;color:#fff;font-family:monospace;text-shadow:2px 2px #000}
 #hint{position:absolute;bottom:10px;width:100%;text-align:center;color:#8f8;font-family:monospace}
+#crosshair{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:24px;text-shadow:1px 1px #000}
+#inventory{position:absolute;bottom:50px;left:50%;transform:translateX(-50%);display:flex;gap:5px}
+.slot{width:50px;height:50px;border:3px solid #555;background:#0008;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer}
+.slot.selected{border-color:#fff}
 </style>
 </head>
 <body>
-<div id="ui">⛏️ Minecraft World<br/><small>WASD to move | [Community ideas here]</small></div>
-<div id="hint">... more features coming from chat ...</div>
+<div id="ui">⛏️ Minecraft World<br/><small>WASD move | SPACE jump | Click place/break | 1-3 select block</small></div>
+<div id="crosshair">+</div>
+<div id="inventory">
+<div class="slot selected" data-block="grass">🟩</div>
+<div class="slot" data-block="dirt">🟫</div>
+<div class="slot" data-block="stone">⬜</div>
+</div>
+<div id="hint">Left click = place block | Right click = break block | Explore the tower! 🏰</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x87ceeb);
@@ -19,16 +29,35 @@ const camera=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,0.1,1000);
 const renderer=new THREE.WebGLRenderer();renderer.setSize(innerWidth,innerHeight);document.body.appendChild(renderer.domElement);
 const grass=0x4a7c23,dirt=0x8b4513,stone=0x888888;
 function block(x,y,z,c){const g=new THREE.BoxGeometry(1,1,1);const m=new THREE.MeshLambertMaterial({color:c});const b=new THREE.Mesh(g,m);b.position.set(x,y,z);scene.add(b);}
-for(let x=-8;x<8;x++)for(let z=-8;z<8;z++){block(x,0,z,grass);block(x,-1,z,dirt);if(Math.random()>0.9)block(x,1,z,stone);}
+const blocks=[];function addBlock(x,y,z,c){const g=new THREE.BoxGeometry(1,1,1);const m=new THREE.MeshLambertMaterial({color:c});const b=new THREE.Mesh(g,m);b.position.set(x,y,z);b.userData.isBlock=true;scene.add(b);blocks.push(b);return b;}
+for(let x=-8;x<8;x++)for(let z=-8;z<8;z++){addBlock(x,0,z,grass);addBlock(x,-1,z,dirt);if(Math.random()>0.9)addBlock(x,1,z,stone);}
+// TOWER
+for(let y=1;y<=8;y++){addBlock(5,y,5,stone);addBlock(5,y,7,stone);addBlock(7,y,5,stone);addBlock(7,y,7,stone);}
+for(let x=5;x<=7;x++)for(let z=5;z<=7;z++)addBlock(x,9,z,stone);
+addBlock(6,10,6,grass);
 const light=new THREE.DirectionalLight(0xffffff,1);light.position.set(5,10,5);scene.add(light);scene.add(new THREE.AmbientLight(0x404040));
-camera.position.set(0,5,10);camera.lookAt(0,0,0);
+camera.position.set(0,3,10);let yVel=0,onGround=true;
+const raycaster=new THREE.Raycaster();const mouse=new THREE.Vector2();
+let selectedBlock='grass';const blockColors={grass:0x4a7c23,dirt:0x8b4513,stone:0x888888};
+document.querySelectorAll('.slot').forEach(s=>s.onclick=()=>{document.querySelector('.slot.selected').classList.remove('selected');s.classList.add('selected');selectedBlock=s.dataset.block;});
+document.onkeypress=e=>{if(e.key>='1'&&e.key<='3'){const slots=document.querySelectorAll('.slot');document.querySelector('.slot.selected').classList.remove('selected');slots[e.key-1].classList.add('selected');selectedBlock=slots[e.key-1].dataset.block;}};
 const keys={};document.onkeydown=e=>keys[e.key.toLowerCase()]=1;document.onkeyup=e=>keys[e.key.toLowerCase()]=0;
 let angle=0;
 function animate(){requestAnimationFrame(animate);
 if(keys.a)angle+=0.03;if(keys.d)angle-=0.03;
 if(keys.w){camera.position.x-=Math.sin(angle)*0.1;camera.position.z-=Math.cos(angle)*0.1;}
 if(keys.s){camera.position.x+=Math.sin(angle)*0.1;camera.position.z+=Math.cos(angle)*0.1;}
+if(keys[' ']&&onGround){yVel=0.15;onGround=false;}
+yVel-=0.008;camera.position.y+=yVel;
+if(camera.position.y<3){camera.position.y=3;yVel=0;onGround=true;}
 camera.rotation.y=angle;renderer.render(scene,camera);}
+renderer.domElement.onclick=e=>{mouse.x=(e.clientX/innerWidth)*2-1;mouse.y=-(e.clientY/innerHeight)*2+1;
+raycaster.setFromCamera(mouse,camera);const hits=raycaster.intersectObjects(blocks);
+if(hits.length>0){const hit=hits[0];if(e.shiftKey||e.button===2){scene.remove(hit.object);blocks.splice(blocks.indexOf(hit.object),1);}
+else{const n=hit.face.normal;const p=hit.object.position;addBlock(p.x+n.x,p.y+n.y,p.z+n.z,blockColors[selectedBlock]);}}};
+renderer.domElement.oncontextmenu=e=>{e.preventDefault();mouse.x=(e.clientX/innerWidth)*2-1;mouse.y=-(e.clientY/innerHeight)*2+1;
+raycaster.setFromCamera(mouse,camera);const hits=raycaster.intersectObjects(blocks);
+if(hits.length>0){scene.remove(hits[0].object);blocks.splice(blocks.indexOf(hits[0].object),1);}};
 animate();onresize=()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);};
 </script>
 </body>
